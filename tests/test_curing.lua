@@ -24,8 +24,9 @@ function getItemNameFromFullType(fullType)
     if fullType == "Base.FishFillet" then return "Fish Fillet" end
     return (fullType:gsub("^[^.]*%.", ""))
 end
-local onInit
-Events = { OnInitGlobalModData = { Add = function(handler) onInit = handler end } }
+local initHandlers = {}
+Events = { OnInitGlobalModData = { Add = function(handler) table.insert(initHandlers, handler) end } }
+local function onInit() for _, handler in ipairs(initHandlers) do handler() end end
 local loaded = {}
 ScriptManager = { instance = {} }
 function ScriptManager.instance:getCraftRecipe(name)
@@ -181,43 +182,42 @@ hours = hours + 24
 local tubLedger = tubWeather(-5)
 T.onPressUpdate(frozen)
 check("a day at -5 C is half a day's cure", near(frozen.elapsed, RECIPE_TIME / 2))
-local frozenStatus = T.pressStatus(frozen.modData, hours, tubLedger)
+local frozenStatus = T.pressStatus(frozen.modData, tubLedger)
 check("its popup counts the rest at that speed", near(frozenStatus.hoursLeft, 24) and near(frozenStatus.rate, 0.5))
-local status = T.pressStatus({ pressStartHour = 100, pressHours = 24 }, 106, T.newLedger(0))
+local status = T.pressStatus({ tubDone = 6, pressHours = 24 }, T.newLedger(0))
 check("the popup says a small batch's own time left", near(status.hoursLeft, 18) and near(status.progress, 0.25))
-check("a press from before has 12 hours", near(T.pressStatus({ pressStartHour = 100 }, 106, T.newLedger(0)).hoursLeft, 6))
 
 -- A warm cure: above 20 C a quarter of raw fish's rate at 10 C, and as much again for each 10 degrees more
 local function warmCure(season, cureHours)
     local ledger = T.newLedger(0)
     ledger.seasonTemperature = season
     T.advance(ledger, cureHours, { temperature = season, humidity = 0.4, precipitation = 0 })
-    return T.cureSpoiled({ lastWarmCure = 0 }, ledger), ledger
+    return T.cureSpoiled({ place = "Covered", lastWarmCure = 0 }, ledger), ledger
 end
 check("a cool cure loses nothing", warmCure(18, 48) == 0)
 check("21 C for a day costs about 14%", near(warmCure(21, 24), 1.1 * 24 * T.WARM_CURE_SHARE / T.RAW_SPOIL_HOURS))
 local hotCure, hotLedger = warmCure(25, 48)
-check("25 C for two days, 37.5%", near(hotCure, 0.375) and hotLedger.warmCuring)
-check("the tub's popup shows it", near(T.pressStatus({ pressStartHour = 0, pressHours = 48, lastWarmCure = 0 }, 48, hotLedger).spoiled, 0.375))
+check("25 C for two days, 37.5%", near(hotCure, 0.375) and hotLedger.warmCureOn)
+check("the tub's popup shows it", near(T.pressStatus({ place = "Covered", tubDone = 48, pressHours = 48, lastWarmCure = 0 }, hotLedger).spoiled, 0.375))
 check("a press from before counts from now", T.cureSpoiled({}, hotLedger) == 0)
 -- The long cure wants the cold: above a 10 C season it spoils in step, rotten in a leg's 21 days at 15 C.
 local function longCure(season, cureHours)
     local ledger = T.newLedger(0)
     ledger.seasonTemperature = season
     T.advance(ledger, cureHours, { temperature = season, humidity = 0.3, precipitation = 0 })
-    return T.cureSpoiled({ lastWarmCure = 0, lastLongCure = 0 }, ledger), ledger, T.cureSpoiled({ lastWarmCure = 0 }, ledger)
+    return T.cureSpoiled({ place = "Covered", lastWarmCure = 0, countryCure = true, lastLongCureSpoil = 0 }, ledger), ledger, T.cureSpoiled({ place = "Covered", lastWarmCure = 0 }, ledger)
 end
 local coolLong, coolLedger = longCure(10, 504)
-check("a long cure at 10 C loses nothing", coolLong == 0 and not coolLedger.longCuring)
+check("a long cure at 10 C loses nothing", coolLong == 0 and not coolLedger.longCureSpoilOn)
 local mildLeg, mildLedger, mildShort = longCure(12, 504)
 check("a leg at 12 C loses two fifths, cuts a fifth, the short cure nothing", near(mildLeg, 0.4) and near(longCure(12, 240), 0.4 * 240 / 504)
-    and mildShort == 0 and mildLedger.longCuring)
+    and mildShort == 0 and mildLedger.longCureSpoilOn)
 check("a leg at 15 C rots in the tub, cuts lose about half", near(longCure(15, 504), 1) and near(longCure(15, 240), 240 / 504))
-check("the tub's popup says a long cure is spoiling, a short one not", T.pressStatus({ pressStartHour = 0, pressHours = 504, lastWarmCure = 0, lastLongCure = 0 }, 100, mildLedger).spoiling
-    and not T.pressStatus({ pressStartHour = 0, pressHours = 48, lastWarmCure = 0 }, 48, mildLedger).spoiling)
+check("the tub's popup says a long cure is spoiling, a short one not", T.pressStatus({ place = "Covered", tubDone = 100, pressHours = 504, lastWarmCure = 0, countryCure = true, lastLongCureSpoil = 0 }, mildLedger).spoiling
+    and not T.pressStatus({ place = "Covered", tubDone = 48, pressHours = 48, lastWarmCure = 0 }, mildLedger).spoiling)
 local hotPress = newRecipeData(RECIPE_TIME, { newFood("TraditionalPreservationFishMeat.SaltPackedFish", { ActualWeight = 1 }) },
     { newFood("TraditionalPreservationFishMeat.SaltPressedFish", {}) })
-hotPress.modData.lastWarmCure = 0
+hotPress.modData.lastWarmCure, hotPress.modData.place = 0, "Covered"
 ModData.tables[T.MOD_DATA_KEY] = hotLedger
 T.onCreatePressed(hotPress)
 local hotFish = hotPress:getAllCreatedItems():get(0)
@@ -226,12 +226,6 @@ local mixed = list({ newFood("TraditionalPreservationFishMeat.SaltPressedFish", 
 mixed:get(0):getModData().cureSpoiled = 0.4
 check("a stack starts with its fish's share, by weight", near(T.stackCureSpoiled(mixed), 0.3))
 ModData.tables = {}
-
-local old = newRecipeData(RECIPE_TIME)
-old.modData.pressStartHour = hours
-hours = hours + 12
-T.onPressUpdate(old)
-check("a press from before keeps its 12 hours", near(old.elapsed, RECIPE_TIME))
 
 press.elapsed = 0
 T.onPressStart(press)
@@ -359,31 +353,31 @@ check("half the time in good weather is half dry", near(dry.elapsed, DRY_TIME / 
 T.onDryUpdate(dry)
 check("updating twice doesn't count twice", near(dry.elapsed, DRY_TIME / 2))
 
-dry.modData.sheltered = true
+dry.modData.place = "Sheltered"
 hours = hours + 1
 T.advance(shared, hours, MILD)
 local afterRoof = dry.modData.dried
 T.onDryUpdate(dry)
 check("a roofed frame gets the sheltered rate", near(dry.modData.dried - afterRoof, T.SHELTERED_RATE))
 
-dry.modData.sheltered, dry.modData.covered = nil, true
+dry.modData.place = "Covered"
 hours = hours + 1
 T.advance(shared, hours, MILD)
 local afterCover = dry.modData.dried
 T.onDryUpdate(dry)
 check("an open shed dries as the open air", near(dry.modData.dried - afterCover, 1))
 
-dry.modData.covered = nil
+dry.modData.place = nil
 hours = hours + 1000
 T.advance(shared, hours, MILD)
 T.onDryUpdate(dry)
 check("time unloaded counts, and stops at done", dry.elapsed == DRY_TIME)
 
 local reused = newRecipeData(DRY_TIME)
-reused.modData = { dried = 90, sheltered = true }
+reused.modData = { place = "Sheltered", dried = 90 }
 T.onDryStart(reused)
 T.onDryUpdate(reused)
-check("a reused object starts from nothing", reused.elapsed == 0 and reused.modData.sheltered == nil and reused.modData.spoiled == 0)
+check("a reused object starts from nothing", reused.elapsed == 0 and reused.modData.place == nil and reused.modData.spoiled == 0)
 
 local stacked = newRecipeData(DRY_TIME, { newFood("TraditionalPreservationFishMeat.SaltPressedFish", {}) }, { newFood("TraditionalPreservationFishMeat.SaltDriedFish", {}) })
 T.onDryStart(stacked)
@@ -414,7 +408,7 @@ do
     T.advance(off, 500, { temperature = 25, humidity = 0.3, precipitation = 0 })
     check("off, Corned meat in the shed and a warm long cure lose nothing", T.underCureRate(25) == 0 and off.underCure == 0
         and off.underCureBanked == 0 and off.underCureBasement == 0 and off.longCureSpoil == 0
-        and T.cureSpoiled({ lastWarmCure = 0, lastLongCure = 0 }, off) == 0)
+        and T.cureSpoiled({ place = "Covered", lastWarmCure = 0, countryCure = true, lastLongCureSpoil = 0 }, off) == 0)
 end
 SandboxVars.TraditionalPreservationFishMeat = { DryDays = 30, MaxDryDays = 10, Spoilage = 9 }
 check("a spoilage value out of range loads as normal", pcall(T.applySandbox) and T.RAW_SPOIL_HOURS == 48 and T.SALT_SPOIL_HOURS == 480)
@@ -432,11 +426,11 @@ local coldNow = T.stackStatus(true, { dried = 192 }, readings)
 check("cold fish dries at full rate in the cold", coldNow.rate == 1 and near(coldNow.hoursLeft, 576) and near(coldNow.progress, 0.25))
 local saltNow = T.stackStatus(false, { dried = 144 }, readings)
 check("salt fish goes by its own rate", near(saltNow.rate, T.MIN_DRY_RATE) and near(saltNow.hoursLeft, 144 / T.MIN_DRY_RATE))
-check("indoors stops cold drying but not salt", T.stackStatus(true, { sheltered = true }, readings).reason == "Roof" and T.stackStatus(false, { sheltered = true }, readings).reason == nil)
+check("indoors stops cold drying but not salt", T.stackStatus(true, { place = "Sheltered" }, readings).reason == "Roof" and T.stackStatus(false, { place = "Sheltered" }, readings).reason == nil)
 local rained = T.newLedger(0)
 T.advance(rained, 1, { temperature = 3, humidity = 0.3, precipitation = 1 })
 check("rain pauses both", T.stackStatus(true, {}, rained).reason == "Rain" and T.stackStatus(false, {}, rained).reason == "Rain" and T.stackStatus(true, {}, rained).hoursLeft == nil)
-local shedCold, shedSalt = T.stackStatus(true, { covered = true }, rained), T.stackStatus(false, { covered = true }, rained)
+local shedCold, shedSalt = T.stackStatus(true, { place = "Covered" }, rained), T.stackStatus(false, { place = "Covered" }, rained)
 check("an open shed keeps the rain off both", shedCold.reason == nil and near(shedCold.rate, T.coldRate(3) * T.windRate(nil) * T.COVERED_COLD_RATE)
     and shedSalt.reason == nil and shedSalt.rate > 0)
 local hot = T.newLedger(0)
@@ -444,12 +438,17 @@ hot.seasonTemperature, hot.seasonHumidity = 25, 0.6
 T.advance(hot, 1, { temperature = 25, humidity = 0.6, precipitation = 0 })
 check("a warm season stops cold drying and warns", T.stackStatus(true, {}, hot).reason == "TooWarm" and T.stackStatus(true, {}, hot).spoiling)
 check("a muggy one warns for salt fish", T.stackStatus(false, {}, hot).spoiling)
+-- Unsalted fish indoors spoils by the season (its step), so its popup warns by the season too (2026-11-14; it read
+-- the day's).
+local coolDay = { rawSpoilOn = true, rawSpoilOpenOn = false, temperature = 5 }
+check("an indoor cold stack warns by the season, an open one by the day", T.stackStatus(true, { place = "Sheltered" }, coolDay).spoiling
+    and not T.stackStatus(true, {}, coolDay).spoiling)
 check("a fresh ledger is safe to read", T.stackStatus(false, {}, T.newLedger(0)).rate == 0)
 local heatWave = T.newLedger(0)
 T.advance(heatWave, 1, { temperature = 30, humidity = 0.3, precipitation = 0 })
 check("hot sun warns for fresh salt fish in the open", T.stackStatus(false, { dried = 0 }, heatWave).scorching)
-check("not in the shade, nor once it is half dry", not T.stackStatus(false, { dried = 0, covered = true }, heatWave).scorching
-    and not T.stackStatus(false, { dried = 0, sheltered = true }, heatWave).scorching and not T.stackStatus(false, { dried = T.DRY_HOURS / 2 }, heatWave).scorching)
+check("not in the shade, nor once it is half dry", not T.stackStatus(false, { place = "Covered", dried = 0 }, heatWave).scorching
+    and not T.stackStatus(false, { place = "Sheltered", dried = 0 }, heatWave).scorching and not T.stackStatus(false, { dried = T.DRY_HOURS / 2 }, heatWave).scorching)
 check("the popup says too hot only in the open", T.temperatureWord(false, 30, true) == "IGUI_TraditionalPreservationFishMeat_TempHot" and T.temperatureWord(false, 30, false) == "IGUI_TraditionalPreservationFishMeat_TempGoodWarm")
 check("frost words for cold fish", T.temperatureWord(true, -2) == "IGUI_TraditionalPreservationFishMeat_TempFrost" and T.temperatureWord(true, -8) == "IGUI_TraditionalPreservationFishMeat_TempHardFrost")
 check("the words fit the method", T.temperatureWord(true, 2) == "IGUI_TraditionalPreservationFishMeat_TempGoodCold" and T.temperatureWord(false, 25) == "IGUI_TraditionalPreservationFishMeat_TempGoodWarm" and T.temperatureWord(true, 25) == "IGUI_TraditionalPreservationFishMeat_TempTooWarm")
@@ -529,7 +528,7 @@ check("a warm season rots it early", warmStack.modData.spoiled >= 1 and warmStac
 
 local roofedStack, roofed = coldStack()
 roofed.seasonTemperature = 0
-roofedStack.modData.sheltered = true
+roofedStack.modData.place = "Sheltered"
 hours = 10
 T.advance(roofed, hours, WINTER)
 T.onColdDryUpdate(roofedStack)
@@ -537,7 +536,7 @@ check("indoors stops cold drying", roofedStack.modData.dried == 0)
 
 local shedStack, shedLedger = coldStack()
 shedLedger.seasonTemperature = 0
-shedStack.modData.covered = true
+shedStack.modData.place = "Covered"
 hours = 10
 T.advance(shedLedger, hours, WINTER)
 T.onColdDryUpdate(shedStack)
@@ -546,7 +545,8 @@ check("an open shed dries cold fish at three quarters", near(shedStack.modData.d
 -- Early frost and wet add to the spoilage, the more the wetter the fish
 local function coldStep(dried, totals, sheltered, covered)
     local ledger = T.newLedger(0)
-    local modData = { dried = dried, spoiled = 0, lastCold = 0, lastRawSpoil = 0, lastRawSpoilOpen = 0, lastHardFrost = 0, lastColdWet = 0, sheltered = sheltered, covered = covered }
+    local modData = { dried = dried, spoiled = 0, lastCold = 0, lastRawSpoil = 0, lastRawSpoilOpen = 0, lastHardFrost = 0, lastColdWet = 0,
+        place = covered and "Covered" or sheltered and "Sheltered" or nil }
     for key, value in pairs(totals) do ledger[key] = value end
     T.coldStep(modData, ledger)
     return modData
@@ -576,7 +576,7 @@ local function saltStack(season, humidity)
     hours = 0
     local stack = newRecipeData(T.DRY_HOURS * 3600)
     T.onDryStart(stack)
-    stack.modData.covered = true
+    stack.modData.place = "Covered"
     local ledger = T.getLedger()
     ledger.seasonTemperature, ledger.seasonHumidity = season, humidity
     hours = T.SALT_SPOIL_HOURS / 2
@@ -593,7 +593,7 @@ local function saltStep(dried, heat, place)
     local ledger = T.newLedger(0)
     ledger.heat = heat
     local modData = { dried = dried, spoiled = 0, lastOpen = 0, lastSheltered = 0, lastCovered = 0, lastSaltSpoil = 0, lastHeat = 0 }
-    if place then modData[place] = true end
+    modData.place = ({ covered = "Covered", sheltered = "Sheltered" })[place]
     T.saltStep(modData, ledger)
     return modData
 end
@@ -610,11 +610,11 @@ check("the ledger counts hours above 25 C", heatLedger.heat == 5)
 local oldSave = newRecipeData(T.DRY_HOURS * 3600)
 oldSave.modData = { dried = 10, lastOpen = 0, lastSheltered = 0 }
 T.onDryUpdate(oldSave)
-check("a stack from an older version carries on", oldSave.modData.spoiled == 0 and oldSave.modData.lastHeat ~= nil)
+check("a stack with no marks yet counts from now and carries on", oldSave.modData.spoiled == 0 and oldSave.modData.lastHeat ~= nil)
 
 ModData.tables = { [T.MOD_DATA_KEY] = { lastHour = 5, wetness = 0, open = 3, sheltered = 2 } }
 local upgraded = T.getLedger()
-check("an older ledger gains the new totals", upgraded.open == 3 and upgraded.cold == 0 and upgraded.rawSpoil == 0
+check("a ledger missing totals gains them", upgraded.open == 3 and upgraded.cold == 0 and upgraded.rawSpoil == 0
     and upgraded.hardFrost == 0 and upgraded.coldWet == 0 and upgraded.coldWetness == 0
     and upgraded.covered == 0 and upgraded.coldCovered == 0 and upgraded.warmCure == 0 and upgraded.heat == 0)
 ModData.tables = {}
@@ -964,6 +964,8 @@ end
 -- Ingredient stand-ins
 ISAddItemInRecipe = { complete = function() return true end }
 function require() end
+-- Every stand-in the code builds is in the scripts (checked below).
+getScriptManager = function() return { FindItem = function() return true end } end
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatEvolved.lua")
 local listed = { "TraditionalPreservationFishMeat.FishHead", "Base.Carrots", "TraditionalPreservationFishMeat.GuttedFish", "TraditionalPreservationFishMeat.SoakedColdFish" }
 local extras = { size = function() return #listed end, get = function(_, i) return listed[i + 1] end, set = function(_, i, v) listed[i + 1] = v end }
@@ -1133,7 +1135,8 @@ end
 -- Butchering XP for packing
 Perks = { Butchering = "Butchering" }
 local xpGiven = {}
-function addXp(character, perk, amount) table.insert(xpGiven, { character = character, perk = perk, amount = amount }) end
+-- TP Core's Action.addXp adds it through the character's getXp.
+function gutter.getXp() return { AddXP = function(_, perk, amount) table.insert(xpGiven, { character = gutter, perk = perk, amount = amount }) end } end
 local function pack(fish)
     xpGiven, gutsMade = {}, {}
     T.onCreatePacked(newRecipeData(0, { fish }, { newFood("TraditionalPreservationFishMeat.SaltPackedFish", {}) }), gutter)
@@ -1178,7 +1181,7 @@ local salter = { getInventory = function() return {
     AddItem = function() end,
 } end }
 local removed = {}
-local container = { DoRemoveItem = function(_, item) table.insert(removed, item) end }
+local container = { Remove = function(_, item) table.insert(removed, item) end }
 local function carry(...)
     carried, removed = { ... }, {}
     for _, item in ipairs(carried) do function item:getContainer() return container end end
@@ -1211,7 +1214,7 @@ T.chargeSalt(newFood("Base.Bluegill", { ActualWeight = 0.5 }), salter)
 check("a small fish takes 2 past the recipe's 2", carried[1].uses == 8 and #removed == 0)
 T.chargeSalt(walleye4, salter)
 check("without the Salt mod, an emptied shaker just goes", carried[1].uses == 0 and #removed == 1 and returned == nil)
-local packer = { getInventory = salter.getInventory }
+local packer = { getInventory = salter.getInventory, getXp = function() return { AddXP = function() end } end }
 carry(saltItem("Base.Salt", 20))
 local packData = newRecipeData(0, { newFood("Base.Walleye", { ActualWeight = 2 }) }, { newFood("TraditionalPreservationFishMeat.SaltPackedFish", {}) })
 function packData:getCharacter() return packer end
@@ -1290,7 +1293,7 @@ stale.age = 3
 stale:getModData().fishName = "Small Bass"
 stale.name = "Cold Dried Small Bass"
 T.rename(stale)
-check("stockfish from before maturing counts as ripe, under the new name", T.ripeness(stale) == 1 and stale.name == "Small Bass Stockfish (Matured)")
+check("stockfish spawned with no stamp counts as ripe, under its name", T.ripeness(stale) == 1 and stale.name == "Small Bass Stockfish (Matured)")
 local function soak(dried)
     local soaked = newFood("TraditionalPreservationFishMeat.SoakedColdFish", {})
     T.onCreateSoaked(newRecipeData(0, { dried }, { soaked }))
@@ -1507,8 +1510,7 @@ end)()
         local cured = newFood(T.CURED_MEAT, {})
         local data = newRecipeData(T.CHARQUE_HOURS * 3600, { cured })
         T.onCharqueStart(data)
-        data.modData.sheltered = place == "indoors" or nil
-        data.modData.covered = place == "covered" or nil
+        data.modData.place = place == "indoors" and "Sheltered" or place == "covered" and "Covered" or nil
         return data
     end
     local shared = T.getLedger()
@@ -1537,7 +1539,7 @@ end)()
     local status = T.charqueStatus({ dried = 60 }, { charqueRate = 1.2, wetness = 0 })
     check("the popup's time left goes by the rate", near(status.progress, 0.5) and near(status.hoursLeft, 50))
     check("wet open charque says rain", T.charqueStatus({}, { charqueRate = 0, wetness = 0.5 }).reason == "Rain")
-    check("frozen says too cold", T.charqueStatus({ covered = true }, { charqueCoveredRate = 0, wetness = 0 }).reason == "TooCold")
+    check("frozen says too cold", T.charqueStatus({ place = "Covered" }, { charqueCoveredRate = 0, wetness = 0 }).reason == "TooCold")
     check("hot sun is the best word", T.charqueTemperatureWord(30) == "IGUI_TraditionalPreservationFishMeat_TempHotGood"
         and T.charqueTemperatureWord(-1) == "IGUI_TraditionalPreservationFishMeat_TempTooCold")
 

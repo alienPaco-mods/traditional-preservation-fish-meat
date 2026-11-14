@@ -53,14 +53,13 @@ end
 
 -- Each stack goes through the mod's own step every hour, as its spoilage depends on how far it has dried.
 -- place is nil (open), "covered" (a roof, no room), "sheltered" (a room, by Core's room temperature) or "loft" (the top
--- storey, by Core's loft temperature; a loft stack is sheltered too, as the World marks it).
+-- storey, by Core's loft temperature), as the World marks it with TP Core's place word.
 local function runSaltStack(start, snapshots, place)
     local first = snapshots[start]
     local modData = { dried = 0, spoiled = 0, lastOpen = first.open, lastSheltered = first.sheltered, lastRoomSheltered = first.roomSheltered, lastCovered = first.covered,
         lastLoftSheltered = first.loftSheltered, lastSaltSpoil = first.saltSpoil, lastSaltSpoilRoom = first.saltSpoilRoom, lastSaltSpoilLoft = first.saltSpoilLoft,
         lastHeat = first.heat }
-    if place then modData[place] = true end
-    if place == "loft" then modData.sheltered = true end
+    modData.place = ({ covered = "Covered", sheltered = "Sheltered", loft = "Loft" })[place]
     local index = start
     while snapshots[index + 1] do
         index = index + 1
@@ -74,7 +73,7 @@ local function runColdStack(start, snapshots, place)
     local first = snapshots[start]
     local modData = { dried = 0, spoiled = 0, lastCold = first.cold, lastColdCovered = first.coldCovered, lastRawSpoil = first.rawSpoil, lastRawSpoilOpen = first.rawSpoilOpen,
         lastHardFrost = first.hardFrost, lastHardFrostCovered = first.hardFrostCovered, lastColdWet = first.coldWet }
-    if place then modData[place] = true end
+    if place == "covered" then modData.place = "Covered" end
     local index = start
     while snapshots[index + 1] do
         index = index + 1
@@ -126,7 +125,7 @@ local function report(worlds)
             end
             local pressEnd = snapshots[start + T.PRESS_HOURS]
             if pressEnd then
-                row.cure, row.cures = row.cure + T.cureSpoiled({ lastWarmCure = snapshots[start].warmCure }, pressEnd), row.cures + 1
+                row.cure, row.cures = row.cure + T.cureSpoiled({ place = "Covered", lastWarmCure = snapshots[start].warmCure }, pressEnd), row.cures + 1
             end
             local shedDays, shedSpoiled = runColdStack(start, snapshots, "covered")
             if shedDays and shedSpoiled < 1 then table.insert(row.coldCovered, shedDays) end

@@ -3,8 +3,10 @@
 -- size and meat ratio, and from the ground it never gives less than one), so the legs come out of the Pork the pig
 -- just gave instead: LEG_PORK pieces make one leg, which takes their food. At most LEG_SHARE of the Pork goes, and
 -- LEG_MAX legs, so a pig on the Hook gives one or two, a big one three, and one from the ground usually none.
+require "TraditionalPreservationFishMeat/Common"
 require "Definitions/animal/AnimalPartsDefinitions"
 require "Definitions/animal/ButcheringUtil"
+local Action = require "TraditionalPreservationCore/Action"
 
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
@@ -22,8 +24,7 @@ end
 
 -- Whether the sandbox lets butchering give legs. On unless the option says otherwise.
 function F.legsEnabled()
-    local options = SandboxVars and SandboxVars.TraditionalPreservationFishMeat
-    return not options or options.LegsOfPork ~= false
+    return F.optionOn("LegsOfPork")
 end
 
 -- The leg takes the pieces' food, summed, and the age of the oldest.
@@ -39,10 +40,7 @@ function F.fillLeg(leg, pieces)
     end
     leg:setBaseHunger(hunger)
     leg:setHungChange(hunger)
-    leg:setCalories(calories)
-    leg:setProteins(proteins)
-    leg:setLipids(lipids)
-    leg:setCarbohydrates(carbohydrates)
+    F.setNutrients(leg, { calories = calories, proteins = proteins, lipids = lipids, carbohydrates = carbohydrates })
     leg:setAge(age)
 end
 
@@ -53,12 +51,14 @@ local function porkIn(inventory)
     return pork
 end
 
--- Turns some of the Pork just given into legs. Returns the text for the butchering log.
+-- Turns some of the Pork just given into legs, the newest pieces first (in the inventory's order, so the same pieces
+-- every time). Returns the text for the butchering log.
 local function makeLegs(player, before)
     local inventory = player:getInventory()
     local given = {}
-    for piece in pairs(porkIn(inventory)) do
-        if not before[piece] then table.insert(given, piece) end
+    local found = inventory:getAllType("Base.Pork")
+    for i = 0, found:size() - 1 do
+        if not before[found:get(i)] then table.insert(given, found:get(i)) end
     end
     local legs = F.legsFrom(#given)
     local text = ""
@@ -68,7 +68,7 @@ local function makeLegs(player, before)
         local leg = instanceItem(F.LEG_OF_PORK)
         F.fillLeg(leg, pieces)
         for _, piece in ipairs(pieces) do
-            inventory:Remove(piece)
+            Action.removeItem(piece)
             sendRemoveItemFromContainer(inventory, piece)
         end
         inventory:AddItem(leg)

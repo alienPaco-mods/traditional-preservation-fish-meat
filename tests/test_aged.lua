@@ -61,7 +61,7 @@ check("Aged after 30", beef.values.Name == "Beef (Cold Smoked, Aged)" and beef.m
 beef:setAge(0)
 check("and it stays Aged", F.agedness(beef) == 1)
 local old = food(F.COUNTRY_HAM, { ModelIndex = 6, Age = 95 }, { airDried = true })
-check("a ham from before 6c counts all its days", F.agedness(old) == 1 and F.stageName(old) == "Country Ham (Aged)")
+check("a spawned ham with no stamp counts all its days", F.agedness(old) == 1 and F.stageName(old) == "Country Ham (Aged)")
 local eaten = food(F.COUNTRY_HAM, { ModelIndex = 6, Age = 90, BaseHunger = -2, HungChange = -1, UnhappyChange = -5 })
 F.rename(eaten)
 check("a half-eaten ham gets half the aged mood and boredom", near(eaten.values.UnhappyChange, F.AGED_HAM_UNHAPPY / 2)

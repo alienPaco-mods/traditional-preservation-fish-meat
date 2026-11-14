@@ -71,7 +71,8 @@ local xp = 0
 H.installClock(0)
 local globalData = {}
 ModData = { getOrCreate = function(key) globalData[key] = globalData[key] or {} return globalData[key] end }
-addXp = function(_, perk, amount) if perk == Perks.Cooking then xp = xp + amount end end
+-- The cook, whose XP TP Core's Action.addXp adds through getXp.
+local cook = { getXp = function() return { AddXP = function(_, perk, amount) if perk == Perks.Cooking then xp = xp + amount end end } end }
 
 -- A stub eat action, wrapped by the mod as the game's is: it eats a share of the item's food.
 ISEatFoodAction = {}
@@ -153,7 +154,7 @@ check("a pot with no batch can't be packed", not F.canPackPotted(newFood(POT, {}
 check("a cooked pot can", F.canPackPotted(pot))
 local crock = newFood(CROCK, { age = 3 })
 local glazed = newFood("Base.ClayJarGlazed", {})
-F.onPackPotted(craft({ pot, glazed }, { newFood("Base.Pot", {}), crock }, {}))
+F.onPackPotted(craft({ pot, glazed }, { newFood("Base.Pot", {}), crock }, cook))
 check("the crock holds four portions", near(F.crockPortions(crock), 4))
 check("its food is the pot's", near(crock.calories, pot.calories) and near(crock.base, crock.hunger))
 check("it starts fresh", crock.age == 0)
@@ -165,7 +166,7 @@ check("packing gives Cooking XP for each cut", xp == 4 * F.POTTED_XP)
 -- Eating
 local container = { items = { [crock] = true } }
 function container:contains(item) return self.items[item] == true end
-function container:DoRemoveItem(item) self.items[item] = nil end
+function container:Remove(item) self.items[item] = nil end
 function container:AddItem(fullType) self.added = fullType return fullType end
 crock.container = container
 ISEatFoodAction.complete({ item = crock, share = 0.25 })
@@ -234,7 +235,7 @@ opened.hunger = -2
 opened.age, opened.modData.tpfmKeep.base = 10, 10
 local box = { items = { [opened] = true } }
 function box:contains(item) return self.items[item] == true end
-function box:DoRemoveItem(item) self.items[item] = nil end
+function box:Remove(item) self.items[item] = nil end
 function box:AddItem(fullType) return fullType end
 opened.container = box
 H.hours = 240

@@ -59,7 +59,7 @@ local function runStack(start, snapshots, place)
     local first = snapshots[start]
     local modData = { dried = 0, spoiled = 0, lastCharque = first.charque, lastCharqueCovered = first.charqueCovered,
         lastCharqueSheltered = first.charqueSheltered, lastCharqueRain = first.charqueRain, lastSaltSpoil = first.saltSpoil }
-    if place == "covered" then modData.covered = true end
+    if place == "covered" then modData.place = "Covered" end
     local lost, index = 0, start
     while snapshots[index + 1] do
         index = index + 1

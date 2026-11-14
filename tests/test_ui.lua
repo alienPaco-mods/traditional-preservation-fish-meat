@@ -11,7 +11,7 @@ end } end })
 -- The mod's own modules load for real, vanilla's are left out.
 local realRequire = require
 require = function(name)
-    if name:find("^TraditionalPreservationFishMeat/") or name:find("^TraditionalPreservationCore/") then return realRequire(name) end
+    if name:find("^TraditionalPreservationFishMeat") or name:find("^TraditionalPreservationCore/") then return realRequire(name) end
 end
 dofile("42/media/lua/shared/TraditionalPreservationFishMeat.lua")
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatPotted.lua")
@@ -289,7 +289,7 @@ check("with no warning in a cold season", coldLines["IGUI_TraditionalPreservatio
 local saltLines = stackLines("HangFishToDry", { dried = 144 }, winter)
 check("and what it comes out as", coldLines["IGUI_TraditionalPreservationFishMeat_ComesOutAs:"] == "ColdDriedFish")
 check("a salt stack shows its own rate", saltLines["IGUI_TraditionalPreservationFishMeat_Method:"] == "IGUI_TraditionalPreservationFishMeat_MethodSalt" and saltLines["IGUI_TraditionalPreservationFishMeat_Rate:"] == "44%")
-local warm = { wetness = 0, temperature = 18, coldRate = 0, openRate = 0.8, shelteredRate = 0.52, rawSpoiling = true, rawSpoilingOpen = true }
+local warm = { wetness = 0, temperature = 18, coldRate = 0, openRate = 0.8, shelteredRate = 0.52, rawSpoilOn = true, rawSpoilOpenOn = true }
 local warmLines = stackLines("HangFishToColdDry", { dried = 10, spoiled = 0.4 }, warm)
 check("a warm season stops cold drying", warmLines["IGUI_TraditionalPreservationFishMeat_Rate:"] == "IGUI_TraditionalPreservationFishMeat_StoppedTooWarm")
 check("and warns of spoilage", warmLines["IGUI_TraditionalPreservationFishMeat_Spoilage:"] == "IGUI_TraditionalPreservationFishMeat_SpoilingWarm")
@@ -342,9 +342,13 @@ check("and the frame can go anywhere", placing("traditionalpreservationfishmeat_
 -- Names follow the days in any container the inventory shows
 local renamed = {}
 local fakeFish = { fullType = "TraditionalPreservationFishMeat.ColdDriedFish" }
+function fakeFish:getFullType() return self.fullType end
+local plainItem = { getFullType = function() return "Base.Carrots" end }
 local container = {}
-function container:getAllTypeRecurse(fullType)
-    return H.list(fullType == fakeFish.fullType and { fakeFish } or {})
+function container:getAllEvalRecurse(wanted)
+    local found = {}
+    for _, item in ipairs({ fakeFish, plainItem }) do if wanted(item) then table.insert(found, item) end end
+    return H.list(found)
 end
 local F = TraditionalPreservationFishMeat
 local realRename = F.rename
@@ -354,6 +358,20 @@ check("names wait for the window to finish refreshing", #renamed == 0)
 handlers.OnRefreshInventoryWindowContainers({ backpacks = { { inventory = container } } }, "end")
 check("then every fish stage in each shown container is renamed", #renamed == 1 and renamed[1] == fakeFish)
 check("and the player's things every hour", handlers.EveryHours ~= nil)
+-- A crock in the same look catches up on its keeping instead (F.keepCrock).
+local kept = {}
+local crock = { getFullType = function() return F.CROCK end }
+local realKeep = F.keepCrock
+F.keepCrock = function(item) table.insert(kept, item) end
+function container:getAllEvalRecurse(wanted)
+    local found = {}
+    for _, item in ipairs({ fakeFish, crock, plainItem }) do if wanted(item) then table.insert(found, item) end end
+    return H.list(found)
+end
+renamed = {}
+handlers.OnRefreshInventoryWindowContainers({ backpacks = { { inventory = container } } }, "end")
+check("one look finds the crocks too, kept and not renamed", #kept == 1 and kept[1] == crock and #renamed == 1)
+F.keepCrock = realKeep
 F.rename = realRename
 
 -- Rinse at Sink

@@ -32,8 +32,7 @@ CauldronUI.addMenu(function(menu, playerObj, hearth, cauldron)
         if F.cauldronFatRoom(cauldron, entry.fat.raw) > 0 then
             UI.tooltip(row, getText("IGUI_TraditionalPreservationFishMeat_FatHelp"))
         else
-            row.notAvailable = true
-            UI.tooltip(row, getText("IGUI_TraditionalPreservationFishMeat_FatNoRoom"))
+            UI.refuse(row, getText("IGUI_TraditionalPreservationFishMeat_FatNoRoom"))
         end
     end
 end)

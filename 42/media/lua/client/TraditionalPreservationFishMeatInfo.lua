@@ -53,7 +53,7 @@ function Info.batch(kind, modData, ledger, now)
     if kind == "sausage" then return Info.sausageBatch(modData, ledger, now) end
     local isPress = kind == "fishCure" or kind == "corn" or kind == "long"
     local isCold, isMeat = kind == "cold", kind == "meat"
-    local status = isPress and F.pressStatus(modData, now, ledger)
+    local status = isPress and F.pressStatus(modData, ledger)
         or isMeat and F.charqueStatus(modData, ledger) or F.stackStatus(isCold, modData, ledger)
     local row = { name = status.hotOnly and KEY .. "InfoHotOnly" or status.dryCuring and KEY .. "InfoDryCure" or KIND_NAMES[kind],
         progress = status.progress, notes = {} }

@@ -3,12 +3,14 @@
 -- the blood goes off through TP Core's FluidAgeing (kind blood: fresh, spoiled, and three treated states), salt or
 -- vinegar stirred in keeps it longer, and it goes into Black Pudding (baked in a pan) and Blood Sausage (stuffed
 -- into salted casings from butchering and boiled). The recipes are in TraditionalPreservationFishMeat_Blood.txt.
+require "TraditionalPreservationFishMeat/Common"
 require "Definitions/animal/CowDefinitions"
 require "Definitions/animal/PigDefinitions"
 require "Definitions/animal/SheepDefinitions"
 require "Definitions/animal/DeerDefinitions"
 require "Definitions/animal/AnimalPartsDefinitions"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
+local FluidTreat = require "TraditionalPreservationCore/FluidTreat"
 local Weather = require "TraditionalPreservationCore/Weather"
 local OnHeat = require "TraditionalPreservationCore/OnHeat"
 local Charge = require "TraditionalPreservationCore/Charge"
@@ -110,7 +112,7 @@ F.BLOOD_SPEC.treatTooltip = "Tooltip_TraditionalPreservationFishMeat_TreatBlood"
 function F.bloodIn(item)
     local container = item and item:getFluidContainer()
     if not container then return 0, 0 end
-    return FluidAgeing.litresIn(container, F.BLOOD_SPEC)
+    return FluidTreat.litresIn(container, F.BLOOD_SPEC)
 end
 
 -- The filler of black pudding and blood sausage (user, 2026-11-13: any of them, one recipe): a quarter of a bag of oats
@@ -128,7 +130,6 @@ F.onCreateTakeFiller = F.FILLER.take
 -- base numbers, scaled as the fat rows' are (on a Butchering Hook about x2.8, never less than one): a pig on the Hook
 -- gives about 3, cattle about 4, a sheep or a deer about 2, a young animal 1. Raw casings go off in a day;
 -- cleaned and packed in salt they keep a year.
-F.CASING_ITEM = "TraditionalPreservationFishMeat.RawCasings"
 F.CASING_ROWS = {
     { minNb = 1, maxNb = 1, animals = { "sowlandrace", "boarlandrace", "sowlargeblack", "boarlargeblack" } },
     { minNb = 1, maxNb = 2, animals = { "cowangus", "bullangus", "cowsimmental", "bullsimmental", "cowholstein", "bullholstein" } },
@@ -141,19 +142,7 @@ F.CASING_ROWS = {
 
 -- Puts the casing rows into vanilla's parts tables, once each however often it runs (shared tables, as for fat).
 function F.applyCasingRows()
-    local animals = AnimalPartsDefinitions and AnimalPartsDefinitions.animals
-    if not animals then return end
-    for _, row in ipairs(F.CASING_ROWS) do
-        for _, name in ipairs(row.animals) do
-            local parts = animals[name] and animals[name].parts
-            if parts then
-                for index = #parts, 1, -1 do
-                    if parts[index].item == F.CASING_ITEM then table.remove(parts, index) end
-                end
-                table.insert(parts, { item = F.CASING_ITEM, minNb = row.minNb, maxNb = row.maxNb })
-            end
-        end
-    end
+    for _, row in ipairs(F.CASING_ROWS) do F.setPartRow(F.CASING_ITEM, row.minNb, row.maxNb, row.animals) end
 end
 
 Events.OnInitGlobalModData.Add(F.applyCasingRows)
@@ -163,17 +152,12 @@ Events.OnInitGlobalModData.Add(F.applyCasingRows)
 -- at frying heat (TP Core's OnHeat), Blood Sausage (Boiled, Fried). Only the name changes.
 F.BLOOD_SAUSAGE_FRY_MINUTES = 5
 
-local function rename(item, key)
-    item:setName(getText(key))
-    item:setCustomName(true)
-end
-
 function F.onCookedBloodSausage(item)
-    rename(item, "IGUI_TraditionalPreservationFishMeat_BloodSausageFried")
+    F.nameAs(item, getText("IGUI_TraditionalPreservationFishMeat_BloodSausageFried"))
 end
 
-OnHeat.watch("TraditionalPreservationFishMeat.BloodSausage", F.BLOOD_SAUSAGE_FRY_MINUTES, function(item)
-    rename(item, "IGUI_TraditionalPreservationFishMeat_BloodSausageBoiledFried")
+OnHeat.watch(F.BLOOD_SAUSAGE, F.BLOOD_SAUSAGE_FRY_MINUTES, function(item)
+    F.nameAs(item, getText("IGUI_TraditionalPreservationFishMeat_BloodSausageBoiledFried"))
 end)
 
 -- Smoked Blood Sausage (user, 2026-11-13): boiled links, never fried, hung alone in the Smokehouse
@@ -184,8 +168,6 @@ end)
 -- Sausage (21 / 40), its age the same share of the new keeping; one gone stale first comes down the Boiled link it
 -- was. The stack ends once smoked, or once every link has gone stale.
 F.SMOKED_SAUSAGE_HOURS = 24
-F.BLOOD_SAUSAGE = "TraditionalPreservationFishMeat.BloodSausage"
-F.SMOKED_BLOOD_SAUSAGE = "TraditionalPreservationFishMeat.SmokedBloodSausage"
 
 -- Whether a boiled link was fried afterwards (TP Core's OnHeat ran its rename).
 function F.wasFried(item)
@@ -202,12 +184,10 @@ end
 
 -- Sets a new stack's counters from its links (an ArrayList): the Smokehouse's, and the hour its freshest link goes
 -- stale. Blood sausage takes no cook and a fixed smoke; Smoked Sausage ("pork", TraditionalPreservationFishMeatSausage.lua)
--- a fixed hot run. modData.sausage is true for blood (as stacks hung since 0.4.37 have it) or "pork".
+-- a fixed hot run. modData.sausage is true for blood or "pork".
 function F.startSausageSmoke(modData, links, now, speed, kind)
     -- Recipe data is pooled with its ModData (ENGINE_NOTES): a stack mustn't inherit an old one's counters.
-    local keys = {}
-    for key in pairs(modData) do table.insert(keys, key) end
-    for _, key in ipairs(keys) do modData[key] = nil end
+    F.clearData(modData)
     F.startSmoke(modData, links, false)
     if kind == "pork" then
         modData.sausage, modData.hotNeed = "pork", F.SAUSAGE_HOT_HOURS
@@ -286,10 +266,7 @@ local function keepShare(from, to)
     local share = F.shareLeft(from)
     if share >= 1 then return end
     to:setHungChange(to:getBaseHunger() * share)
-    to:setCalories(to:getCalories() * share)
-    to:setProteins(to:getProteins() * share)
-    to:setLipids(to:getLipids() * share)
-    to:setCarbohydrates(to:getCarbohydrates() * share)
+    F.scaleNutrients(to, share)
     to:setActualWeight(to:getActualWeight() * share)
     to:setCustomWeight(true)
 end

@@ -6,6 +6,7 @@
 require "Definitions/animal/AnimalPartsDefinitions"
 local Hearth = require "TraditionalPreservationCore/Hearth"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
+require "TraditionalPreservationFishMeat/Common"
 
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
@@ -85,33 +86,16 @@ function F.fatHoursLeft(item)
     return (item:getOffAgeMax() - item:getAge()) * 24 / FluidAgeing.foodRotSpeed()
 end
 
-local function withoutRow(parts, item)
-    for index = #parts, 1, -1 do
-        if parts[index].item == item then table.remove(parts, index) end
-    end
-end
-
 -- Puts the fat rows into vanilla's parts tables, or takes them out again when the sandbox turns butchering fat
 -- off. Vanilla's breeds share one parts table per kind of animal, so a table is only ever given its row once,
 -- however often this runs. An animal vanilla no longer has is skipped.
 function F.applyFatRows(enabled)
-    local animals = AnimalPartsDefinitions and AnimalPartsDefinitions.animals
-    if not animals then return end
-    for _, row in ipairs(F.FAT_ROWS) do
-        for _, name in ipairs(row.animals) do
-            local parts = animals[name] and animals[name].parts
-            if parts then
-                withoutRow(parts, row.item)
-                if enabled then table.insert(parts, { item = row.item, minNb = row.minNb, maxNb = row.maxNb }) end
-            end
-        end
-    end
+    for _, row in ipairs(F.FAT_ROWS) do F.setPartRow(row.item, row.minNb, row.maxNb, row.animals, enabled == true) end
 end
 
 -- Whether the sandbox lets butchering give fat. On unless the option says otherwise.
 function F.fatEnabled()
-    local options = SandboxVars and SandboxVars.TraditionalPreservationFishMeat
-    return not options or options.ButcheringFat ~= false
+    return F.optionOn("ButcheringFat")
 end
 
 -- OnTest of Pour Off Lard and Pour Off Tallow: the recipe's cooked-food flag lets burnt food through, and burnt
@@ -146,7 +130,7 @@ end
 -- OnTest of Scrape Out Burnt Fat: only a burnt pot, of fat or of Potted Meat's meat in fat.
 function F.canScrape(item)
     local fullType = item:getFullType()
-    if not F.FAT_POTS[fullType] and not (F.MEAT_FAT_POTS and F.MEAT_FAT_POTS[fullType]) then return true end
+    if not F.FAT_POTS[fullType] and not F.MEAT_FAT_POTS[fullType] then return true end
     return item:isBurnt()
 end
 

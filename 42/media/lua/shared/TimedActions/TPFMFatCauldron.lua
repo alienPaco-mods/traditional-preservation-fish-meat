@@ -42,9 +42,9 @@ function TPFMFatCauldron:complete()
     for index, item in ipairs(pieces) do hoursLeft[index] = F.fatHoursLeft(item) end
     local count = F.putFatInCauldron(cauldron, self.raw, hoursLeft, now)
     for index = 1, count do
-        pieces[index]:getContainer():Remove(pieces[index])
+        Action.removeItem(pieces[index])
     end
-    if Hearth.World then Hearth.World.refresh(self.hearth) end
+    Hearth.redraw(self.hearth)
     return count > 0
 end
 

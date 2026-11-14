@@ -4,12 +4,14 @@
 -- cuts (Add Meat to the Pot: hand crafts can't take a varying count); cooked on any stove or fire it can burn, and packed it gives a Crock of Potted Meat of a portion a cut, which is eaten from as
 -- Dairy's Jar of Yogurt is: vanilla's Eat, Eat Half and Eat Quarter take portions, and the last bite gives the
 -- jar or pot back.
+require "TraditionalPreservationFishMeat/Common"
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Weather = require "TraditionalPreservationCore/Weather"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Portions = require "TraditionalPreservationCore/Portions"
 local Recipes = require "TraditionalPreservationCore/Recipes"
+local Action = require "TraditionalPreservationCore/Action"
 
 -- Pork joins the Salting Tub's cuts here: kept under fat and out of the sun, its own fat doesn't go rancid.
 -- Chicken, turkey and rabbit too (user, 2026-11-13): kept alive and eaten fresh, they were rarely salted or dried,
@@ -27,7 +29,6 @@ F.MEAT_FAT_POTS = {
     ["TraditionalPreservationFishMeat.PotOfMeatInFat"] = true,
     ["TraditionalPreservationFishMeat.PotForgedMeatInFat"] = true,
 }
-F.CROCK = "TraditionalPreservationFishMeat.CrockOfPottedMeat"
 -- A block of fat covers POTTED_MAX cuts, about 1 fat to 3 or 4 meat by weight with what the meat gives itself.
 -- A clay jar (2.5 L) holds about that much. A smaller batch leaves the rest of the block in the pot's fat.
 F.POTTED_MAX = 4
@@ -44,15 +45,7 @@ F.POTTED_XP = 3                 -- Cooking, per cut packed
 -- Under this many portions a crock counts as eaten out (the engine keeps hunger as a 32-bit float).
 F.POTTED_EMPTY = 0.05
 
--- A food's values, or a share of them.
-local function foodOf(item, share)
-    share = share or 1
-    return {
-        hunger = item:getHungChange() * share, calories = item:getCalories() * share,
-        carbohydrates = item:getCarbohydrates() * share, lipids = item:getLipids() * share,
-        proteins = item:getProteins() * share,
-    }
-end
+local foodOf = F.foodOf
 
 local function addFood(total, food)
     for key, value in pairs(food) do total[key] = (total[key] or 0) + value end
@@ -143,8 +136,7 @@ function F.crockPortions(crock)
     return crock:getHungChange() / portion.hunger
 end
 
--- The crock's plain name (user, 2026-11-13: it eats like any food, so no portion count; a crock from an older
--- build loses its "(3 portions)"), and the weight of the vessel and what is left in it.
+-- The crock's plain name (user, 2026-11-13: it eats like any food, so no portion count), and the weight of the vessel and what is left in it.
 function F.labelCrock(crock)
     local data = crock:getModData()
     crock:setName(getItemNameFromFullType(F.CROCK))
@@ -180,7 +172,7 @@ function F.onPackPotted(craftRecipeData, character)
         local crock = created:get(i)
         if crock:getFullType() == F.CROCK then F.fillCrock(crock, batch, vessel or "Base.ClayJar") end
     end
-    if character and addXp then addXp(character, Perks.Cooking, F.POTTED_XP * batch.portions) end
+    if character then Action.addXp(character, { "Cooking", F.POTTED_XP * batch.portions }) end
 end
 
 -- A crock with no batch of its own (the debug Item List, loot, another mod) holds what its script gives: one
@@ -190,8 +182,7 @@ function F.adoptCrock(crock)
     local data = crock:getModData()
     if data.tpfmPortion then return end
     data.tpfmVessel = data.tpfmVessel or "Base.ClayJar"
-    data.tpfmPortion = { hunger = crock:getHungChange(), calories = crock:getCalories(),
-        carbohydrates = crock:getCarbohydrates(), lipids = crock:getLipids(), proteins = crock:getProteins() }
+    data.tpfmPortion = foodOf(crock)
     local empty = ScriptManager.instance:getItem(data.tpfmVessel)
     data.tpfmPortionWeight = math.max(crock:getActualWeight() - (empty and empty:getActualWeight() or 0), 0)
 end
@@ -226,8 +217,7 @@ F.POTTED_AGEING = { kind = "potted", rate = ageRate, speed = FluidAgeing.foodRot
 
 -- The sandbox's "Potted Meat keeps by place"; off, a crock keeps its script days anywhere, as plain food.
 function F.pottedByPlace()
-    local options = SandboxVars and SandboxVars.TraditionalPreservationFishMeat
-    return not options or options.PottedByPlace ~= false
+    return F.optionOn("PottedByPlace")
 end
 
 function F.newPottedLedger(now)
@@ -272,12 +262,6 @@ function F.keepCrock(crock, now, place, ledger)
     FluidAgeing.advance(keep.record, F.POTTED_AGEING, ledger, now, place)
     crock:setAge(keep.base + keep.record.age / 24)
     return keep
-end
-
--- Every crock in an item container (and the bags in it).
-function F.keepCrocksIn(container, now)
-    local crocks = container and container:getAllTypeRecurse(F.CROCK)
-    for i = 0, crocks and crocks:size() - 1 or -1 do F.keepCrock(crocks:get(i), now) end
 end
 
 -- The first portion taken: a third of what the crock has left until stale (or, stale already, until rotten) goes.

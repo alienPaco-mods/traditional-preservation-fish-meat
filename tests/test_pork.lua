@@ -16,6 +16,7 @@ local function food(fullType, values)
     end
     function item:setHungChange(value) self.values.HungChange = value end
     function item:getDisplayName() return "Leg of Pork" end
+    function item:getContainer() return self.container end
     return item
 end
 
@@ -27,10 +28,10 @@ function inventory:getAllType(fullType)
     end
     return H.list(found)
 end
-function inventory:AddItem(item) table.insert(self.items, item) end
+function inventory:AddItem(item) item.container = self table.insert(self.items, item) end
 function inventory:Remove(item)
     for index, held in ipairs(self.items) do
-        if held == item then table.remove(self.items, index) return end
+        if held == item then table.remove(self.items, index) item.container = nil return end
     end
 end
 local player = { getInventory = function() return inventory end }
@@ -39,11 +40,12 @@ function sendRemoveItemFromContainer() end
 function instanceItem(fullType) return food(fullType) end
 
 -- Vanilla's addAnimalPart gives `given` pieces of whatever row it is asked for.
-local given = 0
+local given, numbered = 0, false
 ButcheringUtil = {
     addAnimalPart = function(part)
-        for _ = 1, given do
-            inventory:AddItem(food(part.item, { BaseHunger = -0.6, Calories = 300, Proteins = 50, Lipids = 12, Age = 0.5 }))
+        for n = 1, given do
+            -- numbered: each piece's calories are its place in the inventory, so a leg says which pieces it took.
+            inventory:AddItem(food(part.item, { BaseHunger = -0.6, Calories = numbered and n or 300, Proteins = 50, Lipids = 12, Age = 0.5 }))
         end
         return "pork\r\n"
     end,
@@ -69,6 +71,13 @@ check("the log names the legs", text == "pork\r\nLeg of Pork\r\nLeg of Pork\r\n"
 local leg = inventory:getAllType(F.LEG_OF_PORK):get(0)
 check("a leg holds five pieces' food", near(leg.values.Calories, 1500) and near(leg.values.BaseHunger, -3)
     and near(leg.values.HungChange, -3) and near(leg.values.Proteins, 250) and leg.values.Age == 0.5)
+-- B2 (2026-11-14): the pieces come in the inventory's order, not pairs()' (rule 9), so the same five make each leg.
+numbered = true
+butcher("sowlandrace", 22)
+local legs = inventory:getAllType(F.LEG_OF_PORK)
+check("each leg takes the newest five pieces left, the same ones every time",
+    legs:size() == 2 and near(legs:get(0).values.Calories, 22 + 21 + 20 + 19 + 18) and near(legs:get(1).values.Calories, 17 + 16 + 15 + 14 + 13))
+numbered = false
 butcher("sowlandrace", 4)
 check("from the ground, too few Pork make no leg", count(F.LEG_OF_PORK) == 0 and count("Base.Pork") == 4)
 butcher("pigletlandrace", 22)

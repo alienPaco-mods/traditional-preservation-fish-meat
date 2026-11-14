@@ -63,18 +63,18 @@ function TPFM.weather()
         .. ", charque banked " .. n(ledger.charqueBankedRate) .. ", charque stoked " .. n(ledger.charqueStokedRate))
     say("Basement (" .. n(Weather.placeTemperature(ledger, "Basement")) .. " C): salt fish " .. n(ledger.basementShelteredRate)
         .. ", charque " .. n(ledger.charqueBasementRate) .. ", dry cure " .. n(ledger.dryCureBasementRate)
-        .. "; a tub there: warm cure " .. tostring(ledger.basementWarmCuring == true) .. ", long cure " .. tostring(ledger.basementLongCuring == true))
+        .. "; a tub there: warm cure " .. tostring(ledger.warmCureBasementOn == true) .. ", long cure " .. tostring(ledger.longCureBasementOn == true))
     say("Loft (" .. n(Weather.placeTemperature(ledger, "Loft")) .. " C): salt fish " .. n(ledger.loftShelteredRate)
         .. ", charque " .. n(ledger.charqueLoftRate) .. ", dry cure " .. n(ledger.dryCureLoftRate)
-        .. "; a tub there: warm cure " .. tostring(ledger.loftWarmCuring == true) .. ", long cure " .. tostring(ledger.loftLongCuring == true))
+        .. "; a tub there: warm cure " .. tostring(ledger.warmCureLoftOn == true) .. ", long cure " .. tostring(ledger.longCureLoftOn == true))
     say("Room (" .. n(Weather.placeTemperature(ledger, "Sheltered")) .. " C): salt fish " .. n(ledger.roomShelteredRate)
         .. ", charque " .. n(ledger.charqueRoomRate) .. ", dry cure " .. n(ledger.dryCureRoomRate)
-        .. "; a tub there: warm cure " .. tostring(ledger.roomWarmCuring == true) .. ", long cure " .. tostring(ledger.roomLongCuring == true))
+        .. "; a tub there: warm cure " .. tostring(ledger.warmCureRoomOn == true) .. ", long cure " .. tostring(ledger.longCureRoomOn == true))
     say("Under a roof (" .. n(Weather.placeTemperature(ledger, "Covered")) .. " C): dry cure " .. n(ledger.dryCureCoveredRate)
-        .. "; a tub in the open air (the day's): warm cure " .. tostring(ledger.openWarmCuring == true) .. ", long cure "
-        .. tostring(ledger.openLongCuring == true) .. "; the Smokehouse's indoors figures above go by the day's temperature")
-    say("Spoiling now: unsalted " .. tostring(ledger.rawSpoiling == true) .. ", salted " .. tostring(ledger.saltSpoiling == true)
-        .. ", warm cure " .. tostring(ledger.warmCuring == true) .. ", hot sun " .. tostring((ledger.temperature or 0) > F.HEAT_ABOVE))
+        .. "; a tub in the open air (the day's): warm cure " .. tostring(ledger.warmCureOpenOn == true) .. ", long cure "
+        .. tostring(ledger.longCureOpenOn == true) .. "; the Smokehouse's indoors figures above go by the day's temperature")
+    say("Spoiling now: unsalted " .. tostring(ledger.rawSpoilOn == true) .. ", salted " .. tostring(ledger.saltSpoilOn == true)
+        .. ", warm cure " .. tostring(ledger.warmCureOn == true) .. ", hot sun " .. tostring((ledger.temperature or 0) > F.HEAT_ABOVE))
     say("Totals (hours at full speed): open " .. n(ledger.open) .. ", covered " .. n(ledger.covered) .. ", indoors " .. n(ledger.sheltered)
         .. ", cold " .. n(ledger.cold) .. ", cold covered " .. n(ledger.coldCovered)
         .. ", raw spoil " .. n(ledger.rawSpoil) .. ", salt spoil " .. n(ledger.saltSpoil)
@@ -121,34 +121,34 @@ function TPFM.wind()
     windLog = nil
 end
 
+-- Adds hours to every total of the families named, at every place (F.TOTALS), each hour worth amount.
+local function addToTotals(ledger, families, amount)
+    for _, family in ipairs(families) do
+        for _, key in ipairs(F.FAMILY_KEYS[family]) do ledger[key] = (ledger[key] or 0) + amount end
+    end
+end
+
 function TPFM.age(hours)
     hours = hours or 24
     local ledger = F.getLedger()
-    ledger.open, ledger.sheltered, ledger.cold = ledger.open + hours, ledger.sheltered + hours, ledger.cold + hours
-    ledger.covered, ledger.coldCovered = ledger.covered + hours, ledger.coldCovered + hours
-    ledger.charque, ledger.charqueCovered, ledger.charqueSheltered = ledger.charque + hours, ledger.charqueCovered + hours, ledger.charqueSheltered + hours
-    ledger.smokeBanked, ledger.smokeStoked = ledger.smokeBanked + hours, ledger.smokeStoked + hours
-    ledger.charqueBanked, ledger.charqueStoked = ledger.charqueBanked + hours, ledger.charqueStoked + hours
-    ledger.dryCure, ledger.dryCureBanked, ledger.dryCureStoked = ledger.dryCure + hours, ledger.dryCureBanked + hours, ledger.dryCureStoked + hours
-    -- Perfect dry-curing weather is a shed at 12 C: Corned meat hanging in a Smokehouse spoils as it would there.
+    addToTotals(ledger, { "dry", "charque", "cure", "cold" }, hours)
+    for _, key in ipairs({ "smokeBanked", "smokeStoked", "charqueBanked", "charqueStoked", "dryCureBanked", "dryCureStoked" }) do
+        ledger[key] = (ledger[key] or 0) + hours
+    end
+    -- Perfect dry-curing weather is a shed at 12 C: Corned meat hanging there spoils as it would, and poultry and
+    -- rabbit waiting for their cook by their own rate.
     local under = hours * F.underCureRate(F.DRY_CURE_FULL_HEAT)
-    ledger.underCure, ledger.underCureBanked, ledger.underCureStoked = ledger.underCure + under, ledger.underCureBanked + under, ledger.underCureStoked + under
-    ledger.dryCureBasement, ledger.underCureBasement = (ledger.dryCureBasement or 0) + hours, (ledger.underCureBasement or 0) + under
-    ledger.basementSheltered, ledger.charqueBasement = (ledger.basementSheltered or 0) + hours, (ledger.charqueBasement or 0) + hours
-    ledger.dryCureLoft, ledger.underCureLoft = (ledger.dryCureLoft or 0) + hours, (ledger.underCureLoft or 0) + under
-    ledger.loftSheltered, ledger.charqueLoft = (ledger.loftSheltered or 0) + hours, (ledger.charqueLoft or 0) + hours
-    ledger.dryCureRoom, ledger.underCureRoom = (ledger.dryCureRoom or 0) + hours, (ledger.underCureRoom or 0) + under
-    ledger.roomSheltered, ledger.charqueRoom = (ledger.roomSheltered or 0) + hours, (ledger.charqueRoom or 0) + hours
-    ledger.dryCureCovered, ledger.underCureCovered = (ledger.dryCureCovered or 0) + hours, (ledger.underCureCovered or 0) + under
-    say(string.format("Added %.0f hours of perfect drying weather. Stacks update within a few seconds. Corned meat in a Smokehouse spoiled %.0f%% (a 12 C shed).", hours, under * 100))
+    addToTotals(ledger, { "under" }, under)
+    ledger.underCureBanked, ledger.underCureStoked = ledger.underCureBanked + under, ledger.underCureStoked + under
+    local hotOnly = hours * F.hotOnlyUnderRate(F.DRY_CURE_FULL_HEAT)
+    for _, key in ipairs({ "hotOnlyUnder", "hotOnlyUnderBanked", "hotOnlyUnderStoked" }) do ledger[key] = (ledger[key] or 0) + hotOnly end
+    say(string.format("Added %.0f hours of perfect drying weather. Stacks update within a few seconds. Corned meat in a Smokehouse spoiled %.0f%% (a 12 C shed), poultry and rabbit %.0f%%.", hours, under * 100, hotOnly * 100))
 end
 
 function TPFM.spoil(hours)
     hours = hours or 24
     local ledger = F.getLedger()
-    ledger.rawSpoil, ledger.saltSpoil = ledger.rawSpoil + hours, ledger.saltSpoil + hours
-    ledger.rawSpoilOpen = (ledger.rawSpoilOpen or 0) + hours
-    for _, place in ipairs({ "Room", "Loft", "Basement" }) do ledger["saltSpoil" .. place] = (ledger["saltSpoil" .. place] or 0) + hours end
+    addToTotals(ledger, { "rawSpoil", "saltSpoil" }, hours)
     say(string.format("Added %.0f hours of spoiling weather. A fresh cold stack rots after %d.", hours, F.RAW_SPOIL_HOURS))
 end
 
@@ -213,7 +213,7 @@ end
 
 function TPFM.mature(days)
     days = days or 10
-    local fish = getPlayer():getInventory():getAllTypeRecurse("TraditionalPreservationFishMeat.ColdDriedFish")
+    local fish = getPlayer():getInventory():getAllTypeRecurse(F.COLD_DRIED)
     for i = 0, fish:size() - 1 do
         local item = fish:get(i)
         item:setAge(item:getAge() + days)
@@ -293,7 +293,7 @@ end
 
 -- A fish packed and cured as the tub would: "Walleye (Salt Cured)".
 local function curedFish(fullType, weight)
-    local raw, packed, cured = instanceItem(fullType), instanceItem(F.PACKED_FISH), instanceItem("TraditionalPreservationFishMeat.SaltPressedFish")
+    local raw, packed, cured = instanceItem(fullType), instanceItem(F.PACKED_FISH), instanceItem(F.PRESSED_FISH)
     setWeight(raw, weight)
     F.carry(raw, packed)
     F.carry(packed, cured)
@@ -305,7 +305,7 @@ end
 local FISH_STAGES = {
     cured = function(inventory, fullType, weight) inventory:AddItem(curedFish(fullType, weight)) end,
     dried = function(inventory, fullType, weight)
-        local dried = instanceItem("TraditionalPreservationFishMeat.SaltDriedFish")
+        local dried = instanceItem(F.SALT_DRIED)
         F.carry(curedFish(fullType, weight), dried)
         inventory:AddItem(dried)
     end,
@@ -316,7 +316,7 @@ local FISH_STAGES = {
         inventory:AddItem(F.smokedItem(curedFish(fullType, weight), {}, F.COLD_FISH_OUT, F.DRY_CURED))
     end,
     stockfish = function(inventory, fullType)
-        local fish = inventory:AddItem("TraditionalPreservationFishMeat.ColdDriedFish")
+        local fish = inventory:AddItem(F.COLD_DRIED)
         fish:getModData().fishName = shortName(fullType)
         fish:getModData().matureAge = fish:getAge()
         F.rename(fish)
@@ -369,7 +369,7 @@ local MEAT_SPAWNS = {
     charque = function(inventory, cut)
         local corned = curedCut(cut, false)
         if F.isPork(corned) or F.isHotOnly(corned) then return end
-        local charque = instanceItem("TraditionalPreservationFishMeat.Charque")
+        local charque = instanceItem(F.CHARQUE)
         F.carry(corned, charque)
         inventory:AddItem(charque)
     end,
@@ -399,7 +399,7 @@ end
 
 -- The other things a test wants, by name. option is the fat pot's state: "cooked" (the default), "burnt" or "raw".
 local GIVES = {
-    head = function(count) give("TraditionalPreservationFishMeat.FishHead", count) end,
+    head = function(count) give(F.FISH_HEAD, count) end,
     stock = function(count) give("TraditionalPreservationFishMeat.PotOfFishHeadStock", count) end,
     boneBroth = function(count) give("TraditionalPreservationFishMeat.PotOfBoneBroth", count) end,
     chickenStock = function(count) give("TraditionalPreservationFishMeat.PotOfChickenStock", count) end,
@@ -435,18 +435,18 @@ GIVES.blood = function(count, state)
         end
     end
 end
-GIVES.casings = function(count) give("TraditionalPreservationFishMeat.RawCasings", count) end
+GIVES.casings = function(count) give(F.CASING_ITEM, count) end
 GIVES.saltedCasings = function(count) give("TraditionalPreservationFishMeat.SaltedCasings", count) end
 GIVES.blackPudding = function(count) give("TraditionalPreservationFishMeat.BlackPudding", count) end
 -- Boiled links, cooked as the pot gives them (the Smokehouse takes only cooked ones); "stale" a day short of a week.
 GIVES.bloodSausage = function(count, state)
-    for _, item in ipairs(give("TraditionalPreservationFishMeat.BloodSausage", count)) do
+    for _, item in ipairs(give(F.BLOOD_SAUSAGE, count)) do
         item:setCooked(true)
         if state == "stale" then item:setAge(item:getOffAge() - 0.1) end
     end
 end
 GIVES.smokedBloodSausage = function(count)
-    for _, item in ipairs(give("TraditionalPreservationFishMeat.SmokedBloodSausage", count)) do item:setCooked(true) end
+    for _, item in ipairs(give(F.SMOKED_BLOOD_SAUSAGE, count)) do item:setCooked(true) end
 end
 -- Raw links (the Smokehouse takes only raw ones); "seasoned" with garlic, pepper and oregano (as TP Core's Season
 -- menu puts them in, nothing taken), "stale" a tenth of a day from going off.
@@ -480,7 +480,7 @@ local KITS = {
         "Base.Pork", "Base.Chicken", "Base.TurkeyLegs", "Base.TurkeyWings", "Base.Rabbitmeat", "Base.ClayJar",
         "Base.ClayJarGlazed", "Base.ClayPot" },
     stock = { about = "what every stock takes: a Fish Head, 2 Animal Bones, a Large Animal Bone, 6 Small Animal Bones, 2 Chicken Feet, a hen's and a turkey's head, 5 Pots (fill them with 1.5 L of water) and 4 Bowls",
-        "TraditionalPreservationFishMeat.FishHead",
+        F.FISH_HEAD,
         "Base.AnimalBone", "Base.AnimalBone", "Base.LargeAnimalBone", "Base.SmallAnimalBone", "Base.SmallAnimalBone",
         "Base.SmallAnimalBone", "Base.SmallAnimalBone", "Base.SmallAnimalBone", "Base.SmallAnimalBone", "Base.ChickenFoot",
         "Base.ChickenFoot", "Base.Chicken_Hen_Brown_Head", "Base.Turkey_Hen_Head", "Base.Pot", "Base.Pot", "Base.Pot", "Base.Pot", "Base.Pot", "Base.Bowl", "Base.Bowl", "Base.Bowl", "Base.Bowl" },
@@ -492,7 +492,7 @@ local KITS = {
         counts = { ["Base.BarleySeed"] = 12, ["Base.RyeSeed"] = 12, ["Base.WheatSeed"] = 12 },
         "Base.EmptyJar", "Base.BakingPan", "Base.Pot", "Base.OatsRaw", "Base.Rice", "Base.Lard",
         "TraditionalPreservationFishMeat.PorkFat", "Base.Salt", "Base.Salt", "Base.Salt", "Base.Salt", "Base.Vinegar2",
-        "TraditionalPreservationFishMeat.RawCasings", "TraditionalPreservationFishMeat.SaltedCasings", "Base.KitchenKnife",
+        F.CASING_ITEM, "TraditionalPreservationFishMeat.SaltedCasings", "Base.KitchenKnife",
         give = { blood = 1, bloodSausage = 6, smokedBloodSausage = 1 } },
     sausage = { about = "2 Pork, a Pork Chop, Beef, Venison, Pork Fat, Lard, 2 Salt, Garlic, Onion, Pepper, Oregano, Thyme, Sage (to season links), 2 Salted Casings, a Pot and a Kitchen Knife, for Smoked Sausage (fill the Pot with 1.5 L of water); 6 raw Fresh Sausages for the Smokehouse and a seasoned Smoked Sausage",
         "Base.Pork", "Base.Pork", "Base.PorkChop", "Base.Beef", "Base.Venison", "TraditionalPreservationFishMeat.PorkFat",
@@ -505,7 +505,11 @@ local KITS = {
 function TPFM.kit(kind)
     local kit = KITS[kind]
     if not kit then
-        for name, entry in pairs(KITS) do say("TPFM.kit(\"" .. name .. "\"): " .. entry.about) end
+        -- In name order, the same every time (rule 9).
+        local names = {}
+        for name in pairs(KITS) do table.insert(names, name) end
+        table.sort(names)
+        for _, name in ipairs(names) do say("TPFM.kit(\"" .. name .. "\"): " .. KITS[name].about) end
         return
     end
     for _, fullType in ipairs(kit) do give(fullType) end

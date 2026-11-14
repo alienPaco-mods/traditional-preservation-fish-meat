@@ -5,6 +5,7 @@
 -- slice takes its share of the piece's food and mood, keeps half the piece's days (its script) and starts as far
 -- through them as the piece was. Hot smoked pork is vanilla's Ham, which vanilla slices. Hot smoked poultry and
 -- rabbit aren't sliced; a whole bird is carved into vanilla's six cuts.
+require "TraditionalPreservationFishMeat/Common"
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Recipes = require "TraditionalPreservationCore/Recipes"
@@ -17,11 +18,10 @@ F.CARVE_HUNGER = 0.7
 -- With this much hunger or less left on it, the next carving is the ham's last.
 F.CARVE_LAST = 1.05
 F.SLICES = {
-    ["TraditionalPreservationFishMeat.HotSmokedMeat"] = "TraditionalPreservationFishMeat.HotSmokedMeatSlice",
-    ["TraditionalPreservationFishMeat.DryCuredMeat"] = "TraditionalPreservationFishMeat.DryCuredMeatSlice",
-    ["TraditionalPreservationFishMeat.CountryHam"] = "TraditionalPreservationFishMeat.CountryHamSlice",
+    [F.HOT_MEAT] = F.HOT_SLICE,
+    [F.DRY_CURED] = F.DRY_CURED_SLICE,
+    [F.COUNTRY_HAM] = F.HAM_SLICE,
 }
-local HAM = "TraditionalPreservationFishMeat.CountryHam"
 
 -- The mood and thirst a food item gives as it is, not as staleness or cooking would change them.
 local EXTRAS = { "UnhappyChange", "BoredomChange", "ThirstChange" }
@@ -67,10 +67,7 @@ end
 function F.carveOff(piece, share)
     local left = 1 - share
     piece:setHungChange(piece:getHungChange() * left)
-    piece:setCalories(piece:getCalories() * left)
-    piece:setProteins(piece:getProteins() * left)
-    piece:setLipids(piece:getLipids() * left)
-    piece:setCarbohydrates(piece:getCarbohydrates() * left)
+    F.scaleNutrients(piece, left)
     for _, field in ipairs(EXTRAS) do piece["set" .. field](piece, extra(piece, field) * left) end
     piece:setActualWeight(piece:getActualWeight() * left)
     piece:setCustomWeight(true)
@@ -83,30 +80,30 @@ end
 
 -- OnTest sees every input, so the knife passes here too.
 function F.canCarve(item)
-    return item:getFullType() ~= HAM or F.carvesOn(item)
+    return item:getFullType() ~= F.COUNTRY_HAM or F.carvesOn(item)
 end
 
 function F.canCarveLast(item)
-    return item:getFullType() ~= HAM or not F.carvesOn(item)
+    return item:getFullType() ~= F.COUNTRY_HAM or not F.carvesOn(item)
 end
 
 -- Hot smoked poultry and rabbit (0.4.34) aren't sliced: the cuts are eaten as they are, and a whole bird is carved
 -- (Carve Chicken / Turkey (Hot Smoked)). OnTest sees the knife too.
 function F.canSliceHot(item)
-    return item:getFullType() ~= "TraditionalPreservationFishMeat.HotSmokedMeat" or not F.isHotOnly(item)
+    return item:getFullType() ~= F.HOT_MEAT or not F.isHotOnly(item)
 end
 
 -- Whether this is a whole hot smoked bird of the MEAT_CUTS index wanted.
 local function wholeBird(item, index)
-    return item:getFullType() ~= "TraditionalPreservationFishMeat.HotSmokedMeat" or item:getModelIndex() == index
+    return item:getFullType() ~= F.HOT_MEAT or item:getModelIndex() == index
 end
 
 function F.canCarveChicken(item)
-    return wholeBird(item, 10)
+    return wholeBird(item, F.WHOLE_CHICKEN)
 end
 
 function F.canCarveTurkey(item)
-    return wholeBird(item, 14)
+    return wholeBird(item, F.WHOLE_TURKEY)
 end
 
 local created = Recipes.created

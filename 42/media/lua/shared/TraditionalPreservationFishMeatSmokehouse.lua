@@ -2,10 +2,12 @@
 -- the fire's two counters are TP Core's (Smokehouse.lua, moved there 2026-11-13); this is the fish and meat's side:
 -- each stack's needs, its drying by the fire's warmth, and what comes out. Only stacks this mod hung are stepped
 -- here (F.OWNER): another mod's cheese in the same shed is its own.
+require "TraditionalPreservationFishMeat/Common"
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local Station = require "TraditionalPreservationCore/Station"
+local Weather = require "TraditionalPreservationCore/Weather"
 
 F.OWNER = "TraditionalPreservationFishMeat"
 
@@ -25,8 +27,6 @@ F.HOT_FISH_HOURS = { { 1.1, 4 }, { 2.2, 6 } }
 F.HOT_MEAT_HOURS = { { 0.3, 6 }, { 0.5, 8 } }
 F.HOT_MIN_HOURS = 4
 F.HOT_MAX_HOURS = 12
-F.HOT_FISH = "TraditionalPreservationFishMeat.HotSmokedFish"
-F.HOT_MEAT = "TraditionalPreservationFishMeat.HotSmokedMeat"
 
 -- Cold smoke (5d; fixed hours since 6b): a stack whose cold counter reaches its smoke need comes out Cold Smoked
 -- when it has dried (smoked-dried fish, balyk, suho meso: a few hours of smoke a day over the drying). The need is
@@ -35,18 +35,13 @@ F.HOT_MEAT = "TraditionalPreservationFishMeat.HotSmokedMeat"
 -- F.STOKED_LIFT), not at the cold shed's rate (Enclosed: the day's temperature).
 F.SMOKE_FISH_HOURS = { { 1.1, 24 }, { 2.2, 48 } }
 F.SMOKE_MEAT_HOURS = { { 0.45, 60 }, { 2.25, 120 } }
-F.COLD_FISH_OUT = "TraditionalPreservationFishMeat.ColdSmokedFish"
-F.DRY_CURED = "TraditionalPreservationFishMeat.DryCuredMeat"
 -- 6b: a Leg of Pork dries to a Country Ham and never takes a hot cook (a hot smoked whole ham is a wet-cured city
 -- ham, another product); the other pork cuts hot smoke to vanilla's Ham.
-F.COUNTRY_HAM = "TraditionalPreservationFishMeat.CountryHam"
 F.VANILLA_HAM = "Base.Ham"
 
 -- The stoked hours a stack needs, by its heaviest piece: straight between the two points, on past them, clamped.
 function F.hotHours(isMeat, heaviest)
-    local points = isMeat and F.HOT_MEAT_HOURS or F.HOT_FISH_HOURS
-    local low, high = points[1], points[2]
-    local hours = low[2] + (heaviest - low[1]) * (high[2] - low[2]) / (high[1] - low[1])
+    local hours = F.lineThrough(isMeat and F.HOT_MEAT_HOURS or F.HOT_FISH_HOURS, heaviest)
     return math.max(F.HOT_MIN_HOURS, math.min(hours, F.HOT_MAX_HOURS))
 end
 
@@ -81,8 +76,7 @@ function F.startSmoke(modData, items, isMeat)
 end
 
 -- The ledger totals a stack's warmth reads: salt fish's drying in the shed (the ledger's sheltered, by the day's
--- temperature) or meat's dry curing with the fire out, and
--- by a banked and by a stoked fire.
+-- temperature) or meat's dry curing with the fire out, and by a banked and by a stoked fire.
 local function warmthTotals(modData, ledger)
     if modData.smokeMeat then return ledger.dryCure or 0, ledger.dryCureBanked or 0, ledger.dryCureStoked or 0 end
     return ledger.sheltered or 0, ledger.smokeBanked or 0, ledger.smokeStoked or 0
@@ -106,8 +100,8 @@ end
 
 -- Since the stack's last look: the share of the hours that were cool enough for cold smoke, and how much more a stack
 -- by a banked and by a stoked fire dried than one with the fire out per hour, from the ledger's totals (a week away reads
--- the week's weather). With no hours between, the weather now and no gain. A stack from before the smoulder's
--- warmth starts its warm totals at this look.
+-- the week's weather). With no hours between, the weather now and no gain. A stack's first look starts its warm
+-- totals.
 local function sinceLast(modData, ledger)
     local sheltered, banked, stoked = warmthTotals(modData, ledger)
     local hours = (ledger.clock or 0) - (modData.lastClock or ledger.clock or 0)
@@ -126,16 +120,6 @@ local function sinceLast(modData, ledger)
     return math.max(0, math.min(coolShare, 1)), math.max(bankedGain, 0), math.max(stokedGain, 0), underBanked, underStoked
 end
 
--- A stack of meat hung in a shed before 6b dried on charque's clock: it gets its dry-curing need, keeps its share
--- of progress and starts the new totals from this look.
-local function toDryCure(modData, ledger)
-    local need = F.dryCureHours(modData.heaviest or F.DRY_CURE_HOURS[1][1])
-    modData.dried = (modData.dried or 0) / F.CHARQUE_HOURS * need
-    modData.cureNeed = need
-    modData.lastDryCure, modData.lastUnderCure = ledger.dryCure, ledger.underCure
-    modData.lastDraughtSheltered, modData.lastDraughtBanked, modData.lastDraughtStoked = nil, nil, nil
-end
-
 -- Brings a stack's counters up to the fire's record (a Firebox's Hearth state), or none (not joined): TP Core's
 -- Smokehouse.fireStep. With the ledger (the World's look; tests may leave it out): fire hours count as cold only on
 -- cool days, stoked or banked (user: no Cold Smoked in summer from short stoked bursts), and every hour of fire adds
@@ -144,7 +128,6 @@ function F.smokeStep(modData, fire, ledger)
     if not modData.hotNeed then return end
     local coolShare, bankedGain, stokedGain, underBanked, underStoked = 1, 0, 0, 0, 0
     if ledger then
-        if modData.smokeMeat and not modData.cureNeed then toDryCure(modData, ledger) end
         coolShare, bankedGain, stokedGain, underBanked, underStoked = sinceLast(modData, ledger)
     end
     local stoked, banked = Smokehouse.fireStep(modData, fire, coolShare)
@@ -163,15 +146,12 @@ F.hotDone = Smokehouse.hotDone
 -- The hours of smoke a stack needs, by its heaviest piece: straight between the two points, never under the first
 -- nor over the second.
 function F.smokeHours(isMeat, heaviest)
-    local points = isMeat and F.SMOKE_MEAT_HOURS or F.SMOKE_FISH_HOURS
-    local low, high = points[1], points[2]
-    local hours = low[2] + (heaviest - low[1]) * (high[2] - low[2]) / (high[1] - low[1])
-    return math.max(low[2], math.min(hours, high[2]))
+    return Weather.curve(isMeat and F.SMOKE_MEAT_HOURS or F.SMOKE_FISH_HOURS, heaviest)
 end
 
--- A stack's smoke need (one hung before 6b gets it from its heaviest piece), and whether it has had it.
+-- A stack's smoke need (F.startSmoke sets it), and whether it has had it.
 function F.coldNeed(modData)
-    return modData.smokeNeed or F.smokeHours(modData.smokeMeat == true, modData.heaviest or 0)
+    return modData.smokeNeed
 end
 
 function F.coldDone(modData)

@@ -10,7 +10,7 @@ H.installEvents()
 -- The mod's own modules load for real, vanilla's are left out.
 local realRequire = require
 require = function(name)
-    if name:find("^TraditionalPreservationFishMeat/") or name:find("^TraditionalPreservationCore/") then return realRequire(name) end
+    if name:find("^TraditionalPreservationFishMeat") or name:find("^TraditionalPreservationCore/") then return realRequire(name) end
 end
 
 -- Engine stand-ins
@@ -120,7 +120,7 @@ tick(30)
 -- States 4 (salt, done), 7 (gutted, stage 2), 0 (salt, fresh) in slots 0-2 of face 0.
 check("each stack gets its sprite, driest first", table.concat(shed.sprites, " ") ==
     "traditionalpreservationfishmeat_01_72 traditionalpreservationfishmeat_01_122 traditionalpreservationfishmeat_01_12")
-check("running stacks learn they are under a roof", running.modData.sheltered == true)
+check("running stacks learn they are indoors", running.modData.place == "Sheltered")
 check("the frame counts its busy stacks", W.busyStacks(shed) == 2)
 tick(30)
 check("an unchanged frame is left alone", shed.clears == 1)
@@ -129,15 +129,14 @@ local outdoors = recipeData(0.1, T.STYLE_SALT)
 local yard = station("traditionalpreservationfishmeat_01_7", 2, true, {}, { outdoors }, {})
 W.track(yard)
 tick(30)
-check("an open frame is open", outdoors.modData.sheltered == false and outdoors.modData.covered == false and yard.sprites[1] == "traditionalpreservationfishmeat_01_9")
-check("a frame in a room is indoors", running.modData.covered == false)
+check("an open frame is open", outdoors.modData.place == "Open" and yard.sprites[1] == "traditionalpreservationfishmeat_01_9")
 
 local porched = recipeData(0.1, T.STYLE_SALT)
 local porch = station("traditionalpreservationfishmeat_01_7", 4, false, {}, { porched }, {})
 porch.porch = true
 W.track(porch)
 W.refresh(porch)
-check("a frame under an open roof is covered", porched.modData.covered == true and porched.modData.sheltered == false)
+check("a frame under an open roof is covered", porched.modData.place == "Covered")
 
 -- Charque: a meat stack halfway and Salt Cured meat waiting, from the meat's own tiles at the end of sheet 2.
 local charque = recipeData(0.5, T.STYLE_MEAT)
@@ -189,9 +188,9 @@ local smokehouse = station(SHED, 6, true, { fish(T.CURED_MEAT) }, { smoked, chee
 smokehouse.sprites = { "core's" }
 W.track(smokehouse)
 W.refresh(smokehouse)
-check("a Smokehouse in the open is out of the rain inside, and marked as the shed", smoked.modData.sheltered == true
-    and smoked.modData.covered == false and smoked.modData.inShed == true and smoked.modData.loft == false)
-check("another mod's stack in it is left alone", cheese.modData.sheltered == nil and cheese.modData.inShed == nil)
+check("a Smokehouse in the open is out of the rain inside, and marked as the shed", smoked.modData.place == "Enclosed"
+    and T.inShed(smoked.modData) and T.sheltered(smoked.modData))
+check("another mod's stack in it is left alone", cheese.modData.place == nil)
 check("and the look is Core's to draw", smokehouse.sprites[1] == "core's" and smokehouse.clears == 0)
 check("it counts every busy stack, another mod's too", W.busyStacks(smokehouse) == 2)
 check("a frame keeps the frame's", rack:getComponent("DryingCraftLogic").tag == "DryingFrame")
@@ -203,15 +202,6 @@ check("a look at the frame: its hanger, place and contents", seen.hanger == T.HA
 check("and its running batch with its progress", #seen.batches == 1 and seen.batches[1].data == running and seen.batches[1].progress == 0.5)
 check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place == "Enclosed" and W.inspect(smokehouse).hanger.closed)
 check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].data == smoked)
--- A stack hung before step J was last marked Sheltered with inShed: the next look marks it the same, so it keeps
--- reading the same totals.
-local oldStack = recipeData(0.3, T.STYLE_MEAT)
-oldStack.modData.sheltered, oldStack.modData.inShed, oldStack.modData.smokeOwner = true, true, T.OWNER
-local oldShed = station(SHED, 6, true, {}, { oldStack }, {})
-W.track(oldShed)
-W.refresh(oldShed)
-check("an old Smokehouse stack keeps its marks", oldStack.modData.sheltered == true and oldStack.modData.inShed == true
-    and not oldStack.modData.basement and not oldStack.modData.covered)
 check("another mod's object gives nothing", W.inspect(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
 
 -- Tubs
@@ -255,5 +245,12 @@ local open = ledger.open
 H.setHours(101)
 H.fire("EveryTenMinutes")
 check("the world file records the weather", ledger.temperature == 20 and ledger.wind == 0.3 and ledger.lastHour == 101 and near(ledger.open - open, 1))
+
+-- B5 (2026-11-14): two stacks as far along keep one order, by when they were hung, whatever order they come in.
+local early, late = { progress = 0.5, style = 0, stackId = 10 }, { progress = 0.5, style = 1, stackId = 20 }
+local one = W.fishStates(nil, { early, late }, {})
+local other = W.fishStates(nil, { late, early }, {})
+check("stacks as far along draw the same either way, the earlier hung first",
+    table.concat(one, ",") == table.concat(other, ",") and one[1] == 0 * T.DRYING_STAGES + T.dryingStage(0.5))
 
 H.done()

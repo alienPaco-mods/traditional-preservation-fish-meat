@@ -49,10 +49,13 @@ local covered, heat, warmCure = ledger.covered, ledger.heat, ledger.warmCure
 run("age", 10)
 run("heat", 5)
 run("warmCure", 24)
-local under = ledger.underCure
+local under, hotOnly, cellar = ledger.underCure, ledger.hotOnlyUnder or 0, ledger.dryCureBasement
 run("age", 100)
 check("age spoils Corned meat in a Smokehouse as a 12 C shed would", math.abs(ledger.underCure - under - 100 * F.underCureRate(12)) < 1e-9
     and ledger.dryCure ~= nil)
+-- B4 (2026-11-14): poultry and rabbit waiting for their cook too, by their own rate; every place's dry curing.
+check("and poultry and rabbit by theirs, and dry curing in every place", math.abs(ledger.hotOnlyUnder - hotOnly - 100 * F.hotOnlyUnderRate(12)) < 1e-9
+    and math.abs(ledger.dryCureBasement - cellar - 100) < 1e-9)
 covered = ledger.covered - 10
 check("age feeds covered frames, heat and warmCure their totals", ledger.covered == covered + 10 and ledger.heat == heat + 5 and ledger.warmCure == warmCure + 36)
 ledger.wetness = 3
@@ -115,6 +118,9 @@ check("meat gives each cut", #player.given == before + 2 * #F.MEAT_CUTS and play
 before = #player.given
 check("kit with no kind lists them", run("kit"):find("TPFM.kit(\"potted\")", 1, true) ~= nil and #player.given == before)
 check("the flue kit is TP Core's now", run("kit"):find("TPFM.kit(\"flue\")", 1, true) == nil)
+local listed = run("kit")
+check("the kits are listed in name order (2026-11-14)", listed:find("\"blood\"", 1, true) < listed:find("\"potted\"", 1, true)
+    and listed:find("\"potted\"", 1, true) < listed:find("\"poultry\"", 1, true) and listed:find("\"poultry\"", 1, true) < listed:find("\"sausage\"", 1, true))
 function getCell() return { getGridSquare = function() return nil end } end
 check("pallet says when there is none near", run("pallet"):find("No Stockfish Pallet", 1, true) ~= nil)
 check("smoke says when no Smokehouse is near", run("smoke"):find("No Smokehouse", 1, true) ~= nil)

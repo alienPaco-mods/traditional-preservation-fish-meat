@@ -17,6 +17,13 @@ local TUB_FILLED_SPRITE, TUB_WEIGHTED_SPRITE, TUB_MEAT_SPRITES = Tiles.TUB_FILLE
 local FRAME_SPRITE = Tiles.FRAME
 local STAGE_FRESH = 0
 
+-- Furthest along first; two stacks as far along go by when they were hung, so the order (and the sprites) never
+-- depends on the order the engine lists them in (rule 9).
+local function furthestFirst(a, b)
+    if a.progress ~= b.progress then return a.progress > b.progress end
+    return (a.stackId or 0) < (b.stackId or 0)
+end
+
 -- How many fish, how many stacks, each stack's style, and the items in slot order (the last in last). Finished dry cured meat still hanging (hangingSince, the
 -- hour) ages faster as it is counted (F.ageHanging). rotten[n] is true when any piece of the nth stack has rotted.
 local function countItems(resources, group, io, hangingSince)
@@ -52,7 +59,7 @@ function TraditionalPreservationFishMeatWorld.fishStates(waitingStyle, batches, 
         table.insert(states, rotten and F.ROTTEN_STATE + F.rottenKind(style) or style * stages + stages - 1)
     end
 
-    table.sort(batches, function(a, b) return a.progress > b.progress end)
+    table.sort(batches, furthestFirst)
     for _, batch in ipairs(batches) do
         table.insert(states, batch.rotten and F.ROTTEN_STATE + F.rottenKind(batch.style)
             or batch.style * stages + F.dryingStage(batch.progress))
@@ -80,25 +87,21 @@ function TraditionalPreservationFishMeatWorld.tubSprite(waiting, batches, finish
     return nil
 end
 
--- place is the station's: indoors (and inside the Smokehouse) is sheltered, a roof with no room round it covered.
+-- place is the station's (TP Core's word, the Smokehouse Enclosed).
 -- In the Smokehouse each stack also counts the joined Firebox's fire (F.smokeStep); a done cook is noted for its
 -- OnUpdate to finish, and every stack's shed for OnCreate's Cold Smoked swap (F.smokeStations). Another mod's stacks
 -- in the shed are its own: only counted, as they take room (others).
 local function readBatch(station, craftData, modData, logic, place, smoking, fire, ledger)
-    -- Out of the rain: a room, a loft, a basement and the Smokehouse (Enclosed, marked inShed below).
-    modData.sheltered = place ~= "Open" and place ~= "Covered"
-    modData.covered = place == "Covered"
-    modData.basement = place == "Basement"
-    -- A loft, like a basement, goes by its own temperature.
-    modData.loft = place == "Loft"
+    -- TP Core's place word: the Smokehouse is Enclosed. The totals each place goes by are the ledger's (F.TOTALS).
+    modData.place = place
     if modData.stackId then F.stackStations[modData.stackId] = station end
     if smoking then
         F.smokeStep(modData, fire, ledger)
-        modData.inShed = true
         if modData.stackId then F.smokeStations[modData.stackId] = station end
         if F.hotDone(modData) then F.hotStations[modData.stackId] = station end
     end
-    return { progress = logic:getProgress(craftData), style = modData.style or F.STYLE_SALT, rotten = F.stackRotten(modData) }
+    return { progress = logic:getProgress(craftData), style = modData.style or F.STYLE_SALT, rotten = F.stackRotten(modData),
+        stackId = modData.stackId }
 end
 
 local function readBatches(station, entry, logic, uiLogic, place)
@@ -225,10 +228,11 @@ function TraditionalPreservationFishMeatWorld.inspect(station)
     local closed = entry.hanger and entry.hanger.closed
     for craftData, _ in pairs(uiLogic:getItemsInProgress()) do
         if not closed or F.ownsStack(craftData:getModData()) then
-            table.insert(batches, { data = craftData, progress = logic:getProgress(craftData) })
+            table.insert(batches, { data = craftData, progress = logic:getProgress(craftData),
+                stackId = craftData:getModData().stackId })
         end
     end
-    table.sort(batches, function(a, b) return a.progress > b.progress end)
+    table.sort(batches, furthestFirst)
     return { station = station, hanger = entry.hanger, place = entry.place or Weather.placeOf(station),
         waiting = waiting, finished = finished, finishedStacks = finishedStacks, batches = batches }
 end

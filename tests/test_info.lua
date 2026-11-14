@@ -53,7 +53,7 @@ local beam = F.hangerFor(F.spriteIndex("traditionalpreservationfishmeat_02_0"))
 -- A Beam in the open on a dry summer day: a salt stack two thirds dried, a stockfish stack that can't dry, and a
 -- finished stack waiting.
 local ledger = { temperature = 22, seasonTemperature = 19, wind = 0.3, wetness = 0, coldWetness = 0, openRate = 1,
-    coveredRate = 1, shelteredRate = 0.65, coldRate = 0, coldCoveredRate = 0, rawSpoiling = true, rawSpoilingOpen = true, saltSpoiling = false }
+    coveredRate = 1, shelteredRate = 0.65, coldRate = 0, coldCoveredRate = 0, rawSpoilOn = true, rawSpoilOpenOn = true, saltSpoilOn = false }
 local shown = Info.rows({ hanger = beam, place = "Open", waiting = { piece(1), piece(2) }, finished = 3, finishedStacks = 1,
     batches = { batch("HangFishToDry", { dried = 192, spoiled = 0 }, 0.67), batch("HangFishToColdDry", { dried = 0, spoiled = 0.2 }, 0) } },
     ledger, 1000)
@@ -86,16 +86,16 @@ check("its air is the basement's own, not the day's", valueOf(cellar, "InfoAir")
 local tub = Info.rows({ place = "Sheltered", waiting = { piece(0.5), piece(2.5) }, finished = 0, finishedStacks = 0, batches = {} }, ledger, 1000)
 check("the tub's weight and pieces", valueOf(tub, "InfoHolds") == "3.0 of 50 weight, 2 of 35 pieces" and valueOf(tub, "Place") == "Indoors")
 check("the tub has no wind line", valueOf(tub, "Wind") == nil)
-local warm = { temperature = 22, seasonTemperature = 14, warmCure = 0, longCureSpoil = 0.3, warmCuring = false, longCuring = true }
+local warm = { temperature = 22, seasonTemperature = 14, warmCure = 0, longCureSpoil = 0.3, warmCureOn = false, longCureSpoilOn = true }
 local curing = Info.rows({ place = "Sheltered", waiting = {}, finished = 0, finishedStacks = 0,
-    batches = { batch("CountryCureMeat", { pressHours = 240, pressStartHour = 880, lastWarmCure = 0, lastLongCure = 0.1 }, 0.5) } }, warm, 1000)
+    batches = { batch("CountryCureMeat", { place = "Covered", pressHours = 240, tubDone = 120, lastWarmCure = 0, countryCure = true, lastLongCureSpoil = 0.1 }, 0.5) } }, warm, 1000)
 check("a curing tub is closed", valueOf(curing, "InfoHolds") == "Curing: closed until the last piece is out")
 check("the long cure's bar", curing.bars[1].text == "Country cure" and curing.bars[1].value == "50%, 5 d 0 h left")
 check("its warm season is noted", curing.notes[1] == "Spoiling (Warm cure), 20%")
 check("the tub's clock doesn't go by the weather", not hasNote(curing, "assume the weather holds"))
 local function tubBar(recipe)
     return Info.rows({ place = "Sheltered", waiting = {}, finished = 0, finishedStacks = 0,
-        batches = { batch(recipe, { pressHours = 48, pressStartHour = 990, lastWarmCure = 0 }, 0.2) } }, warm, 1000).bars[1].text
+        batches = { batch(recipe, { place = "Covered", pressHours = 48, tubDone = 10, lastWarmCure = 0 }, 0.2) } }, warm, 1000).bars[1].text
 end
 check("the tub names its cure, with no number", tubBar("PressSaltedFish") == "Fish cure" and tubBar("PressSaltedMeat") == "Corning")
 local cured = Info.rows({ place = "Sheltered", waiting = {}, finished = 4, finishedStacks = 1, batches = {} }, warm, 1000)
@@ -103,10 +103,10 @@ check("cured pieces wait in the tub", hasNote(cured, "Cured and waiting to be ta
 
 -- The Smokehouse: Corned meat with a stoked run on it, and its smoke.
 local shed = F.CHAMBER_HANGER
-local cool = { temperature = 8, seasonTemperature = 6, dryCureRate = 0.7, dryCureStokedRate = 1, dryCureBankedRate = 0.9, saltSpoiling = false }
+local cool = { temperature = 8, seasonTemperature = 6, dryCureRate = 0.7, dryCureStokedRate = 1, dryCureBankedRate = 0.9, saltSpoilOn = false }
 local Hearth = require "TraditionalPreservationCore/Hearth"
 local smoking = Info.rows({ hanger = shed, place = "Enclosed", waiting = {}, finished = 0, finishedStacks = 0,
-    batches = { batch("HangMeatToDry", { dried = 100, spoiled = 0, underSpoiled = 0.1, inShed = true, sheltered = true, cureNeed = 504,
+    batches = { batch("HangMeatToDry", { place = "Enclosed", dried = 100, spoiled = 0, underSpoiled = 0.1, cureNeed = 504,
         underCured = true, burning = Hearth.STOKED, hot = 3, hotNeed = 8, cold = 12, smokeNeed = 60, smokeFrom = 7, smokeMeat = true }, 0.2) } },
     cool, 1000, "stoked")
 check("the Smokehouse's fire", valueOf(smoking, "InfoFire") == "Stoked (hot)" and valueOf(smoking, "Wind") == nil)

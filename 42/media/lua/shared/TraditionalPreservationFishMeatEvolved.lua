@@ -2,22 +2,23 @@
 -- fresh item of each type every frame to draw the icon. A fish stage picks a random species model when
 -- made, so its icon would change every frame. After a fish stage goes into a dish, the list records a
 -- single-icon stand-in for that stage instead, which names the dish the same way.
+require "TraditionalPreservationFishMeat/Common"
 require "TimedActions/ISAddItemInRecipe"
 
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 
 F.INGREDIENT_STANDINS = {
-    ["TraditionalPreservationFishMeat.SaltDriedFish"] = "TraditionalPreservationFishMeat.SaltDriedFishIngredient",
-    ["TraditionalPreservationFishMeat.SoakedSaltFish"] = "TraditionalPreservationFishMeat.SoakedSaltFishIngredient",
-    ["TraditionalPreservationFishMeat.GuttedFish"] = "TraditionalPreservationFishMeat.GuttedFishIngredient",
-    ["TraditionalPreservationFishMeat.FishHalf"] = "TraditionalPreservationFishMeat.FishHalfIngredient",
-    ["TraditionalPreservationFishMeat.SoakedColdFish"] = "TraditionalPreservationFishMeat.SoakedColdFishIngredient",
-    ["TraditionalPreservationFishMeat.SoakedCharque"] = "TraditionalPreservationFishMeat.SoakedCharqueIngredient",
-    ["TraditionalPreservationFishMeat.HotSmokedFish"] = "TraditionalPreservationFishMeat.HotSmokedFishIngredient",
-    ["TraditionalPreservationFishMeat.HotSmokedMeat"] = "TraditionalPreservationFishMeat.HotSmokedMeatIngredient",
-    ["TraditionalPreservationFishMeat.ColdSmokedFish"] = "TraditionalPreservationFishMeat.ColdSmokedFishIngredient",
-    ["TraditionalPreservationFishMeat.DryCuredMeat"] = "TraditionalPreservationFishMeat.DryCuredMeatIngredient",
+    [F.SALT_DRIED] = "TraditionalPreservationFishMeat.SaltDriedFishIngredient",
+    [F.SOAKED_SALT_FISH] = "TraditionalPreservationFishMeat.SoakedSaltFishIngredient",
+    [F.GUTTED_FISH] = "TraditionalPreservationFishMeat.GuttedFishIngredient",
+    [F.FISH_HALF] = "TraditionalPreservationFishMeat.FishHalfIngredient",
+    [F.SOAKED_COLD_FISH] = "TraditionalPreservationFishMeat.SoakedColdFishIngredient",
+    [F.SOAKED_CHARQUE] = "TraditionalPreservationFishMeat.SoakedCharqueIngredient",
+    [F.HOT_FISH] = "TraditionalPreservationFishMeat.HotSmokedFishIngredient",
+    [F.HOT_MEAT] = "TraditionalPreservationFishMeat.HotSmokedMeatIngredient",
+    [F.COLD_FISH_OUT] = "TraditionalPreservationFishMeat.ColdSmokedFishIngredient",
+    [F.DRY_CURED] = "TraditionalPreservationFishMeat.DryCuredMeatIngredient",
 }
 
 -- Swaps every fish stage in a dish's list for its stand-in.
@@ -47,14 +48,14 @@ function F.standinFor(fullType, index, airDried)
     if not animal or not stage or not F.ANIMAL_STAGES[stage] then return nil end
     if not airDried and COLD_SMOKED[stage] then stage = COLD_SMOKED[stage] end
     local standin = "TraditionalPreservationFishMeat." .. stage .. "Ingredient_" .. animal
-    if getScriptManager and not getScriptManager():FindItem(standin) then return nil end
+    if not getScriptManager():FindItem(standin) then return nil end
     return standin
 end
 
 -- The piece's cut: its model index or, for a slice, the piece it was cut from.
 local function cutOf(item)
     if not item then return nil end
-    local stage = F.STAGES and F.STAGES[item:getFullType()]
+    local stage = F.STAGES[item:getFullType()]
     if stage and stage.slice then return item:getModData().cut end
     local index = item:getModelIndex()
     return index >= 0 and index or nil
@@ -133,16 +134,15 @@ function F.carryStock(stock, dish, recipe)
 end
 
 local MAX_NAMED = 3
-local HEAD = "TraditionalPreservationFishMeat.FishHead"
 
 local function namedKinds(list, skipHead, withMinor)
     local names, byType, order, plain = {}, {}, {}, nil
     local skipParts = skipHead
     for i = 0, list:size() - 1 do
         local food = list:get(i)
-        if skipHead and food == HEAD then
+        if skipHead and food == F.FISH_HEAD then
             skipHead = false
-        elseif skipParts and F.STOCK_PARTS and F.STOCK_PARTS[food] then
+        elseif skipParts and F.STOCK_PARTS[food] then
             -- a starting part of a Chicken Stock
         elseif isItemFood(food) and (withMinor or not hasItemTag(food, ItemTag.MINOR_INGREDIENT)) then
             local foodType = getItemFoodType(food)
@@ -226,9 +226,6 @@ function F.onCreateStockBowls(craftRecipeData)
     local created = craftRecipeData:getAllCreatedItems()
     for i = 0, created:size() - 1 do
         local bowl = created:get(i)
-        if bowl:getFullType() ~= "Base.Pot" and bowl:getFullType() ~= "Base.PotForged" then
-            bowl:setName(getText("Tooltip_food_Bowl", dish))
-            bowl:setCustomName(true)
-        end
+        if not F.isEmptyPot(bowl) then F.nameAs(bowl, getText("Tooltip_food_Bowl", dish)) end
     end
 end

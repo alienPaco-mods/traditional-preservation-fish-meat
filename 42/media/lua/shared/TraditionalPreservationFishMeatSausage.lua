@@ -8,14 +8,13 @@
 -- Seasoning (user, 2026-11-13), for these links and blood sausage's: added to a link afterwards, as a spice to a stew
 -- (TP Core's Season menu), raw or boiled; each kind once, no cap, each SEASONING_UNHAPPY. It goes with the link into
 -- the pot, the pan, the smoke and the slices.
+require "TraditionalPreservationFishMeat/Common"
 local Season = require "TraditionalPreservationCore/Season"
 
 local F = TraditionalPreservationFishMeat
 
 -- A hot run, as a Pork piece's (F.HOT_MEAT_HOURS at 0.3): links are thin, but the run is one unbroken stretch.
 F.SAUSAGE_HOT_HOURS = 6
-F.FRESH_SAUSAGE = "TraditionalPreservationFishMeat.FreshSausage"
-F.SMOKED_SAUSAGE = "TraditionalPreservationFishMeat.SmokedSausage"
 
 -- The short list (user): what real sausages take. Oregano stands in for marjoram, which the game doesn't have. Each
 -- takes what vanilla takes for a stew: a use, half an onion (5).
@@ -31,24 +30,19 @@ F.SEASONINGS = {
 F.SEASONING_UNHAPPY = -2
 F.SEASONING_BOREDOM = -2
 -- The links a seasoning goes into (links only, user): raw or fried or boiled fresh sausage, raw or boiled blood sausage.
-F.SEASONED_LINKS = { "TraditionalPreservationFishMeat.FreshSausage", "TraditionalPreservationFishMeat.RawBloodSausage",
-    "TraditionalPreservationFishMeat.BloodSausage" }
+F.SEASONED_LINKS = { F.FRESH_SAUSAGE, F.RAW_BLOOD_SAUSAGE,
+    F.BLOOD_SAUSAGE }
 Season.register(F.SEASONED_LINKS, { kinds = F.SEASONINGS, unhappy = F.SEASONING_UNHAPPY, boredom = F.SEASONING_BOREDOM })
 
 -- The links a pot boils, and what comes out (TakeOut): seasoning goes from one to the other in order.
-local POT_LINKS = { [F.FRESH_SAUSAGE] = true, ["TraditionalPreservationFishMeat.RawBloodSausage"] = true }
-local BOILED_LINKS = { [F.FRESH_SAUSAGE] = true, ["TraditionalPreservationFishMeat.BloodSausage"] = true }
+local POT_LINKS = { [F.FRESH_SAUSAGE] = true, [F.RAW_BLOOD_SAUSAGE] = true }
+local BOILED_LINKS = { [F.FRESH_SAUSAGE] = true, [F.BLOOD_SAUSAGE] = true }
 -- The links a knife slices, its slices a quarter of the link.
-local SLICED_LINKS = { [F.SMOKED_SAUSAGE] = true, ["TraditionalPreservationFishMeat.SmokedBloodSausage"] = true,
-    ["TraditionalPreservationFishMeat.BloodSausage"] = true }
-
-local function rename(item, key)
-    item:setName(getText(key))
-    item:setCustomName(true)
-end
+local SLICED_LINKS = { [F.SMOKED_SAUSAGE] = true, [F.SMOKED_BLOOD_SAUSAGE] = true,
+    [F.BLOOD_SAUSAGE] = true }
 
 function F.onCookedFreshSausage(item)
-    rename(item, "IGUI_TraditionalPreservationFishMeat_FreshSausageFried")
+    F.nameAs(item, getText("IGUI_TraditionalPreservationFishMeat_FreshSausageFried"))
 end
 
 -- Put Sausages / Blood Sausages in Water: the pot keeps each link's seasoning for the links that come out of it.
@@ -61,7 +55,7 @@ function F.onCreateSausagePot(craftRecipeData)
     local created = craftRecipeData:getAllCreatedItems()
     for i = 0, created:size() - 1 do
         local pot = created:get(i)
-        if pot:getFullType() ~= "Base.Pot" and pot:getFullType() ~= "Base.PotForged" then
+        if not F.isEmptyPot(pot) then
             pot:getModData().tpLinks = records
         end
     end
@@ -79,7 +73,7 @@ function F.onCreateBoiledSausages(craftRecipeData)
         if BOILED_LINKS[item:getFullType()] then
             n = n + 1
             item:setCooked(true)
-            if item:getFullType() == F.FRESH_SAUSAGE then rename(item, "IGUI_TraditionalPreservationFishMeat_FreshSausageBoiled") end
+            if item:getFullType() == F.FRESH_SAUSAGE then F.nameAs(item, getText("IGUI_TraditionalPreservationFishMeat_FreshSausageBoiled")) end
             Season.apply(item, records[n] or nil)
         end
     end
