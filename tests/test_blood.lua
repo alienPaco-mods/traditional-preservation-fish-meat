@@ -106,6 +106,7 @@ local function bucket(fluids)
     function o:getFluidContainer() return self.fc end
     function o:getModData() return self.md end
     function o:getFullType() return "Base.Bucket" end
+    function o:sendSyncEntity() end
     function o:getOutermostContainer() return nil end
     function o:getWorldItem() return nil end
     function o:hasTag() return false end
@@ -116,6 +117,7 @@ local function seasoning(tag, uses)
     function o:hasTag(t) return t == self.tag end
     function o:getCurrentUses() return self.uses end
     function o:setCurrentUses(n) self.uses = n end
+    function o:getWorldItem() return nil end
     function o:getContainer() return { DoRemoveItem = function() o.removed = true end } end
     return o
 end
@@ -390,6 +392,7 @@ local function spice(fullType, uses)
     local o = { fullType = fullType, uses = uses }
     function o:getCurrentUses() return self.uses end
     function o:setCurrentUses(n) self.uses = n end
+    function o:getWorldItem() return nil end
     function o:getContainer() return { DoRemoveItem = function() o.removed = true end } end
     return o
 end

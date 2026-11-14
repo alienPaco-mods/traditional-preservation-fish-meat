@@ -70,6 +70,7 @@ local function station(sprite, stored, running, indoors)
         isRunning = function() return running or false end,
         -- A tub built before a slot change keeps its old count, so nothing should depend on this.
         getFreeOutputSlotCount = function() return 25 end,
+        getCurrentRecipe = function() return nil end,
     }
     local entity = {
         getSprite = function() return { getName = function() return sprite end } end,

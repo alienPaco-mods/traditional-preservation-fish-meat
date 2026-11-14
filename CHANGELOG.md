@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.49
+Refactor with TP Core's small shared helpers tidy (2026-11-14): `F.bloodIn` calls `getFluidContainer` without checking the method is there (every item has it). Nothing changes in game. Test stand-ins given the methods the engine has (test_blood `sendSyncEntity` and `getWorldItem`, test_curing `getWorldItem` and the salt empties through `Uses.onEmptied`, test_ui `getCurrentRecipe`); tests and golden results unchanged.
+
 ## 0.4.48
 **Bug fixed: raw fat in the cauldron and vanilla's Food Spoilage** (user, 2026-11-14): a piece's days left were counted as real days, but its age runs at the game's Food Spoilage speed, so on Very Slow fat went rancid in the cauldron 2.5 times sooner than on the shelf, and on Very Fast later. `F.fatHoursLeft` divides by TP Core's `FluidAgeing.foodRotSpeed`; Normal changes nothing. test_fat. In-game step 150 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 149).
 

@@ -108,7 +108,7 @@ F.BLOOD_SPEC.treatTooltip = "Tooltip_TraditionalPreservationFishMeat_TreatBlood"
 
 -- The litres of fresh or treated blood in a container item, and of spoiled blood.
 function F.bloodIn(item)
-    local container = item and item.getFluidContainer and item:getFluidContainer()
+    local container = item and item:getFluidContainer()
     if not container then return 0, 0 end
     return FluidAgeing.litresIn(container, F.BLOOD_SPEC)
 end

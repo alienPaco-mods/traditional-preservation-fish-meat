@@ -1165,6 +1165,7 @@ local function saltItem(fullType, uses)
     item.salt, item.uses = true, uses
     function item:getCurrentUses() return self.uses end
     function item:setCurrentUses(value) self.uses = value end
+    function item:getWorldItem() return nil end
     return item
 end
 instanceof = function(item, name) return name == "Food" and item.fullType ~= "Base.HuntingKnife" end
@@ -1196,13 +1197,15 @@ check("a whole fish over 4.5 weight is too thick to salt whole",
 check("so is a gutted one; a half of any size packs",
     not T.canPack(newFood("TraditionalPreservationFishMeat.GuttedFish", { ActualWeight = 9 }), nil)
     and T.canPack(newFood("TraditionalPreservationFishMeat.FishHalf", { ActualWeight = 9 }), nil))
-local returned
-TraditionalPreservationSalt = { returnEmpties = function(character, emptied) returned = { character = character, emptied = emptied } end }
+local returned, listening = nil, true
+package.loaded["TraditionalPreservationCore/Uses"].onEmptied(ItemTag.SALT, function(character, emptied)
+    if listening then returned = { character = character, emptied = emptied } end
+end)
 T.chargeSalt(walleye4, salter)
 check("packing takes the other 30, part-used salt first", loose.uses == 0 and shaker.uses == 0 and bag.uses == 5 and spent.uses == 0)
 check("what it empties leaves the inventory", #removed == 2 and removed[1] == loose and removed[2] == shaker)
-check("and the Salt mod gives its empties back", returned and returned.character == salter and returned.emptied:size() == 2)
-TraditionalPreservationSalt, returned = nil, nil
+check("and the Salt mod (Uses.onEmptied) gives its empties back", returned and returned.character == salter and returned.emptied:size() == 2)
+listening, returned = false, nil
 carry(saltItem("Base.Salt", 10))
 T.chargeSalt(newFood("Base.Bluegill", { ActualWeight = 0.5 }), salter)
 check("a small fish takes 2 past the recipe's 2", carried[1].uses == 8 and #removed == 0)
