@@ -652,9 +652,9 @@ Raw fat left in a cold cauldron goes **rancid** when its oldest piece would have
 
 ## 13. Potted Meat
 
-Potted Meat is the road for any season and any red meat, pork too, and the long-keeping road for chicken, turkey and rabbit (they also hot smoke, chapter 10): cuts cooked slowly in Lard or Tallow with salt, then packed into a clay jar under their own fat. No station: a pot, a fire and a jar.
+Potted Meat is the road for any season and any red meat, pork too, and the long-keeping road for chicken, turkey and rabbit (they also hot smoke, chapter 10): cuts cooked slowly in Lard or Tallow (or Clarified Butter, with Dairy) with salt, then packed into a clay jar under their own fat. No station: a pot, a fire and a jar.
 
-1. **Put Meat in Lard or Tallow** (right-click the meat or the fat): an empty **Pot** or Forged Pot, a block of **Lard** or **Tallow**, one cut and **1 Salt**. You get a **Pot of Meat in Fat**.
+1. **Put Meat in Fat** (right-click the meat or the fat): an empty **Pot** or Forged Pot, a block of **Lard** or **Tallow** (with Dairy on, a **Clarified Butter** does as well), one cut and **1 Salt**. You get a **Pot of Meat in Fat**.
    Or, straight from rendering: **Put Meat in the Melted Fat** takes the pot of half a litre of **Lard (Melted)** or **Tallow (Melted)** that Pour Off leaves, one cut and Salt. Half a litre is one block.
 2. **Add Meat to the Pot**, up to **four cuts** in all: a block of fat covers four. **Beef**, **Steak**, **Mutton Chop**, **Venison**, **Pork** and **Pork Chop** all go in. So do **chicken** (legs, wings, fillets), **turkey** (legs, wings, fillets) and **Rabbit Meat**, in any mix. Cut a whole bird first (the game's Cut Chicken or Cut Turkey).
 3. Cook it on any stove or fire for about **two hours**. It burns if you leave it four, and then only **Scrape Out Burnt Fat** gets the pot back. Once it's cooked, no more meat goes in.
@@ -839,7 +839,7 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 | Bone Broth, Chicken Stock | Cooked | 70 min (140) | Its first ingredient makes the soup or stew | Divide into 2 or 4 bowls |
 | Pork Fat, Suet, Mutton Fat | Cooked, but it's for rendering | 20 min (50) | - | Put in a Pot, or a Stone Hearth's cauldron |
 | Pot of fat | No | 60 min (150) | - | Pour Off, then Strain |
-| Lard, Tallow | As the game's Lard | - | Tallow: soup, stew, stir fry, pasta, sandwich, taco, burrito, toast; bakes wherever Lard does | Put Meat in Lard or Tallow |
+| Lard, Tallow | As the game's Lard | - | Tallow: soup, stew, stir fry, pasta, sandwich, taco, burrito, toast; bakes wherever Lard does | Put Meat in Fat |
 | Cracklings | Yes | - | Soup, stew, stir fry, sandwich, salad | - |
 | Salt Packed meat | No | Can't | - | Corn or country cure it in the tub |
 | Corned, Country Cured | Cooked | 25 min (60) | - | Hang it: charque, dry curing or smoke |
@@ -1239,7 +1239,7 @@ The Salting Tub cures by its place's temperature on the weather's totals, but `T
 **Typical checks**
 - **Salt fish:** `TPFM.fish("Walleye", 3, 4)` and `TPFM.give("salt", 10)` (each 4 weight walleye takes 28 salt), pack and cure, then hang the fish and `TPFM.age(288)`.
 - **Charque:** `TPFM.meat("all", 2, "corned")`, hang the beef, mutton and venison on a frame (it refuses the pork), `TPFM.age(120)`, take them down and rehydrate one.
-- **Potted Meat:** `TPFM.kit("potted")`, Put Meat in Lard or Tallow with the Steak, Add Meat to the Pot three times, cook it two hours, Pack Potted Meat into the Glazed Clay Jar, then eat a quarter.
+- **Potted Meat:** `TPFM.kit("potted")`, Put Meat in Fat with the Steak, Add Meat to the Pot three times, cook it two hours, Pack Potted Meat into the Glazed Clay Jar, then eat a quarter.
 - **Hot smoking:** build a Smokehouse (`TPC.kit("smokehouse")`), `TPC.kit("stone")` and `TPC.kit("flue")`, build a Stone Hearth by a long side with its door turned away, Connect the Stone Hearth, hang `TPFM.meat("all", 2, "corned")` inside, light the Stone Hearth, then `TPFM.stoke(8)`: Hot Smoked meat, and a ham by the door.
 - **Cold smoking:** in a cool month, the same Smokehouse and Stone Hearth, hang `TPFM.fish("Walleye", 3, "cured")`, bank the Stone Hearth, `TPFM.bank(50)`, then `TPFM.age(288)`: Cold Smoked Fish.
 - **Dry curing:** hang `TPFM.meat("all", 1, "country")` (Country Cured, with a leg) in the Smokehouse. `TPFM.age(1008)` with no fire: Beef, Mutton, Venison and Pork (Dry Cured) and a Country Ham. With `TPFM.addSmoke(130)` first (or `TPFM.bank(130)` on a day of 15 C or less): Beef, Mutton, Venison and Pork (Cold Smoked) and a Smoked Country Ham. Hang `TPFM.meat("all", 1, "corned")` (Corned) and `TPFM.age(520)`: it comes down Corned and rotten, as it would after three weeks in a 12 C shed (`TPFM.underSalt(hours)` adds the spoiling alone). `TPFM.smoke()` lists each stack's hours.

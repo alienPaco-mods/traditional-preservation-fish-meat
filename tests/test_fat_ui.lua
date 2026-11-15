@@ -74,7 +74,7 @@ local character = { isTimedActionInstant = function() return false end }
 rows[2].onSelect(character, unpack(rows[2].args))
 local queued = ui.queued[#ui.queued]
 check("choosing a row walks over, takes the pieces in hand and queues the job", ui.walks == 1 and #ui.moved == 2
-    and queued.Type == "TPFMFatCauldron" and queued.raw == "RawSuet" and queued.pieces[1] == suet and queued.pieces[2] == mutton
+    and queued.Type == "TPCauldronPieces" and queued.raw == "RawSuet" and queued.pieces[1] == suet and queued.pieces[2] == mutton
     and queued.fire == empty)
 rows = open(withCauldron({ ml = 500, fluid = "RawPorkFat", tempC = 20 })).subOption.options
 check("a cauldron of pork fat takes more pork fat and refuses suet with the reason", not rows[1].notAvailable and rows[2].notAvailable == true

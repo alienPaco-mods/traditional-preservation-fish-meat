@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.54
+- **Potted Meat under Clarified Butter** (2026-11-15): with Dairy on, Put Meat in Fat (was Put Meat in Lard or Tallow) also takes Dairy's Clarified Butter, a block like Lard. The line is widened at load (`F.applyPottedButter`, TP Core's `Recipes.addItems`), so without Dairy nothing changes. Tooltip. test_potted. In-game step in TP Core's `TESTING_GUIDE.md` (butter).
+- **Refactor: Put Fat in the Cauldron on TP Core's shared pieces** (2026-11-15): the menu is `CauldronUI.addPieces`, the job TP Core's `TPCauldronPieces` (`TPFMFatCauldron` is gone), `F.cauldronFatRoom` and `F.putFatInCauldron` call `CauldronFluid.pieceRoom` / `putPieces`. Same rows, texts, room and rancid hour. test_fat_ui checks the core's job. Nothing changes in game.
+- **Refactor: Potted Meat keeps by place through TP Core's `PlaceKeeping`** (2026-11-15): `F.POTTED` is the keeper; `F.keepCrock`, `F.pottedLedger`, `F.recordPotted`, `F.pottedRate`, `F.POTTED_AGEING` and the curve, ledger and modData keys are as before. `TPFM.crocks` and `TPFM.keep` use the keeper's `describe` and `age`. `F.pottedTemperature` is gone (Weather's own). Nothing changes in game; tests and golden results unchanged.
+
 ## 0.4.53
 - **Guide checked against the code** (2026-11-15): salt counts from anything in reach, not only what you carry; a cow takes 150 salt, a pig about 100, a sheep 44 (a Steak or chop takes 2); the Almanac's August and September loft days; stockfish's 32 days and charque's 5 are a fair breeze's (a good drying wind about 27 for stockfish); a full frame of stockfish is about 4.4 weight; rabbit is over four times a chicken leg's calories; Pack Meat in Salt lists poultry and rabbit. Nothing changes in game.
 - **Guide shortened** (2026-11-15): the Smokehouse's joining rules point to TP Core's guide; repeated secrets, tips and Logbook entries cut; the two carry tables merged; no history notes (the old-save stockfish row, the Smokehouse's move). Nothing changes in game.

@@ -83,9 +83,25 @@ function ISEatFoodAction.complete(self)
 end
 ISEatFoodAction.serverStop = ISEatFoodAction.complete
 
+H.installEvents()
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatPotted.lua")
 local F = TraditionalPreservationFishMeat
 local POT, CROCK = "TraditionalPreservationFishMeat.PotOfMeatInFat", F.CROCK
+
+-- Dairy's Clarified Butter joins the fat line only when Dairy is on
+local Recipes = require "TraditionalPreservationCore/Recipes"
+local widened = {}
+local realAddItems = Recipes.addItems
+Recipes.addItems = function(name, extra, tag) table.insert(widened, { name = name, extra = extra }) return 1 end
+local dairyOn = false
+function getScriptManager() return { FindItem = function(_, fullType) return dairyOn and fullType == F.CLARIFIED_BUTTER end } end
+check("without Dairy the recipe is left alone", F.applyPottedButter() == 0 and #widened == 0)
+dairyOn = true
+H.fire("OnInitWorld")
+check("with Dairy, at load, Put Meat in Fat's Lard line takes Clarified Butter", #widened == 1
+    and widened[1].name == "TraditionalPreservationFishMeat.PutMeatInLard" and widened[1].extra["Base.Lard"][1] == F.CLARIFIED_BUTTER)
+check("and a batch takes it as its fat", F.POTTED_FATS[F.CLARIFIED_BUTTER])
+Recipes.addItems, getScriptManager = realAddItems, nil
 
 -- Putting meat in fat
 local pot = newFood(POT, {})

@@ -65,19 +65,15 @@ for _, fat in ipairs(F.CAULDRON_FATS) do
 end
 CauldronFluid.staysIn(F.RANCID_FAT)
 
--- How many pieces of a raw fat the cauldron has room for now: none if it holds anything else.
+-- How many pieces of a raw fat the cauldron has room for now: none if it holds anything else (TP Core's).
 function F.cauldronFatRoom(cauldron, raw)
-    return math.floor(CauldronFluid.cauldronRoom(cauldron, raw, CauldronFluid.CAULDRON_ML) / F.FAT_PIECE_ML)
+    return CauldronFluid.pieceRoom(cauldron, raw, F.FAT_PIECE_ML)
 end
 
 -- Puts pieces of raw fat in the cauldron, as many as fit. hoursLeft has, for each piece, the hours until it would
 -- have rotted. Returns how many went in.
 function F.putFatInCauldron(cauldron, raw, hoursLeft, now)
-    local count = math.min(#hoursLeft, F.cauldronFatRoom(cauldron, raw))
-    if count <= 0 then return 0 end
-    CauldronFluid.pourInto(cauldron, raw, count * F.FAT_PIECE_ML, CauldronFluid.ROOM_C, now)
-    for index = 1, count do CauldronFluid.offBy(cauldron, now + math.max(hoursLeft[index], 0)) end
-    return count
+    return CauldronFluid.putPieces(cauldron, raw, F.FAT_PIECE_ML, hoursLeft, now)
 end
 
 -- Hours until a piece of raw fat is rotten. Its age runs at vanilla's Food Spoilage speed, so the days it has left

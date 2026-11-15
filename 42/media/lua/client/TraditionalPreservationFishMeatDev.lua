@@ -601,34 +601,17 @@ end
 
 function TPFM.crocks()
     if not F.pottedByPlace() then say("Potted Meat keeping by place is off in the sandbox.") end
-    local crocks, ledger = nearbyCrocks(), F.pottedLedger()
+    local crocks = nearbyCrocks()
     if #crocks == 0 then return say("No Crock of Potted Meat on you or within " .. CROCK_REACH .. " tiles.") end
     for _, crock in ipairs(crocks) do
-        F.keepCrock(crock)
-        local keep = crock:getModData().tpfmKeep
-        local place = keep and keep.record.place or "?"
-        local rate = F.pottedRate(place, ledger) * F.POTTED_AGEING.speed()
-        local age = crock:getAge()
-        local function left(limit)
-            if age >= limit then return "past" end
-            return rate > 0 and string.format("%.0f d", (limit - age) / rate) or "never"
-        end
-        say(string.format("%s in %s: x%.2f (%.0f days fresh here), age %.1f d, stale in %s, rotten in %s%s",
-            crock:getDisplayName(), place, rate, rate > 0 and crock:getOffAge() / rate or 0, age,
-            left(crock:getOffAge()), left(crock:getOffAgeMax()), crock:getModData().tpfmOpened and ", opened" or ""))
+        say(F.POTTED.describe(crock) .. (crock:getModData().tpfmOpened and ", opened" or ""))
     end
 end
 
 function TPFM.keep(days)
     days = days or 10
-    local crocks, ledger = nearbyCrocks(), F.pottedLedger()
-    for _, crock in ipairs(crocks) do
-        local keep = F.keepCrock(crock)
-        if keep then
-            keep.record.age = keep.record.age + days * 24 * F.pottedRate(keep.record.place, ledger) * F.POTTED_AGEING.speed()
-            crock:setAge(keep.base + keep.record.age / 24)
-        end
-    end
+    local crocks = nearbyCrocks()
+    for _, crock in ipairs(crocks) do F.POTTED.age(crock, days) end
     say(string.format("Kept %d crock(s) for %d days at their places. TPFM.crocks() to see them.", #crocks, days))
 end
 

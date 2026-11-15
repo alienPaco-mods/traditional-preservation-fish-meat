@@ -7,11 +7,10 @@
 require "TraditionalPreservationFishMeat/Common"
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
-local Weather = require "TraditionalPreservationCore/Weather"
-local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Portions = require "TraditionalPreservationCore/Portions"
 local Recipes = require "TraditionalPreservationCore/Recipes"
 local Action = require "TraditionalPreservationCore/Action"
+local PlaceKeeping = require "TraditionalPreservationCore/PlaceKeeping"
 
 -- Pork joins the Salting Tub's cuts here: kept under fat and out of the sun, its own fat doesn't go rancid.
 -- Chicken, turkey and rabbit too: kept alive and eaten fresh, they were rarely salted or dried,
@@ -25,6 +24,11 @@ F.POTTED_CUTS = {
 }
 for _, cut in ipairs(F.POTTED_GAME) do F.POTTED_CUTS[cut] = true end
 F.POTTED_FATS = { ["Base.Lard"] = true, ["TraditionalPreservationFishMeat.Tallow"] = true }
+-- Dairy's Clarified Butter seals a pot too (potted shrimp and potted beef were kept under it). The recipe takes it only
+-- when Dairy is on: its line is widened at load (F.applyPottedButter), as a script naming a missing item would break.
+F.CLARIFIED_BUTTER = "TraditionalPreservationDairy.ClarifiedButter"
+F.POTTED_FATS[F.CLARIFIED_BUTTER] = true
+F.POTTED_FAT_RECIPE = "TraditionalPreservationFishMeat.PutMeatInLard"
 F.MEAT_FAT_POTS = {
     ["TraditionalPreservationFishMeat.PotOfMeatInFat"] = true,
     ["TraditionalPreservationFishMeat.PotForgedMeatInFat"] = true,
@@ -194,74 +198,35 @@ function F.afterCrockUse(crock, container)
         crock:getModData().tpfmVessel or "Base.ClayJar", F.labelCrock)
 end
 
--- Keeping by place (4c). The crock's script days (60 fresh, 90 to rotten) are a cellar's, so a day at the cellar's
--- 15 C counts as a day of age; a fridge (4 C) or a cold month counts half (120 / 180), a warm room up to 60/14
--- (14 / 21 at 25 C and up); a room goes by the season's mean (F.pottedTemperature). Modern advice is under 4 C and about three months; the cold figure follows cellar
--- practice. A crock carries its own clock in modData tpfmKeep = { base = its age when the clock started, record = a
--- FluidAgeing record (kind potted) on the mod's potted ledger }, so one left in a basement for a month catches up
--- when it is next seen: its age is base plus the record's hours. A powered freezer stops it. Vanilla ages it between
--- looks at its own rate; each look puts that right.
--- Frozen (realism pass) it keeps as in a freezer: from 0.5 at 4 C down to nothing at -2 C.
+-- Keeping by place (4c), on TP Core's PlaceKeeping. The crock's script days (60 fresh, 90 to rotten) are a cellar's,
+-- so a day at the cellar's 15 C counts as a day of age; a fridge (4 C) or a cold month counts half (120 / 180), a warm
+-- room up to 60/14 (14 / 21 at 25 C and up); a room goes by the season's mean. Modern advice is under 4 C and about
+-- three months; the cold figure follows cellar practice. The crock's clock is modData tpfmKeep on the mod's potted
+-- ledger. Frozen (realism pass) it keeps as in a freezer: from 0.5 at 4 C down to nothing at -2 C.
 F.POTTED_AGE_CURVE = { { -2, 0 }, { 4, 0.5 }, { 15, 1 }, { 25, 60 / 14 } }
 -- The first portion taken lets air under the fat: a third of the keeping left goes, once.
 F.POTTED_OPENED_LOSS = 1 / 3
 F.POTTED_LEDGER_KEY = "TraditionalPreservationFishMeatPotted"
-
--- Days of age a day counts as at celsius (1 in the cellar, more when warm).
-local function ageRate(celsius)
-    return Weather.curve(F.POTTED_AGE_CURVE, celsius)
-end
-local POTTED_LEDGER_KINDS = { potted = ageRate }
--- The crock's ageing (a FluidAgeing record's spec), on top of the place: vanilla's Food Spoilage setting.
-F.POTTED_AGEING = { kind = "potted", rate = ageRate, speed = FluidAgeing.foodRotSpeed }
 
 -- The sandbox's "Potted Meat keeps by place"; off, a crock keeps its script days anywhere, as plain food.
 function F.pottedByPlace()
     return F.optionOn("PottedByPlace")
 end
 
-function F.newPottedLedger(now)
-    return Weather.newLedger(now, POTTED_LEDGER_KINDS)
-end
-
-function F.pottedLedger()
-    return Weather.getLedger(F.POTTED_LEDGER_KEY, F.newPottedLedger)
-end
-
--- A crock's temperature at a Weather place: Weather's own (a room or an open roof is the season's mean).
-function F.pottedTemperature(ledger, place)
-    return Weather.placeTemperature(ledger, place)
-end
-
--- Adds a stretch of weather to the potted ledger (every ten minutes): its totals are the "potted" kind's.
-function F.recordPotted(now, temperature)
-    Weather.advance(F.pottedLedger(), now, temperature, POTTED_LEDGER_KINDS)
-end
-
--- How fast a crock keeps at a place now: FluidAgeing's place names (Fridge, Freezer, or a Weather place).
-function F.pottedRate(place, ledger)
-    if place == FluidAgeing.FREEZER then return 0 end
-    if place == FluidAgeing.FRIDGE then return ageRate(FluidAgeing.FRIDGE_C) end
-    return ageRate(F.pottedTemperature(ledger or F.pottedLedger(), place or Weather.DEFAULT_PLACE))
-end
+F.POTTED = PlaceKeeping.new({
+    kind = "potted", curve = F.POTTED_AGE_CURVE, ledgerKey = F.POTTED_LEDGER_KEY, modDataKey = "tpfmKeep",
+    enabled = F.pottedByPlace,
+})
+F.POTTED_AGEING = F.POTTED.ageing
+F.newPottedLedger = F.POTTED.newLedger
+F.pottedLedger = F.POTTED.ledger
+F.recordPotted = F.POTTED.record
+F.pottedRate = F.POTTED.rate
 
 -- Brings a crock's age up to now at the place it was seen in last, and counts from where it is now (place, or
 -- where the crock is). The first look starts its clock. Returns its tpfmKeep, or nil with keeping by place off.
 function F.keepCrock(crock, now, place, ledger)
-    if not F.pottedByPlace() then return nil end
-    now = now or getGameTime():getWorldAgeHours()
-    ledger = ledger or F.pottedLedger()
-    local data = crock:getModData()
-    local keep = data.tpfmKeep
-    place = place or FluidAgeing.placeOfItem(crock) or (keep and keep.record.place) or "Sheltered"
-    if not keep then
-        keep = { base = crock:getAge(), record = FluidAgeing.newRecord(F.POTTED_AGEING, ledger, now, place) }
-        data.tpfmKeep = keep
-        return keep
-    end
-    FluidAgeing.advance(keep.record, F.POTTED_AGEING, ledger, now, place)
-    crock:setAge(keep.base + keep.record.age / 24)
-    return keep
+    return F.POTTED.keep(crock, now, place, ledger)
 end
 
 -- The first portion taken: a third of what the crock has left until stale (or, stale already, until rotten) goes.
@@ -288,3 +253,12 @@ end, function(crock, container, before)
     if F.crockPortions(crock) < before then F.openCrock(crock) end
     F.afterCrockUse(crock, container)
 end)
+
+-- Puts Dairy's Clarified Butter on Put Meat in Fat's fat line when Dairy is on. Returns the lines changed.
+function F.applyPottedButter()
+    if not getScriptManager():FindItem(F.CLARIFIED_BUTTER) then return 0 end
+    return Recipes.addItems(F.POTTED_FAT_RECIPE, { ["Base.Lard"] = { F.CLARIFIED_BUTTER } }, "TPFM")
+end
+
+-- Before the game builds each recipe's item filter (TP Core's Recipes).
+Events.OnInitWorld.Add(F.applyPottedButter)
