@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.53
+- **README and DEVHELP say what is** (2026-11-15): no version tags, step labels or dev-machine paths. Nothing changes in game.
 - **Docs and comments** (2026-11-15): decisions are stated plainly, without attributions (CHANGELOG, comments, scripts, README, tests). Nothing changes in game.
 - **README** (2026-11-15): the opening table adds rendered fat, the stocks and fresh sausage, and Potted Meat's poultry and rabbit.
 - **README and guide** (2026-11-15): the README heading names 0.4.53 (was 0.4.30), as mod.info does; the guide drops three "(0.4.35)" history tags.

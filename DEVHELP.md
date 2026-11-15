@@ -13,7 +13,7 @@ These console commands load only when the game runs in **debug mode** (launch op
 | `TPFM.spoil(hours)` | Adds spoiling weather, to test rotting. A fresh cold stack rots after 48; a part-dried one takes longer. |
 | `TPFM.frost(hours)` | Adds hours of hard frost. A cold stack under 30% dried loses a tenth of its keeping per 72 hours, at most a quarter in all with wet. |
 | `TPFM.heat(hours)` | Adds hours of hot sun (above 25 C). An open salt stack under half dried loses 5% of its keeping per 24 hours, times how wet it still is, at most a quarter. |
-| `TPFM.warmCure(hours)` | Adds hours of a warm cure at 25 C (1.5 x hours to `warmCure` and `warmCureRoom`). A batch in a tub above ground or in a room loses about 0.8% of its keeping per hour; a tub in a basement goes by its own totals (0.4.24) and takes none. |
+| `TPFM.warmCure(hours)` | Adds hours of a warm cure at 25 C (1.5 x hours to `warmCure` and `warmCureRoom`). A batch in a tub above ground or in a room loses about 0.8% of its keeping per hour; a tub in a basement goes by its own totals and takes none. |
 | `TPFM.longCure(hours)` | Adds hours of a 15 C season (default 168) to a running Country Cure, which wants 10 C or less: a leg's cure rots after 504. |
 | `TPFM.dry()` | Clears the wetness, so open and cold frames start drying again at once after rain. |
 | `TPFM.mature(days)` | Ages the stockfish and the dry cured meat you carry by this many days. Stockfish is Matured after 60; a dry cured cut is Aged after 30, a Country Ham after 90. |
@@ -39,7 +39,7 @@ These console commands load only when the game runs in **debug mode** (launch op
 | `TPFM.bank(hours)` | Adds banked hours (default 6) to the record of those joined Stone Hearths, as if they had smouldered that long: smoke for Cold Smoked (counted only if today is 15 C or less). |
 | `TPFM.fatRows()` | Says whether the sandbox has butchering fat on, and prints the fat row of each vanilla pig, cow and sheep's butchering table (base numbers: about x2.8 on a Butchering Hook, x0.6 on the ground). |
 
-The Salting Tub cures by its place's temperature (0.4.35, full speed from 2 C), but `TPFM.age` doesn't speed it up: use the game's own time controls.
+The Salting Tub cures by its place's temperature (full speed from 2 C), but `TPFM.age` doesn't speed it up: use the game's own time controls.
 
 **Typical check of the whole salt route:** `TPFM.fish("Walleye", 3, 4)` and `TPFM.give("salt", 10)` (each 4 weight walleye takes 28 salt, and a shaker holds 10), pack and cure, then hang the fish and `TPFM.age(288)`.
 
