@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.53
+Refactor with TP Core's Stone Hearth split (2026-11-15): the fat's cauldron rules are TP Core's `CauldronFluid.*` and `Cauldron.of`, stove food goes through `StoneHearth.cooksOn`, the Smokehouse's notes through `FireUI.addNotes`; the fat cauldron action's fire is `action.fire`. Nothing changes in game.
+
 ## 0.4.52
 Refactor with TP Core's names (2026-11-15): TP Core's `Hearth` is `Fire` and the Firebox is the Stone Hearth in the code (`Fire.isStoneHearth`, `joinedStoneHearth`, the `stone` kit); comments and docs say Stone Hearth. Nothing changes in game.
 

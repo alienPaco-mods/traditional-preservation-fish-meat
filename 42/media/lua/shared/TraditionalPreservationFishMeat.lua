@@ -7,7 +7,7 @@ local Weather = require "TraditionalPreservationCore/Weather"
 local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 require "TraditionalPreservationFishMeat/Common"
 local Doors = require "TraditionalPreservationCore/Doors"
-local Fire = require "TraditionalPreservationCore/Fire"
+local StoneHearth = require "TraditionalPreservationCore/StoneHearth"
 local Station = require "TraditionalPreservationCore/Station"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local Uses = require "TraditionalPreservationCore/Uses"
@@ -19,7 +19,7 @@ F.MOD_DATA_KEY = "TraditionalPreservationFishMeat"
 -- stews, poached sausage. The pudding pans are oven food.
 for _, pot in ipairs({ "PorkFat", "Suet", "MeatInFat", "BoneBroth", "ChickenStock", "BoneBrothSoup", "BoneBrothStew",
     "ChickenSoup", "ChickenStew", "Sausage", "BloodSausage", "FishHeadStock", "FishHeadSoup", "FishHeadStew" }) do
-    Fire.cooksOn(Fire.STOVE, "TraditionalPreservationFishMeat.PotOf" .. pot, "TraditionalPreservationFishMeat.PotForged" .. pot)
+    StoneHearth.cooksOn(StoneHearth.STOVE, "TraditionalPreservationFishMeat.PotOf" .. pot, "TraditionalPreservationFishMeat.PotForged" .. pot)
 end
 
 -- Hours in the tub at most, and hours on the frame at a drying rate of 1. These set the recipes' times.

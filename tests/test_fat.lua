@@ -127,7 +127,7 @@ for tooltip in script:gmatch("Tooltip = (Tooltip_[%w_]+)") do
     check(tooltip .. " is translated", getText(tooltip) ~= tooltip)
 end
 -- Fat in the Stone Hearth's cauldron
-local Fire = require "TraditionalPreservationCore/Fire"
+local CauldronFluid = require "TraditionalPreservationCore/CauldronFluid"
 local fluids = io.open("42/media/scripts/TraditionalPreservationFishMeat_fluids.txt"):read("*a")
 for _, fat in ipairs(F.CAULDRON_FATS) do
     for _, name in ipairs({ fat.raw, fat.melted }) do
@@ -143,26 +143,26 @@ check("Fat (Rancid) is a fluid with a name", fluids:find("\n    fluid RancidFat\
 local cauldron = {}
 check("an empty cauldron has room for 240 pieces", F.cauldronFatRoom(cauldron, "RawPorkFat") == 240)
 check("six pieces of pork fat go in as a litre and a half", F.putFatInCauldron(cauldron, "RawPorkFat", { 96, 30, 96, 96, 96, 96 }, 10) == 6
-    and cauldron.ml == 1500 and cauldron.fluid == "RawPorkFat" and cauldron.tempC == Fire.ROOM_C)
+    and cauldron.ml == 1500 and cauldron.fluid == "RawPorkFat" and cauldron.tempC == CauldronFluid.ROOM_C)
 check("the oldest piece sets when it goes rancid", cauldron.offAt == 40)
-check("raw fat can't be ladled out", not Fire.poursOut(cauldron))
+check("raw fat can't be ladled out", not CauldronFluid.poursOut(cauldron))
 check("suet doesn't go in with pork fat", F.cauldronFatRoom(cauldron, "RawSuet") == 0 and F.putFatInCauldron(cauldron, "RawSuet", { 96 }, 10) == 0)
 check("more pork fat does, and a rotten piece makes it rancid at once", F.putFatInCauldron(cauldron, "RawPorkFat", { -5 }, 12) == 1
     and cauldron.ml == 1750 and cauldron.offAt == 12)
 cauldron.offAt, cauldron.last = 40, 12
 cauldron.fireUntil = 100
-Fire.advance(cauldron, 12 + Fire.hoursToHot(cauldron, cauldron.banked) + 0.9, 20, cauldron)
+CauldronFluid.advance(cauldron, 12 + CauldronFluid.hoursToHot(cauldron, cauldron.banked) + 0.9, 20, cauldron)
 check("not yet melted short of the hour", cauldron.fluid == "RawPorkFat")
-Fire.advance(cauldron, 15, 20, cauldron)
-check("an hour steaming melts it to Lard (Melted), which ladles out and keeps", cauldron.fluid == "MeltedLard" and Fire.poursOut(cauldron)
+CauldronFluid.advance(cauldron, 15, 20, cauldron)
+check("an hour steaming melts it to Lard (Melted), which ladles out and keeps", cauldron.fluid == "MeltedLard" and CauldronFluid.poursOut(cauldron)
     and cauldron.offAt == nil)
 check("seven pieces are three blocks and a half", cauldron.ml / 500 == 3.5)
 check("melted fat takes no raw", F.cauldronFatRoom(cauldron, "RawPorkFat") == 0)
 local suet = {}
 F.putFatInCauldron(suet, "RawSuet", { 50, 50 }, 0)
-Fire.advance(suet, 51, 20, suet)
-check("suet left cold goes rancid, and stays in the cauldron", suet.fluid == "RancidFat" and not Fire.poursOut(suet))
-local tight = { ml = Fire.CAULDRON_ML - 600, fluid = "RawSuet", tempC = 20, last = 0 }
+CauldronFluid.advance(suet, 51, 20, suet)
+check("suet left cold goes rancid, and stays in the cauldron", suet.fluid == "RancidFat" and not CauldronFluid.poursOut(suet))
+local tight = { ml = CauldronFluid.CAULDRON_ML - 600, fluid = "RawSuet", tempC = 20, last = 0 }
 check("a nearly full cauldron takes only the pieces that fit", F.putFatInCauldron(tight, "RawSuet", { 9, 9, 9, 9 }, 0) == 2)
 local fatPiece = { getOffAgeMax = function() return 4 end, getAge = function() return 1.5 end }
 check("a piece's hours left come from its age", F.fatHoursLeft(fatPiece) == 60)

@@ -19,18 +19,20 @@ local ui = H.installMenus()
 AnimalPartsDefinitions = { animals = {} }
 
 local Fire = require "TraditionalPreservationCore/Fire"
+local StoneHearth = require "TraditionalPreservationCore/StoneHearth"
+local Cauldron = require "TraditionalPreservationCore/Cauldron"
 local FireUI = require "TraditionalPreservationCore/FireUI"
 require "TraditionalPreservationFishMeatFatUI"
 require "TraditionalPreservationCore/CauldronUI"
 local F = TraditionalPreservationFishMeat
 local onFillMenu = H.handlers.OnFillWorldObjectContextMenu[1]
 
-local function hearth(cauldron)
-    local modData = { [Fire.KEY] = { [Fire.CAULDRON] = cauldron or {} } }
+local function withCauldron(cauldron)
+    local modData = { [Fire.KEY] = { [Cauldron.ID] = cauldron or {} } }
     local square = { getX = function() return 5 end, getY = function() return 5 end, getZ = function() return 0 end }
     return {
         class = "IsoFireplace",
-        getSprite = function() return { getName = function() return Fire.cauldronSprite("Empty", 0) end } end,
+        getSprite = function() return { getName = function() return StoneHearth.cauldronSprite("Empty", 0) end } end,
         getModData = function() return modData end,
         getSquare = function() return square end,
         getTileName = function() return "Stone Oven" end,
@@ -58,11 +60,11 @@ local function open(aHearth)
     return sub:getOptionFromName(getText("ContextMenu_TraditionalPreservationFishMeat_FatInCauldron"))
 end
 
-check("with no raw fat carried the Stone Hearth's menu has no fat row", open(hearth()) == nil)
+check("with no raw fat carried the Stone Hearth's menu has no fat row", open(withCauldron()) == nil)
 local pork, pork2, suet, mutton = fat("TraditionalPreservationFishMeat.PorkFat"), fat("TraditionalPreservationFishMeat.PorkFat"),
     fat("TraditionalPreservationFishMeat.BeefSuet"), fat("TraditionalPreservationFishMeat.MuttonFat")
 ui.carried = { pork, suet, pork2, mutton, fat("TraditionalPreservationFishMeat.PorkFat", true), fat("Base.Lard") }
-local empty = hearth()
+local empty = withCauldron()
 local rows = open(empty).subOption.options
 check("carrying both kinds gives a row each, counting the pieces and leaving rotten ones out", #rows == 2
     and rows[1].name == getText("ContextMenu_TraditionalPreservationFishMeat_FatPieces_PorkFat", "2")
@@ -73,24 +75,24 @@ rows[2].onSelect(character, unpack(rows[2].args))
 local queued = ui.queued[#ui.queued]
 check("choosing a row walks over, takes the pieces in hand and queues the job", ui.walks == 1 and #ui.moved == 2
     and queued.Type == "TPFMFatCauldron" and queued.raw == "RawSuet" and queued.pieces[1] == suet and queued.pieces[2] == mutton
-    and queued.hearth == empty)
-rows = open(hearth({ ml = 500, fluid = "RawPorkFat", tempC = 20 })).subOption.options
+    and queued.fire == empty)
+rows = open(withCauldron({ ml = 500, fluid = "RawPorkFat", tempC = 20 })).subOption.options
 check("a cauldron of pork fat takes more pork fat and refuses suet with the reason", not rows[1].notAvailable and rows[2].notAvailable == true
     and rows[2].toolTip.description == getText("IGUI_TraditionalPreservationFishMeat_FatNoRoom"))
-rows = open(hearth({ ml = 500, fluid = "MeltedLard", tempC = 90 })).subOption.options
+rows = open(withCauldron({ ml = 500, fluid = "MeltedLard", tempC = 90 })).subOption.options
 check("melted fat takes no raw", rows[1].notAvailable == true and rows[2].notAvailable == true)
-rows = open(hearth({ ml = 500, fluid = "Water", tempC = 20 })).subOption.options
+rows = open(withCauldron({ ml = 500, fluid = "Water", tempC = 20 })).subOption.options
 check("nor does water", rows[1].notAvailable == true)
 
 -- Stone Hearth Info's notes: the fat in the cauldron, and the smoke note on a Stone Hearth joined to the Smokehouse
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 require "TraditionalPreservationFishMeatSmokehouseUI"
-local notes = FireUI.notes({ spec = Fire.attachment(Fire.CAULDRON), part = { ml = 500, fluid = "MeltedLard", tempC = 90 }, lit = true })
+local notes = FireUI.notes({ spec = Fire.attachment(Cauldron.ID), part = { ml = 500, fluid = "MeltedLard", tempC = 90 }, lit = true })
 check("melted fat in the cauldron gets its note", table.concat(notes, "|"):find(getText("IGUI_TraditionalPreservationFishMeat_FatMelted"), 1, true) ~= nil)
 local smokes = getText("IGUI_TraditionalPreservationFishMeat_FlueSmokes")
-notes = FireUI.notes({ bare = true, lit = true, joinedSpec = { id = Smokehouse.ID }, joined = { kind = "Pipe" } })
+notes = FireUI.notes({ help = StoneHearth.kind.display.help, lit = true, joinedSpec = { id = Smokehouse.ID }, joined = { kind = "Pipe" } })
 check("a Stone Hearth joined to the Smokehouse says what its fire does to the stacks", notes[#notes] == smokes)
-notes = FireUI.notes({ bare = true, lit = true })
+notes = FireUI.notes({ help = StoneHearth.kind.display.help, lit = true })
 check("one joined to nothing doesn't", notes[#notes] ~= smokes)
 
 check("no text would make the game's formatter warn" .. (H.textWarnings[1] and " (" .. table.concat(H.textWarnings, "; ") .. ")" or ""),

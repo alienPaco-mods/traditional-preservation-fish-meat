@@ -4,7 +4,7 @@
 -- or Tallow (Melted), and that is strained to a block and its Cracklings. Two pieces cook in a pot (which can burn)
 -- and are poured off as a pot of melted fat; TP Core's Stone Hearth melts many pieces at once in its cauldron.
 require "Definitions/animal/AnimalPartsDefinitions"
-local Fire = require "TraditionalPreservationCore/Fire"
+local CauldronFluid = require "TraditionalPreservationCore/CauldronFluid"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 require "TraditionalPreservationFishMeat/Common"
 
@@ -42,9 +42,9 @@ F.FAT_POTS = {
 
 -- Fat in the Stone Hearth's cauldron. The cauldron holds fluids, so a piece of raw fat goes in as FAT_PIECE_ML of its raw
 -- fluid (never rename a fluid once the mod is out: saves hold the names). Kept steaming for FAT_RENDER_HOURS it
--- melts (Fire.turnsHot), and 0.5 L of the melted fat strains to a block and its Cracklings (Strain Lard, Strain
--- Tallow), so two pieces make a block here as they do in a pot. Raw fat stays in the cauldron (Fire.staysIn) and
--- goes rancid there when its oldest piece would have rotted (Fire.goesOff); melted fat keeps, as Lard does.
+-- melts (CauldronFluid.turnsHot), and 0.5 L of the melted fat strains to a block and its Cracklings (Strain Lard, Strain
+-- Tallow), so two pieces make a block here as they do in a pot. Raw fat stays in the cauldron (CauldronFluid.staysIn) and
+-- goes rancid there when its oldest piece would have rotted (CauldronFluid.goesOff); melted fat keeps, as Lard does.
 F.FAT_PIECE_ML = 250
 F.FAT_RENDER_HOURS = 1
 F.RANCID_FAT = "RancidFat"
@@ -59,15 +59,15 @@ F.CAULDRON_FATS = {
     },
 }
 for _, fat in ipairs(F.CAULDRON_FATS) do
-    Fire.turnsHot(fat.raw, fat.melted, F.FAT_RENDER_HOURS)
-    Fire.goesOff(fat.raw, F.RANCID_FAT)
-    Fire.staysIn(fat.raw)
+    CauldronFluid.turnsHot(fat.raw, fat.melted, F.FAT_RENDER_HOURS)
+    CauldronFluid.goesOff(fat.raw, F.RANCID_FAT)
+    CauldronFluid.staysIn(fat.raw)
 end
-Fire.staysIn(F.RANCID_FAT)
+CauldronFluid.staysIn(F.RANCID_FAT)
 
 -- How many pieces of a raw fat the cauldron has room for now: none if it holds anything else.
 function F.cauldronFatRoom(cauldron, raw)
-    return math.floor(Fire.cauldronRoom(cauldron, raw, Fire.CAULDRON_ML) / F.FAT_PIECE_ML)
+    return math.floor(CauldronFluid.cauldronRoom(cauldron, raw, CauldronFluid.CAULDRON_ML) / F.FAT_PIECE_ML)
 end
 
 -- Puts pieces of raw fat in the cauldron, as many as fit. hoursLeft has, for each piece, the hours until it would
@@ -75,8 +75,8 @@ end
 function F.putFatInCauldron(cauldron, raw, hoursLeft, now)
     local count = math.min(#hoursLeft, F.cauldronFatRoom(cauldron, raw))
     if count <= 0 then return 0 end
-    Fire.pourInto(cauldron, raw, count * F.FAT_PIECE_ML, Fire.ROOM_C, now)
-    for index = 1, count do Fire.offBy(cauldron, now + math.max(hoursLeft[index], 0)) end
+    CauldronFluid.pourInto(cauldron, raw, count * F.FAT_PIECE_ML, CauldronFluid.ROOM_C, now)
+    for index = 1, count do CauldronFluid.offBy(cauldron, now + math.max(hoursLeft[index], 0)) end
     return count
 end
 
@@ -114,7 +114,7 @@ local function fillWith(craftRecipeData, fluid)
         local container = created:get(i):getFluidContainer()
         if container then
             container:addFluid(fluid, F.POT_FAT_ML / 1000)
-            created:get(i):setItemHeat(Fire.itemHeat(Fire.HOT_C))
+            created:get(i):setItemHeat(CauldronFluid.itemHeat(CauldronFluid.HOT_C))
         end
     end
 end

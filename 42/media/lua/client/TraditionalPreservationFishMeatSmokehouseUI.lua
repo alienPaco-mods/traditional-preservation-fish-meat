@@ -3,6 +3,6 @@
 local FireUI = require "TraditionalPreservationCore/FireUI"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 
-FireUI.addStoneHearthNotes(function(info, notes)
+FireUI.addNotes(function(info, notes)
     if info.joinedSpec and info.joinedSpec.id == Smokehouse.ID then table.insert(notes, getText("IGUI_TraditionalPreservationFishMeat_FlueSmokes")) end
 end)

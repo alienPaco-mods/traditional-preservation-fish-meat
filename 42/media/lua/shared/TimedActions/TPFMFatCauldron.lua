@@ -7,6 +7,7 @@ TPFMFatCauldron = ISBaseTimedAction:derive("TPFMFatCauldron")
 
 local F = TraditionalPreservationFishMeat
 local Fire = require "TraditionalPreservationCore/Fire"
+local Cauldron = require "TraditionalPreservationCore/Cauldron"
 local Action = require "TraditionalPreservationCore/Action"
 
 local TICKS_A_PIECE = 15
@@ -21,12 +22,12 @@ local function piecesHere(self)
 end
 
 function TPFMFatCauldron:isValid()
-    return self.hearth:getSquare() ~= nil and #piecesHere(self) > 0
-        and F.cauldronFatRoom(Fire.cauldronState(self.hearth:getModData()), self.raw) > 0
+    return self.fire:getSquare() ~= nil and #piecesHere(self) > 0
+        and F.cauldronFatRoom(Cauldron.state(self.fire:getModData()), self.raw) > 0
 end
 
 function TPFMFatCauldron:waitToStart()
-    self.character:faceThisObject(self.hearth)
+    self.character:faceThisObject(self.fire)
     return self.character:shouldBeTurning()
 end
 
@@ -36,7 +37,7 @@ end
 
 function TPFMFatCauldron:complete()
     -- Brought up to the minute first, so the fat mixes with the cauldron as it is now.
-    local cauldron = Fire.cauldronOf(self.hearth)
+    local cauldron = Cauldron.of(self.fire)
     local now = getGameTime():getWorldAgeHours()
     local pieces, hoursLeft = piecesHere(self), {}
     for index, item in ipairs(pieces) do hoursLeft[index] = F.fatHoursLeft(item) end
@@ -44,7 +45,7 @@ function TPFMFatCauldron:complete()
     for index = 1, count do
         Action.removeItem(pieces[index])
     end
-    Fire.redraw(self.hearth)
+    Fire.redraw(self.fire)
     return count > 0
 end
 
@@ -56,9 +57,9 @@ function TPFMFatCauldron:getDuration()
     return Action.duration(self.character, TICKS_A_PIECE * #self.pieces)
 end
 
-function TPFMFatCauldron:new(character, hearth, raw, pieces)
+function TPFMFatCauldron:new(character, fire, raw, pieces)
     local o = ISBaseTimedAction.new(self, character)
-    o.hearth = hearth
+    o.fire = fire
     o.raw = raw
     o.pieces = pieces
     o.maxTime = o:getDuration()
