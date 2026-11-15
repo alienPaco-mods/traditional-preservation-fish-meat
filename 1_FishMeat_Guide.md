@@ -271,7 +271,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 - **Under an open roof**: a porch, an open shed, a floor laid on the level above. Rain never reaches it, and it's **in the shade**: salt fish, charque, dry curing and stockfish go by the **average of the last ten days**, not the afternoon's heat or the night's frost: a warm afternoon in November stops stockfish in the open, not under a roof. A **Salting Tub in the open air** feels the day: afternoons over 20 C warm cure it (May to September), so give it a roof.
 - **Indoors**: inside a room, including one you built yourself with walls all round and a full roof. A room goes by the **average of the last ten days**, and is **22 C while the power grid is on**, as vanilla keeps it: drying runs at summer speed all year, but so does spoiling (chapter 5). Still air: salt fish dries at about **two thirds** of the speed, and **gutted fish is refused** (stockfish needs moving air). **Meat indoors is never charque**: it dry cures (chapter 11).
 - **In a shed**: inside the Smokehouse, wherever it stands. A closed plank shed in the outside air: no rain and no wind, as indoors, but it goes by **the day's temperature**, plus its fire, and the power grid doesn't warm it. Salt fish dries at about two thirds of the speed, gutted fish is refused and meat dry cures, as in a room.
-- **Loft**: the top storey: a room upstairs with no room over it. Indoors, but at the **loft's own temperature**, not the day's: as indoors, plus three tenths of whatever the 10-day average is above 10 C: the sun on the roof (about 24 C in a 21 C July, no warmer than a room from October to April); 22 C while the power grid is on. Salt fish, charque and dry curing there go by it, and so does a Salting Tub: a summer loft is the worst place for a cure in the tub.
+- **Loft**: the top storey: a room upstairs with no room over it, at the **loft's own temperature** (about 24 C in a 21 C July, as a room from October to April; TP Core's guide, chapter 8). Salt fish, charque and dry curing there go by it, and so does a Salting Tub: a summer loft is the worst place for a cure in the tub.
 - **Basement**: any level below ground. Indoors, but at the **cellar's own temperature**, not the day's: about 5 C from January to March, 13 C from July to September, a month behind the season. Whatever dries there goes by it, so salt fish crawls (about **27 days** a batch, all year): a cellar is for keeping salt fish, not drying it.
 
 **Hover a stack** to see its method, what it **comes out as** if it came down now (the recipe's output picture always shows Charque or Salt Dried; chapter 23 has every end), progress, time left, place, the temperature, the wind, how wet it is and how fast it's drying right now, a warning if the season is spoiling it, and in a Smokehouse its smoke.
@@ -347,7 +347,6 @@ Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub,
 - **Wind** matters as much: still air halves the speed, a good breeze (the popup's *Good drying wind*) adds a fifth. Under an open roof, three quarters of the speed, but it never waits out the rain.
 - **Fresh fish is fragile.** Until a stack is about 30% dried it has no dry skin: hard frost (below -5 C) and lying wet above freezing each take a little off how long the finished fish keeps, a quarter at most.
 - **Warmth rots it, while it's wet.** In the open, every hour over 10 C eats into a fresh stack (blowflies wake at about that); under a roof, only once the last ten days average over 10 C. The drier the fish, the less it minds: half dry, a quarter of the harm; nearly dry, almost none. That is why Lofoten's racks can stand into May.
-- **Where and when:** in the open, hang from **November to February** (an October hang mostly rots on warm afternoons). Under an open roof, **October to March**, 55 to 60 days.
 
 **Storing it**
 - **Stockfish Pallet** (build menu: Carpentry 2; 3 planks, 6 nails; hammer and saw kept): stack your stockfish on it the way the warehouses did. In a **loft** (the top storey: a room upstairs with no room over it) it matures **twice as fast** (30 days); in **any other room above ground**, half as fast again (40 days). Covered, outdoors or in a damp basement it does no better than a shelf. It holds 20 weight; the stack on it grows from a third to full as you load it, as long as nothing but stockfish is on it. Right-click it to see its speed there.
@@ -361,8 +360,6 @@ Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub,
 
 A plank shed two tiles long under a flat roof of boards, its wide door on one end. On its own it's a dry room for salt fish and the place where meat **dry cures**; with a **Stone Hearth** joined to it, it **hot smokes** on a stoked fire and **cold smokes** on a banked one.
 
-> *Margin note:* the shed, its Stone Hearth and the flue now come with *TP Core* (its guide, chapters 3 and 6), so other TP mods can smoke in it too. Everything below about fish and meat is unchanged.
-
 | | |
 |---|---|
 | Build | Carpentry 3: **14 planks, 20 nails**, hammer kept (Build menu, Furniture) |
@@ -371,26 +368,23 @@ A plank shed two tiles long under a flat roof of boards, its wide door on one en
 | Inside | always **In a shed**: no rain, no wind, the day's temperature, wherever it stands |
 | Stands | in the open or under an open roof, not inside a room; the tile in front of its door stays clear |
 
-1. **Build it** with the door facing where you'll walk up to it. Nothing can be built on the tile in front of the door afterwards.
-2. **Click either tile**: one window, **Smokehouse**, with the hanging recipes. Load it as you would a frame. Nothing hangs in sight: hover a stack in the window to see how it's doing.
-3. **With no fire it dries like a room**: salt fish at about **two thirds** of its open speed, never rained on. **Meat dry cures** here on its own slow clock (chapter 11), and never comes out Charque.
-4. **No stockfish.** Gutted fish needs moving air, so the shed doesn't offer cold drying.
-5. **Moving it:** empty and unjoined, it picks up as one item and puts down again as both tiles.
+1. **Click either tile**: one window, **Smokehouse**, with the hanging recipes. Load it as you would a frame. Nothing hangs in sight: hover a stack in the window to see how it's doing.
+2. **With no fire it dries like a room**: salt fish at about **two thirds** of its open speed, never rained on. **Meat dry cures** here on its own slow clock (chapter 11), and never comes out Charque.
+3. **No stockfish.** Gutted fish needs moving air, so the shed doesn't offer cold drying.
+4. **Moving it:** empty and unjoined, it picks up as one item and puts down again as both tiles.
 
 ### Joining a Stone Hearth
 
-The **Stone Hearth** comes from *Traditional Preservation (Core)* (Masonry 2: 8 Clay Bricks, 2 Clay; trowel kept; see the Core Guide). Build one on a tile beside the shed, then lay its flue into the wall.
+The **Stone Hearth** and its flue come from *Traditional Preservation (Core)*: its guide, chapters 3 and 6, has the build and every rule for joining. In short: build one beside the shed, then lay its flue into the wall.
 
 | Way | Takes | Tool kept | Comes back on Disconnect |
 |---|---|---|---|
 | **With a Clay Pipe** | 2 Clay Pipe Segments, 1 Clay | Mason's Trowel | 2 Clay Pipe Segments |
 | **With a Stone Trench** | 3 Flat Stones, 2 Clay | Shovel, Spade or Entrenching Tool | 3 Flat Stones |
 
-- **Connect the Stone Hearth** is on the Stone Hearth's own menu and on the shed's right-click. No skill; about half a minute of work and a little Masonry experience. **Disconnect the Stone Hearth** wants the same tool again, and the clay is lost when you take the flue up.
-- **Where it may stand:** beside either long side of the shed, or behind its back end. Not at the door end, and **not with the Stone Hearth's own door towards the shed**: its flue leaves from its back or a flank.
-- **One Stone Hearth to a shed**, and the fire must be **out** (not lit, not banked) to connect or disconnect.
-- **Joined, neither moves** until you **Disconnect the Stone Hearth**.
-- **What you see:** the clay pipe leaves the Stone Hearth's side low down and climbs a little into the wall through a collar of clay; a trench runs from its foot under flat stones. The hole in its top is covered (a lid, or the pot when a stew is in), so you can still cook on it while it smokes, and the Forged Cauldron still fits. **Stone Hearth Info** says where its flue goes.
+- **Connect the Stone Hearth** is on the Stone Hearth's own menu and on the shed's right-click. **Disconnect** wants the same tool again, and the clay is lost.
+- **Where it may stand:** beside either long side of the shed, or behind its back end; never at the door end or **with its own door towards the shed**. One to a shed, and the fire **out** (not lit, not banked) to connect or disconnect. Joined, neither moves.
+- You can still cook on it while it smokes, and the Forged Cauldron still fits.
 
 ### Hot smoking
 
@@ -445,9 +439,7 @@ Out comes **Hot Smoked** meat that **keeps the cut's name** (*Turkey Wing (Hot S
 
 > *Margin note:* a hot smoked fish is cooked through: it has to reach about 63 C inside and stay there, in one run. That's why the hours must come in a row. Stoke an hour a day for a week and you get smoke on a drying fish, not a cooked one.
 
-> *Old names:* the Volga sells its fish three ways from the smokehouse: *goryachego kopcheniya*, hot smoked, golden and soft and eaten within days; *kholodnogo kopcheniya*, cold smoked over days and keeping for months; and *kopchyono-vyalenaya*, smoked a while and then air-dried, which is what a broken run gives you here. Every Kentucky farm had its smokehouse, hickory smoke and a ham hanging by the door, and the low firebox outside the wall is how many a Bosnian *pušnica* is fed: the fire stays outside where it can be tended, and only its smoke goes in.
-
-> *Margin note:* why may nothing stand in front of a door? The same rule holds for the Stone Hearth's door: you have to be able to reach the fire and the hooks.
+> *Old names:* the Volga sells its fish three ways from the smokehouse: *goryachego kopcheniya*, hot smoked, golden and soft and eaten within days; *kholodnogo kopcheniya*, cold smoked over days and keeping for months; and *kopchyono-vyalenaya*, smoked a while and then air-dried, which is what a broken run gives you here. Every Kentucky farm had its smokehouse, hickory smoke and a ham hanging by the door.
 
 ### Cold smoking
 
@@ -756,7 +748,7 @@ The other half of the pig-killing is the meat sausage: coarse pork, salt and gar
 
 **Stuff Sausages** makes **six Fresh Sausage** links, uncooked. Fry one as it is and it becomes **Fresh Sausage (Fried)**. Six in a Pot with 1.5 litres of water (**Put Sausages in Water**), boiled **half an hour**, come out as **Fresh Sausage (Boiled)** (**Take Out Sausages**). Fried or boiled, a fresh link keeps only **two days**, as the game's own sausage does.
 
-**Seasoning.** Season a link after it is stuffed, as you would a stew: right-click it, **Season**, and pick what you have. **Garlic**, **Onion**, **Pepper**, **Oregano**, **Thyme** and **Sage** (fresh, dried or the spice jar) each go in once, as many of them as you like, and each makes the link a little nicer to eat: **-2 unhappiness and -2 boredom**, what a spice does for a stew. The seasonings show as small icons on the link's tooltip. Each takes what a stew takes, a use (half an onion), for every link you season, so a whole batch takes six. Seasoned or not, a link boils, fries and smokes the same, and keeps its seasoning through all of it and into its slices. **Blood sausage** links take the same seasonings, raw or boiled.
+**Seasoning.** Right-click a stuffed link, **Season** (TP Core's guide, chapter 9): **Garlic**, **Onion**, **Pepper**, **Oregano**, **Thyme** and **Sage** (fresh, dried or the spice jar), each once, **-2 unhappiness and -2 boredom** apiece. Each takes a use (half an onion) for every link you season, so a whole batch takes six. Seasoned or not, a link boils, fries and smokes the same, and keeps its seasoning through all of it and into its slices. **Blood sausage** links take the same seasonings, raw or boiled.
 
 **What a link holds.** The six links share what went in: two pieces of pork, the third piece and the fat come to about 3,150 calories, so a link is **525**. Most of it is the fat, as in the real thing.
 
@@ -1019,17 +1011,7 @@ The farm's year turns on two slaughters.
 - **No fat, no crocks.** Deer give no fat, so Potted Meat needs Lard you've found. A wild boar or a raided pig farm changes that.
 - **Hot smoke for the trail's first week**, if you have the shed: four hours of fire for small fish.
 
-**What to carry**
-
-| In the pack | Calories for each 1.0 of weight |
-|---|---|
-| Fresh fish | about 400 |
-| Fresh venison | about 880 |
-| Salt Dried fish | about 975 |
-| Venison Charque, Venison (Dry Cured) or Venison (Cold Smoked) | about 1,600 |
-| Stockfish | about 2,000; a tied bale carries 30% lighter |
-
-Soak stockfish and charque at the camp-fire, not on the road: each wants a litre of water.
+What to carry is in the Logbook (chapter 18). Soak stockfish and charque at the camp-fire, not on the road: each wants a litre of water.
 
 ---
 
@@ -1039,15 +1021,17 @@ Soak stockfish and charque at the camp-fire, not on the road: each wants a litre
 
 ### Food you can carry
 
-Drying takes the water out and leaves the food in. Here's what one unit of inventory weight is worth, made from a fish big enough to give guts and a head:
+Drying takes the water out and leaves the food in. Here's what one unit of inventory weight is worth (fish from one big enough to give guts and a head):
 
 | Stage | Calories per 1.0 weight | Against fresh |
 |---|---|---|
 | Fresh fish | about 400 | × 1 |
 | Salt Dried | about 975 | × 2½ |
-| Stockfish | about 2,000 | × 5 |
-| Soaked (cold) | about 670 | back to heavy |
+| Stockfish | about 2,000; a tied bale carries 30% lighter | × 5 |
+| Soaked stockfish (cold) | about 670 | back to heavy |
 | Fish Head | about 240 | it's mostly bone |
+| Fresh venison | about 880 | × 1 |
+| Venison Charque, Dry Cured or Cold Smoked | about 1,600 | × 1.8 |
 
 > *Margin note:* every vanilla fish carries the same calories for its weight. So a stack of stockfish weighing 2.5 holds as much food as about 12 weight of fresh fish. Rehydrate it at the pot, not on the road. Charque does the same for beef at nearly twice the raw calories per weight, and a crock of Potted Meat carries about 5,000.
 
@@ -1060,8 +1044,6 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 - **Why does charque want the sun?** Lean beef has little fat to turn rancid, and heavy salt keeps flies and rot off while the heat drives the water out in days.
 - **Why do warm stacks rot?** Unsalted fish has nothing protecting it but the cold. Once the season averages above 10 C, it spoils faster than it dries.
 - **Why gut it first?** The guts spoil first and fastest. Stockfish makers gutted and headed every fish before it went on the rack.
-- **Why does hot smoking need its hours in a row?** It's cooking. Heat that stops and starts warms the fish and lets it cool again; it never reaches the heat that cooks it through.
-- **Why is cold smoke a winter job?** A smoulder lifts the shed about 15 C over the air. On a cold day that's a gentle, drying warmth; on a summer day it puts the meat at blood heat, where it spoils or half-cooks before it dries.
 
 ### Old names, old ways
 
@@ -1076,30 +1058,22 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 
 ## 19. Secrets & Hidden Features
 
-- **Fish keep their identity.** A *Small Largemouth Bass* stays one through every stage. Each fish keeps its own weight and calories, so a batch of mixed sizes comes out mixed too. Meat keeps its cut in the tub (*Steak (Corned)*) and its animal after (*Beef Charque*, *Venison (Cold Smoked)*).
 - **Icons change with the cure.** Pale with salt when cured, browned when salt dried, grey when cold dried, gold when hot smoked, smoky bronze when cold smoked, darker again when rehydrated. Gutted fish are drawn **without their heads**, as stockfish were; halves show red flesh and a backbone. Meat goes from red to cured red-brown, charque nearly black, hot smoked mahogany, Dry Cured a deep burgundy.
-- **Fish Guts are free chum.** Packing or gutting a whole fish over 0.6 weight gives Fish Guts weighing 10% of the fish.
-- **Fillet at any stage.** A whole fish over 0.6 weight can still be cut into 2 fillets after it's been salted, dried or rehydrated, just like a fresh one. The fillets stay at the same stage.
 - **Changed your mind?** A Gutted Fish or Fish Half can still be packed in salt. It won't give a second lot of guts.
 - **Damp air matters a little.** Air more humid than 50% slows salt drying and charque, though the game's air is rarely that damp.
 - **Every frame looks different.** Each stack picks its hanging look at random (whole, headless or split), so a full frame looks hand-hung. Charque hangs as dark cuts, red going to deep brown.
-- **The ham by the door.** A Smokehouse with finished stacks inside hangs a smoked ham by its door, so you can see from across the yard that something's ready.
-- **Salt Dried fish needs no soaking for soup.** Toss it straight into a pot. Stockfish and charque do: they're too hard to eat as they are.
 - **Dishes show one steady icon** for each preserved ingredient, so a stew of mixed dried fish doesn't flicker.
 
 ---
 
 ## 20. Tips from the Docks and the Block
 
-- **Fillets don't cheat the salt.** A vanilla fillet weighs 5% of its fish but holds half its food, so salted it pays and weighs as half the gutted fish.
 - **Big catch?** A fish heavier than a stack's limit won't fit. Split it in two, or hang it on the Beam or Gantry.
 - **An open shed beats a room.** A frame under a porch or lean-to roof dries salt fish and charque at full speed, rain or shine, in the shade.
 - **Winter is stockfish season.** Gut everything you catch in December and January. Turn the heads into stock the same day, as they spoil like fresh fish.
 - **Don't eat December's stockfish in January.** Give it the 60 days. A crate in the shed is enough, a pallet in the loft is better, and the freezer is the one place it won't mature.
-- **Kill hogs after the first frosts.** The long cure is only safe from October to April. Salt the legs first: they take 21 days in the tub and the tub holds one cure at a time.
 - **A cellar beam is a ham's best friend.** A Hanging Beam in a basement dries Country Cured meat with no fire to tend and never sees rain or frost: about a month a cut from June to October, two to three in the depth of winter.
 - **Butcher on the hook.** The Butchering Hook gives nearly five times the fat of the ground.
-- **Cook four cuts to a crock**, and keep it in the basement or a winter pantry. Open it when you mean to finish it.
 - **Hot smoke what you'll eat this week**, and salt-dry the rest. A small batch of fish cooks in four hours of fire.
 - **In winter, bank the Smokehouse a few hours a day.** A banked Stone Hearth burns a third of the wood; fish has its smoke in under a week and meat in a week or two, and both dry faster for the warmth.
 - **Rehydrate only what you'll cook today.** Soaked fish and soaked charque keep 2 days.
@@ -1121,7 +1095,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | A station refuses a fish or cut | It takes only Salt Cured fish or meat, or Gutted Fish and halves. Raw, rotten, frozen salted and cooked pieces are refused, and a frame stack holds 2.5 weight at most. A Hanging Beam stack holds 12 pieces and a Gantry stack 6, fish or meat: they are for bigger pieces, not more of them |
 | A station refuses meat (or fish) | The stack waiting to start is the other kind: one stack is one kind. Craft it first, then load the next |
 | Station indoors refuses gutted fish | It has no moving air. Cold drying needs the open or an open roof |
-| Not drying | Rain on an open station (cold fish too, until it dries off); a stockfish stack hung indoors in a save from an older version of the mod; or charque at or below freezing |
+| Not drying | Rain on an open station (cold fish too, until it dries off), or charque at or below freezing |
 | Cold stack came out rotten | It was hung in a warm season: the last 10 days averaged above 10 C |
 | Stockfish keeps less than a year | Hard frost or rain caught it in its first days on the frame |
 | Charque lost progress | It was rained on, on an open station: a tenth for every 6 hours of rain |

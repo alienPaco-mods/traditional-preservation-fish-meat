@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.53
+- **Guide shortened** (2026-11-15): the Smokehouse's joining rules point to TP Core's guide; repeated secrets, tips and Logbook entries cut; the two carry tables merged; no history notes (the old-save stockfish row, the Smokehouse's move). Nothing changes in game.
 - **README and DEVHELP say what is** (2026-11-15): no version tags, step labels or dev-machine paths. Nothing changes in game.
 - **Docs and comments** (2026-11-15): decisions are stated plainly, without attributions (CHANGELOG, comments, scripts, README, tests). Nothing changes in game.
 - **README** (2026-11-15): the opening table adds rendered fat, the stocks and fresh sausage, and Potted Meat's poultry and rabbit.
