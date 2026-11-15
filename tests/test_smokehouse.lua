@@ -415,7 +415,7 @@ check("while the grid is on a room is 22 C: salt fish dries faster", near(spring
 check("and a tub in a room warm cures, one under a roof in an 8 C spring does not", F.cureSpoiled(roomTub, spring) > 0
     and F.tubSpoiling(roomTub, spring) and F.cureSpoiled(shedTub, spring) == 0 and not F.tubSpoiling(shedTub, spring))
 
--- Step I, 5 and 6 (user): stockfish under a roof by the season's mean; a tub in the open air by the day's.
+-- Step I, 5 and 6: stockfish under a roof by the season's mean; a tub in the open air by the day's.
 local autumn = F.newLedger(0)
 F.advance(autumn, 300, { temperature = 3, humidity = 0.3, precipitation = 0, wind = F.WIND_GOOD })
 local openTub = { lastWarmCure = autumn.warmCure, lastWarmCureOpen = autumn.warmCureOpen, countryCure = true, lastLongCureSpoil = autumn.longCureSpoil,
@@ -430,7 +430,7 @@ check("a warm afternoon stops cold drying in the open, not under a roof (the sea
 check("and warm cures a tub in the open air, not one under a roof", F.cureSpoiled(openTub, autumn) > 0
     and F.tubSpoiling(openTub, autumn) and F.cureSpoiled(roofTub, autumn) == 0 and not F.tubSpoiling(roofTub, autumn))
 
--- Step I, 9 (user): a muggy season spoils salt fish and charque by the place's temperature; dry curing is spared.
+-- Step I, 9: a muggy season spoils salt fish and charque by the place's temperature; dry curing is spared.
 local july = F.newLedger(0)
 F.advance(july, 400, { temperature = 21, humidity = 0.6, precipitation = 0, wind = 0 })
 local function saltStack(extra)
@@ -556,5 +556,5 @@ Fire.logFire(legFire, 705, Fire.STOKED, 720)
 F.smokeStep(ham, legFire)
 check("a leg's stoked hours are smoke, not a cook", ham.hot == 0 and near(ham.cold, 4))
 
--- The ham by the door (user's idea): the door's tile, by facing, only with finished stacks.
+-- The ham by the door: the door's tile, by facing, only with finished stacks.
 H.done()

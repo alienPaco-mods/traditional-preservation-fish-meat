@@ -3,8 +3,7 @@
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 
--- The stock carries the head's calories, not its hunger (every stock reads hunger -5: a design decision of the
--- user's), and lists the head among its ingredients, as a vanilla stew lists what went in.
+-- The stock carries the head's calories, not its hunger (every stock reads hunger -5: a design decision), and lists the head among its ingredients, as a vanilla stew lists what went in.
 function F.onCreateHeadStock(craftRecipeData)
     local head
     local inputs = craftRecipeData:getAllInputItemsWithFlag("ItemCount")
@@ -19,7 +18,7 @@ end
 
 -- What a bone gives a pot of Bone Broth. Two Animal Bones, one Large or six Small make a pot: about 80 kcal,
 -- mostly gelatin, the Large's marrow more. Kept small on purpose: a stock is worth its taste (the stock pots'
--- unhappiness and boredom, a design decision of the user's), not its calories.
+-- unhappiness and boredom, a design decision), not its calories.
 F.STOCK_BONES = {
     ["Base.AnimalBone"] = { calories = 40, proteins = 5, lipids = 1.5 },
     ["Base.LargeAnimalBone"] = { calories = 150, proteins = 10, lipids = 12 },
@@ -27,7 +26,7 @@ F.STOCK_BONES = {
 }
 
 -- What a Chicken Stock's parts give it: a foot its gelatin, a head a little (vanilla's heads have no food). Neither
--- adds hunger: every stock reads hunger -5, and the feet are spent in the pot (a design decision of the user's).
+-- adds hunger: every stock reads hunger -5, and the feet are spent in the pot (a design decision).
 F.STOCK_FOOT = { calories = 35, proteins = 7, lipids = 0.8 }
 F.STOCK_HEAD = { calories = 15, proteins = 2, lipids = 1 }
 

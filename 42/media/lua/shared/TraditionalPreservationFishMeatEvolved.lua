@@ -33,8 +33,8 @@ end
 
 -- Meat stages are one item for every animal, so vanilla would name every dish with them after the script's "Beef".
 -- Once a piece goes in, its entry becomes the stand-in of its stage and animal (tools/build_standins.py), which has
--- vanilla's food type and name for that animal, and the dish is named again: "Venison Stew" (realism pass, user
--- 2026-11-13). The animal is the piece's MEAT_CUTS index (a slice's is its modData.cut). Pairs the game can't make,
+-- vanilla's food type and name for that animal, and the dish is named again: "Venison Stew" (realism
+-- pass). The animal is the piece's MEAT_CUTS index (a slice's is its modData.cut). Pairs the game can't make,
 -- and a piece with no cut, keep the stage's own stand-in. Dry cured meat that had its smoke (not airDried) takes a
 -- Cold Smoked stand-in, so the dish lists it as its name says: "Beef (Cold Smoked)".
 F.ANIMAL_STAGES = { HotSmokedMeat = true, DryCuredMeat = true, SoakedCharque = true, HotSmokedMeatSlice = true,

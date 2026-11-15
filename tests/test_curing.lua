@@ -784,9 +784,9 @@ local headBody = script:match("item FishHead\n    {(.-)\n    }")
 check("a head spoils like fresh fish", headBody:find("DaysFresh = 3,", 1, true) and headBody:find("DaysTotallyRotten = 6,", 1, true))
 check("and is a little unpleasant to eat", headBody:find("UnhappyChange = 5,", 1, true) ~= nil and not headBody:find("RemoveUnhappinessWhenCooked", 1, true))
 check("no drying recipe takes a head", not script:find("FishHead", (script:find("craftRecipe PressSaltedFish", 1, true)), true))
--- Design decision (user, 2026-11-13): every stock, and the soups and stews made from them, starts at -10
--- unhappiness and -10 boredom, at hunger -5 (vanilla's soups and stews start at 0). A balance pass that changes them has to change this test, on the
--- user's word.
+-- Design decision: every stock, and the soups and stews made from them, starts at -10
+-- unhappiness and -10 boredom, at hunger -5 (vanilla's soups and stews start at 0). A balance pass that changes them has to change this test, and only
+-- as a deliberate design change.
 do
 local both = script .. io.open("42/media/scripts/TraditionalPreservationFishMeat_Meat.txt"):read("*a")
 local STOCKS = { FishHead = { "PotOfFishHeadStock", "PotForgedFishHeadStock", 7 }, BoneBroth = { "PotOfBoneBroth", "PotForgedBoneBroth", 7 },

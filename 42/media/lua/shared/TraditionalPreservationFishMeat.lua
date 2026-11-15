@@ -96,7 +96,7 @@ F.MEAT_CUTS = { "Base.Beef", "Base.Steak", "Base.MuttonChop", "Base.Venison", "B
 -- The pork cuts' and the leg's model indices.
 F.PORK_INDICES = { [4] = true, [5] = true, [6] = true }
 F.LEG_INDEX = 6
--- Poultry and rabbit (0.4.34, user 2026-11-13): brined lightly and hot smoked, nothing else. Lean bird fat goes rancid
+-- Poultry and rabbit (0.4.34): brined lightly and hot smoked, nothing else. Lean bird fat goes rancid
 -- and raw poultry carries salmonella, rabbit tularemia, which only cooking kills: no charque, dry cure or cold smoke.
 -- Their Corned keeps HOT_ONLY_DAYS (a light brine, not a salting), and in the Smokehouse they never dry: a stack waits
 -- for its hot run and spoils as under-salted meat does, HOT_ONLY_UNDER_RATE times as fast (Corned's keeping, 14 / 6).
@@ -227,7 +227,7 @@ F.WARM_CURE_SHARE = 0.25
 F.LONG_CURE_ABOVE = 10
 F.LONG_CURE_ROT_AT = 15
 F.LONG_CURE_ROT_HOURS = 504
--- The tub in the cold (realism pass, user 2026-11-13): salt moves slowly near freezing, and the old rule added a day
+-- The tub in the cold (realism pass): salt moves slowly near freezing, and the old rule added a day
 -- of cure for each day the meat froze. The cure goes by the tub's place temperature, { C, speed } joined by straight
 -- lines: full from 2 C, half at -5, a quarter from -10 (a brine doesn't freeze solid).
 F.TUB_CURE_POINTS = { { -10, 0.25 }, { -5, 0.5 }, { 2, 1 } }
@@ -333,7 +333,7 @@ F.UNDER_CURE_HOURS = 672
 F.UNDER_CURE_AT = 10
 F.UNDER_CURE_TENFOLD = 5
 F.UNDER_CURE_MAX = 30
--- Realism pass (user, 2026-11-13): above freezing, under-salted red meat is rotten within UNDER_CURE_MAX_DAYS of thawed
+-- Realism pass: above freezing, under-salted red meat is rotten within UNDER_CURE_MAX_DAYS of thawed
 -- hours, however cool (bone taint: the middle sours before the salt gets there); frozen hours keep the slow curve. A
 -- rinsed piece lost surface salt too: it spoils 1 / RINSED_KEEPING as fast.
 F.UNDER_CURE_MAX_DAYS = 42
@@ -727,7 +727,7 @@ function F.stackRotten(modData)
 end
 
 -- What under-salting has taken from one hung piece: none from a Country Cured one; a rinsed Corned piece lost surface
--- salt too, and spoils 1 / RINSED_KEEPING as fast (realism pass, user 2026-11-13).
+-- salt too, and spoils 1 / RINSED_KEEPING as fast (realism pass).
 function F.underLoss(piece, modData)
     local data = piece:getModData()
     if data.longCure then return 0 end

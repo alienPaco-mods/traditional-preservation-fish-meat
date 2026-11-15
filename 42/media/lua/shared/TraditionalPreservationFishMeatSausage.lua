@@ -1,11 +1,11 @@
--- Traditional Preservation (Fish & Meat): Smoked Sausage (user, 2026-11-13), kielbasa style. Two pieces of raw pork
+-- Traditional Preservation (Fish & Meat): Smoked Sausage, kielbasa style. Two pieces of raw pork
 -- and a third of pork, beef or venison, a piece of pork fat or half a block of lard, salt and a Salted Casings make six
 -- Fresh Sausage links. A fresh link fries in place (Fresh Sausage (Fried)) or poaches in a pot (Fresh Sausage
 -- (Boiled)) and keeps as vanilla's sausage does; hung raw in the Smokehouse (Hang Sausage to Smoke, the recipe blood
 -- sausage hangs with too) it takes a hot run, SAUSAGE_HOT_HOURS stoked in a row on the Smokehouse's hot counter, and
 -- comes down Smoked Sausage (14 / 30). The stack itself runs on the blood sausage's code
 -- (TraditionalPreservationFishMeatBlood.lua, modData.sausage = "pork").
--- Seasoning (user, 2026-11-13), for these links and blood sausage's: added to a link afterwards, as a spice to a stew
+-- Seasoning, for these links and blood sausage's: added to a link afterwards, as a spice to a stew
 -- (TP Core's Season menu), raw or boiled; each kind once, no cap, each SEASONING_UNHAPPY. It goes with the link into
 -- the pot, the pan, the smoke and the slices.
 require "TraditionalPreservationFishMeat/Common"
@@ -16,7 +16,7 @@ local F = TraditionalPreservationFishMeat
 -- A hot run, as a Pork piece's (F.HOT_MEAT_HOURS at 0.3): links are thin, but the run is one unbroken stretch.
 F.SAUSAGE_HOT_HOURS = 6
 
--- The short list (user): what real sausages take. Oregano stands in for marjoram, which the game doesn't have. Each
+-- The short list: what real sausages take. Oregano stands in for marjoram, which the game doesn't have. Each
 -- takes what vanilla takes for a stew: a use, half an onion (5).
 F.SEASONINGS = {
     { name = "garlic", types = { "Base.Garlic", "Base.WildGarlic2", "Base.WildGarlicDried" } },
@@ -29,7 +29,7 @@ F.SEASONINGS = {
 -- Each kind: vanilla's spice in a stew, -2 unhappiness and -2 boredom.
 F.SEASONING_UNHAPPY = -2
 F.SEASONING_BOREDOM = -2
--- The links a seasoning goes into (links only, user): raw or fried or boiled fresh sausage, raw or boiled blood sausage.
+-- The links a seasoning goes into (links only): raw or fried or boiled fresh sausage, raw or boiled blood sausage.
 F.SEASONED_LINKS = { F.FRESH_SAUSAGE, F.RAW_BLOOD_SAUSAGE,
     F.BLOOD_SAUSAGE }
 Season.register(F.SEASONED_LINKS, { kinds = F.SEASONINGS, unhappy = F.SEASONING_UNHAPPY, boredom = F.SEASONING_BOREDOM })

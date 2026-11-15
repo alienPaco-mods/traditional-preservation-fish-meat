@@ -122,7 +122,7 @@ end
 
 -- Brings a stack's counters up to the fire's record (a Stone Hearth's fire state), or none (not joined): TP Core's
 -- Smokehouse.fireStep. With the ledger (the World's look; tests may leave it out): fire hours count as cold only on
--- cool days, stoked or banked (user: no Cold Smoked in summer from short stoked bursts), and every hour of fire adds
+-- cool days, stoked or banked (no Cold Smoked in summer from short stoked bursts), and every hour of fire adds
 -- the warmed air's extra drying, banked or stoked, and an under-salted stack's extra spoiling.
 function F.smokeStep(modData, fire, ledger)
     if not modData.hotNeed then return end

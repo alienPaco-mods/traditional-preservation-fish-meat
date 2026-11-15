@@ -351,7 +351,7 @@ local function sfield(item, key)
 end
 -- What goes in (vanilla's numbers): two Pork, a third piece (Pork Chop 150 to Beef 440), Pork Fat or half a Lard.
 local batchLow, batchHigh = 2 * 300 + 150 + 4095 / 2, 2 * 300 + 440 + 2170
-check("six links are the batch's food (user: match the inputs), 525 kcal and hunger 30",
+check("six links are the batch's food (match the inputs), 525 kcal and hunger 30",
     sfield("FreshSausage", "Calories") == 525 and sfield("SmokedSausage", "Calories") == 525
     and 6 * 525 >= batchLow and 6 * 525 <= batchHigh
     and sfield("FreshSausage", "HungerChange") == -30 and sfield("SmokedSausage", "HungerChange") == -30)

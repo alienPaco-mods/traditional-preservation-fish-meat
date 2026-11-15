@@ -20,7 +20,7 @@ local Season = require "TraditionalPreservationCore/Season"
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 
--- How much blood a carcass holds (user, 2026-11-13). Vanilla gives each animal minBlood to maxBlood centilitres by
+-- How much blood a carcass holds. Vanilla gives each animal minBlood to maxBlood centilitres by
 -- its weight in its minWeight to maxWeight (IsoAnimal.getBloodQuantity), 8 to 25 L for a pig or a sheep, four to
 -- six times a real sticking's. An animal has 6-8% of its weight in blood and about half drains, so here it is 3.5
 -- cl a kg: 3.5 L from a 100 kg pig, 20 L from a 600 kg cow. The game reads the Lua table on first use, when the
@@ -38,8 +38,8 @@ end
 
 F.realBlood(AnimalDefinitions and AnimalDefinitions.animals)
 
--- Going off (user, 2026-11-13). Fresh blood keeps a day at 20 C and three in a fridge; cured with salt or vinegar
--- (one state, Cured, whichever was stirred in; user 2026-11-13) three days at 20 C and seven in a fridge. The rate
+-- Going off. Fresh blood keeps a day at 20 C and three in a fridge; cured with salt or vinegar
+-- (one state, Cured, whichever was stirred in) three days at 20 C and seven in a fridge. The rate
 -- is 1 at 20 C, 2 at 30 C, stopped once frozen; cured blood has its own cold curve (its own ledger kind), so the
 -- fridge (4 C) is a third for fresh blood, 3/7 for cured. Blood has no soured stage: it goes straight to Spoiled
 -- Blood. Fluid names and ledger kinds are saved: never rename them once the mod is out.
@@ -94,7 +94,7 @@ F.BLOOD_SPEC = FluidAgeing.register({
 -- Every blood a recipe can use: fresh or treated, never spoiled.
 F.USABLE_BLOOD = { AnimalBlood = true, CuredBlood = true }
 
--- Curing (user 2026-11-13): TP Core's treat menu on a container of blood (Cure Blood, -n Salt / -n Vinegar), one use
+-- Curing: TP Core's treat menu on a container of blood (Cure Blood, -n Salt / -n Vinegar), one use
 -- for each BLOOD_LITRES_PER_USE litres, about 1% salt or 5% vinegar, taken from what the player carries.
 F.BLOOD_LITRES_PER_USE = 2
 F.BLOOD_TREATMENTS = {
@@ -115,7 +115,7 @@ function F.bloodIn(item)
     return FluidTreat.litresIn(container, F.BLOOD_SPEC)
 end
 
--- The filler of black pudding and blood sausage (user, 2026-11-13: any of them, one recipe): a quarter of a bag of oats
+-- The filler of black pudding and blood sausage (any of them, one recipe): a quarter of a bag of oats
 -- or rice by the use, or 12 grains (0.24 kg) of barley, rye or wheat, the renewable ones. The recipe line keeps the
 -- one it takes; TP Core's Charge takes the amount.
 F.FILLER = Charge.line({
@@ -125,7 +125,7 @@ F.FILLER = Charge.line({
 F.canTakeFiller = F.FILLER.onTest
 F.onCreateTakeFiller = F.FILLER.take
 
--- Casings (user, 2026-11-13): vanilla butchering gives no guts, so pigs, cattle, sheep and deer get a Raw Casings
+-- Casings: vanilla butchering gives no guts, so pigs, cattle, sheep and deer get a Raw Casings
 -- row in vanilla's parts tables, as the fat rows are added. One Raw Casings fills one batch of six sausages. They are
 -- base numbers, scaled as the fat rows' are (on a Butchering Hook about x2.8, never less than one): a pig on the Hook
 -- gives about 3, cattle about 4, a sheep or a deer about 2, a young animal 1. Raw casings go off in a day;
@@ -147,7 +147,7 @@ end
 
 Events.OnInitGlobalModData.Add(F.applyCasingRows)
 
--- Telling the links apart (user, 2026-11-13): poached they are Blood Sausage (Boiled); a raw link fried as it is
+-- Telling the links apart: poached they are Blood Sausage (Boiled); a raw link fried as it is
 -- names itself Blood Sausage (Fried) as it cooks (OnCooked); a boiled one fried afterwards, BLOOD_SAUSAGE_FRY_MINUTES
 -- at frying heat (TP Core's OnHeat), Blood Sausage (Boiled, Fried). Only the name changes.
 F.BLOOD_SAUSAGE_FRY_MINUTES = 5
@@ -160,7 +160,7 @@ OnHeat.watch(F.BLOOD_SAUSAGE, F.BLOOD_SAUSAGE_FRY_MINUTES, function(item)
     F.nameAs(item, getText("IGUI_TraditionalPreservationFishMeat_BloodSausageBoiledFried"))
 end)
 
--- Smoked Blood Sausage (user, 2026-11-13): boiled links, never fried, hung alone in the Smokehouse
+-- Smoked Blood Sausage: boiled links, never fried, hung alone in the Smokehouse
 -- (Hang Sausage to Smoke, one recipe with Smoked Sausage's since 0.4.38) take SMOKED_SAUSAGE_HOURS of cold smoke, whatever the stack: the Smokehouse's cold
 -- counter (F.smokeStep), so fire hours count only on cool days and a stoked run is smoke at once (never a cook), as
 -- Thuringian Rotwurst or smoked kaszanka are smoked after the kettle. Each link keeps its Boiled clock while it

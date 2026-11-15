@@ -339,7 +339,7 @@ function F.advance(ledger, now, weather)
     if weather.temperature > F.HEAT_ABOVE then ledger.heat = ledger.heat + hours end
 
     -- The season (TP Core's running means), and what goes by it: unsalted fish spoiling under a roof and indoors, a
-    -- tub's cures under a roof; in the open air (step I, user) the same by the day's temperature.
+    -- tub's cures under a roof; in the open air (step I) the same by the day's temperature.
     Weather.seasonTemperature(ledger, weather.temperature, hours)
     Weather.seasonHumidity(ledger, weather.humidity, hours)
     local warmth = ledger.seasonTemperature - F.RAW_SPOIL_ABOVE
@@ -377,7 +377,7 @@ function F.advance(ledger, now, weather)
     add(ledger, "coldCovered", F.coldRate(roof) * F.windRate(weather.wind) * F.COVERED_COLD_RATE, hours)
     if roof < F.HARD_FROST then ledger.hardFrostCovered = (ledger.hardFrostCovered or 0) + hours end
     -- A muggy season: the season's for the open air, a roof and the Smokehouse; by the place's own temperature
-    -- (step I, user) in a room (22 C on the grid is not over the limit), a loft (a July loft is) and a basement
+    -- (step I) in a room (22 C on the grid is not over the limit), a loft (a July loft is) and a basement
     -- (never).
     local humid = ledger.seasonHumidity > F.SALT_SPOIL_HUMIDITY
     ledger.saltSpoilOn = ledger.seasonTemperature > F.SALT_SPOIL_ABOVE and humid
@@ -647,8 +647,8 @@ function F.coldStep(modData, ledger)
     end
     modData.dried = modData.dried + F.gain(modData, ledger, "cold", place)
     local warmSpoil = F.gain(modData, ledger, "rawSpoil", place)
-    -- Warmth rots the wet flesh: once a skin has formed and the fish dries on, it does less and less (step I,
-    -- user: by its wetness squared, so a half-dry stack takes a quarter and a nearly dry one almost none).
+    -- Warmth rots the wet flesh: once a skin has formed and the fish dries on, it does less and less (step I:
+    -- by its wetness squared, so a half-dry stack takes a quarter and a nearly dry one almost none).
     local spoiled = modData.spoiled + warmSpoil / F.RAW_SPOIL_HOURS * vulnerability * vulnerability
     if spoiled < F.DAMAGE_CAP then spoiled = math.min(spoiled + damage * vulnerability, F.DAMAGE_CAP) end
     modData.spoiled = spoiled
@@ -701,7 +701,7 @@ function F.charqueStep(modData, ledger)
         if place == "Open" and rain > 0 then modData.dried = modData.dried * (1 - F.CHARQUE_REWET) ^ (rain / F.CHARQUE_RAIN_HOURS) end
         modData.dried = modData.dried + F.gain(modData, ledger, "charque", place)
     end
-    -- Dry curing is spared a muggy season (step I, user): country hams aged through the summer's heat.
+    -- Dry curing is spared a muggy season (step I): country hams aged through the summer's heat.
     modData.spoiled = (modData.spoiled or 0) + addSaltSpoil(modData, ledger, F.dryCuring(modData))
     F.mark(modData, ledger, MEAT_FAMILIES)
 end

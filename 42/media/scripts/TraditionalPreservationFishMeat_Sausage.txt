@@ -5,12 +5,12 @@ module TraditionalPreservationFishMeat
         Base,
     }
 
-    /* Smoked Sausage (TraditionalPreservationFishMeatSausage.lua; user, 2026-11-13), kielbasa style: coarse pork,
+    /* Smoked Sausage (TraditionalPreservationFishMeatSausage.lua), kielbasa style: coarse pork,
        some beef or venison if you like, back fat and salt in a Salted Casings, six links. Seasoning goes in afterwards,
        a link at a time (TP Core's Season menu; TraditionalPreservationFishMeatSausage.lua). Fresh links
        fry in place or poach in a pot and keep as vanilla's sausage; hung raw in the Smokehouse they take a hot run
        (SAUSAGE_HOT_HOURS stoked in a row), cooking through in the smoke, and keep two weeks. A link is a sixth of
-       what goes in (user): two Pork 600 kcal, a third piece about 300-440, Pork Fat 2,170 or half a Lard 2,050, about
+       what goes in: two Pork 600 kcal, a third piece about 300-440, Pork Fat 2,170 or half a Lard 2,050, about
        3,150 kcal a batch, 525 a link, hunger 30; macros on real kielbasa's share (14 g protein, 27 g fat, 2 g
        carbohydrate a 100 g). */
 
@@ -159,7 +159,7 @@ module TraditionalPreservationFishMeat
         }
     }
 
-    /* One Smokehouse recipe for both sausages (user, 2026-11-13), each kind alone in its stack (F.hangKind). Boiled
+    /* One Smokehouse recipe for both sausages, each kind alone in its stack (F.hangKind). Boiled
        Blood Sausage, never fried, takes SMOKED_SAUSAGE_HOURS of cold smoke on cool days; raw Fresh Sausage a hot run,
        SAUSAGE_HOT_HOURS stoked in a row (the Smokehouse's hot counter; a broken run starts again). OnTest keeps out a
        raw blood link, a fried one and a cooked fresh one; OnStart picks the kind from the links. time is overwritten

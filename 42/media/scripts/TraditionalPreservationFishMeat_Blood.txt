@@ -5,7 +5,7 @@ module TraditionalPreservationFishMeat
         Base,
     }
 
-    /* Blood (TraditionalPreservationFishMeatBlood.lua; user, 2026-11-13). Blood from vanilla's bleeding goes off
+    /* Blood (TraditionalPreservationFishMeatBlood.lua). Blood from vanilla's bleeding goes off
        through TP Core's FluidAgeing; salt or vinegar keeps it longer. One mix makes either shape: 1 L of blood
        (fresh or cured, never spoiled), a filler: a quarter of a bag of oats or rice (12 uses; rice as for
        morcilla) or, renewable, 12 grains of barley, rye or wheat (0.24 kg). The filler line keeps the one it takes,
@@ -525,7 +525,7 @@ module TraditionalPreservationFishMeat
         }
     }
 
-    /* Smoked Blood Sausage (user, 2026-11-13): boiled links hung in the Smokehouse with Hang Sausage to Smoke
+    /* Smoked Blood Sausage: boiled links hung in the Smokehouse with Hang Sausage to Smoke
        (TraditionalPreservationFishMeat_Sausage.txt, one recipe for both sausages since 0.4.38) take 24 hours of
        cold smoke. */
     /* Smoked and a little dried (0.25 to 0.22): the boiled link's food, keeps three weeks. Eat it cold or fry it. */

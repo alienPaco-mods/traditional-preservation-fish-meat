@@ -14,7 +14,7 @@ local Recipes = require "TraditionalPreservationCore/Recipes"
 local Action = require "TraditionalPreservationCore/Action"
 
 -- Pork joins the Salting Tub's cuts here: kept under fat and out of the sun, its own fat doesn't go rancid.
--- Chicken, turkey and rabbit too (user, 2026-11-13): kept alive and eaten fresh, they were rarely salted or dried,
+-- Chicken, turkey and rabbit too: kept alive and eaten fresh, they were rarely salted or dried,
 -- but potted under fat (potted rabbit and chicken, rillettes de lapin, Gascon confit). A whole bird is cut first
 -- (vanilla's Cut Chicken and Cut Turkey). Their food is vanilla's, rabbit's 969 calories too; mixed pots are fine.
 F.POTTED_GAME = { "Base.Chicken", "Base.ChickenWings", "Base.ChickenFillet", "Base.TurkeyLegs", "Base.TurkeyWings",
@@ -136,7 +136,7 @@ function F.crockPortions(crock)
     return crock:getHungChange() / portion.hunger
 end
 
--- The crock's plain name (user, 2026-11-13: it eats like any food, so no portion count), and the weight of the vessel and what is left in it.
+-- The crock's plain name (it eats like any food, so no portion count), and the weight of the vessel and what is left in it.
 function F.labelCrock(crock)
     local data = crock:getModData()
     crock:setName(getItemNameFromFullType(F.CROCK))
@@ -201,7 +201,7 @@ end
 -- FluidAgeing record (kind potted) on the mod's potted ledger }, so one left in a basement for a month catches up
 -- when it is next seen: its age is base plus the record's hours. A powered freezer stops it. Vanilla ages it between
 -- looks at its own rate; each look puts that right.
--- Frozen (realism pass, user 2026-11-13) it keeps as in a freezer: from 0.5 at 4 C down to nothing at -2 C.
+-- Frozen (realism pass) it keeps as in a freezer: from 0.5 at 4 C down to nothing at -2 C.
 F.POTTED_AGE_CURVE = { { -2, 0 }, { 4, 0.5 }, { 15, 1 }, { 25, 60 / 14 } }
 -- The first portion taken lets air under the fat: a third of the keeping left goes, once.
 F.POTTED_OPENED_LOSS = 1 / 3

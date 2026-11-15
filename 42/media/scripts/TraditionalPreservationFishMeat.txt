@@ -395,7 +395,7 @@ module TraditionalPreservationFishMeat
 
     /* Fish head stock: a pot of water and a head. Its first ingredient makes it Fish Head Soup or Fish Head Stew
        (below). onCreateHeadStock gives it the head's food, not its hunger, and lists the head.
-       Design decision (user, 2026-11-13): every stock, and the soups and stews made from them, starts at
+       Design decision: every stock, and the soups and stews made from them, starts at
        UnhappyChange -10 and BoredomChange -10, at hunger -5 with small calories. A stock is worth its taste.
        Vanilla's soups and stews start at 0 (addItem zeroes a new pot's mood), so -10 is a modest lead.
        Balance passes leave these alone. */

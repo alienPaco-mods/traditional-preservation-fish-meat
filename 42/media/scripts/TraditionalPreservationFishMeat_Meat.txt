@@ -1168,7 +1168,7 @@ module TraditionalPreservationFishMeat
 
     /* Meat stocks, built as Fish Head Stock is (TraditionalPreservationFishMeat.txt): a pot of water and the parts make
        a stock, 3 / 5 days, which its first ingredient turns into a soup or a stew, shared out by the same Divide into
-       Bowls recipes. Design decision (user, 2026-11-13): every stock, soup and stew of them starts at UnhappyChange -10
+       Bowls recipes. Design decision: every stock, soup and stew of them starts at UnhappyChange -10
        and BoredomChange -10, at hunger -5 with small calories (F.STOCK_BONES, F.STOCK_FOOT, F.STOCK_HEAD). Balance
        passes leave these alone.
        Bone Broth: the bones are kept and come back boiled (onCreateBoneBroth); canBoil refuses a boiled one, and a

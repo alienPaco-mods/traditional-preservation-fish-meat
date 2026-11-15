@@ -81,7 +81,7 @@ function F.putFatInCauldron(cauldron, raw, hoursLeft, now)
 end
 
 -- Hours until a piece of raw fat is rotten. Its age runs at vanilla's Food Spoilage speed, so the days it has left
--- are that many days only at Normal (user, 2026-11-14: Very Slow fat went rancid in the cauldron 2.5 times early).
+-- are that many days only at Normal (Very Slow fat went rancid in the cauldron 2.5 times early).
 function F.fatHoursLeft(item)
     return (item:getOffAgeMax() - item:getAge()) * 24 / FluidAgeing.foodRotSpeed()
 end

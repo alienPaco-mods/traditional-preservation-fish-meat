@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.53
+- **Docs and comments** (2026-11-15): decisions are stated plainly, without attributions (CHANGELOG, comments, scripts, README, tests). Nothing changes in game.
 - **README** (2026-11-15): the opening table adds rendered fat, the stocks and fresh sausage, and Potted Meat's poultry and rabbit.
 - **README and guide** (2026-11-15): the README heading names 0.4.53 (was 0.4.30), as mod.info does; the guide drops three "(0.4.35)" history tags.
 Refactor with TP Core's Stone Hearth split (2026-11-15): the fat's cauldron rules are TP Core's `CauldronFluid.*` and `Cauldron.of`, stove food goes through `StoneHearth.cooksOn`, the Smokehouse's notes through `FireUI.addNotes`; the fat cauldron action's fire is `action.fire`. Nothing changes in game.
@@ -12,32 +13,32 @@ Refactor with TP Core's names (2026-11-15): TP Core's `Hearth` is `Fire` and the
 Refactor with Vinegar's (2026-11-15): a stack or tub not yet seen by the World reads TP Core's `Weather.NEW_RUN_PLACE` (`F.placeWord`; the open air, as before). Nothing changes in game; tests and golden results unchanged.
 
 ## 0.4.50
-Refactor (user, 2026-11-14; refactor pass step c, Fish & Meat): nothing changes in game but five fixes, each on the user's yes.
+Refactor (refactor pass step c, Fish & Meat): nothing changes in game but five fixes, each agreed first.
 **The main file split in five** (it was 2,568 lines): `TraditionalPreservationFishMeatLedger.lua` (the rates, the weather totals and what they do to stacks and tubs, the popups' status), `...Names.lua`, `...Stock.lua`, `...Stockfish.lua` (pallet and bale), required at the main file's end; and `TraditionalPreservationFishMeat/Common.lua`, required by every file that uses it: **every item the code names as a constant** (`F.GUTTED_FISH`, `F.HOT_MEAT`, `F.BLOOD_SAUSAGE`... gathered from four files; the type strings typed out across the mod are gone) and the shared helpers (`F.setNutrients`, `F.scaleNutrients`, `F.foodOf`, `F.nameAs`, `F.isEmptyPot`, `F.optionOn`, `F.setPartRow`, `F.clearData`).
 **One place word per stack:** the World saves TP Core's place (`modData.place`) where it set five flags (`sheltered`, `covered`, `basement`, `loft`, `inShed`); `F.placeWord`, `F.ledgerPlace`, `F.sheltered`, `F.covered`, `F.inShed` read it. **One table of the ledger's totals:** `F.TOTALS` names each family's key at each place (the keys themselves keep their names), `F.gain` and `F.mark` read and mark them, `F.advance` adds a basement, a loft and a room in one loop, and the steps, the tub's cure and the popups read `F.TOTALS` where each had its own branch per place. A stack's start clears the pooled recipe data (`F.clearData`, as the sausage's did) and marks every total (`F.markStack`; the hand list of 40 marks and 25 nils is gone). The ledger's spoiling flags are `key .. "On"` (`warmCureOn`, `rawSpoilOpenOn`...; were `warmCuring`, `openWarmCuring`...); a tub batch marks a long cure with `countryCure`; marks follow their key (`lastDryCureBasement`, was `lastCureBasement`). `TPFM.age` and `TPFM.spoil` loop over the table.
 **Say it once:** `breezeRate` (cold drying's and charque's wind), `F.lineThrough` (the dry cure's and the cook's hours), `F.smokeHours` is `Weather.curve`; lookups for the cuts and icons, built once; `F.WHOLE_CHICKEN` / `F.WHOLE_TURKEY`. One look through a container renames its stages and keeps its crocks (was a search per stage type, about 25, at every inventory refresh; `F.keepCrocksIn` gone). **Core's helpers:** `UI.selectedItems` (was `selectedFish`), `UI.refuse` (Tie a Bale with no cord, Fat with no room), `UI.tooltip`, `Action.removeItem`, `Action.addXp`, `Hearth.redraw`, `FluidTreat.litresIn`. **Test-build leftovers gone:** the press clock for batches before 0.4.34 (`pressStartHour`, `OLD_PRESS_HOURS`; `F.pressStatus(modData, ledger)` and `F.pressDone(modData, ledger)` take no hour), a tub's "no mark" fallback, `toDryCure` (shed meat before 6b), `coldNeed`'s fallback, the ledger's upgrade (a table without the newest total is filled in); spawned stockfish, dry cured meat and bales with no stamp keep their rule, now said as such. Stale guards gone (`F.STAGES and`, `F.MEAT_FAT_POTS and`, `getScriptManager and`, `and addXp`). Comments put back above their functions.
-**Fixed:** **B1** dry curing in a loft is slowed by damp air as a room's is (it went without the air's rate; only that changes in game); **B2** a Leg of Pork takes the newest Pork pieces in the inventory's order (it went by `pairs`, rule 9); **B3** items taken out by Tie a Bale, Untie, a Leg of Pork and Put Fat in the Cauldron leave the hands (TP Core's `Action.removeItem` now uses vanilla's `Remove`); **B4** `TPFM.age` also spoils poultry and rabbit waiting in the shed; **B5** two stacks as far along keep one order (by when they were hung), so their sprites don't swap. Tests: test_pork, test_world, test_smokehouse, test_console, test_ui new checks; fixtures use the place word; golden results unchanged. **Also (user, 2026-11-14, after the findings):** `TPFM.kit()` lists its kits in name order (was `pairs` order, rule 9); an unsalted stack's popup warns of spoiling by the totals its step reads (the season's anywhere but the open air; it read the day's for one indoors, while the stack spoiled by the season's). test_console, test_curing; test stand-in containers have `Remove`. In-game step 158 of TP Core's `TESTING_GUIDE.md` (INGAME_PASS 157).
+**Fixed:** **B1** dry curing in a loft is slowed by damp air as a room's is (it went without the air's rate; only that changes in game); **B2** a Leg of Pork takes the newest Pork pieces in the inventory's order (it went by `pairs`, rule 9); **B3** items taken out by Tie a Bale, Untie, a Leg of Pork and Put Fat in the Cauldron leave the hands (TP Core's `Action.removeItem` now uses vanilla's `Remove`); **B4** `TPFM.age` also spoils poultry and rabbit waiting in the shed; **B5** two stacks as far along keep one order (by when they were hung), so their sprites don't swap. Tests: test_pork, test_world, test_smokehouse, test_console, test_ui new checks; fixtures use the place word; golden results unchanged. **Also (after the findings):** `TPFM.kit()` lists its kits in name order (was `pairs` order, rule 9); an unsalted stack's popup warns of spoiling by the totals its step reads (the season's anywhere but the open air; it read the day's for one indoors, while the stack spoiled by the season's). test_console, test_curing; test stand-in containers have `Remove`. In-game step 158 of TP Core's `TESTING_GUIDE.md` (INGAME_PASS 157).
 
 ## 0.4.49
 Refactor with TP Core's small shared helpers tidy (2026-11-14): `F.bloodIn` calls `getFluidContainer` without checking the method is there (every item has it). Nothing changes in game. Test stand-ins given the methods the engine has (test_blood `sendSyncEntity` and `getWorldItem`, test_curing `getWorldItem` and the salt empties through `Uses.onEmptied`, test_ui `getCurrentRecipe`); tests and golden results unchanged.
 
 ## 0.4.48
-**Bug fixed: raw fat in the cauldron and vanilla's Food Spoilage** (user, 2026-11-14): a piece's days left were counted as real days, but its age runs at the game's Food Spoilage speed, so on Very Slow fat went rancid in the cauldron 2.5 times sooner than on the shelf, and on Very Fast later. `F.fatHoursLeft` divides by TP Core's `FluidAgeing.foodRotSpeed`; Normal changes nothing. test_fat. In-game step 150 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 149).
+**Bug fixed: raw fat in the cauldron and vanilla's Food Spoilage**: a piece's days left were counted as real days, but its age runs at the game's Food Spoilage speed, so on Very Slow fat went rancid in the cauldron 2.5 times sooner than on the shelf, and on Very Fast later. `F.fatHoursLeft` divides by TP Core's `FluidAgeing.foodRotSpeed`; Normal changes nothing. test_fat. In-game step 150 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 149).
 
 ## 0.4.47
 Refactor with TP Core's Weather.lua tidy (2026-11-14): the Potted Meat ledger is totalled by `Weather.advance` (`F.recordPotted` was a copy of its loop; same keys, `pottedOpen` and the rest); the main ledger asks `Weather.seasonTemperature` and `Weather.seasonHumidity` (was `Weather.season`); a crock with no place goes by `Weather.DEFAULT_PLACE`. **Names:** the crock's curve is `F.POTTED_AGE_CURVE` (was `POTTED_KEEPING`), its spec `F.POTTED_AGEING` (was `POTTED_KEEP`, three letters from the curve), the rate `ageRate` (was `keepRate`: higher means it ages faster), the ledger's kinds `POTTED_LEDGER_KINDS`; vanilla's Food Spoilage setting is TP Core's `FluidAgeing.foodRotSpeed` for Potted Meat and blood (blood borrowed Potted Meat's, behind a load-order guard; its local `spoilSpeed` is gone). Nothing changes in game; tests and golden results unchanged.
 
 ## 0.4.46
-**Bug fixed: Firebox Info's smoke note never showed** (user's yes, 2026-11-14, found in TP Core's HearthUI tidy): *Stoked for 4 to 8 hours in a row, it hot smokes the salt stacks in the shed...* read the fire's old `flue` field, gone since the flue became a Hearth connection; it now shows on any Stone Hearth joined to the Smokehouse. Also, with TP Core's tidy: *Put Fat in the Cauldron* and the fat notes come through `CauldronUI.addMenu` / `addNotes` and read the cauldron as `info.part`. test_fat_ui: the fat note and the smoke note, joined and not. In-game step 148 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 147).
+**Bug fixed: Firebox Info's smoke note never showed** (found in TP Core's HearthUI tidy): *Stoked for 4 to 8 hours in a row, it hot smokes the salt stacks in the shed...* read the fire's old `flue` field, gone since the flue became a Hearth connection; it now shows on any Stone Hearth joined to the Smokehouse. Also, with TP Core's tidy: *Put Fat in the Cauldron* and the fat notes come through `CauldronUI.addMenu` / `addNotes` and read the cauldron as `info.part`. test_fat_ui: the fat note and the smoke note, joined and not. In-game step 148 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 147).
 
 ## 0.4.45
-**No station in front of a door** (user's pick, 2026-11-14, after TP Core's in-game step 146b): the Drying Frame, the Salting Tub and the Stockfish Pallet (at any fill) can't be built or put down on the tile in front of a door any more (the Stone Hearth's mouth, a Smokehouse's door; TP Core's `Doors`), as the Hanging Beam and the Gantry already couldn't. Their build recipes ask `TraditionalPreservationCore.doorFits`; `UI.keepDoorsFree(Tiles.STATIONS)` and the pallet's sprites for putting down. test_curing. In-game step 147 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 146).
+**No station in front of a door** (after TP Core's in-game step 146b): the Drying Frame, the Salting Tub and the Stockfish Pallet (at any fill) can't be built or put down on the tile in front of a door any more (the Stone Hearth's mouth, a Smokehouse's door; TP Core's `Doors`), as the Hanging Beam and the Gantry already couldn't. Their build recipes ask `TraditionalPreservationCore.doorFits`; `UI.keepDoorsFree(Tiles.STATIONS)` and the pallet's sprites for putting down. test_curing. In-game step 147 of TP Core's `TESTING_GUIDE.md` passed (INGAME_PASS 146).
 
 ## 0.4.44
 Refactor with TP Core's copper-to-cauldron rename (2026-11-14): the action is `TPFMFatCauldron` (was `TPFMFatCopper`), the menu key `FatInCauldron`, and `F.putFatInCauldron`, `F.CAULDRON_FATS`, `F.cauldronFatRoom`; comments and tests say cauldron. Nothing changes in game; tests and golden results unchanged.
 
 ## 0.4.43
-Docs pass after TP Core's Stone Hearth hub (user, 2026-11-14): the guide, README, DEVHELP and Workshop text say Stone Hearth and Forged Cauldron (Firebox, Hearth and copper gone), the Smokehouse's flat roof and low clay pipe, and that the hole stays lidded and the cauldron fits while it smokes. DEVHELP's cold smoke limit corrected to 15 C (`F.COLD_SMOKE_MAX`). Console help and outputs (`TPFM.smoke`, `stoke`, `bank`) say Stone Hearth.
+Docs pass after TP Core's Stone Hearth hub: the guide, README, DEVHELP and Workshop text say Stone Hearth and Forged Cauldron (Firebox, Hearth and copper gone), the Smokehouse's flat roof and low clay pipe, and that the hole stays lidded and the cauldron fits while it smokes. DEVHELP's cold smoke limit corrected to 15 C (`F.COLD_SMOKE_MAX`). Console help and outputs (`TPFM.smoke`, `stoke`, `bank`) say Stone Hearth.
 
 ## 0.4.42
 TP Core's Hearth kettle is the Forged Cauldron: texts say Cauldron (Put Fat in the Cauldron, the fat's notes, the fat tooltips). A Stone Hearth joined to the Smokehouse can have the Cauldron fitted too (TP Core's two slots); the shed's smoke note shows on a fitted one (reads `info.state`). Needs this TP Core. In-game step 128 of `TESTING_GUIDE.md` (INGAME_PASS 127), passed.
@@ -49,24 +50,24 @@ Its pots on the hob are TP Core's stove food (`Hearth.cooksOn`): fat, potted mea
 TP Core's Hearth keeps the copper's state under its own key (`tpHearth.copper`, the Stone Hearth hub's step i). Needs this TP Core. Put Fat in the Copper reads it with `Hearth.copperState` (`TPFMFatCopper`); `test_fat_ui.lua` loads Core's `CopperUI` and builds the new state. Nothing changes in game.
 
 ## 0.4.39
-The Smokehouse is TP Core's (user, 2026-11-13: before Dairy, so its smoked cheeses share it). Needs this TP Core. Old saves are ignored: a Smokehouse built before this is gone on load, build a new one. In-game step 125 of `TESTING_GUIDE.md` (INGAME_PASS 124), passed.
+The Smokehouse is TP Core's (before Dairy, so its smoked cheeses share it). Needs this TP Core. Old saves are ignored: a Smokehouse built before this is gone on load, build a new one. In-game step 125 of `TESTING_GUIDE.md` (INGAME_PASS 124), passed.
 - **Moved to TP Core:** the chamber entity, its art and build icon, Connect / Disconnect the Firebox (menu and action, was `TPFMFlue`), the flue kits, the door, the flue's entry and the ham by the door, the recipe tag, the fire's two counters (`Smokehouse.fireStep`) and their texts. Hot and cold smoking, dry curing, sausage and what comes out stay here and work as before; `F.smokeStep` adds the fire's warmth to Core's counters.
 - **Only its own stacks:** a stack this mod hangs records it (`F.OWNER`, through Core's `startCounters`); the World steps, shows and finishes only those, and Smokehouse Info lists only those. Another mod's stacks count against the shed's 6. In the shed's slots this mod judges only its own items (Core's `UI.slotRules` `owns`).
 - Tiles 856-869 left empty, so no other tile moves. Firebox Info's note on smoking is in `...SmokehouseUI.lua`.
 - Console: `TPFM.smokehouse()` and `TPFM.kit("flue")` are now `TPC.smokehouse()` and `TPC.kit("flue")`; `TPC.kit("smokehouse")` is new. `TPFM.smoke()`, `stoke`, `bank`, `addSmoke` stay.
 
 ## 0.4.38
-Smoked Sausage, kielbasa style (user, 2026-11-13; ROADMAP). In-game step 124 of `TESTING_GUIDE.md` (INGAME_PASS 123), passed. Needs this TP Core (`Season`).
-- **Stuff Sausages**: two raw Pork or Pork Chop, a third piece of Pork, Pork Chop, Beef, Steak or Venison, a whole Pork Fat or half a Lard (12 uses), a Salt use and a Salted Casings: **6 Fresh Sausage**, uncooked, 0.25, 525 kcal (user: a sixth of what goes in, about 3,150 kcal a batch), hunger 30, fresh 2 / rotten 4 as vanilla's sausage.
-- **Seasoning, afterwards, as a stew's** (user): right-click a Fresh Sausage, a raw or a boiled Blood Sausage, **Season**: Garlic, Onion, Pepper, Oregano (the game has no marjoram), Thyme or Sage, fresh, dried or the spice jar. Each kind goes in once, as many kinds as you like, taking what a stew takes (a use; half an onion), and makes the link -2 unhappiness and -2 boredom, as vanilla's spice in a stew (`F.SEASONING_UNHAPPY`, `F.SEASONING_BOREDOM`); its icon shows on the link's tooltip. It stays with the link through the pot, the pan, the smoke and the knife (TP Core's `Season`; the pot keeps each link's, `tpLinks`). Black Pudding takes none.
+Smoked Sausage, kielbasa style (ROADMAP). In-game step 124 of `TESTING_GUIDE.md` (INGAME_PASS 123), passed. Needs this TP Core (`Season`).
+- **Stuff Sausages**: two raw Pork or Pork Chop, a third piece of Pork, Pork Chop, Beef, Steak or Venison, a whole Pork Fat or half a Lard (12 uses), a Salt use and a Salted Casings: **6 Fresh Sausage**, uncooked, 0.25, 525 kcal (a sixth of what goes in, about 3,150 kcal a batch), hunger 30, fresh 2 / rotten 4 as vanilla's sausage.
+- **Seasoning, afterwards, as a stew's**: right-click a Fresh Sausage, a raw or a boiled Blood Sausage, **Season**: Garlic, Onion, Pepper, Oregano (the game has no marjoram), Thyme or Sage, fresh, dried or the spice jar. Each kind goes in once, as many kinds as you like, taking what a stew takes (a use; half an onion), and makes the link -2 unhappiness and -2 boredom, as vanilla's spice in a stew (`F.SEASONING_UNHAPPY`, `F.SEASONING_BOREDOM`); its icon shows on the link's tooltip. It stays with the link through the pot, the pan, the smoke and the knife (TP Core's `Season`; the pot keeps each link's, `tpLinks`). Black Pudding takes none.
 - **Fresh:** fried as it is, *Fresh Sausage (Fried)*; **Put Sausages in Water** (a pot with 1.5 L), 30 minutes at the boil, **Take Out Sausages**: *Fresh Sausage (Boiled)*. Both keep the raw 2 / 4.
-- **Hang Sausage to Smoke** (the Smokehouse only) is now **one recipe for both sausages** (user): it replaces 0.4.37's Hang Blood Sausage to Smoke, and its tooltip says it takes Blood Sausage or Fresh Sausage. One kind to a stack; the recipe tests each link (`F.canSmokeSausage`: blood sausage boiled and never fried, fresh sausage raw) and the stack takes its kind from its links. A blood sausage stack still hanging from 0.4.37 names a recipe that is gone and may not survive the update: take it down first. Raw fresh links: A **hot run**, 6 hours stoked in a row (`F.SAUSAGE_HOT_HOURS`, the Smokehouse's hot counter), cooks them through in the smoke in any weather; a banked fire doesn't, and a broken run starts again. Cooked in time: **Smoked Sausage**, 0.22, 525 kcal, hunger 30, **14 / 30 days**, as fresh a share of that as they were of their two days; any that went off first come down raw. **Slice Smoked Sausage**: 4 rounds, 14 / 30.
+- **Hang Sausage to Smoke** (the Smokehouse only) is now **one recipe for both sausages**: it replaces 0.4.37's Hang Blood Sausage to Smoke, and its tooltip says it takes Blood Sausage or Fresh Sausage. One kind to a stack; the recipe tests each link (`F.canSmokeSausage`: blood sausage boiled and never fried, fresh sausage raw) and the stack takes its kind from its links. A blood sausage stack still hanging from 0.4.37 names a recipe that is gone and may not survive the update: take it down first. Raw fresh links: A **hot run**, 6 hours stoked in a row (`F.SAUSAGE_HOT_HOURS`, the Smokehouse's hot counter), cooks them through in the smoke in any weather; a banked fire doesn't, and a broken run starts again. Cooked in time: **Smoked Sausage**, 0.22, 525 kcal, hunger 30, **14 / 30 days**, as fresh a share of that as they were of their two days; any that went off first come down raw. **Slice Smoked Sausage**: 4 rounds, 14 / 30.
 - The blood sausage's stack code now serves both (`F.sausageSmoke` picks the cold counter or the hot run; `modData.sausage` is `true` for blood, as stacks already hanging have it, or `"pork"`); the popup and the info block say which.
 - Own icons and models: a pink flecked raw link, a brown fried one, a red-brown smoked link and flecked slices (`tools/build_meat_icons.py`).
 - Console: `TPFM.give("freshSausage", n, "seasoned" | "stale")`, `"smokedSausage"` (`"seasoned"`: garlic, pepper, oregano), `TPFM.kit("sausage")` (with a seasoning of each kind); `TPFM.smoke()` names a sausage stack's kind. Tests in `test_blood.lua`.
 
 ## 0.4.37
-Smoked Blood Sausage (user, 2026-11-13; ROADMAP). In-game step 123 of `TESTING_GUIDE.md` (INGAME_PASS 122), passed.
+Smoked Blood Sausage (ROADMAP). In-game step 123 of `TESTING_GUIDE.md` (INGAME_PASS 122), passed.
 - **Hang Blood Sausage to Smoke** (the Smokehouse only): boiled links, a stack of their own (no fish or meat with them; a link fried after boiling is refused, on the drop and by the recipe). They take **24 hours of the Firebox's smoke** (`F.SMOKED_SAUSAGE_HOURS`), banked or stoked, on the Smokehouse's cold counter: only on days of 15 C or less, and a stoked run is smoke at once, never a cook. Banked all day in a cool month, a day.
 - **The links keep their boiled week while they hang** (a day a day, by the Food Spoilage setting). Smoked in time they come down **Smoked Blood Sausage**: 0.22 a link (0.25 boiled), 538 kcal, hunger 30, **21 / 40 days**, as fresh a share of that as they were of their week. Any that went stale first come down *Blood Sausage (Boiled)*, aged by the days they hung; with no fire the stack ends when its links do. A part-eaten link keeps its share.
 - A smoked link is cooked: eat it cold, fry it, or put it in a dish. **Slice Smoked Blood Sausage**: 4 rounds, 21 / 40.
@@ -75,12 +76,12 @@ Smoked Blood Sausage (user, 2026-11-13; ROADMAP). In-game step 123 of `TESTING_G
 - Console: `TPFM.give("bloodSausage", n, "stale")` (boiled links are now given cooked, as the pot makes them; "stale" 0.1 days short of the week), `"smokedBloodSausage"`; `TPFM.kit("blood")` adds 6 boiled links and a smoked one. Tests in `test_blood.lua`.
 
 ## 0.4.36
-Blood (user, 2026-11-13; ROADMAP section 7). Needs this TP Core (fluid states, the treat menu, `Uses`, `OnCreateCooked`, the gather-blood wrap). Salt charging (`F.chargeSalt`, `F.saltCarried`) now goes through Core's `Uses`, same behaviour. In-game step 121 of `TESTING_GUIDE.md` (INGAME_PASS 120).
+Blood (ROADMAP section 7). Needs this TP Core (fluid states, the treat menu, `Uses`, `OnCreateCooked`, the gather-blood wrap). Salt charging (`F.chargeSalt`, `F.saltCarried`) now goes through Core's `Uses`, same behaviour. In-game step 121 of `TESTING_GUIDE.md` (INGAME_PASS 120).
 - **Blood by weight.** Vanilla bleeds a pig or a sheep of 8 to 25 L, four to six times a real sticking. Each animal now gives 3.5 cl a kg of its weight (about half its blood): a 100 kg pig 3.5 L, a 600 kg cow 20 L; pigs 4-12 L, ewes 2-4, rams 3-7, deer 4-7, cattle 12.5-33, bulls up to 45 (`F.realBlood`, applied to vanilla's animal table as it loads).
 - **Blood goes off** through TP Core's fluid ageing (kind `blood`, `F.BLOOD_SPEC`, its own weather ledger): fresh, a day at 20 C, three in a fridge, stopped frozen, then *Blood (Spoiled)* (mildly poisonous). No soured stage.
-- **Cure Blood** (in the container's own submenu, *Bucket > Cure Blood > Salt (n) / Vinegar (n)*, n what you carry, the tooltip saying what it takes; greyed with the reason when it can't be done) stirs a use into the blood for each 2 L, in place. Salt or vinegar, it becomes *Animal Blood (Cured)* (user: one state), 3 days at 20 C, 7 in a fridge (its own cold curve, ledger kind `bloodCured`); cured mixed with cured stays cured, fresh mixed in makes it fresh; blood gathered onto treated blood makes the lot fresh (Core's wrap of `ISGatherBloodFromAnimal.updateBucket`; the menu is Core's treat menu). New fluids `CuredBlood`, `SpoiledBlood`.
+- **Cure Blood** (in the container's own submenu, *Bucket > Cure Blood > Salt (n) / Vinegar (n)*, n what you carry, the tooltip saying what it takes; greyed with the reason when it can't be done) stirs a use into the blood for each 2 L, in place. Salt or vinegar, it becomes *Animal Blood (Cured)* (one state), 3 days at 20 C, 7 in a fridge (its own cold curve, ledger kind `bloodCured`); cured mixed with cured stays cured, fresh mixed in makes it fresh; blood gathered onto treated blood makes the lot fresh (Core's wrap of `ISGatherBloodFromAnimal.updateBucket`; the menu is Core's treat menu). New fluids `CuredBlood`, `SpoiledBlood`.
 - **Casings.** Pigs, cattle, sheep, deer and their young get a *Raw Casings* row in vanilla's butchering tables (on the Hook a pig about 3, cattle 4, a sheep or deer 2, a young animal 1); raw they go off in a day. **Clean and Salt Casings** (0.5 L of water, a Salt use): *Salted Casings*, a year.
-- **Black Pudding.** **Mix Black Pudding**: a Baking Pan or Roasting Pan, 1 L of blood (fresh or cured), one filler, any of them (user): a quarter bag of Oats or Rice (12 uses) or, renewable, 12 grains of Barley, Rye or Wheat, on one line charged by TP Core's `Charge` (the craft window shows the real amount; anything in reach counts), half a Lard or Tallow or a piece of raw fat (12 uses), a Salt use. Bake 60 minutes, **Turn Out Black Pudding** (the pan back), **Slice Black Pudding**: 6 slices of 0.25, 538 kcal, hunger 30, fresh 5 / rotten 10.
+- **Black Pudding.** **Mix Black Pudding**: a Baking Pan or Roasting Pan, 1 L of blood (fresh or cured), one filler, any of them: a quarter bag of Oats or Rice (12 uses) or, renewable, 12 grains of Barley, Rye or Wheat, on one line charged by TP Core's `Charge` (the craft window shows the real amount; anything in reach counts), half a Lard or Tallow or a piece of raw fat (12 uses), a Salt use. Bake 60 minutes, **Turn Out Black Pudding** (the pan back), **Slice Black Pudding**: 6 slices of 0.25, 538 kcal, hunger 30, fresh 5 / rotten 10.
 - **Blood Sausage.** **Stuff Blood Sausages**: the same mix in a Salted Casings, 6 *Blood Sausage* links, *Uncooked*; fried as they are they become *Blood Sausage (Fried)*, keeping their raw 1 / 2 days; **Put Blood Sausages in Water** (a pot with 1.5 L), 30 minutes at the boil, **Take Out Blood Sausages**: 6 *Blood Sausage (Boiled)*, 0.25, 538 kcal, hunger 30, fresh 7 / rotten 14. A boiled link fried 5 minutes more becomes *Blood Sausage (Boiled, Fried)* (TP Core's `OnHeat`). **Slice Blood Sausage** (knife, a cooked link): 4 *Blood Sausage Slices*, cooked. Slices and links go into soups, stews, stir fries, sandwiches, burgers, rice and pasta.
 - **Sounds:** the pots of blood sausages and every stock, soup and stew pot play TP Core's `TPBoiling` (vanilla's BoilingFood sizzled); the black pudding pans bake silently, as vanilla's bread dough.
 - **Names and looks:** fresh blood reads *Animal Blood (Fresh)* (vanilla's name overridden), spoiled *Animal Blood (Spoiled)*. Black Pudding, its slices and Blood Sausage are made cooked (*Cooked* in the name; they can be warmed or fried again). Own icons and ground models (`tools/build_meat_icons.py`): a near-black flecked loaf and square slices, a dark red raw link and a near-black cooked one (`Item_BloodSausage_Cooked`, which the game picks for a cooked item). Casings and pans keep vanilla's icons.
@@ -88,50 +89,50 @@ Blood (user, 2026-11-13; ROADMAP section 7). Needs this TP Core (fluid states, t
 
 ## 0.4.35
 - **Fix** (2026-11-13): `IGUI_TraditionalPreservationFishMeat_DryCured` was in `IG_UI.json` twice (a stale "Dry Cured %1" from 0.4.22); the game refuses the whole file on a duplicate key, so every IGUI text of the mod showed as its key. The stale line removed.
-Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, every method kept viable; ROADMAP).
+Realism pass, part one (numbers skewed to acceptable realism, every method kept viable; ROADMAP).
 - **Under-salted meat above freezing.** Corned red meat hung to dry (the Smokehouse, a room, a basement) used to last about 140 days near 0 C. Above freezing it now rots within **6 weeks** of thawed hours however cool (the middle sours before the salt gets there: `F.UNDER_CURE_MAX_DAYS`), and in 4 at 10 C as before; frozen hours keep the slow curve, so meat hung in a hard frost freeze-dries slowly. The long cure is the way to a long hang.
 - **Poultry and rabbit:** the 14 days a waiting stack lasts now count only hours above freezing (`F.hotOnlyUnderRate`); frozen, a bird keeps, as farms hung them all winter. Both rules are hourly ledger totals by the shed's temperature, the fire's lift included (`hotOnlyUnder`, `...Banked`, `...Stoked`), and scale with the Spoilage sandbox setting.
 - **A rinsed Corned piece** spoils 1 / 0.9 as fast while under-salted (it lost surface salt; `F.underLoss`); a stack goes as a whole only when its slowest piece does.
 - **The tub in the cold:** curing goes by the tub's place temperature, full speed from 2 C, half at −5 C, a quarter from −10 C (`F.TUB_CURE_POINTS`; a brine doesn't freeze solid, and the old rule added a day of cure for each freezing day). A January tub outdoors takes about twice as long; a basement tub never slows. Its popup and the info block count the time left at today's speed. A batch already running keeps the clock.
 - **Potted Meat frozen** keeps as in a freezer: from 0.5 at 4 C down to nothing at −2 C (`F.POTTED_KEEPING`). No damage to the jar.
 - **Dishes name meat by its animal:** hot smoked, dry cured and soaked charque meat and their slices went into dishes as "Beef" (one script item for every animal). Each piece's entry in the dish is now the stand-in of its stage and animal, with vanilla's food type and name: *Venison Stew*, *Chicken Soup*, *Pork Stew* (dry cured), with its own icon. 28 stand-ins, written by `tools/build_standins.py`. Dishes made before keep their names.
-- **Dry cured meat named as every other stage** (user, 2026-11-13): *Beef (Dry Cured)* and *Beef (Cold Smoked)* (was Dry Cured Beef and Smoked Dry Cured Beef), the same for mutton, venison and pork; slices *Beef Slice (Dry Cured)*; aged *Beef (Cold Smoked, Aged)*, one bracket. Their dish stand-ins too, with Cold Smoked ones of their own (dry cured meat with its smoke had shared the Dry Cured stand-in; `F.standinFor` takes the piece's `airDried`), so a stew lists *Beef (Cold Smoked)* as the piece is named. Dishes made before keep the entry they have. Charque (*Beef Charque*), Country Ham and Smoked Country Ham keep their names. Only the shown name changes; pieces already made rename themselves. README, Workshop text and `Balance/CraftingRecipes.md` lose the last regional names (Suho Meso, Mutton Ham, Jerked Venison, Bresaola) the 0.4.34 rename missed.
+- **Dry cured meat named as every other stage**: *Beef (Dry Cured)* and *Beef (Cold Smoked)* (was Dry Cured Beef and Smoked Dry Cured Beef), the same for mutton, venison and pork; slices *Beef Slice (Dry Cured)*; aged *Beef (Cold Smoked, Aged)*, one bracket. Their dish stand-ins too, with Cold Smoked ones of their own (dry cured meat with its smoke had shared the Dry Cured stand-in; `F.standinFor` takes the piece's `airDried`), so a stew lists *Beef (Cold Smoked)* as the piece is named. Dishes made before keep the entry they have. Charque (*Beef Charque*), Country Ham and Smoked Country Ham keep their names. Only the shown name changes; pieces already made rename themselves. README, Workshop text and `Balance/CraftingRecipes.md` lose the last regional names (Suho Meso, Mutton Ham, Jerked Venison, Bresaola) the 0.4.34 rename missed.
 - TP Core's warmer winter room (+2 C at a season of 10 C or below): `test_potted.lua`'s room checks moved to match; the season report's loft column shifts a degree in April, August and September.
 - Dry curing keeps its quarter-speed floor in frost (freeze-drying is real: *Bündnerfleisch*, stockfish). Tests in `test_smokehouse.lua`, `test_curing.lua`, `test_potted.lua`. In-game step 116 of `TESTING_GUIDE.md`.
 
 ## 0.4.34
-- **Hot smoked chicken, turkey and rabbit** (user, 2026-11-13; ROADMAP section 7). Vanilla's six poultry cuts, a whole Chicken or Turkey and Rabbit Meat go into **Pack Meat in Salt** (half red meat's salt, a brine's: a whole chicken 5) and **Corn Salted Meat** only: *Chicken Leg (Corned)*, *Turkey (Whole) (Corned)*. Country Cure refuses them (the tub says why), and so do charque, the shade and the cellar: they hang in the **Smokehouse** alone. Real practice: poultry and rabbit were brined and hot smoked, never dried; lean bird fat goes rancid, raw poultry carries salmonella and rabbit tularemia, which only cooking kills.
+- **Hot smoked chicken, turkey and rabbit** (ROADMAP section 7). Vanilla's six poultry cuts, a whole Chicken or Turkey and Rabbit Meat go into **Pack Meat in Salt** (half red meat's salt, a brine's: a whole chicken 5) and **Corn Salted Meat** only: *Chicken Leg (Corned)*, *Turkey (Whole) (Corned)*. Country Cure refuses them (the tub says why), and so do charque, the shade and the cellar: they hang in the **Smokehouse** alone. Real practice: poultry and rabbit were brined and hot smoked, never dried; lean bird fat goes rancid, raw poultry carries salmonella and rabbit tularemia, which only cooking kills.
   - **Corned poultry and rabbit keep 3 / 6 days** (a light brine), not red meat's 7 / 14.
   - **A whole bird counts as 0.4 (chicken) or 0.5 (turkey) for timing** (`F.TIMING_WEIGHTS`, `F.timingWeight`): it is hollow, so the salt and the heat go no deeper than a thick cut's. A whole chicken cures 38 hours and cooks 7 stoked hours, a turkey 48 and 8; a cut cures about 29 and cooks about 5.7, on the meat curve as it is.
   - **In the Smokehouse a poultry stack only waits for its cook** (`modData.hotOnly`): it never dries or takes smoke, a broken run starts again, and it spoils as under-salted Corned meat does, 14 / 6 times as fast (`F.HOT_ONLY_UNDER_RATE`): about 12 days at 10 C, 2.4 at 20 C, and never more than 14 days even in frost (`F.HOT_ONLY_MAX_DAYS`). Poultry and rabbit hang apart from red meat. Its popup and the info block say *Hot smoking only*, the cook's hours or *Waiting (Needs a stoked Firebox)*, and the spoiling.
   - **Hot Smoked poultry keeps its cut's name** (*Turkey Wing (Hot Smoked)*, *Chicken (Whole) (Hot Smoked)*): Hot Smoked meat's values otherwise, vanilla's food carried over. It isn't sliced. **Carve Chicken (Hot Smoked)** and **Carve Turkey (Hot Smoked)** cut a whole smoked bird as vanilla's Cut Chicken does a raw one: 2 legs, 2 wings, 2 fillets, sharing its food by vanilla's cut hunger, 90% of its weight.
   - New icons for the nine cuts at every meat stage (`tools/build_meat_icons.py`).
-- **Plain names for the dry cured meats** (user, 2026-11-13): Suho Meso is now **Smoked Dry Cured Beef**, Mutton Ham **Smoked Dry Cured Mutton**, Jerked Venison **Smoked Dry Cured Venison**, Bresaola **Dry Cured Beef**. Country Ham, Smoked Country Ham, Charque and Stockfish keep their names. Only the shown name changes; items already made rename themselves.
+- **Plain names for the dry cured meats**: Suho Meso is now **Smoked Dry Cured Beef**, Mutton Ham **Smoked Dry Cured Mutton**, Jerked Venison **Smoked Dry Cured Venison**, Bresaola **Dry Cured Beef**. Country Ham, Smoked Country Ham, Charque and Stockfish keep their names. Only the shown name changes; items already made rename themselves.
 - `TPFM.meat` gives poultry and rabbit at the "corned" and "hotSmoked" stages; `TPFM.kit("poultry")` (both whole birds, every cut, Rabbit Meat, a Steak, 2 Salt, a Kitchen Knife). Tests in `test_smokehouse.lua`, `test_curing.lua`, `test_aged.lua`. In-game step 115 of `TESTING_GUIDE.md`.
 
 ## 0.4.33
-- **Potted chicken, turkey and rabbit** (user, 2026-11-13; ROADMAP section 7): vanilla's Chicken (leg), Chicken Wings, Chicken Fillet, Turkey Legs, Turkey Wings, Turkey Fillet and Rabbit Meat go into Put Meat in Lard or Tallow, Put Meat in the Melted Fat and Add Meat to the Pot, in any mix with red meat (`F.POTTED_GAME`). Their food is vanilla's, so a rabbit portion is about 2,000 calories with its fat. One Crock of Potted Meat for all of them; the cut count, cooking time and keeping are unchanged. Poultry and rabbit still go nowhere else (no salting, charque or dry curing). A whole bird is cut first with vanilla's Cut Chicken or Cut Turkey.
-- **The crock's name stays plain** (user, 2026-11-13): no more "(3 portions)". It eats like any food and weighs less as it empties (`Portions.weigh`, TP Core); a crock from an older build loses its suffix the next time it is eaten from. The first portion taken still costs a third of its keeping.
+- **Potted chicken, turkey and rabbit** (ROADMAP section 7): vanilla's Chicken (leg), Chicken Wings, Chicken Fillet, Turkey Legs, Turkey Wings, Turkey Fillet and Rabbit Meat go into Put Meat in Lard or Tallow, Put Meat in the Melted Fat and Add Meat to the Pot, in any mix with red meat (`F.POTTED_GAME`). Their food is vanilla's, so a rabbit portion is about 2,000 calories with its fat. One Crock of Potted Meat for all of them; the cut count, cooking time and keeping are unchanged. Poultry and rabbit still go nowhere else (no salting, charque or dry curing). A whole bird is cut first with vanilla's Cut Chicken or Cut Turkey.
+- **The crock's name stays plain**: no more "(3 portions)". It eats like any food and weighs less as it empties (`Portions.weigh`, TP Core); a crock from an older build loses its suffix the next time it is eaten from. The first portion taken still costs a third of its keeping.
 - `TPFM.meat` lists and gives the new cuts (raw only; a stage skips them). `TPFM.kit("potted")` adds a second Pot and Lard, a Chicken leg, Turkey Legs, Turkey Wings and Rabbit Meat. Tests in `test_potted.lua`. In-game step 114 of `TESTING_GUIDE.md`.
 
 ## 0.4.32
-- **Stocks become soups or stews** (user, 2026-11-13). A stock's first ingredient makes it a soup or a stew, as in a real kitchen: right-click offers both (vanilla's Soup and Stew templates, so soup takes greens, roe and ramen, stew red meat), with 6 ingredients free. *Fish Head Soup with Carrots*, *Bone Broth Stew with Beef*, *Chicken Soup*. Soup cooks 50 minutes, stew 70. Divide Food into Bowls gives Soup Bowls for a stock or soup, Stew Bowls for a stew. Fish Head Stock was a stew from the start; a pot of it that already holds ingredients stays as it is.
-- **Meat stocks** (user, 2026-11-13; ROADMAP section 7), built like Fish Head Stock: a Pot or Forged Pot with 1.5 L of water and the parts.
+- **Stocks become soups or stews**. A stock's first ingredient makes it a soup or a stew, as in a real kitchen: right-click offers both (vanilla's Soup and Stew templates, so soup takes greens, roe and ramen, stew red meat), with 6 ingredients free. *Fish Head Soup with Carrots*, *Bone Broth Stew with Beef*, *Chicken Soup*. Soup cooks 50 minutes, stew 70. Divide Food into Bowls gives Soup Bowls for a stock or soup, Stew Bowls for a stew. Fish Head Stock was a stew from the start; a pot of it that already holds ingredients stays as it is.
+- **Meat stocks** (ROADMAP section 7), built like Fish Head Stock: a Pot or Forged Pot with 1.5 L of water and the parts.
   - **Bone Broth**: **Make Bone Broth** takes 2 Animal Bones, 1 Large Animal Bone or 6 Small Animal Bones. About 80 kcal, mostly protein; 150 from the Large's marrow. The bones are kept and come back as *Boiled Animal Bone*: every tool recipe still takes them, but they make no more broth, and vanilla's Smash Bone now passes the mark to its pieces (an OnCreate given at load).
   - **Chicken Stock**: **Make Chicken Stock** takes 2 parts, Chicken Feet and chicken or turkey heads in any mix: 35 kcal a foot, 15 a head. Bone Broth's and Chicken Stock's soups and stews list one icon for their stock (a pile of bones, a chicken foot), as Fish Head Stock's list the head: never named, taking no slot.
-- **Every stock, and its soup and stew, starts at hunger -5, -10 unhappiness and -10 boredom**, Fish Head Stock too (was -20, no boredom, and the head's hunger on top). A design decision (user, 2026-11-13): a stock is worth its taste, not its calories. A test holds the numbers. The soup or stew keeps the stock's mood and listed parts (`F.carryStock`: vanilla's addItem drops both).
+- **Every stock, and its soup and stew, starts at hunger -5, -10 unhappiness and -10 boredom**, Fish Head Stock too (was -20, no boredom, and the head's hunger on top). A design decision: a stock is worth its taste, not its calories. A test holds the numbers. The soup or stew keeps the stock's mood and listed parts (`F.carryStock`: vanilla's addItem drops both).
 - **Bowls are named after the dish**: Divide Food into Bowls gave *Bowl of Pot of Fish Head Stock* from a stock with nothing added (vanilla names a bowl after the pot). Now *Bowl of Fish Head Stock*, *Bowl of Bone Broth Soup with Carrots* (`F.onCreateStockBowls`).
 - `TPFM.give("boneBroth")`, `TPFM.give("chickenStock")`, `TPFM.give("soups")` (each stock's soup and stew), `TPFM.kit("stock")` (the parts of every stock, the Fish Head too, 5 Pots and 4 Bowls). Tests in `test_curing.lua`. In-game step 113 of `TESTING_GUIDE.md`.
 
 ## 0.4.31
-- **What a stack comes out as** (user, 2026-11-13). One recipe still hangs each kind, so its output picture shows Charque (or Salt Dried) whatever the stack will be. A hanging stack's hover now has a **Comes out as** line: what it would come down as now, by `F.onCreateDried`'s rules (`F.stackOutcome`), named as the items will be: *Beef Charque*, *Bresaola, Country Ham*, *Venison (Hot Smoked), Ham*, *Suho Meso*, *Rotten* for a lost piece. In the Smokehouse it gives the likeliest result now: Hot Smoked while a stoked run counts, smoked once the stack has its hours of smoke, air dried otherwise. Tests in `test_smokehouse.lua` and `test_ui.lua`.
-- **The window's Output slot** (user, 2026-11-13): its popup said *Charque* (or *Salt Dried*) whatever the stack would be. For Hang Salted Meat to Dry and Hang Salt Cured Fish to Dry it now lists every end and where it comes from (Charque, Dry Cured meat, Country Ham, Hot Smoked, smoked dry cured; Salt Dried, Hot and Cold Smoked Fish), through TP Core's new `UI.outputTooltips`; the icon stays the script's. Needs this Core.
+- **What a stack comes out as**. One recipe still hangs each kind, so its output picture shows Charque (or Salt Dried) whatever the stack will be. A hanging stack's hover now has a **Comes out as** line: what it would come down as now, by `F.onCreateDried`'s rules (`F.stackOutcome`), named as the items will be: *Beef Charque*, *Bresaola, Country Ham*, *Venison (Hot Smoked), Ham*, *Suho Meso*, *Rotten* for a lost piece. In the Smokehouse it gives the likeliest result now: Hot Smoked while a stoked run counts, smoked once the stack has its hours of smoke, air dried otherwise. Tests in `test_smokehouse.lua` and `test_ui.lua`.
+- **The window's Output slot**: its popup said *Charque* (or *Salt Dried*) whatever the stack would be. For Hang Salted Meat to Dry and Hang Salt Cured Fish to Dry it now lists every end and where it comes from (Charque, Dry Cured meat, Country Ham, Hot Smoked, smoked dry cured; Salt Dried, Hot and Cold Smoked Fish), through TP Core's new `UI.outputTooltips`; the icon stays the script's. Needs this Core.
 - The three Hang recipes' tooltips list every end: Corned meat (Charque in sun or under a roof, dry cured indoors), Country Cured meat (dry cured in the shade), the Smokehouse's three; salt fish's Hot and Cold Smoked; Stockfish.
-- Guide: chapter 22, **The Yearly Plan** (user, 2026-11-13): each process (cold drying, salt drying, charque, the long cure, smoked and air dry curing, cold and hot smoking, potting and rendering) as the game's planting seasons: season, best and poor months, out of season, where and how long at best, from the season tools, and a table of what a stack turns into by where it hangs. The Tester's Toolkit is now chapter 23. The station table notes that Corned meat in a Smokehouse with no fire dry cures, under-salted. In-game step 109 of `TESTING_GUIDE.md`.
+- Guide: chapter 22, **The Yearly Plan**: each process (cold drying, salt drying, charque, the long cure, smoked and air dry curing, cold and hot smoking, potting and rendering) as the game's planting seasons: season, best and poor months, out of season, where and how long at best, from the season tools, and a table of what a stack turns into by where it hangs. The Tester's Toolkit is now chapter 23. The station table notes that Corned meat in a Smokehouse with no fire dry cures, under-salted. In-game step 109 of `TESTING_GUIDE.md`.
 
 ## 0.4.30
 - **Docs pass, sweep step G** (2026-11-12): `tools/season_report.lua` gains a loft column (salt fish days and keeping lost: two thirds in a July loft); `tools/charque_report.lua` now steps each stack through `F.charqueStep` on the ledger, so a roof goes by the season's mean as since step I (slower in winter, quicker in October); its room column is gone (meat there dry cures). Guide: loft column in the almanac, the charque table's roof column, a loft row for Potted Meat, `TPFM.weather()`'s loft line. README: season and charque tables from the tools, the Hanging Beam builds anywhere, `Weather.placeOf(station)`, the room-heating caveat. Workshop text: the Beam anywhere, the Smokehouse *In a shed*, Potted Meat 2 to 4 months in a basement.
-- **Fix: Eat 1/4 on a Crock of Potted Meat from the debug Item List ate the whole crock** (user, 2026-11-12). A
+- **Fix: Eat 1/4 on a Crock of Potted Meat from the debug Item List ate the whole crock**. A
   crock not packed by Pack Potted Meat had no portion record, so after any bite it read as empty and the rest went
   with the jar. Such a crock now holds what its script gives, one portion in a plain Clay Jar, written down at its
   first bite (`F.adoptCrock`). Packed crocks were never affected (in game: a quarter of four portions left three).
@@ -171,20 +172,20 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
 
 
 ## 0.4.26
-- **Rooms and roofs go by TP Core's temperature** (2026-11-12, consistency sweep step I; the user's rule, one place,
+- **Rooms and roofs go by TP Core's temperature** (2026-11-12, consistency sweep step I; the rule one place,
   one temperature). A room is the season's mean, 22 C while the grid is on; under an open roof the season's mean.
   Salt fish, charque and dry curing hung in a room (`roomSheltered`, `charqueRoom`, `dryCureRoom`) or under a roof
   (`covered`, `charqueCovered`, `dryCureCovered`) dry by it, Corned meat spoils by it (`underCureRoom`,
   `underCureCovered`), and a Salting Tub in a room minds it for its warm and long cures (`warmCureRoom`,
   `longCureRoom`; a batch started before keeps the season's). On the grid a room dries everything at summer speed
   but a press there warm cures (about 30% on two days) and a long cure rots: the tub's 20 C and 10 C limits are
-  kept (user). The Smokehouse is a shed in the outside air and keeps the day's temperature (user). Cold drying
-  under a roof goes by the season's mean too (user: 55 to 60 days, November and March hangs finish;
-  `hardFrostCovered`), and a tub in the open air by the day's (user: `warmCureOpen`, `longCureOpen`; afternoons
-  over 20 C warm cure it May to September). Gutted fish in the open air spoils by the day's temperature (user:
-  `rawSpoilOpen`), and every stockfish stack's warm rot is weighted by its wetness squared (the skin, user): open
+  kept. The Smokehouse is a shed in the outside air and keeps the day's temperature. Cold drying
+  under a roof goes by the season's mean too (55 to 60 days, November and March hangs finish;
+  `hardFrostCovered`), and a tub in the open air by the day's (`warmCureOpen`, `longCureOpen`; afternoons
+  over 20 C warm cure it May to September). Gutted fish in the open air spoils by the day's temperature
+  (`rawSpoilOpen`), and every stockfish stack's warm rot is weighted by its wetness squared (the skin): open
   frames November to February, a roof October to March. Muggy-season spoiling of salt fish and charque goes by the
-  place's temperature (user: `saltSpoilRoom`, `saltSpoilLoft`, `saltSpoilBasement`; a July loft spoils, a cellar never),
+  place's temperature (`saltSpoilRoom`, `saltSpoilLoft`, `saltSpoilBasement`; a July loft spoils, a cellar never),
   and dry curing is spared it. Popup and station window show the room's temperature; `TPFM.weather()` prints
   Room and roof lines, `TPFM.age`, `warmCure` and `longCure` reach them. Season report golden updated, tests, README,
   guide.
@@ -270,10 +271,10 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   cure (Fish cure, Corning, Country cure) and has no number. It reads the popups' own status
   (`F.stackStatus`, `F.charqueStatus`, `F.pressStatus`; `Info.rows` in `client/TraditionalPreservationFishMeatInfo.lua`,
   the World's `inspect`), so nothing is simulated twice. TP Core's new `StationInfo`. (A first build had it as a
-  separate window on the right-click; the user asked for it in the window.)
+  separate window on the right-click; it belongs in the window.)
 - **The Fish Drying Frame, Fish Hanging Beam and Fish Gantry are the Drying Frame, the Hanging Beam and the Gantry**
-  (user: they hang meat too). Display names only; entities, sprites and saves are untouched.
-- Wording brought in line with the code (user: "for Corned, not Salt Cured, meat"): Hang Salted Meat to Dry's
+  (they hang meat too). Display names only; entities, sprites and saves are untouched.
+- Wording brought in line with the code ("for Corned, not Salt Cured, meat"): Hang Salted Meat to Dry's
   tooltip (Corned meat for charque, Country Cured meat in the shade), the tub's, frame's, Beam's, Gantry's and
   Smokehouse's build tooltips (fish or meat; the long cure), the cured fish, gutted fish, cured meat, rinse, Corn
   and Country Cure tooltips, a Country Ham's (it need not dry in the Smokehouse), the refusals "Take the cured
@@ -404,8 +405,8 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
 
 ## 0.4.12
 - **Cold smoke counts on days of 15 C or less** (was 20 C; `F.COLD_SMOKE_MAX`). With the banked smoulder now lifting
-  the shed 15 C (0.4.11), a 20 C day read 35 C, past the 30 C where smoke cooks rather than cures (side-agent flag,
-  user's pick). Popup's "Too warm to count" says why; guide, README, Workshop and Balance follow.
+  the shed 15 C (0.4.11), a 20 C day read 35 C, past the 30 C where smoke cooks rather than cures (side-agent
+  flag). Popup's "Too warm to count" says why; guide, README, Workshop and Balance follow.
 
 ## 0.4.11
 - **The smoulder's warmth** (ROADMAP §7): with the Firebox burning, a Smokehouse stack dries as if the shed were
@@ -413,7 +414,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   charque keeps the outdoor wind. Before, a fire dried at the Covered rate, which gave nothing under about 13 C, so
   cold smoke's season barely gained. Salt fish at 2.3 C outdoors: 27 days Sheltered, about 16 banked, 12 stoked (if the
   fire burned every hour); banked helps from about -2 C, stoked from about -7 C (banked was +10 first, which gave
-  nothing under about 3 C: step 80, user picked +15). Cold smoke's "cool day" test still reads the outdoor temperature.
+  nothing under about 3 C: step 80, +15 picked). Cold smoke's "cool day" test still reads the outdoor temperature.
 - Ledger totals `smokeBanked`, `smokeStoked`, `charqueBanked`, `charqueStoked` (`F.liftedRates`, `F.BANKED_LIFT`,
   `F.STOKED_LIFT`); a save without them gets them at load. A stack's `burning` holds the fire's mode (Core's
   `Hearth.STOKED` / `BANKED`), and its popup rate follows it; a stack saved before starts its warm totals at its
@@ -459,7 +460,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   The engine puts a drying station's outputs in its slots before OnCreate (`CraftLogicSystem.stop`), so OnCreate swaps
   them there (`F.hotSmokeOutputs`); a done cook is noted by the World each look (`F.hotStations`, not saved) and its
   OnUpdate ends the stack.
-- **A ham hangs by the Smokehouse door** while finished stacks wait inside (user's idea): tiles 868-869, on the door's
+- **A ham hangs by the Smokehouse door** while finished stacks wait inside: tiles 868-869, on the door's
   tile (`F.hamSprite`).
 - Stack popup: "Hot Smoke: x of y h stoked in a row" in a joined shed, "Smoke: x h" once there is any.
 - Firebox Info's flue line now says what a joined Firebox does (stoked 4 to 8 hours in a row it hot smokes the
@@ -486,7 +487,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   so a bigger shed can reuse them. Dev: `TPFM.flueKit()`, `TPFM.smokehouse()`. Tests: `test_smokehouse.lua`.
 - The Smokehouse's door needs its front tile free, and nothing of TP's (Firebox, Hearth, beams, another shed) goes up
   or is put down in front of it (Core's `Doors`: the door tiles registered in `...FishMeatSmokehouse.lua`;
-  `F.notInRoom` asks `Doors.fits`; `UI.keepDoorsFree(Tiles.OUTDOOR)`). User, after step 75: a Firebox could be built
+  `F.notInRoom` asks `Doors.fits`; `UI.keepDoorsFree(Tiles.OUTDOOR)`). Found after step 75: a Firebox could be built
   at the shed's door end, and with its own door against the shed.
 
 ## 0.4.7
@@ -613,7 +614,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   that had changed DryDays gets 32 days for cold drying unless it sets the new option.
 
 ## 0.3.6
-- **Stockfish Bale** (ROADMAP §6, pallet pitch C; user picks 2026-11-11: capacity 10, weight reduction 30, new icon
+- **Stockfish Bale** (ROADMAP §6, pallet pitch C, 2026-11-11: capacity 10, weight reduction 30, new icon
   and new world model, tie and untie from the right-click menu). A container item (`StockfishBale`, the pallet's
   `F.BALE_TYPE`) that takes only stockfish (`AcceptItemFunction = TraditionalPreservationFish.acceptBale`, any
   Cold Dried fish, gutted or half). Fish in it keep their own clocks and ripen on a pallet as loose ones do.
@@ -629,7 +630,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   handlers as the game does).
 
 ## 0.3.5
-- **Stockfish Pallet** (ROADMAP §6, user 2026-11-11, from a photo of stockfish maturing stacked on pallets): built from
+- **Stockfish Pallet** (ROADMAP §6, from a photo of stockfish maturing stacked on pallets): built from
   the build menu (hammer and saw kept, 3 planks, 6 nails, Carpentry 2). A 20 weight container from its tile
   (`container = stockfishpallet`, vanilla's Empty Pallet art copied, tile `_02_304`). Cold Dried fish on it, and in
   bales on it, ripens faster by place: a loft (a room on floor 1 or up) ×2 (`PALLET_LOFT`, 30 days), a ground-floor
@@ -643,7 +644,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
 - Debug: `TPF.stockfish(n)` spawns unripe Cold Dried fish; `TPF.pallet()` reports the pallet near you.
 
 ## 0.3.4
-- Optional rinse (ROADMAP §6, user 2026-11-11, from an Astrakhan vobla account: the excess salt is soaked off after
+- Optional rinse (ROADMAP §6, 2026-11-11, from an Astrakhan vobla account: the excess salt is soaked off after
   pressing). **Rinse Off Salt** is a craft recipe (`RinseSaltedFish`) on Salt Pressed fish: 0.15 L of clean
   carried water each (`RINSE_LITRES`), so it sits in the fish's recipe submenu and the Craft window can do many at
   once, and works in the dark (`CanBeDoneInDark`). It gives back the same fish (`onCreateRinsed`: food, weight, age and mod data carried) marked `rinsed`.
@@ -657,22 +658,22 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
   *Medium Walleye (Salt Dried, Rinsed)*. Skipping the rinse changes nothing.
 
 ## 0.3.3
-- Stockfish matures (ROADMAP §6, decisions 5 and 6, user 2026-11-11): Cold Dried fish ripens over 60 days
+- Stockfish matures (ROADMAP §6, decisions 5 and 6): Cold Dried fish ripens over 60 days
   (`MATURE_DAYS`) on its own food clock, so a fridge slows it and a freezer stops it; no station, any container.
   `onCreateDried` stamps `matureAge` (item modData); a fish with no stamp (made before 0.3.3) counts as ripe.
 - Rehydrate Fish on stockfish now runs `onCreateSoaked`: the soaked fish keeps `ripeness` and its unhappiness
   goes from +10 unripe through 0 halfway to -10 ripe (`MATURE_UNHAPPY`); a dish takes on its share, as vanilla does.
 - Names: the stage goes in brackets after the fish, and vanilla's (Fresh) / (Stale) follows: *Gutted Medium Walleye
   (Salt Pressed)*, *Fish Half (Cold Dried, Unripe)*, *Medium Walleye (Rehydrated, Cold Dried, Ripe)*. Gutted and
-  Half stay part of the fish's name; "Gutted" shows on every later stage of a fish that went through Gut Fish (user:
-  packing takes the guts but leaves the fish whole), read from its headless icon (`F.wasGutted`), so old saves too. `F.stageName`, `F.rename`; slices carry the ripeness.
+  Half stay part of the fish's name; "Gutted" shows on every later stage of a fish that went through Gut Fish
+  (packing takes the guts but leaves the fish whole), read from its headless icon (`F.wasGutted`), so old saves too. `F.stageName`, `F.rename`; slices carry the ripeness.
 - Names and the stockfish's tooltip ("Maturing: 40 percent", one Tooltip key per tenth, `..._ColdDried_40`, as the game neither saves a per-item tooltip nor formats one) update
   every in-game hour for the player's own things and whenever the inventory windows show a container. Fish from
   older saves take the new names the same way.
 - Debug: `TPF.mature(days)` ages the Cold Dried fish you carry.
 
 ## 0.3.2
-- Realism (ROADMAP §6, decision 16, user 2026-11-11): salt per fish doubled to 4 uses per started half weight
+- Realism (ROADMAP §6, decision 16): salt per fish doubled to 4 uses per started half weight
   (`SALT_PER_STEP`), about 15% of the fish's weight, the Volga figure (was about 7%).
 - A warm cure: while the season averages above 20 C (`WARM_CURE_ABOVE`), a tub batch picks up spoilage at a quarter
   of raw fish's rate (`WARM_CURE_SHARE`), plus as much again per 10 degrees over (a day at 21 C ~14%, two at 25 C
@@ -681,7 +682,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
 - Hot sun: above 25 C (`HEAT_ABOVE`, live temperature), an open salt stack under half dried (`SALT_FRESH_UNTIL`)
   takes 0.05 per 24 h (`HEAT_DAMAGE`, `HEAT_DAMAGE_HOURS`, scaled by the Spoilage option) times how wet it still is,
   within `DAMAGE_CAP`. Salt stacks now go through `F.saltStep`. Popup: "Too hot in the sun" and "Spoiling (Hot sun)".
-- Covered (user 2026-11-11): a roof with no room round it (porch, open shed; Core `Weather.placeOf(station, true)`)
+- Covered: a roof with no room round it (porch, open shed; Core `Weather.placeOf(station, true)`)
   is its own place. Salt fish dries at the open rate there, never rained on, in the shade; cold fish at 75%
   (`COVERED_COLD_RATE`), never rained on, no wet damage. A room (map or player-built: walled all round and fully
   roofed, the engine's `isInARoom`) is indoors as before: salt 65%, cold stops. New stack key `covered`; new ledger
@@ -695,7 +696,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
 - Realism (ROADMAP §6, decision 9): the press follows the batch's heaviest fish, as the salt has to reach through the
   thickest one. 1 day if every fish is up to 1.1 weight (about 0.5 kg, `PRESS_SMALL_WEIGHT`), 2 days with any fish of
   2.2 weight (about 1 kg, `PRESS_BIG_WEIGHT`) or more, in between by weight (was 12 hours for any batch; Volga
-  practice, user: about 2 days at most). The recipe's time is the longest press (`PRESS_HOURS` 48); a lighter batch's
+  practice: about 2 days at most). The recipe's time is the longest press (`PRESS_HOURS` 48); a lighter batch's
   bar runs faster (new `pressHours` on the recipe data). A press already running from an older version keeps its
   12 hours. Tooltip, guide, README and Workshop text updated.
 - The tub gets the mod's own hover popup on a running batch (Progress, Time Remaining from its own hours), as
@@ -705,7 +706,7 @@ Realism pass, part one (user, 2026-11-13: numbers skewed to acceptable realism, 
 - Realism (ROADMAP §6, cold-frame model): cold drying follows frost and wind. Full speed 0 to 5 C; 80% at -5 C
   and 60% below (`HARD_FROST`); wind from `ClimateManager:getWindIntensity()` gives 50% in still air up to 120% at
   0.25 (`WIND_GOOD`). Base cold drying is 32 days (`COLD_DRY_HOURS` 768, was 480), so a stack hung November to
-  January takes 50 to 55 days (user: a 55-day gameplay compromise). Rain wets cold frames with their own wetness (`coldWetness`, snow doesn't), and drying waits
+  January takes 50 to 55 days (a 55-day gameplay compromise). Rain wets cold frames with their own wetness (`coldWetness`, snow doesn't), and drying waits
   until it is gone. Until a stack is 30% dried, hard frost (0.1 per 72 h) and lying wet above 0 C (0.05 per 48 h)
   add a little to its spoilage (at most a quarter, `DAMAGE_CAP`): about 10% of the keeping for a November hang,
   20% for January; rot from a warm season is scaled by how wet the stack still is. New ledger
