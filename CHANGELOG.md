@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.51
+Refactor with Vinegar's (2026-11-15): a stack or tub not yet seen by the World reads TP Core's `Weather.NEW_RUN_PLACE` (`F.placeWord`; the open air, as before). Nothing changes in game; tests and golden results unchanged.
+
 ## 0.4.50
 Refactor (user, 2026-11-14; refactor pass step c, Fish & Meat): nothing changes in game but five fixes, each on the user's yes.
 **The main file split in five** (it was 2,568 lines): `TraditionalPreservationFishMeatLedger.lua` (the rates, the weather totals and what they do to stacks and tubs, the popups' status), `...Names.lua`, `...Stock.lua`, `...Stockfish.lua` (pallet and bale), required at the main file's end; and `TraditionalPreservationFishMeat/Common.lua`, required by every file that uses it: **every item the code names as a constant** (`F.GUTTED_FISH`, `F.HOT_MEAT`, `F.BLOOD_SAUSAGE`... gathered from four files; the type strings typed out across the mod are gone) and the shared helpers (`F.setNutrients`, `F.scaleNutrients`, `F.foodOf`, `F.nameAs`, `F.isEmptyPot`, `F.optionOn`, `F.setPartRow`, `F.clearData`).

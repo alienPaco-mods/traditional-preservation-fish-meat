@@ -118,7 +118,7 @@ local LEDGER_PLACES = { Open = "Open", Covered = "Covered", Sheltered = "Room", 
 local PLACE_WORDS = { Covered = "Covered", Room = "Sheltered", Loft = "Loft", Basement = "Basement" }
 
 function F.placeWord(modData)
-    return modData.place or "Open"
+    return modData.place or Weather.NEW_RUN_PLACE
 end
 
 -- The ledger place a stack or tub goes by: Open, Covered, Shed, Room, Loft or Basement.
