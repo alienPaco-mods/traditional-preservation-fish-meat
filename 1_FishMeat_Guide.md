@@ -108,7 +108,7 @@ Every road on one page. *Start* is when to begin it in Kentucky's weather; *Yiel
 |---|---|---|---|
 | Salt Dried fish | **4 per half weight**: 160 for a full frame | None | Tub, a drying station (Carpentry 2) |
 | Stockfish | **None** | None | A drying station |
-| Charque, dry cured meat | **4 a cut**, 10 a leg: 200 for a cow | None; a little wood for smoke | Tub, a drying station, or the Smokehouse |
+| Charque, dry cured meat | **4 a Beef, Venison or Pork, 2 a Steak or chop**, 10 a leg: 150 for a cow | None; a little wood for smoke | Tub, a drying station, or the Smokehouse |
 | Hot and cold smoking | As above | Wood, hours of it | Smokehouse (Carpentry 3) and Stone Hearth (Masonry 2) |
 | Potted Meat | **1 a pot** | A cooking fire | A pot and a clay jar |
 | Black Pudding, Blood Sausage | **1 a litre of blood**, a use per 2 L to cure it, 1 for each casing | An hour's baking or half an hour's boil | A pan or a pot |
@@ -187,14 +187,14 @@ Numbers are for an average animal and an unskilled butcher. A bigger or meatier 
 
 | | **Pack Fish in Salt** | **Pack Meat in Salt** |
 |---|---|---|
-| Takes | A raw fish, fillet, Gutted Fish or Fish Half; knife or cleaver (kept) | A Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop or Leg of Pork; no knife |
+| Takes | A raw fish, fillet, Gutted Fish or Fish Half; knife or cleaver (kept) | A Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop or Leg of Pork; chicken, turkey and rabbit too, at half the rate (chapter 10); no knife |
 | Salt | **2 for each quarter weight** of the packed fish, to the nearest quarter, never under 2 (about 15%) | The same: **4** for a Beef, Venison or Pork, **2** for a Steak or a chop; a Leg of Pork **half the rate**, **10** for 2.5 weight (about 8%) |
 | Gives | **Salt Packed** fish (+ Fish Guts from a whole fish over 0.6) | Salt Packed meat, named for its cut (*Steak (Salt Packed)*) |
 | Not | Rotten, frozen or cooked fish | Rotten, frozen or cooked meat |
 
 - Fresh, stale, even **part-eaten** fish works.
 - **Big fish get split first:** a whole or gutted fish over **4.5 weight** (about 2 kg) is too thick to salt whole. **Gut Fish**, then **Split Fish**, and pack the halves. Bream-sized fish and smaller go in whole, heads on.
-- **Salt is carried:** only the first 2 can come from a container nearby. Any salt works: a vanilla shaker holds **10**, the Salt mod's Evaporated Salt **5** and a Bag of Salt **50**. Part-used salt goes first.
+- **Salt can be anywhere in reach:** on you or in the containers around you. Any salt works: a vanilla shaker holds **10**, the Salt mod's Evaporated Salt **5** and a Bag of Salt **50**. Part-used salt goes first.
 - Packed fish and meat keep only 3 / 6 days. Get them in the tub.
 
 | Fish | Salting weight (what the salt is charged on) | Salt |
@@ -301,7 +301,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 Charque is the summer road for red meat: salted and cured in the tub like fish, then dried in summer heat. Hot sun is best, and an open roof does as well and keeps the rain off; what it can't do without is the warmth.
 
 1. **Pack Meat in Salt** and **Corn Salted Meat** (chapter 5). Out comes **Corned** meat (*Steak (Corned)*). Beef, mutton and venison only: pork is never charque, and Country Cured meat is for dry curing (chapter 11).
-2. **Hang Salted Meat to Dry** on any drying station **in the open or under an open roof**: **five days in hot sun (25 C and up) and a breeze**.
+2. **Hang Salted Meat to Dry** on any drying station **in the open or under an open roof**: **five days in hot sun (25 C and up) and a fair breeze**.
 3. Take down the **Charque** (*Beef Charque*, *Mutton Charque*, *Venison Charque*): about half the raw weight, 90% of the food, keeps **120 / 180 days** (rinsed 108 / 162).
 4. **Soak Charque** (1 L of water) before you eat it: it's salty and as hard as leather. Soaked (*Beef Charque (Soaked)*) it's still a little salty, cooks like a steak in about 40 minutes, goes into soups, stews, pies and more, and spoils like fresh meat (2 / 4 days).
 
@@ -337,7 +337,7 @@ Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub,
 
 1. **Gut Fish** (chapter 4). **Split Fish** if it's over 2.5 weight, or hang it whole on a Beam or Gantry.
 2. **Hang Gutted Fish to Cold Dry** on a frame, Beam or Gantry, **in the open or under an open roof**. Frozen fish is fine.
-3. **32 days** at best: between 0 and 5 C with a good wind. A Kentucky winter's wind is mostly light, so a batch hung November to January takes about 50 to 55 days in the open, 55 to 60 under a roof. **In the open, hang by the end of February; under a roof, by March.**
+3. **32 days** at best: 0 to 5 C in a fair breeze, about 27 in a good drying wind. A Kentucky winter's wind is mostly light, so a batch hung November to January takes about 50 to 55 days in the open, 55 to 60 under a roof. **In the open, hang by the end of February; under a roof, by March.**
 4. Take down the **Stockfish** (*Walleye Stockfish*): about 18% of the fresh weight, 89% of the food, keeps **365 / 540 days**: enough to reach next winter's fish.
 5. **Let it mature**: stockfish matures in storage over **60 days**, in any container (a fridge slows it, a freezer stops it). Then the name reads *Walleye Stockfish (Matured)*; until then the tooltip shows how far along it is.
 6. **Soak Fish** (1 L of water) before you eat or cook it (*Walleye Stockfish (Soaked)*): it's as hard as wood. Matured stockfish cheers you up (unhappiness -10), and so does the stew it goes into; fresh off the rack it's dull (+10); halfway it's neither. Soaked, it keeps 2 / 4 days.
@@ -670,7 +670,7 @@ Potted Meat is the road for any season and any red meat, pork too, and the long-
 
 **A portion** is the cut's own food plus a quarter of the fat, about 1,000 calories of it. A full crock of four is around **5,000 calories**: few foods carry more. Fewer than four cuts leave the rest of the block behind in the pot, so cook four at a time when you can.
 
-> *Margin note:* chickens, turkeys and rabbits were kept alive and eaten fresh, so a farm rarely salted or dried them. When it had too many, they went under fat: English potted rabbit and chicken, French *rillettes de lapin*, the Gascon confit of duck and goose. Rabbit needed the fat more than most: it is so lean that trappers living on it alone fell sick within days, full but starving ("rabbit starvation"), which is why rillettes de lapin are made with pork fat. The game's Rabbit Meat carries nearly four times a chicken leg's calories, and a portion of it about 2,000 with its fat.
+> *Margin note:* chickens, turkeys and rabbits were kept alive and eaten fresh, so a farm rarely salted or dried them. When it had too many, they went under fat: English potted rabbit and chicken, French *rillettes de lapin*, the Gascon confit of duck and goose. Rabbit needed the fat more than most: it is so lean that trappers living on it alone fell sick within days, full but starving ("rabbit starvation"), which is why rillettes de lapin are made with pork fat. The game's Rabbit Meat carries over four times a chicken leg's calories, and a portion of it about 2,000 with its fat.
 
 **Where you keep it.** The crock keeps by the temperature it sits in, and it remembers: one left a month in a basement has aged a basement's month when you next look.
 
@@ -887,8 +887,8 @@ Drying runs on real weather, recorded every 10 minutes, **even while you're away
 | May | 16–25 d | 15–26 d | 23–27 d | 19–27 d | — | — | 100% | — | 0% |
 | Jun | 16–20 d | 13–16 d | 20–24 d | 18–20 d | — | — | 100% | — | 0% |
 | Jul | 15–18 d | 12–15 d | 19–22 d | 19–20 d | — | — | 100% | — | 17% |
-| Aug | 17–24 d | 12–20 d | 20–27 d | 19–25 d | — | — | 100% | — | 5% |
-| Sep | 17–34 d | 17–27 d | 26–27 d | 21–27 d | — | — | 100% | — | 0% |
+| Aug | 17–24 d | 12–20 d | 20–27 d | 19–24 d | — | — | 100% | — | 5% |
+| Sep | 17–34 d | 17–27 d | 26–27 d | 20–27 d | — | — | 100% | — | 0% |
 | Oct | 30–34 d | 27 d | 27 d | 27 d | 52–54 d | 56–60 d | 87% | 72% | 0% |
 | Nov | 29–30 d | 27 d | 27 d | 27 d | 50–52 d | 57–58 d | 0% | 30% | 0% |
 | Dec | — | 27 d | 27 d | 27 d | — | — | — | — | 0% |
@@ -948,9 +948,9 @@ Three ways to live, and what each should build. For a yardstick: a survivor need
 
 | A grown animal on the hook, about | Meat | Calories | Days of food | Salt to cure it all |
 |---|---|---|---|---|
-| Cow or bull | 25 Beef, 25 Steaks | 16,500 | 6 to 7 | 200 |
-| Pig | 19 Pork, 19 Pork Chops (one or two legs among them) | 8,500, and as much again in Lard | 3, or 7 with the Lard | about 150 |
-| Sheep | 22 Mutton Chops | 5,000 | 2 | 88 |
+| Cow or bull | 25 Beef, 25 Steaks | 16,500 | 6 to 7 | 150 |
+| Pig | 19 Pork, 19 Pork Chops (one or two legs among them) | 8,500, and as much again in Lard | 3, or 7 with the Lard | about 100 |
+| Sheep | 22 Mutton Chops | 5,000 | 2 | 44 |
 | Deer | 26 Venison | 11,500 | 4 to 5 | 104 |
 
 > *Margin note:* these are middling animals and an unskilled butcher; a big one gives half as much again. The tub takes **35 pieces** at a time, so a cow is two loads, or two tubs.
@@ -982,7 +982,7 @@ Three ways to live, and what each should build. For a yardstick: a survivor need
 
 The farm's year turns on two slaughters.
 
-- **Summer beef, June to August.** A cow is 50 cuts: two tub loads and **200 salt**, corned in two days each. One Drying Frame in the sun takes the whole cow, five Beef to a stack: **charque** in one to two weeks, about 10 weight of it, good until December to February. The garden feeds you meanwhile.
+- **Summer beef, June to August.** A cow is 50 cuts: two tub loads and **150 salt**, corned in two days each. One Drying Frame in the sun takes the whole cow, five Beef to a stack: **charque** in one to two weeks, about 10 weight of it, good until December to February. The garden feeds you meanwhile.
 - **Hog killing, November**, once the nights are frosty.
   1. **Render the fat** in the cauldron the same day: two or three blocks of Lard.
   2. **Legs into the long cure first**, 21 days; cuts follow for 10. The tub holds one cure at a time, so a second tub earns its keep here.
@@ -998,7 +998,7 @@ The farm's year turns on two slaughters.
 | February to April | Dry cured pork and beef, the last crocks; the garden is only just sown |
 | May onwards | The Country Hams, which keep until the next hog killing |
 
-> *Margin note:* salt is the farm's real cost. A cow and a pig together want about 350, seven Bags of Salt. The Salt mod's lick pays for itself in one autumn.
+> *Margin note:* salt is the farm's real cost. A cow and a pig together want about 255, five Bags of Salt. The Salt mod's lick pays for itself in one autumn.
 
 ### The river camp
 
@@ -1006,7 +1006,7 @@ The farm's year turns on two slaughters.
 
 - **Summer: fish hard, and salt it.** The fish bite best now. A frame holds 20 weight of fish, about **8,000 calories**, three days of food, and takes **160 salt** and two to three weeks under the roof. One frame can't keep up with a good rod: build two or three, or a Hanging Beam (60 weight).
 - **A summer deer is charque.** 26 Venison, one tub load, 104 salt, two days of corning; the whole deer hangs on one frame and dries in one to two weeks to about 6.5 weight of **Venison Charque**: 10,000 calories you can carry.
-- **Winter: every fish is stockfish.** The bite is halved, so nothing is wasted: gut it and hang it the same day, no salt, no tub. A frame's 20 weight comes down in seven or eight weeks as 3.6 weight of stockfish, about 7,000 calories, and it keeps a year.
+- **Winter: every fish is stockfish.** The bite is halved, so nothing is wasted: gut it and hang it the same day, no salt, no tub. A frame's 20 weight comes down in seven or eight weeks as about 4.4 weight of stockfish, about 8,900 calories, and it keeps a year.
 - **A winter deer is dry cured.** Country cure it for ten days, then hang it under the lean-to: twelve weeks in the frosts, five to seven from March. That's **Venison (Dry Cured)**, eaten as it is. With a Smokehouse and a Stone Hearth (Carpentry 3, Masonry 2) it's **Venison (Cold Smoked)** in about seven weeks.
 - **No fat, no crocks.** Deer give no fat, so Potted Meat needs Lard you've found. A wild boar or a raided pig farm changes that.
 - **Hot smoke for the trail's first week**, if you have the shed: four hours of fire for small fish.
@@ -1086,7 +1086,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Problem | Why |
 |---|---|
 | Tub won't accept more | It's full (50 weight or 35 items), curing, or still has cured pieces in it; or it holds the other kind (fish or meat) |
-| Pack Fish in Salt won't take a fish | A whole or gutted fish over 4.5 weight must be split first; or you don't carry enough salt for its size |
+| Pack Fish in Salt won't take a fish | A whole or gutted fish over 4.5 weight must be split first; or there isn't enough salt in reach for its size |
 | Pork won't hang on a frame | Corned pork hangs in the Smokehouse only. Country cure it and it hangs on a Frame or Beam under a roof, indoors or in a basement, never in the open |
 | Corn Salted Meat won't take a Leg of Pork | A leg is too thick for the short cure: take it out, or use Country Cure Salted Meat (21 days) |
 | A Country Cure spoils in the tub in May | The long cure is safe at a ten-day average of 10 C or less: start it between October and April |
@@ -1131,7 +1131,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 |---|---|---|
 | Salt drying time (days) | 12 | Salt fish in the best weather. Kentucky's weather makes it 15 to 34 |
 | Slowest salt drying (days) | 27 | The longest cold or damp weather can stretch salt drying to. Rain pauses come on top |
-| Stockfish drying time (days) | 32 | Cold drying at the best temperature and wind. Hung from late October to January, about 50 to 55 outdoors; the real Lofoten takes about 90 |
+| Stockfish drying time (days) | 32 | Cold drying at the best temperature in a fair breeze; about 27 in a good drying wind. Hung from late October to January, about 50 to 55 outdoors; the real Lofoten takes about 90 |
 | Stockfish maturing time (days) | 60 | Ripening in storage. A pallet in a loft halves it, in any other room above ground it takes two thirds |
 | Dry cured meat ageing time (days) | 30 | A dry cured cut, after it has dried. Left hanging, three quarters of it |
 | Country Ham ageing time (days) | 90 | A Country Ham, after it has dried. Left hanging, three quarters of it. Real ones age six months to a year |
@@ -1140,7 +1140,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Butchering gives fat | On | Off, butchering gives no fat and Lard is loot only, as in the base game |
 | Butchering gives legs of pork | On | Off, a pig gives all its Pork as Pork, as in the base game |
 | Salting meat | On | Off, meat can't be packed in salt or hung |
-| Charque drying time (days) | 5 | In hot sun and a breeze. Kentucky's summer makes it about 7 to 11 under a roof; the real charqueadas took 4 to 6 |
+| Charque drying time (days) | 5 | In hot sun and a fair breeze. Kentucky's summer makes it about 7 to 11 under a roof; the real charqueadas took 4 to 6 |
 | Potted Meat keeps by place | On | Off, a crock keeps 60 / 90 days anywhere, as plain food, and opening it costs nothing |
 
 ---

@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.53
+- **Guide checked against the code** (2026-11-15): salt counts from anything in reach, not only what you carry; a cow takes 150 salt, a pig about 100, a sheep 44 (a Steak or chop takes 2); the Almanac's August and September loft days; stockfish's 32 days and charque's 5 are a fair breeze's (a good drying wind about 27 for stockfish); a full frame of stockfish is about 4.4 weight; rabbit is over four times a chicken leg's calories; Pack Meat in Salt lists poultry and rabbit. Nothing changes in game.
 - **Guide shortened** (2026-11-15): the Smokehouse's joining rules point to TP Core's guide; repeated secrets, tips and Logbook entries cut; the two carry tables merged; no history notes (the old-save stockfish row, the Smokehouse's move). Nothing changes in game.
 - **README and DEVHELP say what is** (2026-11-15): no version tags, step labels or dev-machine paths. Nothing changes in game.
 - **Docs and comments** (2026-11-15): decisions are stated plainly, without attributions (CHANGELOG, comments, scripts, README, tests). Nothing changes in game.
