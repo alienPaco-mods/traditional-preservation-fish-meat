@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.53
+- **README and guide** (2026-11-15): the README heading names 0.4.53 (was 0.4.30), as mod.info does; the guide drops three "(0.4.35)" history tags.
 Refactor with TP Core's Stone Hearth split (2026-11-15): the fat's cauldron rules are TP Core's `CauldronFluid.*` and `Cauldron.of`, stove food goes through `StoneHearth.cooksOn`, the Smokehouse's notes through `FireUI.addNotes`; the fat cauldron action's fire is `action.fire`. Nothing changes in game.
 
 ## 0.4.52

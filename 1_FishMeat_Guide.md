@@ -230,7 +230,7 @@ Pick the cure, load the tub, press **Craft**. Until then the tub stands open and
 | Country Cured: cuts | **10 days** |
 | Country Cured: any Leg of Pork in the batch | **21 days** |
 
-These are at full speed. **The cold slows the salt** (0.4.35): a tub cures at full speed from 2 C, half speed at −5 C and a quarter from −10 C, by where it stands (a roof or a room by the season, the open air by the day, a basement by its own), so a January tub outdoors takes about twice as long and a basement tub never slows. Hover the batch for its time left at today's speed. It runs while you're away. The tub stays closed until you've taken every piece out.
+These are at full speed. **The cold slows the salt**: a tub cures at full speed from 2 C, half speed at −5 C and a quarter from −10 C, by where it stands (a roof or a room by the season, the open air by the day, a basement by its own), so a January tub outdoors takes about twice as long and a basement tub never slows. Hover the batch for its time left at today's speed. It runs while you're away. The tub stays closed until you've taken every piece out.
 
 - **Mind a warm spell.** When the last ten days average above 20 C, the flesh by the spine starts to spoil (bone taint) before the salt reaches it, and the finished batch keeps less long: about a seventh off for a day at 21 C, over a third for two days at 25 C. Hover the batch to see it (*Spoiling (Warm cure)*). Salt in spring and autumn, or cure small fish. **A tub in a room minds the room**: 22 C while the power grid is on, so in the first weeks a batch indoors loses about a third of its keeping on a two-day press and a long cure rots. Put the tub under an open roof, in an outbuilding or in a basement. **The long cure wants the cold**: its salt takes weeks to reach the bone, so it is safe only while the last ten days average **10 C or less**, about **October to April**. Warmer, it spoils in step: at 12 C a leg loses two fifths of its keeping and cuts a fifth; at 15 C a leg rots in the tub and cuts lose half. The short cure and fish only mind 20 C.
 - **Salt Cured** fish, **Corned** and **Country Cured** meat keep 7 / 14 days and are raw: cook them before eating, or hang them.
@@ -876,7 +876,7 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 | Smoked Sausage Slice | Yes | 10 min (30) | As the fresh link, and salad | - |
 | Raw Casings | No | - | - | **Clean and Salt Casings** |
 
-**In a dish, meat is named by its animal** (0.4.35): hot smoked venison makes a *Venison Stew*, dry cured pork a *Pork Soup*, a smoked chicken leg a *Chicken Soup*, each with its own icon, as the game's fresh meat does.
+**In a dish, meat is named by its animal**: hot smoked venison makes a *Venison Stew*, dry cured pork a *Pork Soup*, a smoked chicken leg a *Chicken Soup*, each with its own icon, as the game's fresh meat does.
 
 > *Margin note:* why does salt fish go straight into the soup when charque wants a soak first? A salt dried fish is a thin piece, and the soup's water draws its salt as it cooks. Charque is a thick slab of beef under a crust of salt: in Brazil it soaks overnight, the water changed, before it goes into the *feijoada*.
 
@@ -1260,7 +1260,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.addSmoke(hours)` | Adds hours of smoke (default 60) straight to every stack in the Smokehouses within 3 tiles, whatever the weather or the fire |
 | `TPFM.underSalt(hours)` | Adds hours of a 10 C shed (default 168) for Corned meat hanging in a Smokehouse, a room or under a roof; it rots after 672 |
 
-The Salting Tub cures by its place's temperature on the weather's totals (0.4.35), but `TPFM.age` doesn't speed it up: use the game's own time controls.
+The Salting Tub cures by its place's temperature on the weather's totals, but `TPFM.age` doesn't speed it up: use the game's own time controls.
 
 **Typical checks**
 - **Salt fish:** `TPFM.fish("Walleye", 3, 4)` and `TPFM.give("salt", 10)` (each 4 weight walleye takes 28 salt), pack and cure, then hang the fish and `TPFM.age(288)`.
