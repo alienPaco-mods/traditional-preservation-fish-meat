@@ -11,10 +11,12 @@ Preserves fish and meat the old way, with no power: salt, wood, fat, smoke and t
 | Hot smoke | Hot Smoked fish | Hot Smoked meat, chicken, turkey and rabbit | Any | 7 / 14 days, ready to eat |
 | Cold smoke | Cold Smoked fish | Beef / Mutton / Venison / Pork (Cold Smoked), Smoked Country Ham | Days of 15 C or less | 120 / 180 days, ready to eat (a ham 180 / 365) |
 | Dry cure in cool air | - | Beef / Mutton / Venison / Pork (Dry Cured), Country Ham | Cool months, no fire needed | The same |
-| Under fat | - | Potted Meat (any red meat, pork too) | Any | By place: 14 to 120 days fresh |
+| Under fat | - | Potted Meat (red meat, pork, poultry and rabbit) | Any | By place: 14 to 120 days fresh |
+| Render the fat | - | Lard, Tallow and Cracklings (in a pot, or the Stone Hearth's cauldron) | The day you butcher | Lard and Tallow don't spoil; Cracklings 7 / 14 days |
+| Stock | Fish Head Stock | Bone Broth, Chicken Stock | Any | Each becomes a soup or a stew, 3 / 5 days |
 | Blood | - | Black Pudding, Blood Sausage | The day you butcher | About a week |
 | Blood, cold smoked | - | Smoked Blood Sausage (boiled links) | Days of 15 C or less | 21 / 40 days, ready to eat |
-| Sausage, hot smoked | - | Smoked Sausage (pork, kielbasa style) | Any | 14 / 30 days, ready to eat |
+| Sausage | - | Fresh Sausage, fried or boiled; Smoked Sausage (pork, kielbasa style, hot smoked) | Any | Fresh 2 / 4 days; smoked 14 / 30, ready to eat |
 
 ## History
 
