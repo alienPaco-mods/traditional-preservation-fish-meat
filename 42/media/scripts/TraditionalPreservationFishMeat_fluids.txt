@@ -1,6 +1,6 @@
 module Base
 {
-    /* Fat in the cauldron of TP Core's Hearth (TraditionalPreservationFishMeatFat.lua). Raw fat is a fluid only so
+    /* Fat in the cauldron of TP Core's Stone Hearth (TraditionalPreservationFishMeatFat.lua). Raw fat is a fluid only so
        the cauldron can hold it: it stays there, a piece is 0.25 L, and no container is ever filled with it. Kept
        steaming for an hour it melts. */
     fluid RawPorkFat

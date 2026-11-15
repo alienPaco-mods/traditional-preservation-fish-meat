@@ -138,7 +138,7 @@ local function drawStackTooltip(slot, tooltip, kind)
         else
             UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Rate", UI.percent(status.rate))
         end
-        -- In a Smokehouse joined to a Firebox: the stoked session's hours against the cook, and the smoke so far.
+        -- In a Smokehouse joined to a Stone Hearth: the stoked session's hours against the cook, and the smoke so far.
         if modData.smokeFrom and modData.hotNeed and not modData.noHot then
             UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_HotSmoke", getText("IGUI_TraditionalPreservationFishMeat_HotSmokeHours",
                 string.format("%.1f", modData.hot or 0), string.format("%.0f", modData.hotNeed)))

@@ -7,7 +7,7 @@ local Weather = require "TraditionalPreservationCore/Weather"
 local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 require "TraditionalPreservationFishMeat/Common"
 local Doors = require "TraditionalPreservationCore/Doors"
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local Station = require "TraditionalPreservationCore/Station"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local Uses = require "TraditionalPreservationCore/Uses"
@@ -19,7 +19,7 @@ F.MOD_DATA_KEY = "TraditionalPreservationFishMeat"
 -- stews, poached sausage. The pudding pans are oven food.
 for _, pot in ipairs({ "PorkFat", "Suet", "MeatInFat", "BoneBroth", "ChickenStock", "BoneBrothSoup", "BoneBrothStew",
     "ChickenSoup", "ChickenStew", "Sausage", "BloodSausage", "FishHeadStock", "FishHeadSoup", "FishHeadStew" }) do
-    Hearth.cooksOn(Hearth.STOVE, "TraditionalPreservationFishMeat.PotOf" .. pot, "TraditionalPreservationFishMeat.PotForged" .. pot)
+    Fire.cooksOn(Fire.STOVE, "TraditionalPreservationFishMeat.PotOf" .. pot, "TraditionalPreservationFishMeat.PotForged" .. pot)
 end
 
 -- Hours in the tub at most, and hours on the frame at a drying rate of 1. These set the recipes' times.
@@ -285,9 +285,9 @@ F.BALE_UNTIE_TICKS = 60
 -- smokes; 20 C until 0.4.12, when the lift grew from 10 to 15). Stacks in
 -- a Smokehouse, by stackId, as the World last saw them (not saved); a finished one waits at SHED_WAIT until seen.
 F.COLD_SMOKE_MAX = 15
--- The smoulder's warmth: while the Firebox burns, a Smokehouse stack dries as if the shed were this much warmer than
+-- The smoulder's warmth: while the Stone Hearth burns, a Smokehouse stack dries as if the shed were this much warmer than
 -- outdoors, banked or stoked, and the warmed air holds the same water, so its humidity halves every 10 C (F.liftedRates).
--- A stack's modData.burning holds the fire's mode, Core's Hearth.STOKED or BANKED.
+-- A stack's modData.burning holds the fire's mode, Core's Fire.STOKED or BANKED.
 F.BANKED_LIFT = 15
 F.STOKED_LIFT = 20
 F.smokeStations = {}
@@ -605,7 +605,7 @@ function F.stationIndex(object)
 end
 
 -- The Gantry stands in the open or under an open roof, not in a room, unlike the frame and (since 0.4.15) the Hanging
--- Beam, as TP Core's Smokehouse does; and not in front of a door (TP Core's Doors: the Hearth's mouth, the Firebox's
+-- Beam, as TP Core's Smokehouse does; and not in front of a door (TP Core's Doors: the Stone Hearth's mouth, the Stone Hearth's
 -- door, the Smokehouse's). The Hanging Beam only minds the doors (F.doorFree).
 function F.doorFree(params)
     local name = params.tileInfo and params.tileInfo:getSpriteName()

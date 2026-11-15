@@ -5,7 +5,7 @@
 -- F.charqueStatus, F.pressStatus), so the two agree, and nothing is simulated here.
 local UI = require "TraditionalPreservationCore/UI"
 local StationInfo = require "TraditionalPreservationCore/StationInfo"
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local Weather = require "TraditionalPreservationCore/Weather"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local F = TraditionalPreservationFishMeat
@@ -83,7 +83,7 @@ function Info.batch(kind, modData, ledger, now)
         row.slow = true
     end
     if isPress then return row end
-    -- In a Smokehouse joined to a Firebox: a stoked run that is cooking the stack, and its smoke so far.
+    -- In a Smokehouse joined to a Stone Hearth: a stoked run that is cooking the stack, and its smoke so far.
     if F.cookShare(modData) then
         table.insert(row.notes, UI.say(KEY .. "InfoCooking", string.format("%.1f", modData.hot), string.format("%.0f", modData.hotNeed)))
     end
@@ -156,13 +156,13 @@ function Info.rows(found, ledger, now, fire)
     return { rows = rows, bars = bars, notes = notes }
 end
 
--- The joined Firebox's fire, for a Smokehouse; nil for any other station.
+-- The joined Stone Hearth's fire, for a Smokehouse; nil for any other station.
 local function fireOf(found)
     if not (found.hanger and found.hanger.closed) then return nil end
-    local firebox = Smokehouse.joinedFirebox(found.station)
-    if not firebox then return "none" end
-    if Hearth.isBanked(firebox) then return "banked" end
-    return Hearth.isBurning(firebox) and "stoked" or "out"
+    local stoneHearth = Smokehouse.joinedStoneHearth(found.station)
+    if not stoneHearth then return "none" end
+    if Fire.isBanked(stoneHearth) then return "banked" end
+    return Fire.isBurning(stoneHearth) and "stoked" or "out"
 end
 
 -- The block in the station's own window (Core's StationInfo), for the mod's stations only: looked up by sprite

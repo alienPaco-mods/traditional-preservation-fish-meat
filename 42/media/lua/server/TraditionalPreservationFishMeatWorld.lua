@@ -88,7 +88,7 @@ function TraditionalPreservationFishMeatWorld.tubSprite(waiting, batches, finish
 end
 
 -- place is the station's (TP Core's word, the Smokehouse Enclosed).
--- In the Smokehouse each stack also counts the joined Firebox's fire (F.smokeStep); a done cook is noted for its
+-- In the Smokehouse each stack also counts the joined Stone Hearth's fire (F.smokeStep); a done cook is noted for its
 -- OnUpdate to finish, and every stack's shed for OnCreate's Cold Smoked swap (F.smokeStations). Another mod's stacks
 -- in the shed are its own: only counted, as they take room (others).
 local function readBatch(station, craftData, modData, logic, place, smoking, fire, ledger)

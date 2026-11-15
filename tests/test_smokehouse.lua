@@ -10,8 +10,8 @@ dofile("42/media/lua/shared/TraditionalPreservationFishMeat.lua")
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatSmokehouse.lua")
 local F = TraditionalPreservationFishMeat
 
--- Hot smoking (5c): the cook's hours by the heaviest piece, and the two counters against the Firebox's record.
-local Hearth = require "TraditionalPreservationCore/Hearth"
+-- Hot smoking (5c): the cook's hours by the heaviest piece, and the two counters against the Stone Hearth's record.
+local Fire = require "TraditionalPreservationCore/Fire"
 local Weather = require "TraditionalPreservationCore/Weather"
 local near = H.near
 check("small fish need 4 stoked hours", F.hotHours(false, 0.8) == 4 and F.hotHours(false, 1.1) == 4)
@@ -36,33 +36,33 @@ check("the heaviest cut sets the stack's need", near(stack.hotNeed, 8) and stack
 check("and the stack is this mod's", stack.smokeOwner == F.OWNER and F.ownsStack(stack) and not F.ownsStack({ smokeOwner = "TraditionalPreservationDairy" }))
 
 local fire = {}
-Hearth.logFire(fire, 100, nil, nil)
+Fire.logFire(fire, 100, nil, nil)
 F.smokeStep(stack, fire)
 check("joining takes the fire's record as it stands", stack.smokeFrom == fire.fireId and stack.lastStoked == 0)
-Hearth.logFire(fire, 101, Hearth.STOKED, 120)
-Hearth.logFire(fire, 104, Hearth.STOKED, 120)
+Fire.logFire(fire, 101, Fire.STOKED, 120)
+Fire.logFire(fire, 104, Fire.STOKED, 120)
 F.smokeStep(stack, fire)
 check("stoked hours in the session are hot", near(stack.hot, 3) and not F.hotDone(stack))
-Hearth.logFire(fire, 104.5, nil, nil)
-Hearth.logFire(fire, 105, Hearth.STOKED, 120)
-Hearth.logFire(fire, 110, Hearth.STOKED, 120)
+Fire.logFire(fire, 104.5, nil, nil)
+Fire.logFire(fire, 105, Fire.STOKED, 120)
+Fire.logFire(fire, 110, Fire.STOKED, 120)
 F.smokeStep(stack, fire)
 check("a short gap keeps the cook going", near(stack.hot, 8.5) and F.hotDone(stack))
 
 local fish = {}
 F.startSmoke(fish, pieces(1.1), false)
 F.smokeStep(fish, fire)
-Hearth.logFire(fire, 112, Hearth.STOKED, 113)
-Hearth.logFire(fire, 120, nil, nil)
+Fire.logFire(fire, 112, Fire.STOKED, 113)
+Fire.logFire(fire, 120, nil, nil)
 F.smokeStep(fish, fire)
 check("a fire that burnt out while away counts to its end", near(fish.hot, 0) and near(fish.cold, 3))
-Hearth.logFire(fire, 121, Hearth.STOKED, 140)
-Hearth.logFire(fire, 123, Hearth.BANKED, 160)
-Hearth.logFire(fire, 127, Hearth.BANKED, 160)
+Fire.logFire(fire, 121, Fire.STOKED, 140)
+Fire.logFire(fire, 123, Fire.BANKED, 160)
+Fire.logFire(fire, 127, Fire.BANKED, 160)
 F.smokeStep(fish, fire)
 check("a broken session's hours and banked hours are smoke", near(fish.hot, 0) and near(fish.cold, 3 + 2 + 4))
-Hearth.logFire(fire, 128, Hearth.STOKED, 140)
-Hearth.logFire(fire, 132, Hearth.STOKED, 140)
+Fire.logFire(fire, 128, Fire.STOKED, 140)
+Fire.logFire(fire, 132, Fire.STOKED, 140)
 F.smokeStep(fish, fire)
 check("a new session cooks from its own start", near(fish.hot, 4) and F.hotDone(fish) and near(fish.cold, 3 + 2 + 5))
 
@@ -70,10 +70,10 @@ local moved = { hotNeed = 4, hot = 2, cold = 1, smokeFrom = fire.fireId, lastSto
 F.smokeStep(moved, nil)
 check("disconnected, the hot hours become smoke", moved.hot == 0 and near(moved.cold, 3) and moved.smokeFrom == nil)
 local rebuilt = {}
-Hearth.logFire(rebuilt, 200, nil, nil)
+Fire.logFire(rebuilt, 200, nil, nil)
 local before = { hotNeed = 4, hot = 1, cold = 0, smokeFrom = fire.fireId, lastStoked = 50, lastBanked = 0 }
 F.smokeStep(before, rebuilt)
-check("a rebuilt Firebox starts the count again", before.hot == 0 and near(before.cold, 1) and before.smokeFrom == 200)
+check("a rebuilt Stone Hearth starts the count again", before.hot == 0 and near(before.cold, 1) and before.smokeFrom == 200)
 local frame = {}
 F.smokeStep(frame, fire)
 check("a stack from before 5c has no need and never counts", frame.hot == nil and not F.hotDone(frame))
@@ -85,17 +85,17 @@ local cool = {}
 F.startSmoke(cool, pieces(1.1), false)
 cool.dried, cool.stackId = 0, 0
 local bankFire = {}
-Hearth.logFire(bankFire, 300, nil, nil)
+Fire.logFire(bankFire, 300, nil, nil)
 F.smokeStep(cool, bankFire, ledger)
 check("joining with the ledger takes its totals as they stand", cool.lastClock == 0 and cool.dried == 0)
-Hearth.logFire(bankFire, 301, Hearth.BANKED, 400)
-Hearth.logFire(bankFire, 311, Hearth.BANKED, 400)
+Fire.logFire(bankFire, 301, Fire.BANKED, 400)
+Fire.logFire(bankFire, 311, Fire.BANKED, 400)
 ledger.clock, ledger.smokeCool, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 10, 5, 10, 20, 6.5
 F.smokeStep(cool, bankFire, ledger)
 check("half the hours were cool: half the banked hours are smoke", near(cool.cold, 5))
 check("banked hours dry at the banked fire's rate", near(cool.dried, 10 * 0.35))
 ledger.clock, ledger.smokeCool, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 20, 5, 20, 30, 13.5
-Hearth.logFire(bankFire, 321, Hearth.BANKED, 400)
+Fire.logFire(bankFire, 321, Fire.BANKED, 400)
 F.smokeStep(cool, bankFire, ledger)
 check("a hot spell counts none", near(cool.cold, 5) and near(cool.dried, 3.5 + 10 * 0.3))
 check("smoke by the heaviest piece: fish a day or two, a Beef 60 hours, a leg 120", F.smokeHours(false, 0.5) == 24
@@ -110,39 +110,39 @@ ledger.temperature = 25
 local warm = {}
 F.startSmoke(warm, pieces(0.3), true)
 F.smokeStep(warm, bankFire, ledger)
-Hearth.logFire(bankFire, 322, Hearth.BANKED, 400)
+Fire.logFire(bankFire, 322, Fire.BANKED, 400)
 F.smokeStep(warm, bankFire, ledger)
 check("with no ledger hours between, the weather now decides", warm.cold == 0)
 local burst = {}
 F.startSmoke(burst, pieces(1.1), false)
 burst.dried, burst.stackId = 0, 20
 local burstFire = {}
-Hearth.logFire(burstFire, 330, nil, nil)
+Fire.logFire(burstFire, 330, nil, nil)
 F.smokeStep(burst, burstFire, ledger)
-Hearth.logFire(burstFire, 331, Hearth.STOKED, 333)
-Hearth.logFire(burstFire, 333, Hearth.STOKED, 333)
+Fire.logFire(burstFire, 331, Fire.STOKED, 333)
+Fire.logFire(burstFire, 333, Fire.STOKED, 333)
 ledger.clock, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 22, 22, 34, 15
 F.smokeStep(burst, burstFire, ledger)
-Hearth.logFire(burstFire, 340, nil, nil)
+Fire.logFire(burstFire, 340, nil, nil)
 ledger.clock, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 29, 29, 46, 22
 F.smokeStep(burst, burstFire, ledger)
 check("a stoked burst on a hot day is no cold smoke when it breaks off", burst.hot == 0 and burst.cold == 0)
 check("but its hours dry the stack at the stoked fire's rate", near(burst.dried, 2 * ((34 - 30) - (15 - 13.5)) / 2))
 local old = { hotNeed = 4, hot = 0, cold = 0, dried = 0, smokeFrom = bankFire.fireId, lastStoked = bankFire.stokedHours or 0,
     lastBanked = bankFire.bankedHours or 0, lastClock = 29, lastSmokeCool = 5, lastDraughtCovered = 29, lastDraughtSheltered = 22 }
-Hearth.logFire(bankFire, 330, Hearth.BANKED, 400)
+Fire.logFire(bankFire, 330, Fire.BANKED, 400)
 ledger.clock, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 38, 38, 55, 28
 F.smokeStep(old, bankFire, ledger)
 check("a stack's first look starts its warm totals, gaining nothing yet", old.dried == 0
     and old.lastDraughtBanked == 38 and old.lastDraughtStoked == 55)
 
-check("a stack by a burning fire knows how it burns", cool.burning == Hearth.BANKED)
+check("a stack by a burning fire knows how it burns", cool.burning == Fire.BANKED)
 local rates = { shelteredRate = 0.4, bankedRate = 0.6, stokedRate = 0.9, charqueShelteredRate = 0.3, charqueBankedRate = 0.5,
     charqueStokedRate = 0.8 }
-check("banked, its Drying Rate is the banked fire's", near(F.stackStatus(false, { place = "Enclosed", burning = Hearth.BANKED, dried = 0 }, rates).rate, 0.6)
-    and near(F.charqueStatus({ place = "Enclosed", burning = Hearth.BANKED, dried = 0 }, rates).rate, 0.5))
-check("stoked, the stoked fire's", near(F.stackStatus(false, { place = "Enclosed", burning = Hearth.STOKED, dried = 0 }, rates).rate, 0.9)
-    and near(F.charqueStatus({ place = "Enclosed", burning = Hearth.STOKED, dried = 0 }, rates).rate, 0.8))
+check("banked, its Drying Rate is the banked fire's", near(F.stackStatus(false, { place = "Enclosed", burning = Fire.BANKED, dried = 0 }, rates).rate, 0.6)
+    and near(F.charqueStatus({ place = "Enclosed", burning = Fire.BANKED, dried = 0 }, rates).rate, 0.5))
+check("stoked, the stoked fire's", near(F.stackStatus(false, { place = "Enclosed", burning = Fire.STOKED, dried = 0 }, rates).rate, 0.9)
+    and near(F.charqueStatus({ place = "Enclosed", burning = Fire.STOKED, dried = 0 }, rates).rate, 0.8))
 check("a stack saved burning before reads banked", near(F.stackStatus(false, { place = "Enclosed", burning = true, dried = 0 }, rates).rate, 0.6))
 check("with the fire out, Sheltered's", near(F.stackStatus(false, { place = "Enclosed", dried = 0 }, rates).rate, 0.4))
 
@@ -246,15 +246,15 @@ corned.dried, corned.spoiled, corned.stackId = 0, 0, 0
 corned.lastDryCure, corned.lastUnderCure, corned.lastSaltSpoil = 0, 0, 0
 corned.place = "Enclosed"
 local shedFire = {}
-Hearth.logFire(shedFire, 500, nil, nil)
+Fire.logFire(shedFire, 500, nil, nil)
 F.smokeStep(corned, shedFire, shed)
 F.advance(shed, 24, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
 F.charqueStep(corned, shed)
 F.smokeStep(corned, shedFire, shed)
 check("with the fire out it dries at the frost rate", near(corned.dried, 24 * 0.25))
 check("and spoils as at 0 C", near(corned.underSpoiled, 24 * F.underCureRate(0)))
-Hearth.logFire(shedFire, 501, Hearth.BANKED, 600)
-Hearth.logFire(shedFire, 525, Hearth.BANKED, 600)
+Fire.logFire(shedFire, 501, Fire.BANKED, 600)
+Fire.logFire(shedFire, 525, Fire.BANKED, 600)
 F.advance(shed, 48, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
 F.charqueStep(corned, shed)
 F.smokeStep(corned, shedFire, shed)
@@ -490,7 +490,7 @@ bird.dried, bird.spoiled, bird.stackId, bird.place = 0, 0, 1, "Enclosed"
 bird.lastDryCure, bird.lastUnderCure, bird.lastSaltSpoil = 0, 0, 0
 bird.lastHotOnlyUnder = 0
 local birdFire = {}
-Hearth.logFire(birdFire, 800, nil, nil)
+Fire.logFire(birdFire, 800, nil, nil)
 F.smokeStep(bird, birdFire, birdShed)
 F.advance(birdShed, 24, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
 F.charqueStep(bird, birdShed)
@@ -508,21 +508,21 @@ F.advance(warmShed, 24, { temperature = 20, humidity = 0.3, precipitation = 0, w
 F.charqueStep(warmBird, warmShed)
 check("at 20 C the shed's rate is faster than the floor: rotten in about 2.4 days", near(warmBird.underSpoiled, 24 * F.underCureRate(20) * F.HOT_ONLY_UNDER_RATE)
     and near(1 / (F.underCureRate(20) * F.HOT_ONLY_UNDER_RATE) / 24, 2.4))
-Hearth.logFire(birdFire, 801, Hearth.STOKED, 900)
-Hearth.logFire(birdFire, 805, Hearth.BANKED, 900)
+Fire.logFire(birdFire, 801, Fire.STOKED, 900)
+Fire.logFire(birdFire, 805, Fire.BANKED, 900)
 F.advance(birdShed, 4, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
 F.smokeStep(bird, birdFire, birdShed)
 check("stoked, it still doesn't dry", bird.dried == 0 and near(bird.hot, 4) and not F.hotDone(bird))
-Hearth.logFire(birdFire, 807, Hearth.BANKED, 900)
-Hearth.logFire(birdFire, 808, Hearth.STOKED, 900)
-Hearth.logFire(birdFire, 815, Hearth.STOKED, 900)
+Fire.logFire(birdFire, 807, Fire.BANKED, 900)
+Fire.logFire(birdFire, 808, Fire.STOKED, 900)
+Fire.logFire(birdFire, 815, Fire.STOKED, 900)
 F.smokeStep(bird, birdFire, birdShed)
 check("a broken run starts again, and seven stoked hours in a row cook it", near(bird.hot, 7) and F.hotDone(bird))
 check("its outcome is always the cook, named by the cut", F.stackOutcome({ place = "Enclosed", hotOnly = true, hotNeed = 7, hot = 0 },
     list(cut(10), cut(15)), "meat") == "ChickenWhole (Hot Smoked), Rabbitmeat (Hot Smoked)")
 check("or Rotten", F.stackOutcome({ place = "Enclosed", hotOnly = true, allUnder = true, underSpoiled = 1 }, list(cut(7)), "meat") == "Rotten")
 local waiting = F.charqueStatus({ hotOnly = true, hotNeed = 7, hot = 0, underSpoiled = 0.2 }, { temperature = 5 })
-local cooking = F.charqueStatus({ hotOnly = true, hotNeed = 7, hot = 3.5, burning = Hearth.STOKED }, { temperature = 5 })
+local cooking = F.charqueStatus({ hotOnly = true, hotNeed = 7, hot = 3.5, burning = Fire.STOKED }, { temperature = 5 })
 check("its popup waits for a stoked fire, then counts the cook", waiting.hotOnly and waiting.reason == "NeedsStoking"
     and waiting.progress == 0 and near(waiting.spoiled, 0.2) and waiting.underSalted and not waiting.dryCuring
     and near(cooking.progress, 0.5) and near(cooking.hoursLeft, 3.5) and cooking.reason == nil and cooking.shedTemperature == 25)
@@ -548,11 +548,11 @@ check("each piece by its own rinse, none from a Country Cured one", near(F.under
 
 -- A leg's stoked hours are smoke at once.
 local legFire = {}
-Hearth.logFire(legFire, 700, nil, nil)
+Fire.logFire(legFire, 700, nil, nil)
 F.smokeStep(ham, legFire)
 ham.hot, ham.hotCool = 0, 0
-Hearth.logFire(legFire, 701, Hearth.STOKED, 720)
-Hearth.logFire(legFire, 705, Hearth.STOKED, 720)
+Fire.logFire(legFire, 701, Fire.STOKED, 720)
+Fire.logFire(legFire, 705, Fire.STOKED, 720)
 F.smokeStep(ham, legFire)
 check("a leg's stoked hours are smoke, not a cook", ham.hot == 0 and near(ham.cold, 4))
 

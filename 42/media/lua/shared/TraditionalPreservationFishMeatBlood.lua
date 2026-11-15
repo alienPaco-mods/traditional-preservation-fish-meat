@@ -14,7 +14,7 @@ local FluidTreat = require "TraditionalPreservationCore/FluidTreat"
 local Weather = require "TraditionalPreservationCore/Weather"
 local OnHeat = require "TraditionalPreservationCore/OnHeat"
 local Charge = require "TraditionalPreservationCore/Charge"
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local Season = require "TraditionalPreservationCore/Season"
 
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
@@ -318,7 +318,7 @@ function F.sausageStatus(modData, ledger, now)
     local state = "NoFire"
     local smoke, need = F.sausageSmoke(modData)
     if modData.sausage == "pork" then
-        if modData.burning == Hearth.STOKED then
+        if modData.burning == Fire.STOKED then
             state = "Cooking"
         elseif modData.burning then
             state = "Banked"

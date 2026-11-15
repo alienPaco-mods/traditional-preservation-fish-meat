@@ -1,4 +1,4 @@
--- Traditional Preservation (Fish & Meat): what its stacks do in the Smokehouse. The chamber, joining the Firebox and
+-- Traditional Preservation (Fish & Meat): what its stacks do in the Smokehouse. The chamber, joining the Stone Hearth and
 -- the fire's two counters are TP Core's (Smokehouse.lua, moved there 2026-11-13); this is the fish and meat's side:
 -- each stack's needs, its drying by the fire's warmth, and what comes out. Only stacks this mod hung are stepped
 -- here (F.OWNER): another mod's cheese in the same shed is its own.
@@ -16,8 +16,8 @@ function F.ownsStack(modData)
     return Smokehouse.owns(modData, F.OWNER)
 end
 
--- Hot smoking (ROADMAP §7, 5c). A salt stack (Salt Cured fish, or charque) in a chamber joined to a Firebox counts the
--- Firebox's fire on two counters: hot, the hours of the stoked session now running (TP Core's Hearth.logFire), and
+-- Hot smoking (ROADMAP §7, 5c). A salt stack (Salt Cured fish, or charque) in a chamber joined to a Stone Hearth counts the
+-- Stone Hearth's fire on two counters: hot, the hours of the stoked session now running (TP Core's Fire.logFire), and
 -- cold, banked hours and the hours of stoked sessions that broke off. Hot reaching the stack's need finishes it at
 -- once as Hot Smoked; short of that it dries on as the Smokehouse always does, and keeps cold for Cold Smoked (5d).
 -- Poultry and rabbit (hotOnly, 0.4.34) never dry: a broken run starts again, and the stack spoils until a cook ends it.
@@ -120,7 +120,7 @@ local function sinceLast(modData, ledger)
     return math.max(0, math.min(coolShare, 1)), math.max(bankedGain, 0), math.max(stokedGain, 0), underBanked, underStoked
 end
 
--- Brings a stack's counters up to the fire's record (a Firebox's Hearth state), or none (not joined): TP Core's
+-- Brings a stack's counters up to the fire's record (a Stone Hearth's fire state), or none (not joined): TP Core's
 -- Smokehouse.fireStep. With the ledger (the World's look; tests may leave it out): fire hours count as cold only on
 -- cool days, stoked or banked (user: no Cold Smoked in summer from short stoked bursts), and every hour of fire adds
 -- the warmed air's extra drying, banked or stoked, and an under-salted stack's extra spoiling.

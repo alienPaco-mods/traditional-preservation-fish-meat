@@ -61,7 +61,7 @@ check("the place and the stacks in use", valueOf(shown, "Place") == "Open air"
     and valueOf(shown, "InfoHolds") == "3 of 4 stacks, up to 15 weight each")
 check("the air now and over the season", valueOf(shown, "InfoAir") == "22 C now, 19 C over the season")
 check("wind and wetness in the open", valueOf(shown, "Wind") == "Good drying wind" and valueOf(shown, "InfoWetness") == "0%")
-check("no Firebox line off the Smokehouse", valueOf(shown, "InfoFire") == nil)
+check("no Stone Hearth line off the Smokehouse", valueOf(shown, "InfoFire") == nil)
 check("a bar for each batch", #shown.bars == 2 and shown.bars[1].text == "1. Salt fish" and shown.bars[2].text == "2. Stockfish")
 check("the salt stack's share and time left", H.near(shown.bars[1].share, 192 / 288) and shown.bars[1].value == "67%, 4 d 0 h left")
 check("the stockfish says why it stands still", shown.bars[2].value == "0%, Stopped (Too warm)")
@@ -104,10 +104,10 @@ check("cured pieces wait in the tub", hasNote(cured, "Cured and waiting to be ta
 -- The Smokehouse: Corned meat with a stoked run on it, and its smoke.
 local shed = F.CHAMBER_HANGER
 local cool = { temperature = 8, seasonTemperature = 6, dryCureRate = 0.7, dryCureStokedRate = 1, dryCureBankedRate = 0.9, saltSpoilOn = false }
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local smoking = Info.rows({ hanger = shed, place = "Enclosed", waiting = {}, finished = 0, finishedStacks = 0,
     batches = { batch("HangMeatToDry", { place = "Enclosed", dried = 100, spoiled = 0, underSpoiled = 0.1, cureNeed = 504,
-        underCured = true, burning = Hearth.STOKED, hot = 3, hotNeed = 8, cold = 12, smokeNeed = 60, smokeFrom = 7, smokeMeat = true }, 0.2) } },
+        underCured = true, burning = Fire.STOKED, hot = 3, hotNeed = 8, cold = 12, smokeNeed = 60, smokeFrom = 7, smokeMeat = true }, 0.2) } },
     cool, 1000, "stoked")
 check("the Smokehouse's fire", valueOf(smoking, "InfoFire") == "Stoked (hot)" and valueOf(smoking, "Wind") == nil)
 check("the Smokehouse is in a shed, by the day's air", valueOf(smoking, "Place") == "In a shed"

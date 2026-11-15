@@ -57,6 +57,6 @@ The Salting Tub cures by its place's temperature (0.4.35, full speed from 2 C), 
 
 **Typical check of the cauldron:** `TPFM.give("fat", 6)`, a lit Stone Hearth with the Forged Cauldron (`TPC.kit()`, Fit Cauldron), Put Fat in the Cauldron (Pork Fat), wait for it to steam and an hour more, Fill from the Cauldron into a pot, Strain Lard three times.
 
-**Typical check of hot smoking:** a Smokehouse with a Stone Hearth joined (`TPC.kit("smokehouse")`, `TPC.kit("firebox")`, `TPC.kit("flue")`), `TPFM.meat("all", 2, "corned")` and `TPFM.fish("Walleye", 3, "cured")`, hang one stack of each, light the Stone Hearth, `TPFM.smoke()` (a session, hot 0 of 6-8 and 4), `TPFM.stoke(8)`: within a second both come out Hot Smoked and a ham hangs by the door. For a broken run: stoke 2 h, bank it and wait over an hour: hot back to 0, Smoke 2.0 h.
+**Typical check of hot smoking:** a Smokehouse with a Stone Hearth joined (`TPC.kit("smokehouse")`, `TPC.kit("stone")`, `TPC.kit("flue")`), `TPFM.meat("all", 2, "corned")` and `TPFM.fish("Walleye", 3, "cured")`, hang one stack of each, light the Stone Hearth, `TPFM.smoke()` (a session, hot 0 of 6-8 and 4), `TPFM.stoke(8)`: within a second both come out Hot Smoked and a ham hangs by the door. For a broken run: stoke 2 h, bank it and wait over an hour: hot back to 0, Smoke 2.0 h.
 
 **Typical check of heads:** `TPFM.fish("Walleye", 1, 4)` and `TPFM.fish("Bluegill", 1, 0.9)`, then Gut Fish on both. Only the walleye gives a head.

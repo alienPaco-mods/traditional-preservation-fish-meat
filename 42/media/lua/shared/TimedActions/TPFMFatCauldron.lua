@@ -1,12 +1,12 @@
 -- Traditional Preservation (Fish & Meat): Put Fat in the Cauldron, putting pieces of raw fat from the inventory into
--- a Hearth's cauldron (TP Core's), as many as fit.
+-- a Stone Hearth's cauldron (TP Core's), as many as fit.
 require "TimedActions/ISBaseTimedAction"
 require "TraditionalPreservationFishMeatFat"
 
 TPFMFatCauldron = ISBaseTimedAction:derive("TPFMFatCauldron")
 
 local F = TraditionalPreservationFishMeat
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local Action = require "TraditionalPreservationCore/Action"
 
 local TICKS_A_PIECE = 15
@@ -22,7 +22,7 @@ end
 
 function TPFMFatCauldron:isValid()
     return self.hearth:getSquare() ~= nil and #piecesHere(self) > 0
-        and F.cauldronFatRoom(Hearth.cauldronState(self.hearth:getModData()), self.raw) > 0
+        and F.cauldronFatRoom(Fire.cauldronState(self.hearth:getModData()), self.raw) > 0
 end
 
 function TPFMFatCauldron:waitToStart()
@@ -36,7 +36,7 @@ end
 
 function TPFMFatCauldron:complete()
     -- Brought up to the minute first, so the fat mixes with the cauldron as it is now.
-    local cauldron = Hearth.cauldronOf(self.hearth)
+    local cauldron = Fire.cauldronOf(self.hearth)
     local now = getGameTime():getWorldAgeHours()
     local pieces, hoursLeft = piecesHere(self), {}
     for index, item in ipairs(pieces) do hoursLeft[index] = F.fatHoursLeft(item) end
@@ -44,7 +44,7 @@ function TPFMFatCauldron:complete()
     for index = 1, count do
         Action.removeItem(pieces[index])
     end
-    Hearth.redraw(self.hearth)
+    Fire.redraw(self.hearth)
     return count > 0
 end
 

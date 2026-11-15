@@ -145,7 +145,7 @@ module TraditionalPreservationFishMeat
         Tooltip = Tooltip_TraditionalPreservationFishMeat_Dried,
     }
 
-    /* Cold smoked in the Smokehouse (5d): salt cured fish dried in smoky air over a banked Firebox for a third of its
+    /* Cold smoked in the Smokehouse (5d): salt cured fish dried in smoky air over a banked Stone Hearth for a third of its
        time or more, as Volga smoked-dried fish. As dry as Salt Dried and keeps as long, but eaten as it is, sliced
        thin. Food from the fish (carry); the values here are placeholders. */
     item ColdSmokedFish
@@ -173,7 +173,7 @@ module TraditionalPreservationFishMeat
         Tooltip = Tooltip_TraditionalPreservationFishMeat_ColdSmoked,
     }
 
-    /* Hot smoked in the Smokehouse (5c): salt cured fish cooked through over a stoked Firebox. Moist and ready to eat,
+    /* Hot smoked in the Smokehouse (5c): salt cured fish cooked through over a stoked Stone Hearth. Moist and ready to eat,
        so it keeps a week or two, not months. Its food comes from the fish (carry); the values here are placeholders. */
     item HotSmokedFish
     {

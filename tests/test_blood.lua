@@ -229,7 +229,7 @@ check("blood sausage has no hang recipe of its own (one for both since 0.4.38)",
 H.installGetText()
 dofile("42/media/lua/shared/TraditionalPreservationFishMeat.lua")
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatSmokehouse.lua")
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local OnHeat = require "TraditionalPreservationCore/OnHeat"
 
 local OFF_AGES = { ["TraditionalPreservationFishMeat.BloodSausage"] = 7, ["TraditionalPreservationFishMeat.SmokedBloodSausage"] = 21,
@@ -295,16 +295,16 @@ check("a new stack forgets the pooled data, needs 24 h and takes no cook", stack
 check("it goes stale when its freshest link would (6 days left)", near(stack.staleAt, 100 + 6 * 24))
 
 local fire = {}
-Hearth.logFire(fire, 100, nil, nil)
+Fire.logFire(fire, 100, nil, nil)
 F.smokeStep(stack, fire)
-Hearth.logFire(fire, 101, Hearth.STOKED, 140)
-Hearth.logFire(fire, 111, Hearth.STOKED, 140)
+Fire.logFire(fire, 101, Fire.STOKED, 140)
+Fire.logFire(fire, 111, Fire.STOKED, 140)
 F.smokeStep(stack, fire)
 check("stoked hours are smoke at once, never a cook", near(stack.cold, 10) and not F.hotDone(stack))
 F.sausageSmokeStep(stack, 111)
 check("10 of 24 h: not smoked, the bar at 10/24", stack.smokedAt == nil and near(F.sausageProgress(stack, 111), 10 / 24))
-Hearth.logFire(fire, 112, Hearth.BANKED, 200)
-Hearth.logFire(fire, 132, Hearth.BANKED, 200)
+Fire.logFire(fire, 112, Fire.BANKED, 200)
+Fire.logFire(fire, 132, Fire.BANKED, 200)
 F.smokeStep(stack, fire)
 F.sausageSmokeStep(stack, 132)
 check("banked hours count too, and the smoked hour is placed within the stretch", near(stack.cold, 31)
@@ -335,7 +335,7 @@ check("with no fire the stack ends when its links have gone stale", F.sausagePro
 check("and they come down Boiled", F.smokedLink(link(F.BLOOD_SAUSAGE, 0), cold, 200 + 7 * 24, 1).fullType == F.BLOOD_SAUSAGE)
 local status = F.sausageStatus(cold, { temperature = 5 }, 200 + 24)
 check("the popup: no fire, six days left", status.state == "NoFire" and near(status.staleDays, 6) and status.need == 24)
-cold.burning = Hearth.BANKED
+cold.burning = Fire.BANKED
 check("a fire on a warm day doesn't count", F.sausageStatus(cold, { temperature = 20 }, 200).state == "TooWarm"
     and F.sausageStatus(cold, { temperature = 10 }, 200).state == "Smoking")
 check("once smoked, no stale countdown", F.sausageStatus(stack, { temperature = 5 }, now).staleDays == nil)
@@ -438,24 +438,24 @@ F.startSausageSmoke(porkStack, links(link(F.FRESH_SAUSAGE, 0.5), seasoned), 300,
 check("a pork stack needs a 6 h hot run and takes the cook", porkStack.sausage == "pork" and porkStack.hotNeed == 6
     and not porkStack.noHot and porkStack.leftover == nil and near(porkStack.staleAt, 300 + 2 * 24))
 local pfire = {}
-Hearth.logFire(pfire, 300, nil, nil)
+Fire.logFire(pfire, 300, nil, nil)
 F.smokeStep(porkStack, pfire)
-Hearth.logFire(pfire, 301, Hearth.STOKED, 340)
-Hearth.logFire(pfire, 305, Hearth.STOKED, 340)
+Fire.logFire(pfire, 301, Fire.STOKED, 340)
+Fire.logFire(pfire, 305, Fire.STOKED, 340)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 305)
 check("4 stoked hours: the bar at 4/6, cooking", near(porkStack.hot, 4) and near(F.sausageProgress(porkStack, 305), 4 / 6)
     and F.sausageStatus(porkStack, {}, 305).state == "Cooking")
-porkStack.burning = Hearth.STOKED
+porkStack.burning = Fire.STOKED
 check("the popup says cooking while stoked, banked otherwise", F.sausageStatus(porkStack, { temperature = 30 }, 305).state == "Cooking")
-porkStack.burning = Hearth.BANKED
+porkStack.burning = Fire.BANKED
 check("and a warm day doesn't matter", F.sausageStatus(porkStack, { temperature = 30 }, 305).state == "Banked")
-Hearth.logFire(pfire, 306, Hearth.BANKED, 400)
-Hearth.logFire(pfire, 310, Hearth.STOKED, 400)
+Fire.logFire(pfire, 306, Fire.BANKED, 400)
+Fire.logFire(pfire, 310, Fire.STOKED, 400)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 310)
 check("a broken run starts again from nothing", near(porkStack.hot, 0) and porkStack.smokedAt == nil)
-Hearth.logFire(pfire, 316, Hearth.STOKED, 400)
+Fire.logFire(pfire, 316, Fire.STOKED, 400)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 316)
 check("six stoked hours in a row: cooked, the hour placed in the stretch", near(porkStack.hot, 6)

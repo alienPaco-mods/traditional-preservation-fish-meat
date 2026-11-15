@@ -674,7 +674,7 @@ function TPFM.pallet()
     say("No Stockfish Pallet within 3 tiles on this floor.")
 end
 
--- The chamber tiles holding slots within 3 tiles, each with its joined Firebox (or nil).
+-- The chamber tiles holding slots within 3 tiles, each with its joined Stone Hearth (or nil).
 local function smokehouses()
     local player, found = getPlayer(), {}
     local cell, x, y, z = getCell(), math.floor(player:getX()), math.floor(player:getY()), player:getZ()
@@ -682,7 +682,7 @@ local function smokehouses()
         for dy = -3, 3 do
             local tile = Smokehouse.chamberOn(cell:getGridSquare(x + dx, y + dy, z))
             if tile and tile:getComponent(ComponentType.DryingCraftLogic) then
-                table.insert(found, { tile = tile, firebox = Smokehouse.joinedFirebox(tile) })
+                table.insert(found, { tile = tile, stoneHearth = Smokehouse.joinedStoneHearth(tile) })
             end
         end
     end
@@ -690,13 +690,13 @@ local function smokehouses()
 end
 
 function TPFM.smoke()
-    local Hearth = require "TraditionalPreservationCore/Hearth"
+    local Fire = require "TraditionalPreservationCore/Fire"
     local found = smokehouses()
     for _, shed in ipairs(found) do
-        local fire = shed.firebox and Hearth.stateOf(shed.firebox:getModData())
+        local fire = shed.stoneHearth and Fire.stateOf(shed.stoneHearth:getModData())
         say(string.format("Smokehouse at %d,%d: %s", shed.tile:getX(), shed.tile:getY(), fire and string.format(
             "fire %s, stoked %.1f h, banked %.1f h, session %s (%.1f h)", tostring(fire.fireMode), fire.stokedHours or 0,
-            fire.bankedHours or 0, fire.session and string.format("%.2f", fire.session) or "none", Hearth.sessionHours(fire))
+            fire.bankedHours or 0, fire.session and string.format("%.2f", fire.session) or "none", Fire.sessionHours(fire))
             or "no Stone Hearth joined"))
         local logic = shed.tile:getComponent(ComponentType.DryingCraftLogic)
         local items = CraftLogicUILogic.new(getPlayer(), shed.tile, logic):getItemsInProgress()
@@ -723,23 +723,23 @@ function TPFM.smoke()
 end
 
 function TPFM.stoke(hours)
-    local Hearth = require "TraditionalPreservationCore/Hearth"
+    local Fire = require "TraditionalPreservationCore/Fire"
     for _, shed in ipairs(smokehouses()) do
-        local fire = shed.firebox and Hearth.stateOf(shed.firebox:getModData())
+        local fire = shed.stoneHearth and Fire.stateOf(shed.stoneHearth:getModData())
         if fire and fire.session then
             fire.stokedHours = (fire.stokedHours or 0) + (hours or 1)
-            say(string.format("Session now %.1f h", Hearth.sessionHours(fire)))
+            say(string.format("Session now %.1f h", Fire.sessionHours(fire)))
         else
             say("No stoked session running: join a Stone Hearth and stoke it first.")
         end
     end
 end
 
--- Adds banked hours (default 6) to the joined Fireboxes' record, as if they had smouldered that long.
+-- Adds banked hours (default 6) to the joined Stone Hearths' record, as if they had smouldered that long.
 function TPFM.bank(hours)
-    local Hearth = require "TraditionalPreservationCore/Hearth"
+    local Fire = require "TraditionalPreservationCore/Fire"
     for _, shed in ipairs(smokehouses()) do
-        local fire = shed.firebox and Hearth.stateOf(shed.firebox:getModData())
+        local fire = shed.stoneHearth and Fire.stateOf(shed.stoneHearth:getModData())
         if fire then
             fire.bankedHours = (fire.bankedHours or 0) + (hours or 6)
             say(string.format("Added %.0f banked hours (the fire's record is now %.1f h in all).", hours or 6, fire.bankedHours))

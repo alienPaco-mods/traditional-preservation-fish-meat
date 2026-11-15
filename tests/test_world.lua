@@ -47,7 +47,7 @@ local function square(x, z)
     function s:getX() return x end
     function s:getY() return 0 end
     function s:getZ() return z end
-    -- Nothing else stands on it: no Firebox beside a Smokehouse.
+    -- Nothing else stands on it: no Stone Hearth beside a Smokehouse.
     function s:getObjects() return { size = function() return 0 end } end
     cellSquares[x .. ",0," .. z] = s
     return s

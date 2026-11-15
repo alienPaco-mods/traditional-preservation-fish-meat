@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.52
+Refactor with TP Core's names (2026-11-15): TP Core's `Hearth` is `Fire` and the Firebox is the Stone Hearth in the code (`Fire.isStoneHearth`, `joinedStoneHearth`, the `stone` kit); comments and docs say Stone Hearth. Nothing changes in game.
+
 ## 0.4.51
 Refactor with Vinegar's (2026-11-15): a stack or tub not yet seen by the World reads TP Core's `Weather.NEW_RUN_PLACE` (`F.placeWord`; the open air, as before). Nothing changes in game; tests and golden results unchanged.
 

@@ -4,7 +4,7 @@
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Weather = require "TraditionalPreservationCore/Weather"
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 
 -- From DryingCraftLogic, so the frame's wetness readout tells the truth.
 local RAIN_WETTING = 0.001  -- per game second, at full intensity
@@ -405,10 +405,10 @@ local function rateAt(ledger, family, place)
 end
 
 -- The rate by a burning fire in the Smokehouse, when it beats the shed's own: a stack's modData.burning holds the
--- fire's mode, Core's Hearth.STOKED or BANKED.
+-- fire's mode, Core's Fire.STOKED or BANKED.
 local function fireRate(modData, rate, stoked, banked)
     if not modData.burning then return rate end
-    return math.max(rate, (modData.burning == Hearth.STOKED and stoked or banked) or 0)
+    return math.max(rate, (modData.burning == Fire.STOKED and stoked or banked) or 0)
 end
 
 -- How a hanging stack is doing right now, for its popup. reason says why it isn't drying, and
@@ -427,7 +427,7 @@ function F.stackStatus(isCold, modData, ledger)
         rate = rateAt(ledger, "cold", place)
         if rate <= 0 and place == "Open" then reason = "Rain" end
     else
-        -- A burning Firebox warms a Smokehouse stack's air (F.smokeStep).
+        -- A burning Stone Hearth warms a Smokehouse stack's air (F.smokeStep).
         rate = rateAt(ledger, "dry", place)
         if F.sheltered(modData) then rate = fireRate(modData, rate, ledger.stokedRate, ledger.bankedRate) end
         if rate <= 0 and place == "Open" then reason = "Rain" end
@@ -475,10 +475,10 @@ end
 
 -- How a hanging charque stack is doing right now, for its popup, as stackStatus.
 function F.charqueStatus(modData, ledger)
-    -- Poultry and rabbit (0.4.34) never dry: the bar is the cook, which runs only while the Firebox is stoked.
+    -- Poultry and rabbit (0.4.34) never dry: the bar is the cook, which runs only while the Stone Hearth is stoked.
     if modData.hotOnly then
         local burning = modData.burning
-        local stoked = burning == Hearth.STOKED
+        local stoked = burning == Fire.STOKED
         return {
             progress = F.cookShare(modData) or 0,
             rate = stoked and 1 or 0,
@@ -503,7 +503,7 @@ function F.charqueStatus(modData, ledger)
         rate = rateAt(ledger, "cure", place)
         if place == "Shed" and modData.burning then
             rate = fireRate(modData, rate, ledger.dryCureStokedRate, ledger.dryCureBankedRate)
-            lift = modData.burning == Hearth.STOKED and F.STOKED_LIFT or F.BANKED_LIFT
+            lift = modData.burning == Fire.STOKED and F.STOKED_LIFT or F.BANKED_LIFT
         end
     else
         rate = rateAt(ledger, "charque", place)

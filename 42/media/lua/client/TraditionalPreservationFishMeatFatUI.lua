@@ -1,9 +1,9 @@
--- Traditional Preservation (Fish & Meat): fat in the cauldron of TP Core's Hearth. Put Fat in the Cauldron on the
--- Hearth's menu has a row for each kind of raw fat carried, and Hearth Info says how the fat in the cauldron is doing.
+-- Traditional Preservation (Fish & Meat): fat in the cauldron of TP Core's Stone Hearth. Put Fat in the Cauldron on the
+-- Stone Hearth's menu has a row for each kind of raw fat carried, and Stone Hearth Info says how the fat in the cauldron is doing.
 require "TraditionalPreservationFishMeatFat"
 require "TimedActions/TPFMFatCauldron"
 local UI = require "TraditionalPreservationCore/UI"
-local Hearth = require "TraditionalPreservationCore/Hearth"
+local Fire = require "TraditionalPreservationCore/Fire"
 local CauldronUI = require "TraditionalPreservationCore/CauldronUI"
 local F = TraditionalPreservationFishMeat
 
@@ -50,7 +50,7 @@ CauldronUI.addNotes(function(info, notes)
         elseif cauldron.fluid == fat.raw then
             local now = getGameTime():getWorldAgeHours()
             table.insert(notes, getText("IGUI_TraditionalPreservationFishMeat_FatRendering",
-                UI.hoursText(Hearth.hoursToTurn(cauldron) or 0), UI.hoursText(math.max((cauldron.offAt or now) - now, 0))))
+                UI.hoursText(Fire.hoursToTurn(cauldron) or 0), UI.hoursText(math.max((cauldron.offAt or now) - now, 0))))
         end
     end
 end)

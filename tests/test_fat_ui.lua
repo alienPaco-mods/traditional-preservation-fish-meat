@@ -1,4 +1,4 @@
--- Checks Put Fat in the Cauldron on the Hearth's menu, and the mod's Hearth Info notes, with stand-ins for the engine. Run from the mod folder:
+-- Checks Put Fat in the Cauldron on the Stone Hearth's menu, and the mod's Stone Hearth Info notes, with stand-ins for the engine. Run from the mod folder:
 -- luajit tests/test_fat_ui.lua
 local H = dofile((os.getenv("TPCORE") or "../TraditionalPreservationCore") .. "/tests/harness.lua")
 local check = H.check
@@ -18,19 +18,19 @@ end
 local ui = H.installMenus()
 AnimalPartsDefinitions = { animals = {} }
 
-local Hearth = require "TraditionalPreservationCore/Hearth"
-local HearthUI = require "TraditionalPreservationCore/HearthUI"
+local Fire = require "TraditionalPreservationCore/Fire"
+local FireUI = require "TraditionalPreservationCore/FireUI"
 require "TraditionalPreservationFishMeatFatUI"
 require "TraditionalPreservationCore/CauldronUI"
 local F = TraditionalPreservationFishMeat
 local onFillMenu = H.handlers.OnFillWorldObjectContextMenu[1]
 
 local function hearth(cauldron)
-    local modData = { [Hearth.KEY] = { [Hearth.CAULDRON] = cauldron or {} } }
+    local modData = { [Fire.KEY] = { [Fire.CAULDRON] = cauldron or {} } }
     local square = { getX = function() return 5 end, getY = function() return 5 end, getZ = function() return 0 end }
     return {
         class = "IsoFireplace",
-        getSprite = function() return { getName = function() return Hearth.sprite("Empty", 0) end } end,
+        getSprite = function() return { getName = function() return Fire.cauldronSprite("Empty", 0) end } end,
         getModData = function() return modData end,
         getSquare = function() return square end,
         getTileName = function() return "Stone Oven" end,
@@ -54,11 +54,11 @@ end
 local function open(aHearth)
     local context = H.menu()
     onFillMenu(0, context, { aHearth }, false)
-    local sub = context:getOptionFromName(getText("IGUI_CraftingWindow_TPHearth")).subOption
+    local sub = context:getOptionFromName(getText("IGUI_CraftingWindow_TPStoneHearthCauldron")).subOption
     return sub:getOptionFromName(getText("ContextMenu_TraditionalPreservationFishMeat_FatInCauldron"))
 end
 
-check("with no raw fat carried the Hearth's menu has no fat row", open(hearth()) == nil)
+check("with no raw fat carried the Stone Hearth's menu has no fat row", open(hearth()) == nil)
 local pork, pork2, suet, mutton = fat("TraditionalPreservationFishMeat.PorkFat"), fat("TraditionalPreservationFishMeat.PorkFat"),
     fat("TraditionalPreservationFishMeat.BeefSuet"), fat("TraditionalPreservationFishMeat.MuttonFat")
 ui.carried = { pork, suet, pork2, mutton, fat("TraditionalPreservationFishMeat.PorkFat", true), fat("Base.Lard") }
@@ -82,15 +82,15 @@ check("melted fat takes no raw", rows[1].notAvailable == true and rows[2].notAva
 rows = open(hearth({ ml = 500, fluid = "Water", tempC = 20 })).subOption.options
 check("nor does water", rows[1].notAvailable == true)
 
--- Hearth Info's notes: the fat in the cauldron, and the smoke note on a Stone Hearth joined to the Smokehouse
+-- Stone Hearth Info's notes: the fat in the cauldron, and the smoke note on a Stone Hearth joined to the Smokehouse
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 require "TraditionalPreservationFishMeatSmokehouseUI"
-local notes = HearthUI.notes({ spec = Hearth.attachment(Hearth.CAULDRON), part = { ml = 500, fluid = "MeltedLard", tempC = 90 }, lit = true })
+local notes = FireUI.notes({ spec = Fire.attachment(Fire.CAULDRON), part = { ml = 500, fluid = "MeltedLard", tempC = 90 }, lit = true })
 check("melted fat in the cauldron gets its note", table.concat(notes, "|"):find(getText("IGUI_TraditionalPreservationFishMeat_FatMelted"), 1, true) ~= nil)
 local smokes = getText("IGUI_TraditionalPreservationFishMeat_FlueSmokes")
-notes = HearthUI.notes({ firebox = true, lit = true, joinedSpec = { id = Smokehouse.ID }, joined = { kind = "Pipe" } })
+notes = FireUI.notes({ bare = true, lit = true, joinedSpec = { id = Smokehouse.ID }, joined = { kind = "Pipe" } })
 check("a Stone Hearth joined to the Smokehouse says what its fire does to the stacks", notes[#notes] == smokes)
-notes = HearthUI.notes({ firebox = true, lit = true })
+notes = FireUI.notes({ bare = true, lit = true })
 check("one joined to nothing doesn't", notes[#notes] ~= smokes)
 
 check("no text would make the game's formatter warn" .. (H.textWarnings[1] and " (" .. table.concat(H.textWarnings, "; ") .. ")" or ""),
