@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.62
+- **Docs** (2026-11-16): the Stone Hearth beside the Smokehouse is built of 12 Stone Blocks, 2 Clay and a trowel (TP Core 0.1.7; was 8 Clay Bricks). README only; nothing changes in game.
+
 ## 0.4.61
 - **Grain's season in the guide** (2026-11-16): the almanac and "What the base game gives" now say wheat, barley and rye are sown August to October (best in September) and take about three and a half months to ripen; were "nothing is sown after summer" and "October to January: nothing may be sown" (vanilla 42.22 `farming_vegetableconf_vegetables.lua`). Guide 1 only; nothing changes in game.
 
