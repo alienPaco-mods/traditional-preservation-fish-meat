@@ -41,17 +41,21 @@ local function withCauldron(cauldron)
     }
 end
 
-local function fat(fullType, rotten)
+local function fat(fullType, rotten, age)
     return {
         getFullType = function() return fullType end,
         isRotten = function() return rotten or false end,
         getFluidContainer = function() return nil end,
         isFavorite = function() return false end,
         hasTag = function() return false end,
-        getAge = function() return 1 end,
+        getAge = function() return age or 1 end,
         getOffAgeMax = function() return 4 end,
     }
 end
+
+-- The player the menu is for: the one whose job is queued.
+local character = { isTimedActionInstant = function() return false end }
+function getSpecificPlayer() return character end
 
 local function open(aHearth)
     local context = H.menu()
@@ -62,7 +66,7 @@ end
 
 check("with no raw fat carried the Stone Hearth's menu has no fat row", open(withCauldron()) == nil)
 local pork, pork2, suet, mutton = fat("TraditionalPreservationFishMeat.PorkFat"), fat("TraditionalPreservationFishMeat.PorkFat"),
-    fat("TraditionalPreservationFishMeat.BeefSuet"), fat("TraditionalPreservationFishMeat.MuttonFat")
+    fat("TraditionalPreservationFishMeat.BeefSuet"), fat("TraditionalPreservationFishMeat.MuttonFat", false, 3)
 ui.carried = { pork, suet, pork2, mutton, fat("TraditionalPreservationFishMeat.PorkFat", true), fat("Base.Lard") }
 local empty = withCauldron()
 local rows = open(empty).subOption.options
@@ -70,12 +74,17 @@ check("carrying both kinds gives a row each, counting the pieces and leaving rot
     and rows[1].name == getText("ContextMenu_TraditionalPreservationFishMeat_FatPieces_PorkFat", "2")
     and rows[2].name == getText("ContextMenu_TraditionalPreservationFishMeat_FatPieces_Suet", "2"))
 check("an empty cauldron takes either", not rows[1].notAvailable and not rows[2].notAvailable)
-local character = { isTimedActionInstant = function() return false end }
-rows[2].onSelect(character, unpack(rows[2].args))
+local picks = rows[2].subOption.options
+check("two pieces fit: the row opens One and All (2)", #picks == 2 and picks[1].name == getText("ContextMenu_TraditionalPreservationCore_PiecesOne")
+    and picks[2].name == getText("ContextMenu_TraditionalPreservationCore_PiecesAll", "2"))
+picks[1].onSelect(picks[1].target, unpack(picks[1].args))
 local queued = ui.queued[#ui.queued]
-check("choosing a row walks over, takes the pieces in hand and queues the job", ui.walks == 1 and #ui.moved == 2
-    and queued.Type == "TPCauldronPieces" and queued.raw == "RawSuet" and queued.pieces[1] == suet and queued.pieces[2] == mutton
-    and queued.fire == empty)
+check("One takes the piece nearest to going off", #queued.pieces == 1 and queued.pieces[1] == mutton)
+picks[2].onSelect(picks[2].target, unpack(picks[2].args))
+queued = ui.queued[#ui.queued]
+check("All walks over, takes the pieces in hand, oldest first, and queues the job", ui.walks == 2 and #ui.moved == 3
+    and queued.Type == "TPPutPieces" and queued.spec.fluid == "RawSuet" and queued.pieces[1] == mutton and queued.pieces[2] == suet
+    and queued.into.object == empty)
 rows = open(withCauldron({ ml = 500, fluid = "RawPorkFat", tempC = 20 })).subOption.options
 check("a cauldron of pork fat takes more pork fat and refuses suet with the reason", not rows[1].notAvailable and rows[2].notAvailable == true
     and rows[2].toolTip.description == getText("IGUI_TraditionalPreservationFishMeat_FatNoRoom"))

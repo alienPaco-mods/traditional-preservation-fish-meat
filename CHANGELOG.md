@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.55
+- **One or All** (2026-11-16, TP Core's `PiecesUI` and `TPPutPieces`): Put Fat in the Cauldron puts one piece (the nearest to going off) or all that fit, the oldest first; before, every piece carried went in. test_fat_ui.
+
 ## 0.4.54
 - **Console** (2026-11-16): `TPFM.crocks` and `TPFM.keep` find crocks through TP Core's `PlaceKeepingUI.near` (the same search, moved to Core so Dairy's butter shares it). Nothing changes.
 - **Potted Meat under Clarified Butter** (2026-11-15): with Dairy on, Put Meat in Fat (was Put Meat in Lard or Tallow) also takes Dairy's Clarified Butter, a block like Lard. The line is widened at load (`F.applyPottedButter`, TP Core's `Recipes.addItems`), so without Dairy nothing changes. Tooltip. test_potted. In-game step in TP Core's `TESTING_GUIDE.md` (butter).

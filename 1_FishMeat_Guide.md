@@ -630,7 +630,7 @@ Melted fat is a liquid like any other: pour several pots into a bucket and strai
 
 A pot takes two pieces. A **Forged Cauldron** fitted on a **Stone Hearth** (TP Core) takes the lot.
 
-1. Right-click the Stone Hearth (Cauldron): **Put Fat in the Cauldron**. Every piece of that kind on you or in reach goes in, rotten ones left out. Pork fat on its own; suet and mutton fat together.
+1. Right-click the Stone Hearth (Cauldron): **Put Fat in the Cauldron**, then **One** (the piece nearest to going off) or **All** of that kind on you or in reach, rotten ones left out. Pork fat on its own; suet and mutton fat together.
 2. **Light the fire.** Once the cauldron steams (85 C), the fat needs **one hour** to melt. A banked fire is too cool.
 3. **Fill from the Cauldron** into a pot, a bucket or jars: you now carry **Lard (Melted)** or **Tallow (Melted)**.
 4. **Strain** it: each half litre gives one block and one Cracklings.
