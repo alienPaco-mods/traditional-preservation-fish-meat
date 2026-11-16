@@ -1,4 +1,4 @@
-# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.59)
+# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.60)
 
 **Status: experimental.** The stations build, open and hang fish and meat in the game, but a full year hasn't been played. Back up your save before enabling.
 
@@ -116,7 +116,7 @@ The crock **keeps by place**: about 120 / 180 days in a powered fridge or at 4 C
 Vanilla bleeds a carcass into any container; here that blood is food and goes off.
 - **Amount:** 3.5 cl a kg of the animal's weight (about half its blood): a 100 kg pig 3.5 L, a 600 kg cow 20 L (vanilla gave a pig or a sheep 8 to 25 L). `F.realBlood` sets vanilla's `minBlood` / `maxBlood` as the file loads, before the game reads the table.
 - **Going off:** TP Core's `FluidAgeing`, kind `blood`, its own ledger `TraditionalPreservationFishMeatBlood`. Fresh *Animal Blood (Fresh)* (vanilla's name overridden) keeps 1 day at 20 C, 3 in a fridge, stopped frozen; then *Animal Blood (Spoiled)* (`SpoiledBlood`, mildly poisonous).
-- **Cure Blood** (Core's treat menu: *Bucket > Cure Blood > Salt (n) / Vinegar (n)*): a use per 2 L; either makes it *Animal Blood (Cured)* (`CuredBlood`), 3 days at 20 C, 7 in a fridge (its own cold curve, ledger process `bloodCured`). Cured into cured stays cured; fresh blood poured or bled in makes it fresh.
+- **Cure Blood** (Core's treat menu: *Bucket > Cure Blood > Salt (n) / Vinegar (n)*): a use per 2 L; either makes it *Animal Blood (Cured, Fresh)* (`CuredBlood`), 3 days at 20 C, 7 in a fridge (its own cold curve, ledger process `bloodCured`). Cured into cured stays cured; fresh blood poured or bled in makes it fresh.
 - **Casings:** a Raw Casings row in the butchering tables of pigs, cattle, sheep, deer and their young (`F.CASING_ROWS`, base 1, 1-2 for cattle, 0.5 young); raw 1 / 2 days. **Clean and Salt Casings** (0.5 L water, 1 salt): Salted Casings, a year.
 - **The mix:** 1 L of fresh or cured blood, a filler (12 uses of Oats or Rice, or 12 grains of Barley, Rye or Wheat, on one line charged by Core's `Charge`: `F.FILLER`), 12 uses of Lard, Tallow or raw fat, 1 salt. Anything in reach counts.
 - **Black Pudding:** **Mix Black Pudding** in a Baking or Roasting Pan, bake 60 minutes (silent), **Turn Out Black Pudding** (pan back), **Slice Black Pudding**: 6 slices of 0.25, 538 kcal, hunger 30, 5 / 10 days.
