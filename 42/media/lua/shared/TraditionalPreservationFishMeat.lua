@@ -495,9 +495,32 @@ function F.onPressUpdate(craftRecipeData)
     craftRecipeData:setElapsedTime(math.min(modData.tubDone / hours, 1) * recipeHours * SECONDS_PER_HOUR)
 end
 
+-- Why a tub or a drying station refuses an item, as translation keys (the *Refusal functions, F.mixedTub,
+-- F.mixedMeat; Fresh Sausage's in ...Sausage).
+F.REFUSALS = {
+    mixedTub = "IGUI_TraditionalPreservationFishMeat_MixedTub",
+    needsPacked = "IGUI_TraditionalPreservationFishMeat_NeedsPacked",
+    needsPressed = "IGUI_TraditionalPreservationFishMeat_NeedsPressed",
+    charqueOff = "IGUI_TraditionalPreservationFishMeat_CharqueOff",
+    sausageSmokehouse = "IGUI_TraditionalPreservationFishMeat_SausageSmokehouse",
+    sausageFried = "IGUI_TraditionalPreservationFishMeat_SausageFried",
+    countryCuredSmokehouse = "IGUI_TraditionalPreservationFishMeat_CountryCuredSmokehouse",
+    porkSmokehouse = "IGUI_TraditionalPreservationFishMeat_PorkSmokehouse",
+    hotOnlySmokehouse = "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse",
+    mixedMeat = "IGUI_TraditionalPreservationFishMeat_MixedMeat",
+    legNeedsLongCure = "IGUI_TraditionalPreservationFishMeat_LegNeedsLongCure",
+    hotOnlyShortCure = "IGUI_TraditionalPreservationFishMeat_HotOnlyShortCure",
+    frameFull = "IGUI_TraditionalPreservationFishMeat_FrameFull",
+    tooHeavy = "IGUI_TraditionalPreservationFishMeat_TooHeavy",
+    stackFull = "IGUI_TraditionalPreservationFishMeat_StackFull",
+    noColdIndoors = "IGUI_TraditionalPreservationFishMeat_NoColdIndoors",
+    freshSausageSmokehouse = "IGUI_TraditionalPreservationFishMeat_FreshSausageSmokehouse",
+    freshSausageCooked = "IGUI_TraditionalPreservationFishMeat_FreshSausageCooked",
+}
+
 -- A tub salts fish or meat, one batch at a time: what is waiting in it already sets the kind.
 function F.mixedTub(waitingType, fullType)
-    if waitingType and waitingType ~= fullType then return "IGUI_TraditionalPreservationFishMeat_MixedTub" end
+    if waitingType and waitingType ~= fullType then return F.REFUSALS.mixedTub end
     return nil
 end
 
@@ -507,13 +530,13 @@ end
 
 -- Vanilla slots take any item and leave Craft greyed out, so each station names its fish.
 function F.fishRefusal(isTub, fullType)
-    if isTub and fullType ~= F.PACKED_FISH and fullType ~= F.PACKED_MEAT then return "IGUI_TraditionalPreservationFishMeat_NeedsPacked" end
+    if isTub and fullType ~= F.PACKED_FISH and fullType ~= F.PACKED_MEAT then return F.REFUSALS.needsPacked end
     if not isTub and fullType ~= F.PRESSED_FISH and not F.COLD_FISH[fullType] and fullType ~= F.CURED_MEAT
             and fullType ~= F.BLOOD_SAUSAGE and fullType ~= F.FRESH_SAUSAGE then
-        return "IGUI_TraditionalPreservationFishMeat_NeedsPressed"
+        return F.REFUSALS.needsPressed
     end
     if fullType == F.PACKED_MEAT or fullType == F.CURED_MEAT then
-        if not F.CHARQUE_ON then return "IGUI_TraditionalPreservationFishMeat_CharqueOff" end
+        if not F.CHARQUE_ON then return F.REFUSALS.charqueOff end
     end
     return nil
 end
@@ -523,8 +546,8 @@ end
 function F.sausageRefusal(hanger, item)
     if item:getFullType() == F.FRESH_SAUSAGE then return F.freshSausageRefusal(hanger, item) end
     if item:getFullType() ~= F.BLOOD_SAUSAGE then return nil end
-    if not hanger.closed then return "IGUI_TraditionalPreservationFishMeat_SausageSmokehouse" end
-    if F.wasFried(item) then return "IGUI_TraditionalPreservationFishMeat_SausageFried" end
+    if not hanger.closed then return F.REFUSALS.sausageSmokehouse end
+    if F.wasFried(item) then return F.REFUSALS.sausageFried end
     return nil
 end
 
@@ -535,25 +558,25 @@ end
 function F.meatRefusal(hanger, place, item)
     if hanger.closed then return nil end
     if item:getFullType() == F.CURED_MEAT and item:getModData().longCure then
-        if place == "Open" then return "IGUI_TraditionalPreservationFishMeat_CountryCuredSmokehouse" end
+        if place == "Open" then return F.REFUSALS.countryCuredSmokehouse end
         return nil
     end
-    if F.isPork(item) then return "IGUI_TraditionalPreservationFishMeat_PorkSmokehouse" end
-    if F.isHotOnly(item) then return "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse" end
+    if F.isPork(item) then return F.REFUSALS.porkSmokehouse end
+    if F.isHotOnly(item) then return F.REFUSALS.hotOnlySmokehouse end
     return nil
 end
 
 -- One stack of meat is red meat or hot-smoke-only meat (poultry, rabbit), never both: they finish differently.
 function F.mixedMeat(stored, item)
     if stored:getFullType() ~= F.CURED_MEAT or item:getFullType() ~= F.CURED_MEAT then return nil end
-    if F.isHotOnly(stored) ~= F.isHotOnly(item) then return "IGUI_TraditionalPreservationFishMeat_MixedMeat" end
+    if F.isHotOnly(stored) ~= F.isHotOnly(item) then return F.REFUSALS.mixedMeat end
     return nil
 end
 
 -- Why an item can't go in a tub set to this recipe (Core's recipeRefusal): a Leg of Pork is too thick to corn.
 function F.recipeRefusal(recipeName, item)
-    if recipeName == "PressSaltedMeat" and F.isLeg(item) then return "IGUI_TraditionalPreservationFishMeat_LegNeedsLongCure" end
-    if recipeName == F.LONG_CURE_RECIPE and F.isHotOnly(item) then return "IGUI_TraditionalPreservationFishMeat_HotOnlyShortCure" end
+    if recipeName == "PressSaltedMeat" and F.isLeg(item) then return F.REFUSALS.legNeedsLongCure end
+    if recipeName == F.LONG_CURE_RECIPE and F.isHotOnly(item) then return F.REFUSALS.hotOnlyShortCure end
     return nil
 end
 
@@ -643,11 +666,11 @@ end
 -- busyStacks is what is already hanging: running stacks and finished ones not yet taken. waitingPieces is how many
 -- pieces already wait in the stack (nil counts as none).
 function F.frameRefusal(hanger, busyStacks, waitingWeight, weight, waitingPieces)
-    if busyStacks >= hanger.stacks then return "IGUI_TraditionalPreservationFishMeat_FrameFull" end
-    if weight > hanger.stackWeight then return "IGUI_TraditionalPreservationFishMeat_TooHeavy" end
+    if busyStacks >= hanger.stacks then return F.REFUSALS.frameFull end
+    if weight > hanger.stackWeight then return F.REFUSALS.tooHeavy end
     if (waitingPieces or 0) >= hanger.stackPieces
             or not F.hasRoom(hanger.stackWeight, waitingWeight, weight) then
-        return "IGUI_TraditionalPreservationFishMeat_StackFull"
+        return F.REFUSALS.stackFull
     end
     return nil
 end
@@ -655,7 +678,7 @@ end
 -- Cold drying needs moving air: a room, a basement or the Smokehouse (Enclosed; else place is Weather.placeOf's)
 -- refuses gutted fish. The Smokehouse doesn't list the recipe either.
 function F.coldRefusal(place)
-    if place ~= "Open" and place ~= "Covered" then return "IGUI_TraditionalPreservationFishMeat_NoColdIndoors" end
+    if place ~= "Open" and place ~= "Covered" then return F.REFUSALS.noColdIndoors end
     return nil
 end
 

@@ -94,7 +94,7 @@ end
 -- Only the Smokehouse takes Fresh Sausage, raw: a cooked link has had its chance.
 function F.freshSausageRefusal(hanger, item)
     if item:getFullType() ~= F.FRESH_SAUSAGE then return nil end
-    if not hanger.closed then return "IGUI_TraditionalPreservationFishMeat_FreshSausageSmokehouse" end
-    if item:isCooked() then return "IGUI_TraditionalPreservationFishMeat_FreshSausageCooked" end
+    if not hanger.closed then return F.REFUSALS.freshSausageSmokehouse end
+    if item:isCooked() then return F.REFUSALS.freshSausageCooked end
     return nil
 end

@@ -446,14 +446,38 @@ function F.stackStatus(isCold, modData, ledger)
     }
 end
 
+-- The popup's words for a hanging stack's spoilage, temperature and wind, as translation keys (F.spoilWarning,
+-- the *TemperatureWord functions, F.windWord).
+F.WORDS = {
+    spoilingWarm = "IGUI_TraditionalPreservationFishMeat_SpoilingWarm",
+    spoilingMuggy = "IGUI_TraditionalPreservationFishMeat_SpoilingMuggy",
+    spoilingSun = "IGUI_TraditionalPreservationFishMeat_SpoilingSun",
+    spoiled = "IGUI_TraditionalPreservationFishMeat_Spoiled",
+    tempTooWarm = "IGUI_TraditionalPreservationFishMeat_TempTooWarm",
+    tempMild = "IGUI_TraditionalPreservationFishMeat_TempMild",
+    tempGoodCold = "IGUI_TraditionalPreservationFishMeat_TempGoodCold",
+    tempFrost = "IGUI_TraditionalPreservationFishMeat_TempFrost",
+    tempHardFrost = "IGUI_TraditionalPreservationFishMeat_TempHardFrost",
+    tempHot = "IGUI_TraditionalPreservationFishMeat_TempHot",
+    tempGoodWarm = "IGUI_TraditionalPreservationFishMeat_TempGoodWarm",
+    tempCool = "IGUI_TraditionalPreservationFishMeat_TempCool",
+    tempHotGood = "IGUI_TraditionalPreservationFishMeat_TempHotGood",
+    tempTooCold = "IGUI_TraditionalPreservationFishMeat_TempTooCold",
+    tempGoodCure = "IGUI_TraditionalPreservationFishMeat_TempGoodCure",
+    tempFrostSlow = "IGUI_TraditionalPreservationFishMeat_TempFrostSlow",
+    windGood = "IGUI_TraditionalPreservationFishMeat_WindGood",
+    windLight = "IGUI_TraditionalPreservationFishMeat_WindLight",
+    windCalm = "IGUI_TraditionalPreservationFishMeat_WindCalm",
+}
+
 -- The popup's Spoilage line for a hanging stack's status, a translation key taking the share spoiled, or nil with
 -- nothing to say: what is spoiling it now (the season, or hot sun), else just how much has gone.
 function F.spoilWarning(status, isCold)
     if status.spoiling then
-        return isCold and "IGUI_TraditionalPreservationFishMeat_SpoilingWarm" or "IGUI_TraditionalPreservationFishMeat_SpoilingMuggy"
+        return isCold and F.WORDS.spoilingWarm or F.WORDS.spoilingMuggy
     end
-    if status.scorching then return "IGUI_TraditionalPreservationFishMeat_SpoilingSun" end
-    if status.spoiled > 0 then return "IGUI_TraditionalPreservationFishMeat_Spoiled" end
+    if status.scorching then return F.WORDS.spoilingSun end
+    if status.spoiled > 0 then return F.WORDS.spoiled end
     return nil
 end
 
@@ -461,16 +485,16 @@ end
 -- or for salt fish in the sun, too hot (exposed: no roof over it).
 function F.temperatureWord(isCold, celsius, exposed)
     if isCold then
-        if celsius > F.COLD_LIMIT then return "IGUI_TraditionalPreservationFishMeat_TempTooWarm" end
-        if celsius > F.COLD_BEST then return "IGUI_TraditionalPreservationFishMeat_TempMild" end
-        if celsius >= 0 then return "IGUI_TraditionalPreservationFishMeat_TempGoodCold" end
-        if celsius >= F.HARD_FROST then return "IGUI_TraditionalPreservationFishMeat_TempFrost" end
-        return "IGUI_TraditionalPreservationFishMeat_TempHardFrost"
+        if celsius > F.COLD_LIMIT then return F.WORDS.tempTooWarm end
+        if celsius > F.COLD_BEST then return F.WORDS.tempMild end
+        if celsius >= 0 then return F.WORDS.tempGoodCold end
+        if celsius >= F.HARD_FROST then return F.WORDS.tempFrost end
+        return F.WORDS.tempHardFrost
     end
-    if exposed and celsius > F.HEAT_ABOVE then return "IGUI_TraditionalPreservationFishMeat_TempHot" end
-    if celsius >= 20 then return "IGUI_TraditionalPreservationFishMeat_TempGoodWarm" end
-    if celsius > 0 then return "IGUI_TraditionalPreservationFishMeat_TempCool" end
-    return "IGUI_TraditionalPreservationFishMeat_TempFrost"
+    if exposed and celsius > F.HEAT_ABOVE then return F.WORDS.tempHot end
+    if celsius >= 20 then return F.WORDS.tempGoodWarm end
+    if celsius > 0 then return F.WORDS.tempCool end
+    return F.WORDS.tempFrost
 end
 
 -- How a hanging charque stack is doing right now, for its popup, as stackStatus.
@@ -531,25 +555,25 @@ end
 
 -- The popup's word for the temperature on a charque stack: hot sun is good, then warm, cool and too cold.
 function F.charqueTemperatureWord(celsius)
-    if celsius >= F.CHARQUE_FULL_HEAT then return "IGUI_TraditionalPreservationFishMeat_TempHotGood" end
-    if celsius >= 15 then return "IGUI_TraditionalPreservationFishMeat_TempGoodWarm" end
-    if celsius > 0 then return "IGUI_TraditionalPreservationFishMeat_TempCool" end
-    return "IGUI_TraditionalPreservationFishMeat_TempTooCold"
+    if celsius >= F.CHARQUE_FULL_HEAT then return F.WORDS.tempHotGood end
+    if celsius >= 15 then return F.WORDS.tempGoodWarm end
+    if celsius > 0 then return F.WORDS.tempCool end
+    return F.WORDS.tempTooCold
 end
 
 -- The popup's word for the temperature on meat in the Smokehouse: cool air is right, frost only slows it.
 function F.dryCureTemperatureWord(celsius)
-    if celsius >= F.DRY_CURE_FULL_HEAT then return "IGUI_TraditionalPreservationFishMeat_TempGoodCure" end
-    if celsius > 0 then return "IGUI_TraditionalPreservationFishMeat_TempCool" end
-    return "IGUI_TraditionalPreservationFishMeat_TempFrostSlow"
+    if celsius >= F.DRY_CURE_FULL_HEAT then return F.WORDS.tempGoodCure end
+    if celsius > 0 then return F.WORDS.tempCool end
+    return F.WORDS.tempFrostSlow
 end
 
 -- The popup's word for the wind on a cold frame: calm, a light breeze or a good drying wind.
 function F.windWord(wind)
     wind = wind or 0
-    if wind >= F.WIND_GOOD then return "IGUI_TraditionalPreservationFishMeat_WindGood" end
-    if wind >= F.WIND_GOOD / 3 then return "IGUI_TraditionalPreservationFishMeat_WindLight" end
-    return "IGUI_TraditionalPreservationFishMeat_WindCalm"
+    if wind >= F.WIND_GOOD then return F.WORDS.windGood end
+    if wind >= F.WIND_GOOD / 3 then return F.WORDS.windLight end
+    return F.WORDS.windCalm
 end
 
 -- The ledger is the mod's global ModData table itself, so its keys are the ones in every save. A new save's table

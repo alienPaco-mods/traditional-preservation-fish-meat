@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.57
+- **Refusal and status keys as constants** (2026-11-16): the keys the drying and tub rules return are `F.REFUSALS`, the popup's spoilage, temperature and wind words `F.WORDS` (TP Core's DEVGUIDE "Translation keys"). Same keys, nothing changes in game.
+
 ## 0.4.56
 - **Smash Bone left as vanilla's** (2026-11-16): a boiled bone still smashes into boiled pieces, but the mark is now passed after the hand craft (`F.onSmashBone`, on TP Core's `Handcraft`) instead of by giving vanilla's recipe an OnCreate at load (`F.hookSmashBone` is gone). Another mod that gives Smash Bone its own OnCreate no longer replaces ours or is replaced by it. test_curing.
 
