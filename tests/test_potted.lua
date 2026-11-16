@@ -242,7 +242,7 @@ ledger.seasonTemperature = 2
 check("and in a 2 C winter season (4 C inside) as a fridge", near(F.pottedRate("Sheltered", ledger), 0.5))
 ledger.seasonTemperature = -4
 check("in a frozen room it keeps as in a freezer", F.pottedRate("Sheltered", ledger) == 0)
-check("an unseen crock keeps counting where it was last seen", cellar.modData.tpfmKeep.record.place == "Basement")
+check("an unseen crock keeps counting where it was last seen", cellar.modData.tpfmKeep.fluidAge.place == "Basement")
 
 -- The first portion taken costs a third of the keeping left, once
 local opened = keptCrock()

@@ -51,10 +51,10 @@ local STACK_WEIGHTS = { frame = F.STACK_WEIGHT, medium = 15, large = 50, chamber
 -- more of them. 25 is the slot every station is built with.
 local STACK_PIECES = { frame = 25, medium = 12, large = 6, chamber = 25 }
 F.HANGERS = {}
-for name, hanger in pairs(Tiles.HANGERS) do
-    local entry = { fishSprite = hanger.fishSprite, meatSprite = hanger.meatSprite, rottenSprite = hanger.rottenSprite,
-        stacks = hanger.stacks, stackWeight = STACK_WEIGHTS[name], stackPieces = STACK_PIECES[name], closed = hanger.closed }
-    for _, base in ipairs(hanger.bases or { hanger.base }) do F.HANGERS[base] = entry end
+for name, tileHanger in pairs(Tiles.HANGERS) do
+    local hanger = { fishSprite = tileHanger.fishSprite, meatSprite = tileHanger.meatSprite, rottenSprite = tileHanger.rottenSprite,
+        stacks = tileHanger.stacks, stackWeight = STACK_WEIGHTS[name], stackPieces = STACK_PIECES[name], closed = tileHanger.closed }
+    for _, base in ipairs(tileHanger.bases or { tileHanger.base }) do F.HANGERS[base] = hanger end
 end
 F.CHAMBER_HANGER = { stacks = Smokehouse.STACKS, stackWeight = STACK_WEIGHTS.chamber, stackPieces = STACK_PIECES.chamber, closed = true }
 
@@ -154,15 +154,15 @@ F.STYLE_SALT_HALF = Tiles.STYLES.SALT_HALF
 F.SALT_STYLES = { 0, 0, 3, 4 }
 F.COLD_STYLES = { 1, 1, 2 }
 F.STYLE_MEAT = Tiles.STYLES.MEAT
--- A rotted stack shows one look a kind (0.4.21), numbered after the meat's stages: F.ROTTEN_STATE plus the kind.
-F.ROTTEN_KINDS = Tiles.ROTTEN_KINDS
-F.ROTTEN_STATE = (F.STYLE_MEAT + 1) * F.DRYING_STAGES
+-- A rotted stack shows one rotten look (0.4.21), numbered after the meat's stages: F.FIRST_ROTTEN_LOOK plus the look.
+F.ROTTEN_LOOKS = Tiles.ROTTEN_LOOKS
+F.FIRST_ROTTEN_LOOK = (F.STYLE_MEAT + 1) * F.DRYING_STAGES
 
--- The rotten look's kind for a stack's style: cold dried fish, meat, or salt fish.
-function F.rottenKind(style)
-    if style == F.STYLE_GUTTED or style == F.STYLE_HALF then return F.ROTTEN_KINDS.COLD end
-    if style == F.STYLE_MEAT then return F.ROTTEN_KINDS.MEAT end
-    return F.ROTTEN_KINDS.SALT
+-- The rotten look for a stack's style: cold dried fish, meat, or salt fish.
+function F.rottenLook(style)
+    if style == F.STYLE_GUTTED or style == F.STYLE_HALF then return F.ROTTEN_LOOKS.COLD end
+    if style == F.STYLE_MEAT then return F.ROTTEN_LOOKS.MEAT end
+    return F.ROTTEN_LOOKS.SALT
 end
 
 -- Air above DRY_AIR_HUMIDITY slows drying, down to DAMP_AIR_RATE in saturated air.
@@ -581,8 +581,8 @@ function F.recipeRefusal(recipeName, item)
 end
 
 -- What hangs in a stack: "salt" fish, "cold" fish, "meat", "sausage" (Smoked Blood Sausage) or "freshSausage"
--- (Smoked Sausage). One stack is one kind.
-function F.hangKind(fullType)
+-- (Smoked Sausage). One stack is one method.
+function F.hangMethod(fullType)
     if F.COLD_FISH[fullType] then return "cold" end
     if fullType == F.CURED_MEAT then return "meat" end
     if fullType == F.BLOOD_SAUSAGE then return "sausage" end
@@ -621,8 +621,8 @@ end
 local STATION_INDEX = {}
 for _, name in ipairs(Tiles.STATIONS) do STATION_INDEX[name] = F.spriteIndex(name) end
 
-function F.stationIndex(object)
-    local sprite = object and object:getSprite()
+function F.stationIndex(isoObject)
+    local sprite = isoObject and isoObject:getSprite()
     local name = sprite and sprite:getName()
     return name and STATION_INDEX[name]
 end
@@ -646,15 +646,15 @@ function F.hangerFor(spriteIndex)
 end
 
 -- The hanger of a station: one of this mod's, or either tile of TP Core's Smokehouse; nil for a tub or anything else.
-function F.hangerOf(object)
-    local index = F.stationIndex(object)
+function F.hangerOf(isoObject)
+    local index = F.stationIndex(isoObject)
     if index then return F.hangerFor(index) end
-    if Smokehouse.isChamber(object) then return F.CHAMBER_HANGER end
+    if Smokehouse.isChamber(isoObject) then return F.CHAMBER_HANGER end
 end
 
 -- Whether an object is one of the stations this mod works: its own, or the Smokehouse.
-function F.isStation(object)
-    return F.stationIndex(object) ~= nil or Smokehouse.isChamber(object)
+function F.isStation(isoObject)
+    return F.stationIndex(isoObject) ~= nil or Smokehouse.isChamber(isoObject)
 end
 
 -- Whether an item is this mod's to judge in the Smokehouse's slots: anything of its own module.
@@ -720,7 +720,7 @@ end
 local function startStack(craftRecipeData)
     local ledger = F.getLedger()
     local modData = craftRecipeData:getModData()
-    F.clearData(modData)
+    F.clearModData(modData)
     modData.dried = 0
     modData.spoiled = F.stackCureSpoiled(craftRecipeData:getAllInputItemsWithFlag("ItemCount"))
     modData.stackId = getGameTime():getWorldAgeHours()
@@ -730,8 +730,8 @@ end
 -- How far a stack's hot cook has come in the stoked run now counting, 0 to 1; nil with no run counting (not in a
 -- joined Smokehouse, the fire banked or out over an hour, or a leg in the stack). A broken run takes it back to nil.
 function F.cookShare(modData)
-    if not modData.hotNeed or modData.noHot or (modData.hot or 0) <= 0 then return nil end
-    return math.min(modData.hot / modData.hotNeed, 1)
+    if not modData.hotSmokeHoursNeeded or modData.noHotSmoke or (modData.hotSmokeHours or 0) <= 0 then return nil end
+    return math.min(modData.hotSmokeHours / modData.hotSmokeHoursNeeded, 1)
 end
 
 -- The stack's bar: how far it has dried, or its hot cook while that is further along (a run that breaks off drops
@@ -752,9 +752,9 @@ end
 -- What under-salting has taken from one hung piece: none from a Country Cured one; a rinsed Corned piece lost surface
 -- salt too, and spoils 1 / RINSED_KEEPING as fast (realism pass).
 function F.underLoss(piece, modData)
-    local data = piece:getModData()
-    if data.longCure then return 0 end
-    return (modData.underSpoiled or 0) * (data.rinsed and 1 / F.RINSED_KEEPING or 1)
+    local pieceModData = piece:getModData()
+    if pieceModData.longCure then return 0 end
+    return (modData.underSpoiled or 0) * (pieceModData.rinsed and 1 / F.RINSED_KEEPING or 1)
 end
 
 -- Shows a stack's progress, and ends it early if it has rotted or its hot smoking is done (the Smokehouse). A stack
@@ -986,8 +986,8 @@ function F.onCreateRinsed(craftRecipeData)
         copyFood(source, target, 1)
         target:setActualWeight(source:getActualWeight())
         target:setCustomWeight(true)
-        local targetData = target:getModData()
-        for key, value in pairs(source:getModData()) do targetData[key] = value end
+        local targetModData = target:getModData()
+        for key, field in pairs(source:getModData()) do targetModData[key] = field end
         target:setModelIndex(source:getModelIndex())
         F.rinse(target)
         target:setAge(source:getAge())
@@ -996,8 +996,8 @@ end
 
 -- The nearest sink, bathtub, barrel or well of clean water within RINSE_REACH on the character's floor with at least litres.
 function F.findWaterSource(character, litres)
-    return Station.nearAt(math.floor(character:getX()), math.floor(character:getY()), math.floor(character:getZ()), F.RINSE_REACH, function(object)
-        return object:hasWater() and not object:isTaintedWater() and object:getFluidAmount() >= litres
+    return Station.nearAt(math.floor(character:getX()), math.floor(character:getY()), math.floor(character:getZ()), F.RINSE_REACH, function(waterSource)
+        return waterSource:hasWater() and not waterSource:isTaintedWater() and waterSource:getFluidAmount() >= litres
     end)[1]
 end
 

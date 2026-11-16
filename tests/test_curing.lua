@@ -43,16 +43,16 @@ local function near(a, b) return math.abs(a - b) < 0.0001 end
 local list = H.list
 
 local function newRecipeData(time, fish, created, name)
-    local data = { modData = {}, elapsed = 0 }
-    function data:getModData() return self.modData end
-    function data:setElapsedTime(value) self.elapsed = value end
-    function data:getRecipe() return { getTime = function() return time end, getName = function() return "TraditionalPreservationFishMeat." .. (name or "PressSaltedFish") end } end
-    function data:getAllInputItemsWithFlag(flag)
+    local craftRecipeData = { modData = {}, elapsed = 0 }
+    function craftRecipeData:getModData() return self.modData end
+    function craftRecipeData:setElapsedTime(elapsedTime) self.elapsed = elapsedTime end
+    function craftRecipeData:getRecipe() return { getTime = function() return time end, getName = function() return "TraditionalPreservationFishMeat." .. (name or "PressSaltedFish") end } end
+    function craftRecipeData:getAllInputItemsWithFlag(flag)
         assert(flag == "ItemCount", "the fish input is marked with ItemCount")
         return list(fish or {})
     end
-    function data:getAllCreatedItems() return list(created or {}) end
-    return data
+    function craftRecipeData:getAllCreatedItems() return list(created or {}) end
+    return craftRecipeData
 end
 
 local function newFood(fullType, values)
@@ -63,29 +63,29 @@ local function newFood(fullType, values)
     end
     function food:getFullType() return self.fullType end
     function food:getDisplayName() return self.name or self.displayName or "Fish" end
-    function food:setTooltip(value) self.tooltip = value end
-    function food:setUnhappyChange(value) self.unhappy = value end
-    function food:setCustomWeight(value) self.customWeight = value end
+    function food:setTooltip(tooltip) self.tooltip = tooltip end
+    function food:setUnhappyChange(unhappyChange) self.unhappy = unhappyChange end
+    function food:setCustomWeight(customWeight) self.customWeight = customWeight end
     function food:isCustomWeight() return self.customWeight == true end
     function food:getModData() self.modData = self.modData or {}; return self.modData end
-    function food:setName(value) self.name = value end
-    function food:setCustomName(value) self.customName = value end
+    function food:setName(name) self.name = name end
+    function food:setCustomName(customName) self.customName = customName end
     function food:getModelIndex() return self.modelIndex or -1 end
-    function food:setModelIndex(value) self.modelIndex = value end
+    function food:setModelIndex(modelIndex) self.modelIndex = modelIndex end
     function food:hasTag(tag)
         if tag == ItemTag.SALT then return self.salt == true end
         local meat = { ["Base.Beef"] = true, ["Base.Steak"] = true, ["Base.MuttonChop"] = true, ["Base.Venison"] = true,
             ["Base.ChickenWhole"] = true, ["Base.TurkeyLegs"] = true, ["Base.Rabbitmeat"] = true }
         return tag == ItemTag.UNCUT_FISH and self.fullType:sub(1, 5) == "Base." and self.fullType ~= "Base.FishFillet" and not meat[self.fullType]
     end
-    function food:setWeight(value) self.weight = value end
+    function food:setWeight(weight) self.weight = weight end
     function food:getOffAge() return self.offAge or 120 end
     function food:getOffAgeMax() return self.offAgeMax or 180 end
-    function food:setOffAge(value) self.offAge = value end
-    function food:setOffAgeMax(value) self.offAgeMax = value end
+    function food:setOffAge(offAge) self.offAge = offAge end
+    function food:setOffAgeMax(offAgeMax) self.offAgeMax = offAgeMax end
     function food:getThirstChange() return self.thirst or 0 end
-    function food:setThirstChange(value) self.thirst = value end
-    function food:setAge(value) self.age = value end
+    function food:setThirstChange(thirstChange) self.thirst = thirstChange end
+    function food:setAge(age) self.age = age end
     function food:getAge() return self.age or 0 end
     return food
 end
@@ -547,7 +547,7 @@ local function coldStep(dried, totals, sheltered, covered)
     local ledger = T.newLedger(0)
     local modData = { dried = dried, spoiled = 0, lastCold = 0, lastRawSpoil = 0, lastRawSpoilOpen = 0, lastHardFrost = 0, lastColdWet = 0,
         place = covered and "Covered" or sheltered and "Sheltered" or nil }
-    for key, value in pairs(totals) do ledger[key] = value end
+    for key, total in pairs(totals) do ledger[key] = total end
     T.coldStep(modData, ledger)
     return modData
 end
@@ -803,17 +803,17 @@ local function checkPot(pot, minutes, bowl)
         check(pot .. " divides into " .. n .. " " .. bowl .. "s", recipe:find("Base." .. bowl .. "Clay = TraditionalPreservationFishMeat." .. pot .. ",", 1, true) ~= nil)
     end
 end
-for kind, stock in pairs(STOCKS) do
+for stockName, stock in pairs(STOCKS) do
     for index = 1, 2 do
         checkPot(stock[index], 70, "SoupBowl")
         for _, dish in ipairs({ "Soup", "Stew" }) do
             local forged = index == 2 and "Forged" or ""
-            local result = (index == 2 and "PotForged" or "PotOf") .. kind .. dish
-            checkPot(result, dish == "Soup" and 50 or 70, dish .. "Bowl")
-            local evolved = both:match("evolvedrecipe " .. kind .. dish .. forged .. "\n    {(.-)\n    }")
-            check(kind .. dish .. forged .. " turns the stock into " .. result, evolved
+            local potName = (index == 2 and "PotForged" or "PotOf") .. stockName .. dish
+            checkPot(potName, dish == "Soup" and 50 or 70, dish .. "Bowl")
+            local evolved = both:match("evolvedrecipe " .. stockName .. dish .. forged .. "\n    {(.-)\n    }")
+            check(stockName .. dish .. forged .. " turns the stock into " .. potName, evolved
                 and evolved:find("BaseItem = TraditionalPreservationFishMeat." .. stock[index] .. ",", 1, true)
-                and evolved:find("ResultItem = TraditionalPreservationFishMeat." .. result .. ",", 1, true)
+                and evolved:find("ResultItem = TraditionalPreservationFishMeat." .. potName .. ",", 1, true)
                 and evolved:find("Template = " .. dish .. ",", 1, true) and evolved:find("MaxItems = " .. stock[3] .. ",", 1, true))
         end
     end
@@ -937,10 +937,10 @@ check("six Small bones give what two Animal Bones do", near(small.values.Calorie
 -- Smashing a boiled bone gives boiled pieces
 check("Smash Bone's script is left as vanilla's", loaded["SmashBone"] == nil)
 local function smashData(input, pieces, recipeName)
-    local data = newRecipeData(0, {}, pieces)
-    function data:getAllInputItems() return list({ newFood("Base.Hammer", {}), input }) end
-    function data:getRecipe() return { getName = function() return recipeName or "SmashBone" end } end
-    return data
+    local craftRecipeData = newRecipeData(0, {}, pieces)
+    function craftRecipeData:getAllInputItems() return list({ newFood("Base.Hammer", {}), input }) end
+    function craftRecipeData:getRecipe() return { getName = function() return recipeName or "SmashBone" end } end
+    return craftRecipeData
 end
 local pieces = { newBone("Base.SmallAnimalBone"), newBone("Base.SmallAnimalBone") }
 T.onSmashBone({}, smashData(bones[1], pieces))
@@ -1048,14 +1048,14 @@ local FOODS = {
     ["Base.Rabbitmeat"] = { "Game", "Rabbit Meat" }, ["Base.Rice"] = { "Rice", "Rice" }, ["Base.Mushroom"] = { "Mushroom", "Mushroom" },
     ["Base.Pepper"] = { "NoExplicit", "Pepper" }, ["Base.Salt"] = { "NoExplicit", "Salt" },
 }
-for _, t in ipairs({ "Vegetables", "Game", "Rice", "Mushroom", "Fish" }) do H.texts["ContextMenu_FoodType_" .. t] = t end
-function isItemFood(t) return FOODS[t] ~= nil end
-function hasItemTag(t) return t == "Base.Salt" end
+for _, foodType in ipairs({ "Vegetables", "Game", "Rice", "Mushroom", "Fish" }) do H.texts["ContextMenu_FoodType_" .. foodType] = foodType end
+function isItemFood(fullType) return FOODS[fullType] ~= nil end
+function hasItemTag(fullType) return fullType == "Base.Salt" end
 ItemTag.MINOR_INGREDIENT = "minor"
-function getItemFoodType(t) return FOODS[t][1] end
-function getItemDisplayName(t) return FOODS[t][2] end
-function getItemEvolvedRecipeName(t) return FOODS[t][3] end
-local function javaList(t) return { size = function() return #t end, get = function(_, i) return t[i + 1] end } end
+function getItemFoodType(fullType) return FOODS[fullType][1] end
+function getItemDisplayName(fullType) return FOODS[fullType][2] end
+function getItemEvolvedRecipeName(fullType) return FOODS[fullType][3] end
+local function javaList(items) return { size = function() return #items end, get = function(_, i) return items[i + 1] end } end
 local recipe = { getUntranslatedName = function() return "FishHeadSoup" end }
 local function stockNamed(extras, spices)
     return T.stockName({ getExtraItems = function() return javaList(extras) end, getSpices = function() return spices and javaList(spices) end }, recipe)
@@ -1176,7 +1176,7 @@ local function saltItem(fullType, uses)
     local item = newFood(fullType, {})
     item.salt, item.uses = true, uses
     function item:getCurrentUses() return self.uses end
-    function item:setCurrentUses(value) self.uses = value end
+    function item:setCurrentUses(currentUses) self.uses = currentUses end
     function item:getWorldItem() return nil end
     return item
 end
@@ -1237,7 +1237,7 @@ check("gutted fish as gutted", T.fishStyle(newFood("TraditionalPreservationFishM
 check("halves as halves", T.fishStyle(newFood("TraditionalPreservationFishMeat.FishHalf", {})) == T.STYLE_HALF)
 check("finished salt fish from before styles stays salted", T.fishStyle(newFood("TraditionalPreservationFishMeat.SaltDriedFish", {})) == T.STYLE_SALT)
 
-local function rolled(start, data)
+local function rolled(start)
     local seen = {}
     for roll = 0, 11 do
         nextRoll = roll
@@ -1517,10 +1517,10 @@ end)()
 
     local function stack(place)
         local cured = newFood(T.CURED_MEAT, {})
-        local data = newRecipeData(T.CHARQUE_HOURS * 3600, { cured })
-        T.onCharqueStart(data)
-        data.modData.place = place == "indoors" and "Sheltered" or place == "covered" and "Covered" or nil
-        return data
+        local craftRecipeData = newRecipeData(T.CHARQUE_HOURS * 3600, { cured })
+        T.onCharqueStart(craftRecipeData)
+        craftRecipeData.modData.place = place == "indoors" and "Sheltered" or place == "covered" and "Covered" or nil
+        return craftRecipeData
     end
     local shared = T.getLedger()
     local open, covered, indoors = stack("open"), stack("covered"), stack("indoors")
@@ -1528,14 +1528,14 @@ end)()
     shared.charque, shared.charqueCovered, shared.charqueSheltered = shared.charque + 60, shared.charqueCovered + 60, shared.charqueSheltered + 30
     shared.dryCureRoom, shared.underCureRoom = shared.dryCureRoom + 20, shared.underCureRoom + 0.1
     shared.dryCure, shared.underCure = shared.dryCure + 99, shared.underCure + 0.5
-    for _, data in ipairs({ open, covered, indoors }) do T.onCharqueUpdate(data) end
+    for _, craftRecipeData in ipairs({ open, covered, indoors }) do T.onCharqueUpdate(craftRecipeData) end
     check("each place reads its own total", open.modData.dried == 60 and covered.modData.dried == 60)
     check("in a room there is no charque: Corned meat dry cures, under-salted (0.4.15)", near(indoors.modData.dried, 20)
         and near(indoors.modData.underSpoiled, 0.1) and T.dryCuring(indoors.modData) and not T.dryCuring(covered.modData)
         and near(indoors.elapsed, T.CHARQUE_HOURS * 3600 * 20 / indoors.modData.cureNeed))
     check("half way is half the bar", near(open.elapsed, T.CHARQUE_HOURS * 3600 / 2))
     shared.charqueRain = shared.charqueRain + T.CHARQUE_RAIN_HOURS
-    for _, data in ipairs({ open, covered }) do T.onCharqueUpdate(data) end
+    for _, craftRecipeData in ipairs({ open, covered }) do T.onCharqueUpdate(craftRecipeData) end
     check("a day's rain takes a tenth back on an open frame", near(open.modData.dried, 54))
     check("not under a roof", covered.modData.dried == 60)
     shared.saltSpoil = shared.saltSpoil + T.SALT_SPOIL_HOURS / 4
@@ -1552,8 +1552,8 @@ end)()
     check("hot sun is the best word", T.charqueTemperatureWord(30) == "IGUI_TraditionalPreservationFishMeat_TempHotGood"
         and T.charqueTemperatureWord(-1) == "IGUI_TraditionalPreservationFishMeat_TempTooCold")
 
-    check("one stack is one kind", T.hangKind(T.CURED_MEAT) == "meat" and T.hangKind("TraditionalPreservationFishMeat.SaltPressedFish") == "salt"
-        and T.hangKind("TraditionalPreservationFishMeat.GuttedFish") == "cold")
+    check("one stack is one kind", T.hangMethod(T.CURED_MEAT) == "meat" and T.hangMethod("TraditionalPreservationFishMeat.SaltPressedFish") == "salt"
+        and T.hangMethod("TraditionalPreservationFishMeat.GuttedFish") == "cold")
     check("cured meat waiting shows as meat", T.fishStyle(newFood(T.CURED_MEAT, {})) == T.STYLE_MEAT)
 
     local steak = newFood("Base.Steak", { Calories = 220, Proteins = 31.62, Lipids = 9.35, BaseHunger = -0.4, HungChange = -0.4, ActualWeight = 0.3 })

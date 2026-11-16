@@ -53,15 +53,15 @@ PALLET, PALLET_STACK = 712, 713
 # Charque hanging on each station (phase 3c), after the pallet so no station's tile number moves: one run of
 # stages per spot and face, numbered as the fish (fish_index with the meat's first tile).
 FRAME_MEAT, MEDIUM_MEAT, LARGE_MEAT = 716, 796, 836
-# A stack that rotted shows one look a kind (salt fish, cold dried fish, meat) on the third sheet, numbered as the fish
-# (fish_index, the kind for the stage).
+# A stack that rotted shows one rotten look (salt fish, cold dried fish, meat) on the third sheet, numbered as the fish
+# (fish_index, the look for the stage).
 FRAME_ROTTEN, MEDIUM_ROTTEN, LARGE_ROTTEN = 880, 928, 952
 # Tiles 856-869 held the Smokehouse chamber, its flue entries and the ham until it moved to TP Core (2026-11-13):
 # left empty, so no later tile number moves.
-# The filled tub holding meat (step 82): one overlay per kind and face, as TUB_FILLED is for fish (tub_meat_index).
+# The filled tub holding meat (step 82): one overlay per meat and face, as TUB_FILLED is for fish (tub_meat_index).
 TUB_MEAT = 870
 HAM_BONE = (232, 222, 196)  # a leg's bone end in the tub, as the Smokehouse's ham had it
-TUB_MEAT_KINDS = ["meat", "pork", "leg"]
+TUB_MEATS = ["meat", "pork", "leg"]
 # Raw cuts lying in the salt: the lean, its dark edge and the fat along one side.
 BURIED_CUTS = {"meat": ((148, 50, 46), (98, 30, 32), (224, 206, 182)),
                "pork": ((208, 136, 130), (158, 92, 92), (236, 222, 202))}
@@ -162,11 +162,11 @@ FRESH_MEAT = dict(colour=(140, 58, 46), strength=0.6, grains=3)
 DONE_MEAT = dict(colour=(78, 40, 26), strength=0.9, grains=0)
 # The style number the Lua gives a meat stack. It has its own tiles, so it isn't counted in FISH_STYLES.
 MEAT_STYLE = FISH_STYLES
-# A rotted stack, by kind, in ROTTEN_KINDS' order: a grey-green cast, dark soft patches and pale mould. Its tiles are
-# drawn from stage numbers past the meat's (ROTTEN_STAGE + kind), as the Lua numbers the states.
-ROTTEN_KINDS = ["SALT", "COLD", "MEAT"]
+# A rotted stack, by look, in ROTTEN_LOOKS' order: a grey-green cast, dark soft patches and pale mould. Its tiles are
+# drawn from stage numbers past the meat's (ROTTEN_STAGE + look), as the Lua numbers the looks.
+ROTTEN_LOOKS = ["SALT", "COLD", "MEAT"]
 ROTTEN_STAGE = FISH_STAGES * FISH_STYLES + FISH_STAGES
-ROTTEN_LOOKS = [((104, 110, 72), 0.72), ((116, 120, 90), 0.72), ((70, 74, 40), 0.85)]
+ROTTEN_COLOURS = [((104, 110, 72), 0.72), ((116, 120, 90), 0.72), ((70, 74, 40), 0.85)]
 ROT_SPOT, MOULD = (42, 46, 26, 255), (214, 220, 188, 255)
 ROT_PIXELS_A_SPOT = 40  # one dark patch and one fleck of mould for about this many pixels of fish
 # The vanilla meat icons hung as charque, picked at random for each spot like the fish.
@@ -285,8 +285,8 @@ for face_index, face in enumerate(FACES):
     TILE_PROPS[LARGE_BEAM + face_index] = station_props("BeamLarge", "Drying", face, "150")
     TILE_PROPS[TUB_FILLED + face_index] = [("Facing", face)]
     TILE_PROPS[TUB_WEIGHTED + face_index] = [("Facing", face)]
-    for kind in range(len(TUB_MEAT_KINDS)):
-        TILE_PROPS[TUB_MEAT + kind * len(FACES) + face_index] = [("Facing", face)]
+    for meat_index in range(len(TUB_MEATS)):
+        TILE_PROPS[TUB_MEAT + meat_index * len(FACES) + face_index] = [("Facing", face)]
     for slot in range(len(SLOTS)):
         for stage in range(FISH_STAGES * FISH_STYLES):
             TILE_PROPS[fish_index(face_index, slot, stage)] = [("Facing", face)]
@@ -300,8 +300,8 @@ for face_index, face in enumerate(FACES):
                 TILE_PROPS[fish_index(face_index, slot, stage, first, hooks)] = [("Facing", face)]
     for first, hooks in ((FRAME_ROTTEN, len(SLOTS)), (MEDIUM_ROTTEN, MEDIUM_HOOKS), (LARGE_ROTTEN, LARGE_HOOKS)):
         for slot in range(hooks):
-            for kind in range(len(ROTTEN_KINDS)):
-                TILE_PROPS[fish_index(face_index, slot, kind, first, hooks)] = [("Facing", face)]
+            for look in range(len(ROTTEN_LOOKS)):
+                TILE_PROPS[fish_index(face_index, slot, look, first, hooks)] = [("Facing", face)]
 
 
 def new_layer():
@@ -498,8 +498,8 @@ def paint_buried_leg(draw, x, y, length, angle):
     ellipse(draw, knob[0], knob[1], 1.9, 1.4, HAM_BONE + (255,))
 
 
-def tub_meat_index(kind, face_index):
-    return TUB_MEAT + TUB_MEAT_KINDS.index(kind) * len(FACES) + face_index
+def tub_meat_index(meat, face_index):
+    return TUB_MEAT + TUB_MEATS.index(meat) * len(FACES) + face_index
 
 
 def salt_layer(seed, fish=False, meat=None):
@@ -769,21 +769,21 @@ def hanging_meat(icons, face, slot, stage, scale=1.0):
     return stage_icon(hanging_icon(icons[f"Item_{name}"], turn, scale * MEAT_SCALE), colour, strength, grains, slot * 5 + stage)
 
 
-def rotten_piece(icons, face, slot, kind, scale=1.0, choices=HANGING_FISH):
-    """A rotted piece for a spot, of one of ROTTEN_KINDS: a whole fish, a gutted one or a cut of meat, the same as
+def rotten_piece(icons, face, slot, look, scale=1.0, choices=HANGING_FISH):
+    """A rotted piece for a spot, of one of ROTTEN_LOOKS: a whole fish, a gutted one or a cut of meat, the same as
     hangs there while it dries."""
-    if ROTTEN_KINDS[kind] == "MEAT":
+    if ROTTEN_LOOKS[look] == "MEAT":
         name, turn = random.Random(f"meat{face}{slot}").choice(HANGING_MEAT)
         piece = hanging_icon(icons[f"Item_{name}"], turn, scale * MEAT_SCALE)
     else:
         name, turn = random.Random(f"{face}{slot}").choice(choices)
         icon = icons[f"Item_{name}"]
-        if ROTTEN_KINDS[kind] == "COLD":
+        if ROTTEN_LOOKS[look] == "COLD":
             icon = headless_icon(icon, name)
         piece = hanging_icon(icon, turn, scale)
-    colour, amount = ROTTEN_LOOKS[kind]
+    colour, amount = ROTTEN_COLOURS[look]
     result = recolour_texture(piece, colour, amount)
-    rng = random.Random(f"rot{face}{slot}{kind}")
+    rng = random.Random(f"rot{face}{slot}{look}")
     solid = [(x, y) for x in range(result.width) for y in range(result.height) if result.getpixel((x, y))[3] > 200]
     spots = max(2, len(solid) // ROT_PIXELS_A_SPOT)
     for x, y in rng.sample(solid, min(spots, len(solid))):
@@ -797,7 +797,7 @@ def rotten_piece(icons, face, slot, kind, scale=1.0, choices=HANGING_FISH):
 
 def hanging_fish(icons, face, slot, stage, scale=1.0, choices=HANGING_FISH):
     """A fish for a spot. stage carries its style, as in the tile numbers; the meat style has a stage only, and a
-    rotted stack a kind (ROTTEN_STAGE on)."""
+    rotted stack a look (ROTTEN_STAGE on)."""
     if stage >= ROTTEN_STAGE:
         return rotten_piece(icons, face, slot, stage - ROTTEN_STAGE, scale, choices)
     if stage >= FISH_STAGES * FISH_STYLES:
@@ -1219,8 +1219,8 @@ def build_tiles(game=GAME):
     for index, face in enumerate(FACES):
         tiles[TUB + index] = paint_tub(40 + index)
         tiles[TUB_FILLED + index] = weather(shrink(salt_layer(50 + index, fish=True)), 50 + index, SALT_WEATHER)
-        for kind in TUB_MEAT_KINDS:
-            tiles[tub_meat_index(kind, index)] = weather(shrink(salt_layer(50 + index, meat=kind)), 50 + index, SALT_WEATHER)
+        for meat in TUB_MEATS:
+            tiles[tub_meat_index(meat, index)] = weather(shrink(salt_layer(50 + index, meat=meat)), 50 + index, SALT_WEATHER)
         tiles[TUB_WEIGHTED + index] = weather(shrink(paint_weighted(50 + index, face == "E", icons["Item_Boulder"].convert("RGBA"))), 60 + index, WOOD_WEATHER)
         tiles[FRAME + index] = paint_frame(face)
         for slot in range(len(SLOTS)):
@@ -1229,8 +1229,8 @@ def build_tiles(game=GAME):
             for stage in range(FISH_STAGES):
                 meat = FISH_STAGES * FISH_STYLES + stage
                 tiles[fish_index(index, slot, stage, FRAME_MEAT)] = paint_fish_tile(icons, face, slot, meat)
-            for kind in range(len(ROTTEN_KINDS)):
-                tiles[fish_index(index, slot, kind, FRAME_ROTTEN)] = paint_fish_tile(icons, face, slot, ROTTEN_STAGE + kind)
+            for look in range(len(ROTTEN_LOOKS)):
+                tiles[fish_index(index, slot, look, FRAME_ROTTEN)] = paint_fish_tile(icons, face, slot, ROTTEN_STAGE + look)
         tiles[MEDIUM_BEAM + index] = paint_medium_beam(face)
         tiles[LARGE_BEAM + index] = paint_large_beam(face)
         medium_mask = front_post_mask(face, MEDIUM_HALF_LENGTH, MEDIUM_BEAM_Z, POST_RADIUS)
@@ -1248,9 +1248,9 @@ def build_tiles(game=GAME):
         for rotten_first, hooks, size, scale, mask in ((MEDIUM_ROTTEN, medium_hooks(face), MEDIUM_HOOK_SIZE, MEDIUM_FISH_SCALE, medium_mask),
                                                        (LARGE_ROTTEN, large_hooks(face), LARGE_HOOK_SIZE, LARGE_FISH_SCALE, large_mask)):
             for slot, point in enumerate(hooks):
-                for kind in range(len(ROTTEN_KINDS)):
-                    tiles[fish_index(index, slot, kind, rotten_first, len(hooks))] = paint_hook_fish_tile(
-                        icons, face, slot, ROTTEN_STAGE + kind, point, size, scale, mask)
+                for look in range(len(ROTTEN_LOOKS)):
+                    tiles[fish_index(index, slot, look, rotten_first, len(hooks))] = paint_hook_fish_tile(
+                        icons, face, slot, ROTTEN_STAGE + look, point, size, scale, mask)
     tiles[PALLET] = pzart.extract_sprites(game / "media/texturepacks/Tiles2x.pack", {PALLET_SPRITE})[PALLET_SPRITE]
     for level, layers in enumerate(PALLET_LEVELS):
         tiles[PALLET_STACK + level] = paint_pallet_stack(icons, layers)
@@ -1273,8 +1273,8 @@ def lua_tiles():
         "TUB": TUB,
         "TUB_FILLED": TUB_FILLED,
         "TUB_WEIGHTED": TUB_WEIGHTED,
-        # The filled overlay when the tub holds meat: each kind's first tile (face S), as TUB_FILLED is for fish.
-        "TUB_MEAT": {kind: tub_meat_index(kind, 0) for kind in TUB_MEAT_KINDS},
+        # The filled overlay when the tub holds meat: each meat's first tile (face S), as TUB_FILLED is for fish.
+        "TUB_MEAT": {meat: tub_meat_index(meat, 0) for meat in TUB_MEATS},
         "FRAME": FRAME,
         # Every station that hangs fish: its first sprite, its first hanging fish sprite and its stacks.
         "HANGERS": {
@@ -1288,7 +1288,7 @@ def lua_tiles():
         "PALLET_STACKS": [tile_name(PALLET_STACK + level) for level in range(len(PALLET_LEVELS))],
         "DRYING_STAGES": FISH_STAGES,
         "STYLES": dict({name: style for style, name in enumerate(STYLE_NAMES)}, MEAT=MEAT_STYLE),
-        "ROTTEN_KINDS": {name: kind for kind, name in enumerate(ROTTEN_KINDS)},
+        "ROTTEN_LOOKS": {name: look for look, name in enumerate(ROTTEN_LOOKS)},
     }
 
 

@@ -40,10 +40,10 @@ F.realBlood(AnimalDefinitions and AnimalDefinitions.animals)
 
 -- Going off. Fresh blood keeps a day at 20 C and three in a fridge; cured with salt or vinegar
 -- (one state, Cured, whichever was stirred in) three days at 20 C and seven in a fridge. The rate
--- is 1 at 20 C, 2 at 30 C, stopped once frozen; cured blood has its own cold curve (its own ledger kind), so the
+-- is 1 at 20 C, 2 at 30 C, stopped once frozen; cured blood has its own cold curve (its own ledger process), so the
 -- fridge (4 C) is a third for fresh blood, 3/7 for cured. Blood has no soured stage: it goes straight to Spoiled
 -- Blood. Fluid names and ledger kinds are saved: never rename them once the mod is out.
-F.BLOOD_KIND = "blood"
+F.BLOOD_PROCESS = "blood"
 F.BLOOD_KEEPING = { { -1, 0 }, { 4, 1 / 3 }, { 20, 1 }, { 30, 2 } }
 F.CURED_BLOOD_KEEPING = { { -1, 0 }, { 4, 3 / 7 }, { 20, 1 }, { 30, 2 } }
 F.BLOOD_SPOIL_HOURS = 24
@@ -57,29 +57,29 @@ end
 local function curedRate(celsius)
     return Weather.curve(F.CURED_BLOOD_KEEPING, celsius)
 end
-local BLOOD_KINDS = { blood = bloodRate, bloodCured = curedRate }
+local BLOOD_PROCESSES = { blood = bloodRate, bloodCured = curedRate }
 
 -- Salt and vinegar are one treatment, Cured: cured blood mixed with cured blood stays cured, and curing it again
 -- does nothing.
 F.BLOOD_STATES = {
-    Cured = { fluids = { AnimalBlood = "CuredBlood" }, spoilHours = 72, kind = "bloodCured", rate = curedRate },
+    Cured = { fluids = { AnimalBlood = "CuredBlood" }, spoilHours = 72, process = "bloodCured", rate = curedRate },
 }
 
 function F.newBloodLedger(now)
-    return Weather.newLedger(now, BLOOD_KINDS)
+    return Weather.newLedger(now, BLOOD_PROCESSES)
 end
 
 function F.bloodLedger()
-    return Weather.fillLedger(Weather.getLedger(F.BLOOD_LEDGER_KEY, F.newBloodLedger), BLOOD_KINDS)
+    return Weather.fillLedger(Weather.getLedger(F.BLOOD_LEDGER_KEY, F.newBloodLedger), BLOOD_PROCESSES)
 end
 
 -- Adds a stretch of weather to the blood ledger (every ten minutes, from the World).
 function F.recordBlood(now, temperature)
-    Weather.advance(F.bloodLedger(), now, temperature, BLOOD_KINDS)
+    Weather.advance(F.bloodLedger(), now, temperature, BLOOD_PROCESSES)
 end
 
-F.BLOOD_SPEC = FluidAgeing.register({
-    kind = F.BLOOD_KIND,
+F.BLOOD_FLUID_KIND = FluidAgeing.register({
+    process = F.BLOOD_PROCESS,
     rate = bloodRate,
     turnHours = math.huge,
     spoilHours = F.BLOOD_SPOIL_HOURS,
@@ -103,16 +103,16 @@ F.BLOOD_TREATMENTS = {
     { name = "Cured", tag = function() return ItemTag.VINEGAR end, icon = "Item_Vinegar",
         label = "ContextMenu_TraditionalPreservationFishMeat_CureVinegar" },
 }
-F.BLOOD_SPEC.treatments = F.BLOOD_TREATMENTS
-F.BLOOD_SPEC.litresPerUse = F.BLOOD_LITRES_PER_USE
-F.BLOOD_SPEC.treatMenu = "ContextMenu_TraditionalPreservationFishMeat_CureBlood"
-F.BLOOD_SPEC.treatTooltip = "Tooltip_TraditionalPreservationFishMeat_TreatBlood"
+F.BLOOD_FLUID_KIND.treatments = F.BLOOD_TREATMENTS
+F.BLOOD_FLUID_KIND.litresPerUse = F.BLOOD_LITRES_PER_USE
+F.BLOOD_FLUID_KIND.treatMenu = "ContextMenu_TraditionalPreservationFishMeat_CureBlood"
+F.BLOOD_FLUID_KIND.treatTooltip = "Tooltip_TraditionalPreservationFishMeat_TreatBlood"
 
 -- The litres of fresh or treated blood in a container item, and of spoiled blood.
 function F.bloodIn(item)
     local container = item and item:getFluidContainer()
     if not container then return 0, 0 end
-    return FluidTreat.litresIn(container, F.BLOOD_SPEC)
+    return FluidTreat.litresIn(container, F.BLOOD_FLUID_KIND)
 end
 
 -- The filler of black pudding and blood sausage (any of them, one recipe): a quarter of a bag of oats
@@ -172,7 +172,7 @@ F.SMOKED_SAUSAGE_HOURS = 24
 -- Whether a boiled link was fried afterwards (TP Core's OnHeat ran its rename).
 function F.wasFried(item)
     local heat = item:getModData()[OnHeat.KEY]
-    return heat ~= nil and heat.done == true
+    return heat ~= nil and heat.finished == true
 end
 
 -- OnTest for HangSausageToSmoke: blood sausage boiled and never fried after; Fresh Sausage raw.
@@ -185,14 +185,14 @@ end
 -- Sets a new stack's counters from its links (an ArrayList): the Smokehouse's, and the hour its freshest link goes
 -- stale. Blood sausage takes no cook and a fixed smoke; Smoked Sausage ("pork", TraditionalPreservationFishMeatSausage.lua)
 -- a fixed hot run. modData.sausage is true for blood or "pork".
-function F.startSausageSmoke(modData, links, now, speed, kind)
+function F.startSausageSmoke(modData, links, now, speed, sausage)
     -- Recipe data is pooled with its ModData (ENGINE_NOTES): a stack mustn't inherit an old one's counters.
-    F.clearData(modData)
+    F.clearModData(modData)
     F.startSmoke(modData, links, false)
-    if kind == "pork" then
-        modData.sausage, modData.hotNeed = "pork", F.SAUSAGE_HOT_HOURS
+    if sausage == "pork" then
+        modData.sausage, modData.hotSmokeHoursNeeded = "pork", F.SAUSAGE_HOT_HOURS
     else
-        modData.sausage, modData.noHot = true, true
+        modData.sausage, modData.noHotSmoke = true, true
     end
     modData.smokeNeed = F.SMOKED_SAUSAGE_HOURS
     modData.stackId = now
@@ -211,22 +211,22 @@ Events.OnInitGlobalModData.Add(function()
         "TraditionalPreservationFishMeat")
 end)
 
--- The stack's kind is its links' (one kind to a stack, F.hangKind): Fresh Sausage takes the hot run.
-function F.sausageKind(links)
+-- The stack's sausage is its links' (one method to a stack, F.hangMethod): Fresh Sausage takes the hot run.
+function F.sausageOf(links)
     return links:size() > 0 and links:get(0):getFullType() == F.FRESH_SAUSAGE and "pork" or nil
 end
 
 function F.onSausageSmokeStart(craftRecipeData)
     local links = craftRecipeData:getAllInputItemsWithFlag("ItemCount")
     F.startSausageSmoke(craftRecipeData:getModData(), links, getGameTime():getWorldAgeHours(), FluidAgeing.foodRotSpeed(),
-        F.sausageKind(links))
+        F.sausageOf(links))
 end
 
 -- A sausage stack's smoke so far and its need: the cold counter for blood sausage, the hot run for Smoked Sausage
 -- (a broken run starts it again, F.smokeStep).
 function F.sausageSmoke(modData)
-    if modData.sausage == "pork" then return modData.hot or 0, modData.hotNeed or F.SAUSAGE_HOT_HOURS end
-    return modData.cold or 0, F.coldNeed(modData)
+    if modData.sausage == "pork" then return modData.hotSmokeHours or 0, modData.hotSmokeHoursNeeded or F.SAUSAGE_HOT_HOURS end
+    return modData.coldSmokeHours or 0, F.coldNeed(modData)
 end
 
 -- Notes the hour the smoke was done. A catch-up after time away adds many hours at once, so the hour is placed
@@ -315,20 +315,20 @@ end
 -- doing for it (a key: Smoking, TooWarm or NoFire for blood; Cooking, Banked or NoFire for Smoked Sausage, whose
 -- hot run ignores the weather), and the days its freshest link has left before it goes stale (nil once smoked).
 function F.sausageStatus(modData, ledger, now)
-    local state = "NoFire"
+    local fireEffect = "NoFire"
     local smoke, need = F.sausageSmoke(modData)
     if modData.sausage == "pork" then
         if modData.burning == Fire.STOKED then
-            state = "Cooking"
+            fireEffect = "Cooking"
         elseif modData.burning then
-            state = "Banked"
+            fireEffect = "Banked"
         end
     elseif modData.burning and (ledger.temperature or 0) > F.COLD_SMOKE_MAX then
-        state = "TooWarm"
+        fireEffect = "TooWarm"
     elseif modData.burning then
-        state = "Smoking"
+        fireEffect = "Smoking"
     end
     local staleDays = not modData.smokedAt and modData.staleAt and math.max(0, (modData.staleAt - now) / 24) or nil
     return { progress = F.sausageProgress(modData, now), cold = smoke, need = need, hot = modData.sausage == "pork",
-        state = state, staleDays = staleDays }
+        fireEffect = fireEffect, staleDays = staleDays }
 end

@@ -71,7 +71,7 @@ return {
         SALT_HALF = 4,
         MEAT = 5,
     },
-    ROTTEN_KINDS = {
+    ROTTEN_LOOKS = {
         SALT = 0,
         COLD = 1,
         MEAT = 2,

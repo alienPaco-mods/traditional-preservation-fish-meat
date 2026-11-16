@@ -53,7 +53,7 @@ end
 
 function TPFM.weather()
     local ledger = F.getLedger()
-    local function n(value) return value and string.format("%.2f", value) or "-" end
+    local function n(number) return number and string.format("%.2f", number) or "-" end
     say("Temperature now " .. n(ledger.temperature) .. " C, season (10-day average) " .. n(ledger.seasonTemperature)
         .. " C, humidity " .. n(ledger.seasonHumidity) .. ", wetness " .. n(ledger.wetness) .. " (cold frames " .. n(ledger.coldWetness) .. ")"
         .. ", wind " .. n(ledger.wind))
@@ -278,17 +278,17 @@ local function shortName(fullType)
 end
 
 -- The full types a spawn command's name stands for: one of the list by its short name, or all of it.
-local function named(list, name)
-    if name == "all" then return list end
-    for _, fullType in ipairs(list) do
+local function named(fullTypes, name)
+    if name == "all" then return fullTypes end
+    for _, fullType in ipairs(fullTypes) do
         if shortName(fullType) == name then return { fullType } end
     end
     return nil
 end
 
-local function listNames(label, list, stages)
+local function listNames(label, fullTypes, stages)
     local names = {}
-    for _, fullType in ipairs(list) do table.insert(names, shortName(fullType)) end
+    for _, fullType in ipairs(fullTypes) do table.insert(names, shortName(fullType)) end
     say(label .. ": " .. table.concat(names, ", ") .. ", or \"all\". Stages: " .. stages)
 end
 
@@ -405,15 +405,15 @@ local GIVES = {
     boneBroth = function(count) give("TraditionalPreservationFishMeat.PotOfBoneBroth", count) end,
     chickenStock = function(count) give("TraditionalPreservationFishMeat.PotOfChickenStock", count) end,
     soups = function(count)
-        for _, kind in ipairs({ "FishHead", "BoneBroth", "Chicken" }) do
-            for _, dish in ipairs({ "Soup", "Stew" }) do give("TraditionalPreservationFishMeat.PotOf" .. kind .. dish, count) end
+        for _, stock in ipairs({ "FishHead", "BoneBroth", "Chicken" }) do
+            for _, dish in ipairs({ "Soup", "Stew" }) do give("TraditionalPreservationFishMeat.PotOf" .. stock .. dish, count) end
         end
     end,
     salt = function(count) give("Base.Salt", count) end,
     fat = function(count) for _, row in ipairs(F.FAT_ROWS) do give(row.item, count) end end,
-    fatPot = function(count, state)
+    fatPot = function(count, option)
         for _, pot in ipairs(give("TraditionalPreservationFishMeat.PotOfPorkFat", count)) do
-            if state == "burnt" then pot:setBurnt(true) elseif state ~= "raw" then pot:setCooked(true) end
+            if option == "burnt" then pot:setBurnt(true) elseif option ~= "raw" then pot:setCooked(true) end
         end
     end,
     crock = function(count)
@@ -422,17 +422,17 @@ local GIVES = {
         for _, crock in ipairs(give(F.CROCK, count)) do F.fillCrock(crock, batch, "Base.ClayJarGlazed") end
     end,
 }
-GIVES.blood = function(count, state)
-    local states = { cured = { "Cured" } }
+GIVES.blood = function(count, option)
+    local treatmentsOf = { cured = { "Cured" } }
     local now = getGameTime():getWorldAgeHours()
     for _, bucket in ipairs(give("Base.Bucket", count)) do
         bucket:getFluidContainer():addFluid(FluidType.AnimalBlood, 4)
         FluidAgeing.look(bucket, now)
-        for _, treatment in ipairs(states[state] or {}) do FluidAgeing.treat(bucket, now, treatment) end
-        local record = bucket:getModData()[FluidAgeing.KEY]
-        if state == "spoiled" and record then
-            record.age = F.BLOOD_SPOIL_HOURS
-            FluidAgeing.apply(bucket:getFluidContainer(), record, F.BLOOD_SPEC)
+        for _, treatment in ipairs(treatmentsOf[option] or {}) do FluidAgeing.treat(bucket, now, treatment) end
+        local fluidAge = bucket:getModData()[FluidAgeing.KEY]
+        if option == "spoiled" and fluidAge then
+            fluidAge.age = F.BLOOD_SPOIL_HOURS
+            FluidAgeing.apply(bucket:getFluidContainer(), fluidAge, F.BLOOD_FLUID_KIND)
         end
     end
 end
@@ -440,10 +440,10 @@ GIVES.casings = function(count) give(F.CASING_ITEM, count) end
 GIVES.saltedCasings = function(count) give("TraditionalPreservationFishMeat.SaltedCasings", count) end
 GIVES.blackPudding = function(count) give("TraditionalPreservationFishMeat.BlackPudding", count) end
 -- Boiled links, cooked as the pot gives them (the Smokehouse takes only cooked ones); "stale" a day short of a week.
-GIVES.bloodSausage = function(count, state)
+GIVES.bloodSausage = function(count, option)
     for _, item in ipairs(give(F.BLOOD_SAUSAGE, count)) do
         item:setCooked(true)
-        if state == "stale" then item:setAge(item:getOffAge() - 0.1) end
+        if option == "stale" then item:setAge(item:getOffAge() - 0.1) end
     end
 end
 GIVES.smokedBloodSausage = function(count)
@@ -454,16 +454,16 @@ end
 local function seasoned()
     return { bonus = 3 * F.SEASONING_UNHAPPY, boredom = 3 * F.SEASONING_BOREDOM, spices = { "Base.Garlic", "Base.Pepper", "Base.Oregano" } }
 end
-GIVES.freshSausage = function(count, state)
+GIVES.freshSausage = function(count, option)
     for _, item in ipairs(give(F.FRESH_SAUSAGE, count)) do
-        if state == "seasoned" then Season.apply(item, seasoned()) end
-        if state == "stale" then item:setAge(item:getOffAge() - 0.1) end
+        if option == "seasoned" then Season.carryOver(item, seasoned()) end
+        if option == "stale" then item:setAge(item:getOffAge() - 0.1) end
     end
 end
-GIVES.smokedSausage = function(count, state)
+GIVES.smokedSausage = function(count, option)
     for _, item in ipairs(give(F.SMOKED_SAUSAGE, count)) do
         item:setCooked(true)
-        if state == "seasoned" then Season.apply(item, seasoned()) end
+        if option == "seasoned" then Season.carryOver(item, seasoned()) end
     end
 end
 local GIVE_NAMES = "head, stock, boneBroth, chickenStock, soups (one of each stock's soup and stew), salt, fat (one of each raw fat), fatPot (option \"burnt\" or \"raw\"), crock, blood (a Bucket of 4 L; option \"cured\" or \"spoiled\"), casings, saltedCasings, blackPudding, bloodSausage (boiled; option \"stale\": 0.1 days from stale), smokedBloodSausage, freshSausage (raw; option \"seasoned\" or \"stale\"), smokedSausage (option \"seasoned\")"
@@ -538,9 +538,9 @@ function TPFM.animals()
             end
             local bodies = there and there:getDeadBodys()
             for i = 0, bodies and bodies:size() - 1 or -1 do
-                local data = bodies:get(i):getModData()
-                if data.AnimalType then
-                    say(string.format("Carcass of a %s: %.2f L of blood left", tostring(data.AnimalType), tonumber(data.BloodQty) or 0))
+                local bodyModData = bodies:get(i):getModData()
+                if bodyModData.AnimalType then
+                    say(string.format("Carcass of a %s: %.2f L of blood left", tostring(bodyModData.AnimalType), tonumber(bodyModData.BloodQty) or 0))
                     found = found + 1
                 end
             end
@@ -550,7 +550,7 @@ function TPFM.animals()
 end
 
 -- The blood the player carries (bags included): its fluid, treatments, age against its spoiling, and place. With
--- hours, each record is first aged that many hours at the reference (20 C).
+-- hours, each fluidAge is first aged that many hours at the reference (20 C).
 function TPFM.blood(hours)
     local now = getGameTime():getWorldAgeHours()
     local items = getPlayer():getInventory():getAllEvalRecurse(function(item)
@@ -560,19 +560,19 @@ function TPFM.blood(hours)
     if items:size() == 0 then return say("You carry no blood.") end
     for i = 0, items:size() - 1 do
         local item = items:get(i)
-        local record, spec = FluidAgeing.look(item, now)
-        if record and hours then
-            record.age = record.age + hours
-            FluidAgeing.apply(item:getFluidContainer(), record, spec)
+        local fluidAge, fluidKind = FluidAgeing.look(item, now)
+        if fluidAge and hours then
+            fluidAge.age = fluidAge.age + hours
+            FluidAgeing.apply(item:getFluidContainer(), fluidAge, fluidKind)
         end
-        if not record then
-            say(item:getDisplayName() .. ": no record (blood ageing off?)")
+        if not fluidAge then
+            say(item:getDisplayName() .. ": no fluidAge (blood ageing off?)")
         else
-            local state = FluidAgeing.state(record, spec)
-            local left = FluidAgeing.hoursLeft(record, spec)
+            local state = FluidAgeing.state(fluidAge, fluidKind)
+            local left = FluidAgeing.hoursLeft(fluidAge, fluidKind)
             say(string.format("%s: %.2f L, %s, %s, age %.1f h, %s, in %s", item:getDisplayName(),
                 item:getFluidContainer():getAmount(), item:getFluidContainer():getUiName(), state and state.name or "untreated",
-                record.age, left and string.format("spoils in %.1f h at 20 C", left) or "spoiled", tostring(record.place)))
+                fluidAge.age, left and string.format("spoils in %.1f h at 20 C", left) or "spoiled", tostring(fluidAge.place)))
         end
     end
 end
@@ -621,17 +621,17 @@ function TPFM.pallet()
             local square = getCell():getGridSquare(x, y, z)
             local objects = square and square:getObjects()
             for i = 0, objects and objects:size() - 1 or -1 do
-                local object = objects:get(i)
-                if object:getSprite() and object:getSprite():getName() == Tiles.PALLET and object:getContainer() then
-                    local place = Weather.placeOf(object)
+                local isoObject = objects:get(i)
+                if isoObject:getSprite() and isoObject:getSprite():getName() == Tiles.PALLET and isoObject:getContainer() then
+                    local place = Weather.placeOf(isoObject)
                     local count, ripest = 0, 0
-                    F.eachStockfish(object:getContainer(), function(fish)
+                    F.eachStockfish(isoObject:getContainer(), function(fish)
                         count = count + 1
                         ripest = math.max(ripest, F.ripeness(fish))
                     end)
                     say(string.format("Pallet at %d,%d floor %d: %s, ripens x%.1f (%d days to ripe). Stack: %s. %d stockfish, ripest %.0f%%.",
                         x, y, z, place, F.palletSpeed(place), F.MATURE_DAYS / F.palletSpeed(place),
-                        tostring(F.palletLevel(object:getContainer()) or "none"), count, ripest * 100))
+                        tostring(F.palletLevel(isoObject:getContainer()) or "none"), count, ripest * 100))
                     return
                 end
             end
@@ -659,7 +659,7 @@ function TPFM.smoke()
     local Fire = require "TraditionalPreservationCore/Fire"
     local found = smokehouses()
     for _, shed in ipairs(found) do
-        local fire = shed.stoneHearth and Fire.stateOf(shed.stoneHearth:getModData())
+        local fire = shed.stoneHearth and Fire.fireModData(shed.stoneHearth:getModData())
         say(string.format("Smokehouse at %d,%d: %s", shed.tile:getX(), shed.tile:getY(), fire and string.format(
             "fire %s, stoked %.1f h, banked %.1f h, session %s (%.1f h)", tostring(fire.fireMode), fire.stokedHours or 0,
             fire.bankedHours or 0, fire.session and string.format("%.2f", fire.session) or "none", Fire.sessionHours(fire))
@@ -668,8 +668,8 @@ function TPFM.smoke()
         local items = CraftLogicUILogic.new(getPlayer(), shed.tile, logic):getItemsInProgress()
         for craftData, _ in pairs(items) do
             local modData = craftData:getModData()
-            say(string.format("  stack %s (heaviest piece %.2f): hot %.1f of %s h, smoke %.1f of %.1f h%s, dried %.0f h%s", tostring(modData.stackId), modData.heaviest or 0, modData.hot or 0,
-                modData.hotNeed and string.format("%.0f", modData.hotNeed) or "-", modData.cold or 0, F.coldNeed(modData),
+            say(string.format("  stack %s (heaviest piece %.2f): hot %.1f of %s h, smoke %.1f of %.1f h%s, dried %.0f h%s", tostring(modData.stackId), modData.heaviest or 0, modData.hotSmokeHours or 0,
+                modData.hotSmokeHoursNeeded and string.format("%.0f", modData.hotSmokeHoursNeeded) or "-", modData.coldSmokeHours or 0, F.coldNeed(modData),
                 F.coldDone(modData) and " (Cold Smoked)" or "", modData.dried or 0,
                 F.hotStations[modData.stackId] and ", cook done" or ""))
             if modData.sausage then
@@ -680,7 +680,7 @@ function TPFM.smoke()
                     (modData.staleAt or now) - now))
             end
             if modData.cureNeed then
-                say(string.format("    meat: dry curing needs %.0f h%s%s", modData.cureNeed, modData.noHot and ", a leg: no hot cook" or "",
+                say(string.format("    meat: dry curing needs %.0f h%s%s", modData.cureNeed, modData.noHotSmoke and ", a leg: no hot cook" or "",
                     modData.underCured and string.format(", under-salted, %.0f%% spoiled", (modData.underSpoiled or 0) * 100) or ""))
             end
         end
@@ -691,7 +691,7 @@ end
 function TPFM.stoke(hours)
     local Fire = require "TraditionalPreservationCore/Fire"
     for _, shed in ipairs(smokehouses()) do
-        local fire = shed.stoneHearth and Fire.stateOf(shed.stoneHearth:getModData())
+        local fire = shed.stoneHearth and Fire.fireModData(shed.stoneHearth:getModData())
         if fire and fire.session then
             fire.stokedHours = (fire.stokedHours or 0) + (hours or 1)
             say(string.format("Session now %.1f h", Fire.sessionHours(fire)))
@@ -705,7 +705,7 @@ end
 function TPFM.bank(hours)
     local Fire = require "TraditionalPreservationCore/Fire"
     for _, shed in ipairs(smokehouses()) do
-        local fire = shed.stoneHearth and Fire.stateOf(shed.stoneHearth:getModData())
+        local fire = shed.stoneHearth and Fire.fireModData(shed.stoneHearth:getModData())
         if fire then
             fire.bankedHours = (fire.bankedHours or 0) + (hours or 6)
             say(string.format("Added %.0f banked hours (the fire's record is now %.1f h in all).", hours or 6, fire.bankedHours))
@@ -728,9 +728,9 @@ function TPFM.addSmoke(hours)
         local logic = shed.tile:getComponent(ComponentType.DryingCraftLogic)
         for craftData, _ in pairs(CraftLogicUILogic.new(getPlayer(), shed.tile, logic):getItemsInProgress()) do
             local modData = craftData:getModData()
-            modData.cold = (modData.cold or 0) + hours
+            modData.coldSmokeHours = (modData.coldSmokeHours or 0) + hours
             stacks = stacks + 1
-            say(string.format("Stack %s: %.0f of %.0f h of smoke.", tostring(modData.stackId), modData.cold, F.coldNeed(modData)))
+            say(string.format("Stack %s: %.0f of %.0f h of smoke.", tostring(modData.stackId), modData.coldSmokeHours, F.coldNeed(modData)))
         end
     end
     if stacks == 0 then say("No stack hanging in a Smokehouse within 3 tiles.") end

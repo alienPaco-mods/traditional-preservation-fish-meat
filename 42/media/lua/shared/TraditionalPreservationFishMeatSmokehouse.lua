@@ -49,13 +49,13 @@ end
 -- for the Smokehouse; a stack with a leg never hot smokes, and one with Corned meat (no long cure) is under-salted.
 function F.startSmoke(modData, items, isMeat)
     local heaviest = 0
-    modData.noHot, modData.underCured, modData.allUnder, modData.longStack = nil, nil, isMeat or nil, nil
+    modData.noHotSmoke, modData.underCured, modData.allUnder, modData.longStack = nil, nil, isMeat or nil, nil
     modData.hotOnly, modData.underScale = nil, nil
     for i = 0, items:size() - 1 do
         local item = items:get(i)
         heaviest = math.max(heaviest, F.timingWeight(item))
         if isMeat then
-            if F.isLeg(item) then modData.noHot = true end
+            if F.isLeg(item) then modData.noHotSmoke = true end
             if F.isHotOnly(item) then modData.hotOnly = true end
             if item:getModData().longCure then
                 modData.allUnder, modData.longStack = nil, true
@@ -120,12 +120,12 @@ local function sinceLast(modData, ledger)
     return math.max(0, math.min(coolShare, 1)), math.max(bankedGain, 0), math.max(stokedGain, 0), underBanked, underStoked
 end
 
--- Brings a stack's counters up to the fire's record (a Stone Hearth's fire state), or none (not joined): TP Core's
+-- Brings a stack's counters up to the fire's modData (a Stone Hearth's fireModData), or none (not joined): TP Core's
 -- Smokehouse.fireStep. With the ledger (the World's look; tests may leave it out): fire hours count as cold only on
 -- cool days, stoked or banked (no Cold Smoked in summer from short stoked bursts), and every hour of fire adds
 -- the warmed air's extra drying, banked or stoked, and an under-salted stack's extra spoiling.
 function F.smokeStep(modData, fire, ledger)
-    if not modData.hotNeed then return end
+    if not modData.hotSmokeHoursNeeded then return end
     local coolShare, bankedGain, stokedGain, underBanked, underStoked = 1, 0, 0, 0, 0
     if ledger then
         coolShare, bankedGain, stokedGain, underBanked, underStoked = sinceLast(modData, ledger)
@@ -155,7 +155,7 @@ function F.coldNeed(modData)
 end
 
 function F.coldDone(modData)
-    return (modData.cold or 0) > 0 and modData.cold >= F.coldNeed(modData)
+    return (modData.coldSmokeHours or 0) > 0 and modData.coldSmokeHours >= F.coldNeed(modData)
 end
 
 -- Stacks whose cook is done, by stackId, with their chamber: the World sets them, the stack's OnUpdate finishes it,

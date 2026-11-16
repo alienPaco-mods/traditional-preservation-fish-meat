@@ -7,9 +7,9 @@ local CauldronUI = require "TraditionalPreservationCore/CauldronUI"
 local F = TraditionalPreservationFishMeat
 
 -- A row for each kind of raw fat (TP Core's CauldronUI.addPieces and its action).
-local kinds = {}
+local fluidRows = {}
 for _, fat in ipairs(F.CAULDRON_FATS) do
-    table.insert(kinds, { fluid = fat.raw, items = fat.items, label = function(count)
+    table.insert(fluidRows, { fluid = fat.raw, items = fat.items, label = function(count)
         return getText("ContextMenu_TraditionalPreservationFishMeat_FatPieces_" .. fat.name, tostring(count))
     end })
 end
@@ -18,13 +18,13 @@ CauldronUI.addPieces({
     icon = "Item_PorkFat",
     pieceMl = F.FAT_PIECE_ML,
     hoursLeft = F.fatHoursLeft,
-    kinds = kinds,
+    fluidRows = fluidRows,
     help = getText("IGUI_TraditionalPreservationFishMeat_FatHelp"),
     noRoom = getText("IGUI_TraditionalPreservationFishMeat_FatNoRoom"),
 })
 
-CauldronUI.addNotes(function(info, notes)
-    local cauldron = info.part
+CauldronUI.addNotes(function(fireView, notes)
+    local cauldron = fireView.part
     if (cauldron.ml or 0) <= 0 then return end
     if cauldron.fluid == F.RANCID_FAT then
         table.insert(notes, getText("IGUI_TraditionalPreservationFishMeat_FatRancid"))

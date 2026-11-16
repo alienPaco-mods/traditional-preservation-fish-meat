@@ -25,7 +25,7 @@ local function food(fullType, values, modData)
     local item = { fullType = fullType, values = values or {}, modData = modData or {} }
     for _, field in ipairs(FIELDS) do
         item["get" .. field] = function(self) return self.values[field] or 0 end
-        item["set" .. field] = function(self, value) self.values[field] = value end
+        item["set" .. field] = function(self, amount) self.values[field] = amount end
     end
     function item:getFullType() return self.fullType end
     function item:getModData() return self.modData end
@@ -103,8 +103,8 @@ local piece = food(F.DRY_CURED, { ModelIndex = 0, Age = 60, Calories = 396, Prot
 check("a dry cured Beef is four slices, a chop two, a Beef (Hot Smoked) six", F.sliceCount(piece) == 4
     and F.sliceCount(food(F.DRY_CURED, { HungChange = -0.21 })) == 2 and F.sliceCount(food(F.HOT_MEAT, { HungChange = -0.8 })) == 6
     and F.sliceCount(food(F.HOT_MEAT, { HungChange = -0.05 })) == 2)
-local data, slices = recipe(piece, "TraditionalPreservationFishMeat.DryCuredMeatSlice", F.MIN_SLICES)
-F.onCreateMeatSliced(data, character)
+local craftRecipeData, slices = recipe(piece, "TraditionalPreservationFishMeat.DryCuredMeatSlice", F.MIN_SLICES)
+F.onCreateMeatSliced(craftRecipeData, character)
 local slice = given[2]
 check("the recipe's two and two more to the character", #given == 2 and slice.fullType == "TraditionalPreservationFishMeat.DryCuredMeatSlice")
 check("four slices share the cut's food and weight", near(slice.values.Calories, 99) and near(slice.values.HungChange, -0.135)
@@ -116,8 +116,8 @@ check("half through its days, as the cut was", near(slice.values.Age, 30))
 check("stale keeps its share too", near(F.sliceAge(150, 120, 180, 60, 90), 75) and near(F.sliceAge(400, 120, 180, 60, 90), 90))
 given = {}
 local hot = food(F.HOT_MEAT, { ModelIndex = 3, Age = 3.5, HungChange = -0.8, BaseHunger = -0.8 })
-data, slices = recipe(hot, "TraditionalPreservationFishMeat.HotSmokedMeatSlice", F.MIN_SLICES)
-F.onCreateMeatSliced(data, character)
+craftRecipeData, slices = recipe(hot, "TraditionalPreservationFishMeat.HotSmokedMeatSlice", F.MIN_SLICES)
+F.onCreateMeatSliced(craftRecipeData, character)
 check("hot smoked venison: six slices of about 13", #given == 4 and slices[2].values.Name == "Venison Slice (Hot Smoked)"
     and near(slices[2].values.Age, 1.5) and near(given[4].values.HungChange, -0.8 / 6))
 
@@ -146,8 +146,8 @@ local ham = food(F.COUNTRY_HAM, { ModelIndex = 6, Age = 45, Calories = 1350, Pro
     ActualWeight = 1.25, UnhappyChange = -10, ThirstChange = 0.25 }, { agedFrom = 0 })
 local knife = food("Base.KitchenKnife")
 check("a whole ham carves, and it isn't its last", F.canCarve(ham) and not F.canCarveLast(ham) and F.canCarve(knife) and F.canCarveLast(knife))
-data, slices = recipe(ham, "TraditionalPreservationFishMeat.CountryHamSlice", F.CARVE_SLICES)
-F.onCreateCarved(data)
+craftRecipeData, slices = recipe(ham, "TraditionalPreservationFishMeat.CountryHamSlice", F.CARVE_SLICES)
+F.onCreateCarved(craftRecipeData)
 check("five slices of hunger 14 come off", #slices == 5 and near(slices[1].values.HungChange, -0.14) and near(slices[5].values.Calories, 1350 / 15)
     and near(slices[1].values.ActualWeight, 1.25 / 15) and slices[1].values.Name == "Smoked Country Ham Slice" and not slices[1].modData.aged)
 check("the ham stays, lighter", near(ham.values.HungChange, -1.4) and ham.values.BaseHunger == -2.1 and near(ham.values.Calories, 900)
@@ -156,8 +156,8 @@ check("a slice starts a quarter through its 90 days, as the ham is through its 1
 F.onCreateCarved((recipe(ham, "TraditionalPreservationFishMeat.CountryHamSlice", F.CARVE_SLICES)))
 check("after two carvings the next is the last", near(ham.values.HungChange, -0.7) and not F.canCarve(ham) and F.canCarveLast(ham))
 ham:setAge(100)
-data, slices = recipe(ham, "TraditionalPreservationFishMeat.CountryHamSlice", F.CARVE_SLICES)
-F.onCreateLastCarved(data)
+craftRecipeData, slices = recipe(ham, "TraditionalPreservationFishMeat.CountryHamSlice", F.CARVE_SLICES)
+F.onCreateLastCarved(craftRecipeData)
 check("the last carving takes it all, Aged by now", near(slices[1].values.HungChange, -0.14)
     and slices[1].values.Name == "Smoked Country Ham Slice (Aged)"
     and near(slices[1].values.UnhappyChange, F.AGED_HAM_UNHAPPY / 15) and near(slices[1].values.BoredomChange, F.AGED_HAM_BOREDOM / 15))
@@ -182,8 +182,8 @@ end
 -- The engine reads UnhappyChange and BoredomChange as whole numbers: a fraction fails the whole script load.
 local fractions = {}
 for _, path in ipairs({ "42/media/scripts/TraditionalPreservationFishMeat_Meat.txt", "42/media/scripts/TraditionalPreservationFishMeat.txt" }) do
-    for field, value in io.open(path):read("*a"):gmatch("(%a+Change) = (-?[%d.]+),") do
-        if (field == "UnhappyChange" or field == "BoredomChange") and value:find(".", 1, true) then table.insert(fractions, field .. " " .. value) end
+    for field, number in io.open(path):read("*a"):gmatch("(%a+Change) = (-?[%d.]+),") do
+        if (field == "UnhappyChange" or field == "BoredomChange") and number:find(".", 1, true) then table.insert(fractions, field .. " " .. number) end
     end
 end
 check("no script gives a fraction of mood " .. table.concat(fractions, ", "), #fractions == 0)

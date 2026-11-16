@@ -32,7 +32,7 @@ local function pieces(...)
 end
 local stack = {}
 F.startSmoke(stack, pieces(0.3, 0.5, 0.4), true)
-check("the heaviest cut sets the stack's need", near(stack.hotNeed, 8) and stack.hot == 0 and stack.cold == 0)
+check("the heaviest cut sets the stack's need", near(stack.hotSmokeHoursNeeded, 8) and stack.hotSmokeHours == 0 and stack.coldSmokeHours == 0)
 check("and the stack is this mod's", stack.smokeOwner == F.OWNER and F.ownsStack(stack) and not F.ownsStack({ smokeOwner = "TraditionalPreservationDairy" }))
 
 local fire = {}
@@ -42,12 +42,12 @@ check("joining takes the fire's record as it stands", stack.smokeFrom == fire.fi
 Fire.logFire(fire, 101, Fire.STOKED, 120)
 Fire.logFire(fire, 104, Fire.STOKED, 120)
 F.smokeStep(stack, fire)
-check("stoked hours in the session are hot", near(stack.hot, 3) and not F.hotDone(stack))
+check("stoked hours in the session are hot", near(stack.hotSmokeHours, 3) and not F.hotDone(stack))
 Fire.logFire(fire, 104.5, nil, nil)
 Fire.logFire(fire, 105, Fire.STOKED, 120)
 Fire.logFire(fire, 110, Fire.STOKED, 120)
 F.smokeStep(stack, fire)
-check("a short gap keeps the cook going", near(stack.hot, 8.5) and F.hotDone(stack))
+check("a short gap keeps the cook going", near(stack.hotSmokeHours, 8.5) and F.hotDone(stack))
 
 local fish = {}
 F.startSmoke(fish, pieces(1.1), false)
@@ -55,28 +55,28 @@ F.smokeStep(fish, fire)
 Fire.logFire(fire, 112, Fire.STOKED, 113)
 Fire.logFire(fire, 120, nil, nil)
 F.smokeStep(fish, fire)
-check("a fire that burnt out while away counts to its end", near(fish.hot, 0) and near(fish.cold, 3))
+check("a fire that burnt out while away counts to its end", near(fish.hotSmokeHours, 0) and near(fish.coldSmokeHours, 3))
 Fire.logFire(fire, 121, Fire.STOKED, 140)
 Fire.logFire(fire, 123, Fire.BANKED, 160)
 Fire.logFire(fire, 127, Fire.BANKED, 160)
 F.smokeStep(fish, fire)
-check("a broken session's hours and banked hours are smoke", near(fish.hot, 0) and near(fish.cold, 3 + 2 + 4))
+check("a broken session's hours and banked hours are smoke", near(fish.hotSmokeHours, 0) and near(fish.coldSmokeHours, 3 + 2 + 4))
 Fire.logFire(fire, 128, Fire.STOKED, 140)
 Fire.logFire(fire, 132, Fire.STOKED, 140)
 F.smokeStep(fish, fire)
-check("a new session cooks from its own start", near(fish.hot, 4) and F.hotDone(fish) and near(fish.cold, 3 + 2 + 5))
+check("a new session cooks from its own start", near(fish.hotSmokeHours, 4) and F.hotDone(fish) and near(fish.coldSmokeHours, 3 + 2 + 5))
 
-local moved = { hotNeed = 4, hot = 2, cold = 1, smokeFrom = fire.fireId, lastStoked = fire.stokedHours, lastBanked = fire.bankedHours }
+local moved = { hotSmokeHoursNeeded = 4, hotSmokeHours = 2, coldSmokeHours = 1, smokeFrom = fire.fireId, lastStoked = fire.stokedHours, lastBanked = fire.bankedHours }
 F.smokeStep(moved, nil)
-check("disconnected, the hot hours become smoke", moved.hot == 0 and near(moved.cold, 3) and moved.smokeFrom == nil)
+check("disconnected, the hot hours become smoke", moved.hotSmokeHours == 0 and near(moved.coldSmokeHours, 3) and moved.smokeFrom == nil)
 local rebuilt = {}
 Fire.logFire(rebuilt, 200, nil, nil)
-local before = { hotNeed = 4, hot = 1, cold = 0, smokeFrom = fire.fireId, lastStoked = 50, lastBanked = 0 }
+local before = { hotSmokeHoursNeeded = 4, hotSmokeHours = 1, coldSmokeHours = 0, smokeFrom = fire.fireId, lastStoked = 50, lastBanked = 0 }
 F.smokeStep(before, rebuilt)
-check("a rebuilt Stone Hearth starts the count again", before.hot == 0 and near(before.cold, 1) and before.smokeFrom == 200)
+check("a rebuilt Stone Hearth starts the count again", before.hotSmokeHours == 0 and near(before.coldSmokeHours, 1) and before.smokeFrom == 200)
 local frame = {}
 F.smokeStep(frame, fire)
-check("a stack from before 5c has no need and never counts", frame.hot == nil and not F.hotDone(frame))
+check("a stack from before 5c has no need and never counts", frame.hotSmokeHours == nil and not F.hotDone(frame))
 -- Cold smoke (5d): banked hours count on cool days only, by the ledger's share of cool hours since the last look;
 -- every hour of fire dries in the fire's warmed air; a third of the clock hours in smoke makes it Cold Smoked.
 local ledger = { clock = 0, smokeCool = 0, smokeBanked = 0, smokeStoked = 0, sheltered = 0, charqueBanked = 0, charqueStoked = 0,
@@ -92,27 +92,27 @@ Fire.logFire(bankFire, 301, Fire.BANKED, 400)
 Fire.logFire(bankFire, 311, Fire.BANKED, 400)
 ledger.clock, ledger.smokeCool, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 10, 5, 10, 20, 6.5
 F.smokeStep(cool, bankFire, ledger)
-check("half the hours were cool: half the banked hours are smoke", near(cool.cold, 5))
+check("half the hours were cool: half the banked hours are smoke", near(cool.coldSmokeHours, 5))
 check("banked hours dry at the banked fire's rate", near(cool.dried, 10 * 0.35))
 ledger.clock, ledger.smokeCool, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 20, 5, 20, 30, 13.5
 Fire.logFire(bankFire, 321, Fire.BANKED, 400)
 F.smokeStep(cool, bankFire, ledger)
-check("a hot spell counts none", near(cool.cold, 5) and near(cool.dried, 3.5 + 10 * 0.3))
+check("a hot spell counts none", near(cool.coldSmokeHours, 5) and near(cool.dried, 3.5 + 10 * 0.3))
 check("smoke by the heaviest piece: fish a day or two, a Beef 60 hours, a leg 120", F.smokeHours(false, 0.5) == 24
     and F.smokeHours(false, 2.2) == 48 and near(F.smokeHours(false, 1.65), 36) and F.smokeHours(true, 0.3) == 60
     and F.smokeHours(true, 0.45) == 60 and near(F.smokeHours(true, 1.35), 90) and F.smokeHours(true, 2.25) == 120 and F.smokeHours(true, 4) == 120)
 check("a small fish stack needs 24 hours of smoke, however long it hangs", cool.smokeNeed == 24 and F.coldNeed(cool) == 24 and not F.coldDone(cool))
-cool.cold = 24
+cool.coldSmokeHours = 24
 check("with them it is Cold Smoked", F.coldDone(cool))
-cool.cold = 5
-check("no smoke, never Cold Smoked", not F.coldDone({ cold = 0, heaviest = 1 }))
+cool.coldSmokeHours = 5
+check("no smoke, never Cold Smoked", not F.coldDone({ coldSmokeHours = 0, heaviest = 1 }))
 ledger.temperature = 25
 local warm = {}
 F.startSmoke(warm, pieces(0.3), true)
 F.smokeStep(warm, bankFire, ledger)
 Fire.logFire(bankFire, 322, Fire.BANKED, 400)
 F.smokeStep(warm, bankFire, ledger)
-check("with no ledger hours between, the weather now decides", warm.cold == 0)
+check("with no ledger hours between, the weather now decides", warm.coldSmokeHours == 0)
 local burst = {}
 F.startSmoke(burst, pieces(1.1), false)
 burst.dried, burst.stackId = 0, 20
@@ -126,9 +126,9 @@ F.smokeStep(burst, burstFire, ledger)
 Fire.logFire(burstFire, 340, nil, nil)
 ledger.clock, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 29, 29, 46, 22
 F.smokeStep(burst, burstFire, ledger)
-check("a stoked burst on a hot day is no cold smoke when it breaks off", burst.hot == 0 and burst.cold == 0)
+check("a stoked burst on a hot day is no cold smoke when it breaks off", burst.hotSmokeHours == 0 and burst.coldSmokeHours == 0)
 check("but its hours dry the stack at the stoked fire's rate", near(burst.dried, 2 * ((34 - 30) - (15 - 13.5)) / 2))
-local old = { hotNeed = 4, hot = 0, cold = 0, dried = 0, smokeFrom = bankFire.fireId, lastStoked = bankFire.stokedHours or 0,
+local old = { hotSmokeHoursNeeded = 4, hotSmokeHours = 0, coldSmokeHours = 0, dried = 0, smokeFrom = bankFire.fireId, lastStoked = bankFire.stokedHours or 0,
     lastBanked = bankFire.bankedHours or 0, lastClock = 29, lastSmokeCool = 5, lastDraughtCovered = 29, lastDraughtSheltered = 22 }
 Fire.logFire(bankFire, 330, Fire.BANKED, 400)
 ledger.clock, ledger.smokeBanked, ledger.smokeStoked, ledger.sheltered = 38, 38, 55, 28
@@ -163,13 +163,13 @@ check("the ledger keeps the warmed totals", near(warmLedger.smokeBanked, 10)
     and warmLedger.charqueBanked < warmLedger.charqueStoked)
 
 -- The bar and the badge follow the hot cook while a stoked run counts.
-check("no run counting: no cook share", F.cookShare({ hotNeed = 6, hot = 0 }) == nil and F.cookShare({ dried = 5 }) == nil)
-check("a leg's stack never cooks", F.cookShare({ hotNeed = 6, hot = 3, noHot = true }) == nil)
-check("half way through the cook", near(F.cookShare({ hotNeed = 6, hot = 3 }), 0.5))
-check("the bar shows the cook when it is ahead of the drying", near(F.stackProgress({ dried = 10, hotNeed = 6, hot = 3 }, 288), 0.5))
-check("the drying when that is ahead", near(F.stackProgress({ dried = 200, hotNeed = 6, hot = 1 }, 288), 200 / 288))
-check("a broken run drops the bar back to the drying", near(F.stackProgress({ dried = 10, hotNeed = 6, hot = 0 }, 288), 10 / 288))
-check("the cook never ends the stack by the bar alone", F.stackProgress({ dried = 10, hotNeed = 6, hot = 6 }, 288) == F.SHED_WAIT)
+check("no run counting: no cook share", F.cookShare({ hotSmokeHoursNeeded = 6, hotSmokeHours = 0 }) == nil and F.cookShare({ dried = 5 }) == nil)
+check("a leg's stack never cooks", F.cookShare({ hotSmokeHoursNeeded = 6, hotSmokeHours = 3, noHotSmoke = true }) == nil)
+check("half way through the cook", near(F.cookShare({ hotSmokeHoursNeeded = 6, hotSmokeHours = 3 }), 0.5))
+check("the bar shows the cook when it is ahead of the drying", near(F.stackProgress({ dried = 10, hotSmokeHoursNeeded = 6, hotSmokeHours = 3 }, 288), 0.5))
+check("the drying when that is ahead", near(F.stackProgress({ dried = 200, hotSmokeHoursNeeded = 6, hotSmokeHours = 1 }, 288), 200 / 288))
+check("a broken run drops the bar back to the drying", near(F.stackProgress({ dried = 10, hotSmokeHoursNeeded = 6, hotSmokeHours = 0 }, 288), 10 / 288))
+check("the cook never ends the stack by the bar alone", F.stackProgress({ dried = 10, hotSmokeHoursNeeded = 6, hotSmokeHours = 6 }, 288) == F.SHED_WAIT)
 
 -- Dry Cured meat is named by the animal its cut came from.
 local function meatItem(index)
@@ -200,16 +200,16 @@ check("Country Cured beef under a roof is Beef (Dry Cured), a leg Country Ham",
     F.stackOutcome({ dried = 0, longStack = true, cureNeed = 504 }, list(hung(0, true), hung(F.LEG_INDEX, true)), "meat") == "Beef (Dry Cured), Country Ham")
 check("Corned mutton in a room dry cures", F.stackOutcome({ place = "Sheltered", dried = 0, cureNeed = 504 }, list(hung(2)), "meat") == "Mutton (Dry Cured)")
 check("in the Smokehouse with a stoked run counting: Hot Smoked, pork vanilla's Ham",
-    F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, hotNeed = 6, hot = 2 }, list(hung(3), hung(4)), "meat") == "Venison (Hot Smoked), Ham")
-check("with its hours of smoke: Beef (Cold Smoked)", F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, smokeNeed = 60, cold = 60 }, list(hung(1, true)), "meat") == "Beef (Cold Smoked)")
-check("short of them: Beef (Dry Cured)", F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, smokeNeed = 60, cold = 20 }, list(hung(1, true)), "meat") == "Beef (Dry Cured)")
+    F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, hotSmokeHoursNeeded = 6, hotSmokeHours = 2 }, list(hung(3), hung(4)), "meat") == "Venison (Hot Smoked), Ham")
+check("with its hours of smoke: Beef (Cold Smoked)", F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, smokeNeed = 60, coldSmokeHours = 60 }, list(hung(1, true)), "meat") == "Beef (Cold Smoked)")
+check("short of them: Beef (Dry Cured)", F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, smokeNeed = 60, coldSmokeHours = 20 }, list(hung(1, true)), "meat") == "Beef (Dry Cured)")
 check("each name once", F.stackOutcome({ dried = 0 }, list(hung(0), hung(1), hung(0)), "meat") == "Beef Charque")
 check("a Corned piece lost to under-salting is Rotten, the Country Cured dries on",
     F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, underSpoiled = 1 }, list(hung(0), hung(0, true)), "meat") == "Rotten, Beef (Dry Cured)")
 check("a lost stack is Rotten", F.stackOutcome({ dried = 0, spoiled = 1 }, list(hung(0)), "meat") == "Rotten")
 check("fish: Salt Dried, Hot or Cold Smoked in the shed, Stockfish cold dried",
-    F.stackOutcome({ dried = 0 }, nil, "salt") == "SaltDriedFish" and F.stackOutcome({ place = "Enclosed", hotNeed = 4, hot = 1 }, nil, "salt") == "HotSmokedFish"
-    and F.stackOutcome({ place = "Enclosed", smokeNeed = 24, cold = 24 }, nil, "salt") == "ColdSmokedFish" and F.stackOutcome({}, nil, "cold") == "ColdDriedFish")
+    F.stackOutcome({ dried = 0 }, nil, "salt") == "SaltDriedFish" and F.stackOutcome({ place = "Enclosed", hotSmokeHoursNeeded = 4, hotSmokeHours = 1 }, nil, "salt") == "HotSmokedFish"
+    and F.stackOutcome({ place = "Enclosed", smokeNeed = 24, coldSmokeHours = 24 }, nil, "salt") == "ColdSmokedFish" and F.stackOutcome({}, nil, "cold") == "ColdDriedFish")
 
 -- Dry curing (6b): meat in the shed dries in cool air on its own need, by the heaviest piece.
 check("full from 12 C, a quarter in frost", F.dryCureRate(12) == 1 and F.dryCureRate(25) == 1 and near(F.dryCureRate(6), 0.5)
@@ -228,12 +228,12 @@ check("and the under-salted's, warmer by the fire", near(cureLedger.underCure, 1
 
 local ham = {}
 F.startSmoke(ham, pieces({ weight = 2.25, index = F.LEG_INDEX, longCure = true }, 0.45), true)
-check("a stack with a leg needs six weeks and takes no hot cook", near(ham.cureNeed, 1008) and ham.noHot and not ham.underCured)
-ham.hot = 99
+check("a stack with a leg needs six weeks and takes no hot cook", near(ham.cureNeed, 1008) and ham.noHotSmoke and not ham.underCured)
+ham.hotSmokeHours = 99
 check("however long it is stoked", not F.hotDone(ham))
 local corned = {}
 F.startSmoke(corned, pieces({ weight = 0.45, index = 0 }, { weight = 0.3, index = 1 }), true)
-check("Corned meat is under-salted, and still hot smokes", corned.underCured and near(corned.cureNeed, 504) and not corned.noHot)
+check("Corned meat is under-salted, and still hot smokes", corned.underCured and near(corned.cureNeed, 504) and not corned.noHotSmoke)
 check("only a stack that is all Corned can end by under-salting", corned.allUnder and not ham.allUnder)
 local mixed = {}
 F.startSmoke(mixed, pieces({ weight = 0.45, index = 0 }, 0.45), true)
@@ -260,7 +260,7 @@ F.charqueStep(corned, shed)
 F.smokeStep(corned, shedFire, shed)
 check("banked, the shed is 15 C: full rate", near(corned.dried, 24 * 0.25 + 24 * 1))
 check("and the under-salted spoils as at 15 C", near(corned.underSpoiled, 24 * F.underCureRate(0) + 24 * F.underCureRate(15)))
-check("all its banked hours were smoke", near(corned.cold, 24))
+check("all its banked hours were smoke", near(corned.coldSmokeHours, 24))
 local status = F.charqueStatus(corned, shed)
 check("its popup reads dry curing, under-salted, the shed at 15 C", status.dryCuring and status.underSalted and status.shedTemperature == 15
     and near(status.rate, 1) and near(status.progress, 30 / 504) and near(status.spoiled, corned.underSpoiled))
@@ -407,9 +407,9 @@ F.advance(spring, 300, { temperature = 8, humidity = 0.3, precipitation = 0, win
 local roomTub = { place = "Sheltered", lastWarmCure = spring.warmCure, lastWarmCureRoom = spring.warmCureRoom,
     countryCure = true, lastLongCureSpoil = spring.longCureSpoil, lastLongCureRoom = spring.longCureRoom }
 local shedTub = { place = "Covered", lastWarmCure = spring.warmCure, countryCure = true, lastLongCureSpoil = spring.longCureSpoil }
-Weather.share({ gridOn = true })
+Weather.useWeatherModData({ gridOn = true })
 F.advance(spring, 324, { temperature = 8, humidity = 0.3, precipitation = 0, wind = 0 })
-Weather.share(nil)
+Weather.useWeatherModData(nil)
 check("while the grid is on a room is 22 C: salt fish dries faster", near(spring.roomShelteredRate,
     F.temperatureRate(Weather.GRID_ROOM_C) * F.airRate(0.3) * F.SHELTERED_RATE) and spring.roomShelteredRate > spring.coveredRate)
 check("and a tub in a room warm cures, one under a roof in an 8 C spring does not", F.cureSpoiled(roomTub, spring) > 0
@@ -438,7 +438,7 @@ local function saltStack(extra)
         lastHeat = july.heat, lastBasementSheltered = july.basementSheltered, lastLoftSheltered = july.loftSheltered,
         lastRoomSheltered = july.roomSheltered, lastSaltSpoil = july.saltSpoil, lastSaltSpoilRoom = july.saltSpoilRoom,
         lastSaltSpoilLoft = july.saltSpoilLoft, lastSaltSpoilBasement = july.saltSpoilBasement }
-    for key, value in pairs(extra) do stack[key] = value end
+    for key, field in pairs(extra) do stack[key] = field end
     return stack
 end
 local loftSalt, cellarSalt, porchSalt = saltStack({ place = "Loft" }), saltStack({ place = "Basement" }),
@@ -471,7 +471,7 @@ check("a whole chicken cures 38 h and cooks 7, a turkey 48 and 8", near(F.meatPr
 local bird = {}
 F.startSmoke(bird, list(cut(10, 1.1), cut(7)), true)
 check("a bird's stack is hot-only, under-salted, timed by the whole bird", bird.hotOnly and bird.underCured and bird.allUnder
-    and near(bird.hotNeed, 7) and not bird.noHot)
+    and near(bird.hotSmokeHoursNeeded, 7) and not bird.noHotSmoke)
 local redStack = {}
 F.startSmoke(redStack, list(cut(0, 0.45)), true)
 check("a red meat stack isn't", not redStack.hotOnly)
@@ -512,17 +512,17 @@ Fire.logFire(birdFire, 801, Fire.STOKED, 900)
 Fire.logFire(birdFire, 805, Fire.BANKED, 900)
 F.advance(birdShed, 4, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
 F.smokeStep(bird, birdFire, birdShed)
-check("stoked, it still doesn't dry", bird.dried == 0 and near(bird.hot, 4) and not F.hotDone(bird))
+check("stoked, it still doesn't dry", bird.dried == 0 and near(bird.hotSmokeHours, 4) and not F.hotDone(bird))
 Fire.logFire(birdFire, 807, Fire.BANKED, 900)
 Fire.logFire(birdFire, 808, Fire.STOKED, 900)
 Fire.logFire(birdFire, 815, Fire.STOKED, 900)
 F.smokeStep(bird, birdFire, birdShed)
-check("a broken run starts again, and seven stoked hours in a row cook it", near(bird.hot, 7) and F.hotDone(bird))
-check("its outcome is always the cook, named by the cut", F.stackOutcome({ place = "Enclosed", hotOnly = true, hotNeed = 7, hot = 0 },
+check("a broken run starts again, and seven stoked hours in a row cook it", near(bird.hotSmokeHours, 7) and F.hotDone(bird))
+check("its outcome is always the cook, named by the cut", F.stackOutcome({ place = "Enclosed", hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 0 },
     list(cut(10), cut(15)), "meat") == "ChickenWhole (Hot Smoked), Rabbitmeat (Hot Smoked)")
 check("or Rotten", F.stackOutcome({ place = "Enclosed", hotOnly = true, allUnder = true, underSpoiled = 1 }, list(cut(7)), "meat") == "Rotten")
-local waiting = F.charqueStatus({ hotOnly = true, hotNeed = 7, hot = 0, underSpoiled = 0.2 }, { temperature = 5 })
-local cooking = F.charqueStatus({ hotOnly = true, hotNeed = 7, hot = 3.5, burning = Fire.STOKED }, { temperature = 5 })
+local waiting = F.charqueStatus({ hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 0, underSpoiled = 0.2 }, { temperature = 5 })
+local cooking = F.charqueStatus({ hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 3.5, burning = Fire.STOKED }, { temperature = 5 })
 check("its popup waits for a stoked fire, then counts the cook", waiting.hotOnly and waiting.reason == "NeedsStoking"
     and waiting.progress == 0 and near(waiting.spoiled, 0.2) and waiting.underSalted and not waiting.dryCuring
     and near(cooking.progress, 0.5) and near(cooking.hoursLeft, 3.5) and cooking.reason == nil and cooking.shedTemperature == 25)
@@ -531,9 +531,9 @@ check("Hot Smoked poultry keeps the cut's name", F.stageName({ getFullType = fun
 
 -- A rinsed Corned piece spoils 1 / RINSED_KEEPING as fast; the stack goes with its slowest piece.
 local function rinsedCut(index, rinsed, longCure)
-    local data = { rinsed = rinsed, longCure = longCure }
+    local pieceModData = { rinsed = rinsed, longCure = longCure }
     return { getActualWeight = function() return 0.27 end, getFullType = function() return F.CURED_MEAT end,
-        getModelIndex = function() return index end, getModData = function() return data end }
+        getModelIndex = function() return index end, getModData = function() return pieceModData end }
 end
 local rinsedStack = {}
 F.startSmoke(rinsedStack, list(rinsedCut(0, true), rinsedCut(1, false)), true)
@@ -550,11 +550,11 @@ check("each piece by its own rinse, none from a Country Cured one", near(F.under
 local legFire = {}
 Fire.logFire(legFire, 700, nil, nil)
 F.smokeStep(ham, legFire)
-ham.hot, ham.hotCool = 0, 0
+ham.hotSmokeHours, ham.hotSmokeCoolHours = 0, 0
 Fire.logFire(legFire, 701, Fire.STOKED, 720)
 Fire.logFire(legFire, 705, Fire.STOKED, 720)
 F.smokeStep(ham, legFire)
-check("a leg's stoked hours are smoke, not a cook", ham.hot == 0 and near(ham.cold, 4))
+check("a leg's stoked hours are smoke, not a cook", ham.hotSmokeHours == 0 and near(ham.coldSmokeHours, 4))
 
 -- The ham by the door: the door's tile, by facing, only with finished stacks.
 H.done()

@@ -62,10 +62,10 @@ function F.foodOf(item, share)
 end
 
 -- Empties a table in place: recipe data is pooled with its ModData (ENGINE_NOTES), so a new run starts from this.
-function F.clearData(data)
+function F.clearModData(modData)
     local keys = {}
-    for key in pairs(data) do keys[#keys + 1] = key end
-    for _, key in ipairs(keys) do data[key] = nil end
+    for key in pairs(modData) do keys[#keys + 1] = key end
+    for _, key in ipairs(keys) do modData[key] = nil end
 end
 
 -- Gives an item a name of its own.

@@ -10,13 +10,13 @@ local F = TraditionalPreservationFishMeat
 
 TraditionalPreservationFishMeatPallet = TraditionalPreservationFishMeatPallet or {}
 
-local function isPallet(object)
-    local sprite = object:getSprite()
+local function isPallet(isoObject)
+    local sprite = isoObject:getSprite()
     return sprite ~= nil and sprite:getName() == Tiles.PALLET
 end
 
 -- The hour last counted is kept on the pallet, not its movableData, so one picked up and put down starts afresh.
-function TraditionalPreservationFishMeatPallet.refresh(pallet, entry, now)
+function TraditionalPreservationFishMeatPallet.refresh(pallet, sessionState, now)
     local container = pallet:getContainer()
     local square = pallet:getSquare()
     if not container or not square then return end
@@ -30,13 +30,13 @@ function TraditionalPreservationFishMeatPallet.refresh(pallet, entry, now)
     end
 
     local level = F.palletLevel(container)
-    Station.showSprites(pallet, entry, tostring(level), level and { Tiles.PALLET_STACKS[level] } or {})
+    Station.showSprites(pallet, sessionState, tostring(level), level and { Tiles.PALLET_STACKS[level] } or {})
 end
 
 local tracker = Station.tracker({
     sprites = { Tiles.PALLET },
-    entry = function(object) return isPallet(object) and {} or nil end,
-    refresh = function(pallet, entry) TraditionalPreservationFishMeatPallet.refresh(pallet, entry) end,
+    newSessionState = function(isoObject) return isPallet(isoObject) and {} or nil end,
+    refresh = function(pallet, sessionState) TraditionalPreservationFishMeatPallet.refresh(pallet, sessionState) end,
     scan = true,
 })
 

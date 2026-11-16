@@ -50,7 +50,7 @@ local function refusal(slot, item, queued)
         return nil
     end
     local stored = resource:getStoredItems()
-    if stored:size() > 0 and F.hangKind(stored:get(0):getFullType()) ~= F.hangKind(item:getFullType()) then
+    if stored:size() > 0 and F.hangMethod(stored:get(0):getFullType()) ~= F.hangMethod(item:getFullType()) then
         return "IGUI_TraditionalPreservationFishMeat_MixedStack"
     end
     local mixedMeat = stored:size() > 0 and F.mixedMeat(stored:get(0), item)
@@ -60,7 +60,7 @@ local function refusal(slot, item, queued)
     if sausageRefused then return sausageRefused end
     local porkRefused = F.meatRefusal(hanger, hanger.closed and "Enclosed" or Weather.placeOf(entity), item)
     if porkRefused then return porkRefused end
-    if F.hangKind(item:getFullType()) == "cold" then
+    if F.hangMethod(item:getFullType()) == "cold" then
         local coldRefused = F.coldRefusal(hanger.closed and "Enclosed" or Weather.placeOf(entity))
         if coldRefused then return coldRefused end
     end
@@ -100,18 +100,18 @@ local METHODS = { salt = "IGUI_TraditionalPreservationFishMeat_MethodSalt", cold
     meat = "IGUI_TraditionalPreservationFishMeat_MethodCharque" }
 
 -- Vanilla's popup goes by its own temperature curve and the recipe's time, so hanging stacks get
--- this instead. kind is F.hangKind's.
-local function drawStackTooltip(slot, tooltip, kind)
+-- this instead. method is F.hangMethod's.
+local function drawStackTooltip(slot, tooltip, method)
     local ledger = F.getLedger()
-    local isCold, isMeat = kind == "cold", kind == "meat"
+    local isCold, isMeat = method == "cold", method == "meat"
     local status = isMeat and F.charqueStatus(slot.craftRecipeData:getModData(), ledger)
         or F.stackStatus(isCold, slot.craftRecipeData:getModData(), ledger)
     UI.drawTooltip(tooltip, function(layout)
         UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Method", getText(status.hotOnly and "IGUI_TraditionalPreservationFishMeat_MethodHotOnly"
-            or status.dryCuring and "IGUI_TraditionalPreservationFishMeat_MethodDryCure" or METHODS[kind]))
+            or status.dryCuring and "IGUI_TraditionalPreservationFishMeat_MethodDryCure" or METHODS[method]))
         -- The recipe's output says Charque or Salt Dried whatever the stack is; this says what it is turning into.
         UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_ComesOutAs", F.stackOutcome(slot.craftRecipeData:getModData(),
-            slot.craftRecipeData:getAllInputItemsWithFlag("ItemCount"), kind))
+            slot.craftRecipeData:getAllInputItemsWithFlag("ItemCount"), method))
         UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Progress", UI.percent(status.progress))
         UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_TimeLeft", timeText(status.hoursLeft))
         local modData = slot.craftRecipeData:getModData()
@@ -139,9 +139,9 @@ local function drawStackTooltip(slot, tooltip, kind)
             UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Rate", UI.percent(status.rate))
         end
         -- In a Smokehouse joined to a Stone Hearth: the stoked session's hours against the cook, and the smoke so far.
-        if modData.smokeFrom and modData.hotNeed and not modData.noHot then
+        if modData.smokeFrom and modData.hotSmokeHoursNeeded and not modData.noHotSmoke then
             UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_HotSmoke", getText("IGUI_TraditionalPreservationFishMeat_HotSmokeHours",
-                string.format("%.1f", modData.hot or 0), string.format("%.0f", modData.hotNeed)))
+                string.format("%.1f", modData.hotSmokeHours or 0), string.format("%.0f", modData.hotSmokeHoursNeeded)))
         end
         -- Smoke so far against the stack's need (F.smokeHours, by its heaviest piece), or why banked
         -- hours don't count today.
@@ -149,9 +149,9 @@ local function drawStackTooltip(slot, tooltip, kind)
             -- Poultry and rabbit take no cold smoke.
         elseif modData.smokeFrom and (ledger.temperature or 0) > F.COLD_SMOKE_MAX then
             UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_ColdSmoke", getText("IGUI_TraditionalPreservationFishMeat_ColdSmokeTooWarm"), UI.SLOW_COLOUR)
-        elseif modData.smokeFrom or (modData.cold or 0) > 0 then
+        elseif modData.smokeFrom or (modData.coldSmokeHours or 0) > 0 then
             UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_ColdSmoke", getText("IGUI_TraditionalPreservationFishMeat_ColdSmokeNeed",
-                string.format("%.1f", modData.cold or 0), string.format("%.0f", F.coldNeed(modData))))
+                string.format("%.1f", modData.coldSmokeHours or 0), string.format("%.0f", F.coldNeed(modData))))
         end
         local warning = F.spoilWarning(status, isCold)
         if warning then
@@ -181,8 +181,8 @@ local function drawSausageTooltip(slot, tooltip)
             UI.addLine(layout, key .. "ColdSmoke", getText(key .. "ColdSmokeNeed", string.format("%.1f", status.cold),
                 string.format("%.0f", status.need)))
         end
-        UI.addLine(layout, key .. "Fire", getText(key .. "Sausage" .. status.state),
-            status.state ~= (status.hot and "Cooking" or "Smoking") and UI.SLOW_COLOUR or nil)
+        UI.addLine(layout, key .. "Fire", getText(key .. "Sausage" .. status.fireEffect),
+            status.fireEffect ~= (status.hot and "Cooking" or "Smoking") and UI.SLOW_COLOUR or nil)
         if status.staleDays then
             UI.addLine(layout, key .. "Spoilage", UI.say(key .. (status.hot and "FreshSausageStaleIn" or "SausageStaleIn"), string.format("%.1f", status.staleDays)),
                 status.staleDays < 1 and UI.WARNING_COLOUR or nil)
@@ -234,8 +234,8 @@ UI.outputTooltips({ HangMeatToDry = drawOutcomes, HangFishToDry = drawOutcomes, 
 local BADGE_ITEMS = { salt = "Base.Salt", hotFish = F.HOT_FISH, hotMeat = F.HOT_MEAT }
 local badgeIcons = {}
 local function badgeOf(slot)
-    local data = slot.craftRecipeData
-    local modData = data and data:getRecipe() and data:getModData()
+    local craftRecipeData = slot.craftRecipeData
+    local modData = craftRecipeData and craftRecipeData:getRecipe() and craftRecipeData:getModData()
     if modData and F.cookShare(modData) then return slot.tpMeat and "hotMeat" or "hotFish" end
     return not slot.tpMeat and "salt" or nil
 end
@@ -376,11 +376,11 @@ Events.OnFillInventoryObjectContextMenu.Add(onFillBaleMenu)
 local PALLET_PLACES = { [F.PALLET_LOFT] = "IGUI_TraditionalPreservationFishMeat_PalletLoft", [F.PALLET_GROUND] = "IGUI_TraditionalPreservationFishMeat_PalletGround" }
 
 local function onFillPalletMenu(playerNum, context, worldobjects, test)
-    for _, object in ipairs(worldobjects) do
-        local sprite = object:getSprite()
+    for _, isoObject in ipairs(worldobjects) do
+        local sprite = isoObject:getSprite()
         if sprite and sprite:getName() == Tiles.PALLET then
             if test then return end
-            local speed = F.palletSpeed(Weather.placeOf(object))
+            local speed = F.palletSpeed(Weather.placeOf(isoObject))
             local text = PALLET_PLACES[speed]
                 and getText("ContextMenu_TraditionalPreservationFishMeat_PalletSpeed", tostring(speed), getText(PALLET_PLACES[speed]))
                 or getText("ContextMenu_TraditionalPreservationFishMeat_PalletNoSpeed")

@@ -16,11 +16,11 @@ local Info = TraditionalPreservationFishMeatInfo
 local KEY = "IGUI_TraditionalPreservationFishMeat_"
 -- Places with a word of their own (TP Core's); anything else under a roof reads as indoors.
 local PLACES = { Open = true, Covered = true, Sheltered = true, Loft = true, Basement = true, Enclosed = true }
--- A running batch's kind, by its recipe's short name.
-local KINDS = { HangFishToDry = "salt", HangFishToColdDry = "cold", HangMeatToDry = "meat",
+-- A running batch's method, by its recipe's short name.
+local RECIPE_METHODS = { HangFishToDry = "salt", HangFishToColdDry = "cold", HangMeatToDry = "meat",
     PressSaltedFish = "fishCure", PressSaltedMeat = "corn", [F.LONG_CURE_RECIPE] = "long",
     HangSausageToSmoke = "sausage" }
-local KIND_NAMES = { salt = KEY .. "InfoSalt", cold = KEY .. "InfoCold", meat = KEY .. "InfoCharque",
+local METHOD_NAMES = { salt = KEY .. "InfoSalt", cold = KEY .. "InfoCold", meat = KEY .. "InfoCharque",
     fishCure = KEY .. "InfoCure", corn = KEY .. "InfoCorn", long = KEY .. "InfoLongCure", sausage = KEY .. "InfoSausage",
     freshSausage = KEY .. "InfoSmokedSausage" }
 local GOOD_COLOUR, SLOW_COLOUR = { 0.35, 0.6, 0.3 }, { 0.75, 0.55, 0.2 }
@@ -36,9 +36,9 @@ end
 function Info.sausageBatch(modData, ledger, now)
     local status = F.sausageStatus(modData, ledger, now)
     local good = status.hot and "Cooking" or "Smoking"
-    local row = { name = status.hot and KIND_NAMES.freshSausage or KIND_NAMES.sausage, progress = status.progress,
-        notes = {}, slow = status.state ~= good }
-    row.value = UI.say(KEY .. "InfoShare", UI.percent(status.progress), getText(KEY .. "Sausage" .. status.state))
+    local row = { name = status.hot and METHOD_NAMES.freshSausage or METHOD_NAMES.sausage, progress = status.progress,
+        notes = {}, slow = status.fireEffect ~= good }
+    row.progressText = UI.say(KEY .. "InfoShare", UI.percent(status.progress), getText(KEY .. "Sausage" .. status.fireEffect))
     table.insert(row.notes, UI.say(status.hot and KEY .. "HotSmokeHours" or KEY .. "ColdSmokeNeed",
         string.format("%.1f", status.cold), string.format("%.0f", status.need)))
     if status.staleDays then
@@ -48,24 +48,24 @@ function Info.sausageBatch(modData, ledger, now)
 end
 
 -- One running batch: its name (a key), progress, the text on its bar, whether something holds it back, and the
--- lines to say about it below. kind is KINDS'.
-function Info.batch(kind, modData, ledger, now)
-    if kind == "sausage" then return Info.sausageBatch(modData, ledger, now) end
-    local isPress = kind == "fishCure" or kind == "corn" or kind == "long"
-    local isCold, isMeat = kind == "cold", kind == "meat"
+-- lines to say about it below. method is RECIPE_METHODS'.
+function Info.batch(method, modData, ledger, now)
+    if method == "sausage" then return Info.sausageBatch(modData, ledger, now) end
+    local isPress = method == "fishCure" or method == "corn" or method == "long"
+    local isCold, isMeat = method == "cold", method == "meat"
     local status = isPress and F.pressStatus(modData, ledger)
         or isMeat and F.charqueStatus(modData, ledger) or F.stackStatus(isCold, modData, ledger)
-    local row = { name = status.hotOnly and KEY .. "InfoHotOnly" or status.dryCuring and KEY .. "InfoDryCure" or KIND_NAMES[kind],
+    local row = { name = status.hotOnly and KEY .. "InfoHotOnly" or status.dryCuring and KEY .. "InfoDryCure" or METHOD_NAMES[method],
         progress = status.progress, notes = {} }
     local share = UI.percent(status.progress)
     if status.reason then
-        row.value, row.slow = UI.say(KEY .. "InfoShare", share, getText(KEY .. "Stopped" .. status.reason)), true
+        row.progressText, row.slow = UI.say(KEY .. "InfoShare", share, getText(KEY .. "Stopped" .. status.reason)), true
     elseif status.hoursLeft then
         local hours = math.ceil(status.hoursLeft)
-        row.value = UI.say(KEY .. "InfoLeft", share, tostring(math.floor(hours / 24)), tostring(hours % 24))
+        row.progressText = UI.say(KEY .. "InfoLeft", share, tostring(math.floor(hours / 24)), tostring(hours % 24))
         row.weather = not isPress
     else
-        row.value, row.slow = UI.say(KEY .. "InfoShare", share, getText(KEY .. "Paused")), true
+        row.progressText, row.slow = UI.say(KEY .. "InfoShare", share, getText(KEY .. "Paused")), true
     end
 
     local warning
@@ -85,10 +85,10 @@ function Info.batch(kind, modData, ledger, now)
     if isPress then return row end
     -- In a Smokehouse joined to a Stone Hearth: a stoked run that is cooking the stack, and its smoke so far.
     if F.cookShare(modData) then
-        table.insert(row.notes, UI.say(KEY .. "InfoCooking", string.format("%.1f", modData.hot), string.format("%.0f", modData.hotNeed)))
+        table.insert(row.notes, UI.say(KEY .. "InfoCooking", string.format("%.1f", modData.hotSmokeHours), string.format("%.0f", modData.hotSmokeHoursNeeded)))
     end
-    if not modData.hotOnly and (modData.smokeFrom or (modData.cold or 0) > 0) then
-        table.insert(row.notes, UI.say(KEY .. "ColdSmokeNeed", string.format("%.1f", modData.cold or 0), string.format("%.0f", F.coldNeed(modData))))
+    if not modData.hotOnly and (modData.smokeFrom or (modData.coldSmokeHours or 0) > 0) then
+        table.insert(row.notes, UI.say(KEY .. "ColdSmokeNeed", string.format("%.1f", modData.coldSmokeHours or 0), string.format("%.0f", F.coldNeed(modData))))
     end
     return row
 end
@@ -130,14 +130,14 @@ function Info.rows(found, ledger, now, fire)
 
     local weather = false
     for index, batch in ipairs(found.batches) do
-        local recipe = batch.data:getRecipe()
-        local kind = recipe and KINDS[UI.shortName(recipe)]
-        if kind then
-            local row = Info.batch(kind, batch.data:getModData(), ledger, now)
+        local recipe = batch.craftRecipeData:getRecipe()
+        local method = recipe and RECIPE_METHODS[UI.shortName(recipe)]
+        if method then
+            local row = Info.batch(method, batch.craftRecipeData:getModData(), ledger, now)
             -- A tub cures one batch at a time, so its bar and notes need no number.
             local name = getText(row.name)
             table.insert(bars, { text = hanger and UI.say(KEY .. "InfoBatch", tostring(#bars + 1), name) or name,
-                share = row.progress, value = row.value, colour = row.slow and SLOW_COLOUR or GOOD_COLOUR })
+                share = row.progress, progressText = row.progressText, colour = row.slow and SLOW_COLOUR or GOOD_COLOUR })
             for _, note in ipairs(row.notes) do
                 table.insert(notes, hanger and UI.say(KEY .. "InfoNote", tostring(#bars), note) or note)
             end

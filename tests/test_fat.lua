@@ -82,8 +82,8 @@ check("a good pot doesn't", not F.canScrape(pot("TraditionalPreservationFishMeat
 
 -- The scripts
 local script = io.open("42/media/scripts/TraditionalPreservationFishMeat_Meat.txt"):read("*a")
-local function block(kind, name)
-    return script:match("\n    " .. kind .. " " .. name .. "\n    (%b{})")
+local function block(blockType, name)
+    return script:match("\n    " .. blockType .. " " .. name .. "\n    (%b{})")
 end
 local function number(item, field)
     return tonumber(block("item", item):match(field .. " = ([%-%d%.]+)"))
@@ -111,10 +111,10 @@ check("Put Pork Fat in a Pot takes an empty pot and two raw pieces",
 check("suet and mutton fat share a pot", block("craftRecipe", "PutSuetInPot"):find("[TraditionalPreservationFishMeat.BeefSuet;TraditionalPreservationFishMeat.MuttonFat]", 1, true) ~= nil)
 for recipe, fat in pairs({ PourOffLard = "Base.Lard", PourOffTallow = "TraditionalPreservationFishMeat.Tallow" }) do
     local text = block("craftRecipe", recipe)
-    local kind = recipe:match("PourOff(%w+)")
+    local fatName = recipe:match("PourOff(%w+)")
     check(recipe .. " takes a cooked pot and gives the pot back, filled by its OnCreate; the block and cracklings come from straining",
         text:find("IsCookedFoodItem", 1, true) and text:find("OnTest = TraditionalPreservationFishMeat.canPourOff", 1, true)
-        and text:find("OnCreate = TraditionalPreservationFishMeat.onPourOff" .. kind .. ",", 1, true)
+        and text:find("OnCreate = TraditionalPreservationFishMeat.onPourOff" .. fatName .. ",", 1, true)
         and text:find("item 1 mapper:potType", 1, true) and not text:find(fat, 1, true)
         and not text:find("Cracklings", 1, true) and not text:find("xpAward", 1, true))
 end
@@ -149,7 +149,7 @@ check("raw fat can't be ladled out", not CauldronFluid.poursOut(cauldron))
 check("suet doesn't go in with pork fat", F.cauldronFatRoom(cauldron, "RawSuet") == 0 and F.putFatInCauldron(cauldron, "RawSuet", { 96 }, 10) == 0)
 check("more pork fat does, and a rotten piece makes it rancid at once", F.putFatInCauldron(cauldron, "RawPorkFat", { -5 }, 12) == 1
     and cauldron.ml == 1750 and cauldron.offAt == 12)
-cauldron.offAt, cauldron.last = 40, 12
+cauldron.offAt, cauldron.lastHour = 40, 12
 cauldron.fireUntil = 100
 CauldronFluid.advance(cauldron, 12 + CauldronFluid.hoursToHot(cauldron, cauldron.banked) + 0.9, 20, cauldron)
 check("not yet melted short of the hour", cauldron.fluid == "RawPorkFat")
@@ -162,7 +162,7 @@ local suet = {}
 F.putFatInCauldron(suet, "RawSuet", { 50, 50 }, 0)
 CauldronFluid.advance(suet, 51, 20, suet)
 check("suet left cold goes rancid, and stays in the cauldron", suet.fluid == "RancidFat" and not CauldronFluid.poursOut(suet))
-local tight = { ml = CauldronFluid.CAULDRON_ML - 600, fluid = "RawSuet", tempC = 20, last = 0 }
+local tight = { ml = CauldronFluid.CAULDRON_ML - 600, fluid = "RawSuet", tempC = 20, lastHour = 0 }
 check("a nearly full cauldron takes only the pieces that fit", F.putFatInCauldron(tight, "RawSuet", { 9, 9, 9, 9 }, 0) == 2)
 local fatPiece = { getOffAgeMax = function() return 4 end, getAge = function() return 1.5 end }
 check("a piece's hours left come from its age", F.fatHoursLeft(fatPiece) == 60)

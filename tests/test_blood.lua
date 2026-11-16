@@ -76,22 +76,22 @@ check("cattle's gets one, 1 to 2", cowN == 1 and cowRow.maxNb == 2)
 check("a deer's too", casings(AnimalPartsDefinitions.animals.doewhitetailed.parts) == 1)
 
 -- Going off
-local spec = F.BLOOD_SPEC
-check("blood is registered with Core", FluidAgeing.spec("blood") == spec and FluidAgeing.specOfFluid("CuredBlood") == spec)
-check("rate 1 at 20 C, a third in a fridge, none frozen", near(spec.rate(20), 1) and near(spec.rate(4), 1 / 3)
-    and spec.rate(-1) == 0)
-check("fresh blood: a day at 20 C, three in a fridge", FluidAgeing.spoilHours({}, spec) == 24
-    and near(24 / spec.rate(4), 72))
-check("cured: three days, seven in a fridge", FluidAgeing.spoilHours({ treated = { Cured = true } }, spec) == 72
+local blood = F.BLOOD_FLUID_KIND
+check("blood is registered with Core", FluidAgeing.fluidKind("blood") == blood and FluidAgeing.fluidKindOf("CuredBlood") == blood)
+check("rate 1 at 20 C, a third in a fridge, none frozen", near(blood.rate(20), 1) and near(blood.rate(4), 1 / 3)
+    and blood.rate(-1) == 0)
+check("fresh blood: a day at 20 C, three in a fridge", FluidAgeing.spoilHours({}, blood) == 24
+    and near(24 / blood.rate(4), 72))
+check("cured: three days, seven in a fridge", FluidAgeing.spoilHours({ treated = { Cured = true } }, blood) == 72
     and near(72 / F.BLOOD_STATES.Cured.rate(4), 168) and F.BLOOD_STATES.Cured.rate(20) == 1)
 check("salt and vinegar are one treatment, Cured", F.BLOOD_TREATMENTS[1].name == "Cured" and F.BLOOD_TREATMENTS[2].name == "Cured")
-check("blood never turns: fresh until it spoils", FluidAgeing.stage({ age = 23 }, spec) == "Fresh"
-    and FluidAgeing.stage({ age = 24 }, spec) == "Spoiled")
+check("blood never turns: fresh until it spoils", FluidAgeing.stage({ age = 23 }, blood) == "Fresh"
+    and FluidAgeing.stage({ age = 24 }, blood) == "Spoiled")
 
 -- Treating
-check("a use for each 2 L", FluidAgeing.treatUses(spec, 0.5) == 1 and FluidAgeing.treatUses(spec, 2) == 1
-    and FluidAgeing.treatUses(spec, 2.1) == 2 and FluidAgeing.treatUses(spec, 4) == 2)
-check("the treat menu is Cure Blood", spec.treatMenu == "ContextMenu_TraditionalPreservationFishMeat_CureBlood" and #spec.treatments == 2)
+check("a use for each 2 L", FluidAgeing.treatUses(blood, 0.5) == 1 and FluidAgeing.treatUses(blood, 2) == 1
+    and FluidAgeing.treatUses(blood, 2.1) == 2 and FluidAgeing.treatUses(blood, 4) == 2)
+check("the treat menu is Cure Blood", blood.treatMenu == "ContextMenu_TraditionalPreservationFishMeat_CureBlood" and #blood.treatments == 2)
 
 local function container(fluids)
     local c = { fluids = fluids or {} }
@@ -114,7 +114,7 @@ local function bucket(fluids)
 end
 local function seasoning(tag, uses)
     local o = { uses = uses, tag = tag }
-    function o:hasTag(t) return t == self.tag end
+    function o:hasTag(tag) return tag == self.tag end
     function o:getCurrentUses() return self.uses end
     function o:setCurrentUses(n) self.uses = n end
     function o:getWorldItem() return nil end
@@ -138,33 +138,33 @@ end
 local SALT, VINEGAR = F.BLOOD_TREATMENTS[1], F.BLOOD_TREATMENTS[2]
 local pail = bucket({ AnimalBlood = 4 })
 local salt = seasoning("base:salt", 1)
-check("4 L wants 2 salt: one use is not enough", FluidAgeing.treatRefusal(pail, spec, SALT, carrying({ salt }))
+check("4 L wants 2 salt: one use is not enough", FluidAgeing.treatRefusal(pail, blood, SALT, carrying({ salt }))
     == "IGUI_TraditionalPreservationCore_TreatShort")
 local more = seasoning("base:salt", 10)
-check("with enough salt it can", FluidAgeing.treatRefusal(pail, spec, SALT, carrying({ salt, more })) == nil)
-check("curing takes both uses, part-used salt first", FluidAgeing.treatBy(pail, spec, SALT, carrying({ salt, more }))
+check("with enough salt it can", FluidAgeing.treatRefusal(pail, blood, SALT, carrying({ salt, more })) == nil)
+check("curing takes both uses, part-used salt first", FluidAgeing.treatBy(pail, blood, SALT, carrying({ salt, more }))
     and pail.fc.fluids.CuredBlood == 4 and salt.uses == 0 and salt.removed and more.uses == 9)
-check("cured blood can't be cured again with salt", FluidAgeing.treatRefusal(pail, spec, SALT, carrying({ more }))
+check("cured blood can't be cured again with salt", FluidAgeing.treatRefusal(pail, blood, SALT, carrying({ more }))
     == "IGUI_TraditionalPreservationCore_TreatDone")
 local vinegar = seasoning("base:vinegar", 10)
-check("nor with vinegar", FluidAgeing.treatRefusal(pail, spec, VINEGAR, carrying({ vinegar }))
+check("nor with vinegar", FluidAgeing.treatRefusal(pail, blood, VINEGAR, carrying({ vinegar }))
     == "IGUI_TraditionalPreservationCore_TreatDone")
 local soured = bucket({ AnimalBlood = 1 })
-FluidAgeing.treatBy(soured, spec, VINEGAR, carrying({ vinegar }))
+FluidAgeing.treatBy(soured, blood, VINEGAR, carrying({ vinegar }))
 check("vinegar alone cures it too", soured.fc.fluids.CuredBlood == 1 and vinegar.uses == 9)
 local jar = bucket({})
 FluidAgeing.pour(soured, jar, 0)
 jar.fc.fluids.CuredBlood = 1
 FluidAgeing.look(jar, 0, "Sheltered")
 check("cured into cured stays cured", jar.md.tpFluidAge.treated.Cured and jar.fc.fluids.CuredBlood == 1)
-check("water is not blood", FluidAgeing.treatRefusal(bucket({ Water = 2 }), spec, SALT, carrying({ more }))
+check("water is not blood", FluidAgeing.treatRefusal(bucket({ Water = 2 }), blood, SALT, carrying({ more }))
     == "IGUI_TraditionalPreservationCore_TreatNoFluid")
 local old = bucket({ AnimalBlood = 1 })
 FluidAgeing.look(old, 0, "Sheltered")
 old.md.tpFluidAge.age = 30
 FluidAgeing.look(old, 0, "Sheltered")
 check("spoiled blood can't be saved", old.fc.fluids.SpoiledBlood == 1
-    and FluidAgeing.treatRefusal(old, spec, SALT, carrying({ more })) == "IGUI_TraditionalPreservationCore_TreatSpoiled")
+    and FluidAgeing.treatRefusal(old, blood, SALT, carrying({ more })) == "IGUI_TraditionalPreservationCore_TreatSpoiled")
 
 -- The ledger counts blood by place
 H.setHours(1)
@@ -275,7 +275,7 @@ local function links(...)
 end
 
 local fried = link(F.BLOOD_SAUSAGE)
-fried.md[OnHeat.KEY] = { done = true }
+fried.md[OnHeat.KEY] = { finished = true }
 fried.cooked = true
 local boiled = link(F.BLOOD_SAUSAGE)
 boiled.cooked = true
@@ -285,13 +285,13 @@ check("only the Smokehouse takes blood sausage, and never a fried link",
     F.sausageRefusal({ closed = true }, link(F.BLOOD_SAUSAGE)) == nil
     and F.sausageRefusal({}, link(F.BLOOD_SAUSAGE)) == "IGUI_TraditionalPreservationFishMeat_SausageSmokehouse"
     and F.sausageRefusal({ closed = true }, fried) == "IGUI_TraditionalPreservationFishMeat_SausageFried")
-check("a sausage stack is its own kind", F.hangKind(F.BLOOD_SAUSAGE) == "sausage"
-    and F.hangKind(F.CURED_MEAT) ~= "sausage")
+check("a sausage stack is its own kind", F.hangMethod(F.BLOOD_SAUSAGE) == "sausage"
+    and F.hangMethod(F.CURED_MEAT) ~= "sausage")
 
-local stack = { leftover = true, cold = 50 }
+local stack = { leftover = true, coldSmokeHours = 50 }
 F.startSausageSmoke(stack, links(link(F.BLOOD_SAUSAGE, 1), link(F.BLOOD_SAUSAGE, 3)), 100, 1)
-check("a new stack forgets the pooled data, needs 24 h and takes no cook", stack.leftover == nil and stack.cold == 0
-    and F.coldNeed(stack) == 24 and stack.noHot and stack.sausage and stack.stackId == 100)
+check("a new stack forgets the pooled data, needs 24 h and takes no cook", stack.leftover == nil and stack.coldSmokeHours == 0
+    and F.coldNeed(stack) == 24 and stack.noHotSmoke and stack.sausage and stack.stackId == 100)
 check("it goes stale when its freshest link would (6 days left)", near(stack.staleAt, 100 + 6 * 24))
 
 local fire = {}
@@ -300,14 +300,14 @@ F.smokeStep(stack, fire)
 Fire.logFire(fire, 101, Fire.STOKED, 140)
 Fire.logFire(fire, 111, Fire.STOKED, 140)
 F.smokeStep(stack, fire)
-check("stoked hours are smoke at once, never a cook", near(stack.cold, 10) and not F.hotDone(stack))
+check("stoked hours are smoke at once, never a cook", near(stack.coldSmokeHours, 10) and not F.hotDone(stack))
 F.sausageSmokeStep(stack, 111)
 check("10 of 24 h: not smoked, the bar at 10/24", stack.smokedAt == nil and near(F.sausageProgress(stack, 111), 10 / 24))
 Fire.logFire(fire, 112, Fire.BANKED, 200)
 Fire.logFire(fire, 132, Fire.BANKED, 200)
 F.smokeStep(stack, fire)
 F.sausageSmokeStep(stack, 132)
-check("banked hours count too, and the smoked hour is placed within the stretch", near(stack.cold, 31)
+check("banked hours count too, and the smoked hour is placed within the stretch", near(stack.coldSmokeHours, 31)
     and near(stack.smokedAt, 111 + 21 * 14 / 21))
 check("done, it waits for the World's look at its shed", F.sausageProgress(stack, 132) == F.SHED_WAIT)
 F.smokeStations[stack.stackId] = {}
@@ -334,10 +334,10 @@ check("with no fire the stack ends when its links have gone stale", F.sausagePro
     and F.sausageProgress(cold, 200 + 7 * 24) == 1)
 check("and they come down Boiled", F.smokedLink(link(F.BLOOD_SAUSAGE, 0), cold, 200 + 7 * 24, 1).fullType == F.BLOOD_SAUSAGE)
 local status = F.sausageStatus(cold, { temperature = 5 }, 200 + 24)
-check("the popup: no fire, six days left", status.state == "NoFire" and near(status.staleDays, 6) and status.need == 24)
+check("the popup: no fire, six days left", status.fireEffect == "NoFire" and near(status.staleDays, 6) and status.need == 24)
 cold.burning = Fire.BANKED
-check("a fire on a warm day doesn't count", F.sausageStatus(cold, { temperature = 20 }, 200).state == "TooWarm"
-    and F.sausageStatus(cold, { temperature = 10 }, 200).state == "Smoking")
+check("a fire on a warm day doesn't count", F.sausageStatus(cold, { temperature = 20 }, 200).fireEffect == "TooWarm"
+    and F.sausageStatus(cold, { temperature = 10 }, 200).fireEffect == "Smoking")
 check("once smoked, no stale countdown", F.sausageStatus(stack, { temperature = 5 }, now).staleDays == nil)
 
 -- Smoked Sausage: the script, then a stack on the Smokehouse's hot counter.
@@ -375,16 +375,16 @@ check("one hang recipe, the Smokehouse's alone, takes both sausages and tests ea
     and hangBoth:find("[TraditionalPreservationFishMeat.BloodSausage;TraditionalPreservationFishMeat.FreshSausage]", 1, true)
     and hangBoth:find("OnTest = TraditionalPreservationFishMeat.canSmokeSausage,", 1, true))
 check("a raw fresh link goes in, a cooked one stays out", F.canSmokeSausage(link(F.FRESH_SAUSAGE)) and not F.canSmokeSausage(cookedFresh))
-check("the stack's kind is its links'", F.sausageKind(links(link(F.FRESH_SAUSAGE))) == "pork"
-    and F.sausageKind(links(link(F.BLOOD_SAUSAGE))) == nil)
+check("the stack's kind is its links'", F.sausageOf(links(link(F.FRESH_SAUSAGE))) == "pork"
+    and F.sausageOf(links(link(F.BLOOD_SAUSAGE))) == nil)
 
 local cooked = link(F.FRESH_SAUSAGE)
 cooked.cooked = true
 check("only the Smokehouse takes fresh sausage, and only raw", F.sausageRefusal({ closed = true }, link(F.FRESH_SAUSAGE)) == nil
     and F.sausageRefusal({}, link(F.FRESH_SAUSAGE)) == "IGUI_TraditionalPreservationFishMeat_FreshSausageSmokehouse"
     and F.sausageRefusal({ closed = true }, cooked) == "IGUI_TraditionalPreservationFishMeat_FreshSausageCooked")
-check("a fresh sausage stack is its own kind", F.hangKind(F.FRESH_SAUSAGE) == "freshSausage"
-    and F.hangKind(F.FRESH_SAUSAGE) ~= F.hangKind(F.BLOOD_SAUSAGE))
+check("a fresh sausage stack is its own kind", F.hangMethod(F.FRESH_SAUSAGE) == "freshSausage"
+    and F.hangMethod(F.FRESH_SAUSAGE) ~= F.hangMethod(F.BLOOD_SAUSAGE))
 
 -- Seasoning (TP Core's Season): added to a link afterwards, a kind once, the stew's uses of it.
 local Season = require "TraditionalPreservationCore/Season"
@@ -408,9 +408,9 @@ local function cook(items)
     return character
 end
 check("links only take seasoning: fresh, raw and boiled blood sausage, not smoked or pudding",
-    Season.specFor(link(F.FRESH_SAUSAGE)) and Season.specFor(link("TraditionalPreservationFishMeat.RawBloodSausage"))
-    and Season.specFor(link(F.BLOOD_SAUSAGE)) and not Season.specFor(link(F.SMOKED_SAUSAGE))
-    and not Season.specFor(link("TraditionalPreservationFishMeat.BlackPuddingSlice")))
+    Season.seasoningFor(link(F.FRESH_SAUSAGE)) and Season.seasoningFor(link("TraditionalPreservationFishMeat.RawBloodSausage"))
+    and Season.seasoningFor(link(F.BLOOD_SAUSAGE)) and not Season.seasoningFor(link(F.SMOKED_SAUSAGE))
+    and not Season.seasoningFor(link("TraditionalPreservationFishMeat.BlackPuddingSlice")))
 local garlic, onion, oregano = spice("Base.Garlic", 5), spice("Base.Onion", 10), spice("Base.OreganoDried", 5)
 local seasoned = link(F.FRESH_SAUSAGE)
 local chef = cook({ garlic, onion, oregano })
@@ -428,15 +428,15 @@ check("not a seasoning, or none in reach: refused", Season.refusal(seasoned, "Ba
 local sprig = spice("Base.Oregano", 1)
 local other = link(F.FRESH_SAUSAGE)
 check("a fresh sprig is one use, and goes", Season.season(cook({ sprig }), other, "Base.Oregano") and sprig.removed)
-local record = Season.record(seasoned)
+local seasoning = Season.carried(seasoned)
 local fromPot = link(F.FRESH_SAUSAGE)
-Season.apply(fromPot, record)
+Season.carryOver(fromPot, seasoning)
 check("the pot hands each link its seasoning back", fromPot.unhappy == -6 and fromPot.boredom == -6 and fromPot.spices:size() == 3)
 
-local porkStack = { cold = 9, leftover = true }
+local porkStack = { coldSmokeHours = 9, leftover = true }
 F.startSausageSmoke(porkStack, links(link(F.FRESH_SAUSAGE, 0.5), seasoned), 300, 1, "pork")
-check("a pork stack needs a 6 h hot run and takes the cook", porkStack.sausage == "pork" and porkStack.hotNeed == 6
-    and not porkStack.noHot and porkStack.leftover == nil and near(porkStack.staleAt, 300 + 2 * 24))
+check("a pork stack needs a 6 h hot run and takes the cook", porkStack.sausage == "pork" and porkStack.hotSmokeHoursNeeded == 6
+    and not porkStack.noHotSmoke and porkStack.leftover == nil and near(porkStack.staleAt, 300 + 2 * 24))
 local pfire = {}
 Fire.logFire(pfire, 300, nil, nil)
 F.smokeStep(porkStack, pfire)
@@ -444,21 +444,21 @@ Fire.logFire(pfire, 301, Fire.STOKED, 340)
 Fire.logFire(pfire, 305, Fire.STOKED, 340)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 305)
-check("4 stoked hours: the bar at 4/6, cooking", near(porkStack.hot, 4) and near(F.sausageProgress(porkStack, 305), 4 / 6)
-    and F.sausageStatus(porkStack, {}, 305).state == "Cooking")
+check("4 stoked hours: the bar at 4/6, cooking", near(porkStack.hotSmokeHours, 4) and near(F.sausageProgress(porkStack, 305), 4 / 6)
+    and F.sausageStatus(porkStack, {}, 305).fireEffect == "Cooking")
 porkStack.burning = Fire.STOKED
-check("the popup says cooking while stoked, banked otherwise", F.sausageStatus(porkStack, { temperature = 30 }, 305).state == "Cooking")
+check("the popup says cooking while stoked, banked otherwise", F.sausageStatus(porkStack, { temperature = 30 }, 305).fireEffect == "Cooking")
 porkStack.burning = Fire.BANKED
-check("and a warm day doesn't matter", F.sausageStatus(porkStack, { temperature = 30 }, 305).state == "Banked")
+check("and a warm day doesn't matter", F.sausageStatus(porkStack, { temperature = 30 }, 305).fireEffect == "Banked")
 Fire.logFire(pfire, 306, Fire.BANKED, 400)
 Fire.logFire(pfire, 310, Fire.STOKED, 400)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 310)
-check("a broken run starts again from nothing", near(porkStack.hot, 0) and porkStack.smokedAt == nil)
+check("a broken run starts again from nothing", near(porkStack.hotSmokeHours, 0) and porkStack.smokedAt == nil)
 Fire.logFire(pfire, 316, Fire.STOKED, 400)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 316)
-check("six stoked hours in a row: cooked, the hour placed in the stretch", near(porkStack.hot, 6)
+check("six stoked hours in a row: cooked, the hour placed in the stretch", near(porkStack.hotSmokeHours, 6)
     and near(porkStack.smokedAt, 316) and F.sausageProgress(porkStack, 316) == F.SHED_WAIT)
 F.smokeStations[porkStack.stackId] = {}
 check("then it ends", F.sausageProgress(porkStack, 316) == 1)

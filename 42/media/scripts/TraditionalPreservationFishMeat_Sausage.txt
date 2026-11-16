@@ -159,7 +159,7 @@ module TraditionalPreservationFishMeat
         }
     }
 
-    /* One Smokehouse recipe for both sausages, each kind alone in its stack (F.hangKind). Boiled
+    /* One Smokehouse recipe for both sausages, each sausage alone in its stack (F.hangMethod). Boiled
        Blood Sausage, never fried, takes SMOKED_SAUSAGE_HOURS of cold smoke on cool days; raw Fresh Sausage a hot run,
        SAUSAGE_HOT_HOURS stoked in a row (the Smokehouse's hot counter; a broken run starts again). OnTest keeps out a
        raw blood link, a fried one and a cooked fresh one; OnStart picks the kind from the links. time is overwritten

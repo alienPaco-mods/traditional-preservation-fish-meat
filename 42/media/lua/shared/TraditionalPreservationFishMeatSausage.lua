@@ -32,7 +32,7 @@ F.SEASONING_BOREDOM = -2
 -- The links a seasoning goes into (links only): raw or fried or boiled fresh sausage, raw or boiled blood sausage.
 F.SEASONED_LINKS = { F.FRESH_SAUSAGE, F.RAW_BLOOD_SAUSAGE,
     F.BLOOD_SAUSAGE }
-Season.register(F.SEASONED_LINKS, { kinds = F.SEASONINGS, unhappy = F.SEASONING_UNHAPPY, boredom = F.SEASONING_BOREDOM })
+Season.register(F.SEASONED_LINKS, { groups = F.SEASONINGS, unhappy = F.SEASONING_UNHAPPY, boredom = F.SEASONING_BOREDOM })
 
 -- The links a pot boils, and what comes out (TakeOut): seasoning goes from one to the other in order.
 local POT_LINKS = { [F.FRESH_SAUSAGE] = true, [F.RAW_BLOOD_SAUSAGE] = true }
@@ -47,25 +47,25 @@ end
 
 -- Put Sausages / Blood Sausages in Water: the pot keeps each link's seasoning for the links that come out of it.
 function F.onCreateSausagePot(craftRecipeData)
-    local consumed, records = craftRecipeData:getAllConsumedItems(), {}
+    local consumed, seasonings = craftRecipeData:getAllConsumedItems(), {}
     for i = 0, consumed:size() - 1 do
         local item = consumed:get(i)
-        if POT_LINKS[item:getFullType()] then table.insert(records, Season.record(item) or false) end
+        if POT_LINKS[item:getFullType()] then table.insert(seasonings, Season.carried(item) or false) end
     end
     local created = craftRecipeData:getAllCreatedItems()
     for i = 0, created:size() - 1 do
         local pot = created:get(i)
         if not F.isEmptyPot(pot) then
-            pot:getModData().tpLinks = records
+            pot:getModData().tpLinks = seasonings
         end
     end
 end
 
 -- Take Out Sausages / Blood Sausages: the links come out cooked (fresh ones named Boiled), each with its seasoning.
 function F.onCreateBoiledSausages(craftRecipeData)
-    local consumed, records = craftRecipeData:getAllConsumedItems(), {}
+    local consumed, seasonings = craftRecipeData:getAllConsumedItems(), {}
     for i = 0, consumed:size() - 1 do
-        records = consumed:get(i):getModData().tpLinks or records
+        seasonings = consumed:get(i):getModData().tpLinks or seasonings
     end
     local created, n = craftRecipeData:getAllCreatedItems(), 0
     for i = 0, created:size() - 1 do
@@ -74,7 +74,7 @@ function F.onCreateBoiledSausages(craftRecipeData)
             n = n + 1
             item:setCooked(true)
             if item:getFullType() == F.FRESH_SAUSAGE then F.nameAs(item, getText("IGUI_TraditionalPreservationFishMeat_FreshSausageBoiled")) end
-            Season.apply(item, records[n] or nil)
+            Season.carryOver(item, seasonings[n] or nil)
         end
     end
 end

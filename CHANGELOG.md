@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.59
+- **Naming sweep** (2026-11-16, TP Core's DEVGUIDE "How code is named"): a stack's drying `method` (`F.hangMethod`, was `hangKind`), its sprite's `look` (`F.FIRST_ROTTEN_LOOK`, `ROTTEN_LOOKS`, `F.rottenLook`, `stackLooks`), `tubMeat`, `F.sausageOf`, the sausage popup's `fireEffect`; blood's `F.BLOOD_FLUID_KIND` and `F.BLOOD_PROCESS`; `F.clearModData`. The tile builder's names follow (`ROTTEN_COLOURS`, `TUB_MEATS`): rerun, the tiles, pack and Tiles.lua come out byte-identical. Tests and golden results unchanged; nothing changes in game. Saved keys follow TP Core's renames (`workHours`, `marks`, the Smokehouse stack's hours): pre-release, an old test save's stations read as new, so test on a fresh save.
+
 ## 0.4.58
 - **Wraps through TP Core's `Wrap`** (2026-11-16): `ISAddItemInRecipe.complete` and `checkName` go in late and guarded. Nothing changes in game.
 

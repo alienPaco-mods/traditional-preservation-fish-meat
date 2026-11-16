@@ -52,7 +52,7 @@ F.POTTED_EMPTY = 0.05
 local foodOf = F.foodOf
 
 local function addFood(total, food)
-    for key, value in pairs(food) do total[key] = (total[key] or 0) + value end
+    for key, amount in pairs(food) do total[key] = (total[key] or 0) + amount end
 end
 
 
@@ -76,7 +76,7 @@ function F.addPottedCut(batch, cut)
     local blocks = math.min(1 / F.POTTED_MAX, batch.blocks)
     batch.blocks = batch.blocks - blocks
     addFood(batch.food, foodOf(cut))
-    for key, value in pairs(batch.fat) do batch.food[key] = (batch.food[key] or 0) + value * blocks end
+    for key, amount in pairs(batch.fat) do batch.food[key] = (batch.food[key] or 0) + amount * blocks end
     batch.weight = batch.weight + cut:getActualWeight() * F.POTTED_WEIGHT + F.FAT_BLOCK_WEIGHT * blocks
     batch.portions = batch.portions + 1
 end
@@ -84,7 +84,7 @@ end
 -- One portion's food and weight in a batch.
 function F.pottedPortion(batch)
     local portion = {}
-    for key, value in pairs(batch.food) do portion[key] = value / batch.portions end
+    for key, amount in pairs(batch.food) do portion[key] = amount / batch.portions end
     return portion, batch.weight / batch.portions
 end
 
@@ -142,19 +142,19 @@ end
 
 -- The crock's plain name (it eats like any food, so no portion count), and the weight of the vessel and what is left in it.
 function F.labelCrock(crock)
-    local data = crock:getModData()
+    local crockModData = crock:getModData()
     crock:setName(getItemNameFromFullType(F.CROCK))
     crock:setCustomName(false)
-    Portions.weigh(crock, F.crockPortions(crock), data.tpfmVessel or "Base.ClayJar", data.tpfmPortionWeight or 0)
+    Portions.weigh(crock, F.crockPortions(crock), crockModData.tpfmVessel or "Base.ClayJar", crockModData.tpfmPortionWeight or 0)
 end
 
 -- A new crock: the pot's batch in the vessel (a full type).
 function F.fillCrock(crock, batch, vessel)
-    local data = crock:getModData()
-    data.tpfmVessel = vessel
-    data.tpfmPortion, data.tpfmPortionWeight = F.pottedPortion(batch)
+    local crockModData = crock:getModData()
+    crockModData.tpfmVessel = vessel
+    crockModData.tpfmPortion, crockModData.tpfmPortionWeight = F.pottedPortion(batch)
     crock:setModelIndex(F.POTTED_VESSELS[vessel] or 0)
-    Portions.set(crock, data.tpfmPortion, batch.portions, batch.portions)
+    Portions.set(crock, crockModData.tpfmPortion, batch.portions, batch.portions)
     crock:setAge(0)
     F.labelCrock(crock)
 end
@@ -183,12 +183,12 @@ end
 -- portion, in a plain Clay Jar. That is written down the first time it is eaten, so it eats and labels as a packed
 -- one; without it the portions left read 0 and the first bite threw the rest away.
 function F.adoptCrock(crock)
-    local data = crock:getModData()
-    if data.tpfmPortion then return end
-    data.tpfmVessel = data.tpfmVessel or "Base.ClayJar"
-    data.tpfmPortion = foodOf(crock)
-    local empty = ScriptManager.instance:getItem(data.tpfmVessel)
-    data.tpfmPortionWeight = math.max(crock:getActualWeight() - (empty and empty:getActualWeight() or 0), 0)
+    local crockModData = crock:getModData()
+    if crockModData.tpfmPortion then return end
+    crockModData.tpfmVessel = crockModData.tpfmVessel or "Base.ClayJar"
+    crockModData.tpfmPortion = foodOf(crock)
+    local empty = ScriptManager.instance:getItem(crockModData.tpfmVessel)
+    crockModData.tpfmPortionWeight = math.max(crock:getActualWeight() - (empty and empty:getActualWeight() or 0), 0)
 end
 
 -- After any eat: an emptied crock goes back to its container as its jar or pot; one with meat left is weighed again.
@@ -214,13 +214,13 @@ function F.pottedByPlace()
 end
 
 F.POTTED = PlaceKeeping.new({
-    kind = "potted", curve = F.POTTED_AGE_CURVE, ledgerKey = F.POTTED_LEDGER_KEY, modDataKey = "tpfmKeep",
+    process = "potted", curve = F.POTTED_AGE_CURVE, ledgerKey = F.POTTED_LEDGER_KEY, modDataKey = "tpfmKeep",
     enabled = F.pottedByPlace,
 })
 F.POTTED_AGEING = F.POTTED.ageing
 F.newPottedLedger = F.POTTED.newLedger
 F.pottedLedger = F.POTTED.ledger
-F.recordPotted = F.POTTED.record
+F.recordPotted = F.POTTED.recordWeather
 F.pottedRate = F.POTTED.rate
 
 -- Brings a crock's age up to now at the place it was seen in last, and counts from where it is now (place, or
@@ -231,15 +231,15 @@ end
 
 -- The first portion taken: a third of what the crock has left until stale (or, stale already, until rotten) goes.
 function F.openCrock(crock)
-    local data = crock:getModData()
-    if data.tpfmOpened then return end
-    data.tpfmOpened = true
+    local crockModData = crock:getModData()
+    if crockModData.tpfmOpened then return end
+    crockModData.tpfmOpened = true
     local keep = F.keepCrock(crock)
     if not keep then return end
     local age = crock:getAge()
     local limit = age < crock:getOffAge() and crock:getOffAge() or crock:getOffAgeMax()
-    keep.record.age = keep.record.age + math.max(limit - age, 0) * F.POTTED_OPENED_LOSS * 24
-    crock:setAge(keep.base + keep.record.age / 24)
+    keep.fluidAge.age = keep.fluidAge.age + math.max(limit - age, 0) * F.POTTED_OPENED_LOSS * 24
+    crock:setAge(keep.base + keep.fluidAge.age / 24)
 end
 
 -- Eaten through vanilla's eat action (TP Core's Portions, the one wrap of it, which Dairy's jar uses too): the crock's

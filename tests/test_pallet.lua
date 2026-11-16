@@ -176,22 +176,22 @@ function pallet:getSquare() return {} end
 function pallet:getModData() return self.modData end
 function pallet:clearAttachedAnimSprite() shown = {} end
 function pallet:addAttachedAnimSpriteByName(name) table.insert(shown, name) end
-local entry = {}
+local sessionState = {}
 local refresh = TraditionalPreservationFishMeatPallet.refresh
-refresh(pallet, entry)
+refresh(pallet, sessionState)
 check("a pallet starts counting when first seen", pallet.modData.palletHour == 100 and onIt:getModData().matureAge == 0)
 check("and shows the low stack", #shown == 1 and shown[1] == Tiles.PALLET_STACKS[1])
 hours = 100.5
-refresh(pallet, entry)
+refresh(pallet, sessionState)
 check("less than an hour waits", pallet.modData.palletHour == 100 and onIt:getModData().matureAge == 0)
 hours = 124
-refresh(pallet, entry)
+refresh(pallet, sessionState)
 check("a day in a loft gives a day more", pallet.modData.palletHour == 124 and near(onIt:getModData().matureAge, -1))
 placeOf, hours = "Sheltered", 148
-refresh(pallet, entry)
+refresh(pallet, sessionState)
 check("a day in a ground-floor room half a day more", near(onIt:getModData().matureAge, -1.5))
 placeOf, hours = "Basement", 172
-refresh(pallet, entry)
+refresh(pallet, sessionState)
 check("a day in a basement nothing more", near(onIt:getModData().matureAge, -1.5) and pallet.modData.palletHour == 172)
 
 H.done()

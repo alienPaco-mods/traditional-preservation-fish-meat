@@ -59,9 +59,9 @@ local function fish(fullType, modData, rotten)
 end
 
 local function recipeData(progress, style)
-    local data = { modData = { style = style }, progress = progress }
-    function data:getModData() return self.modData end
-    return data
+    local craftRecipeData = { modData = { style = style }, progress = progress }
+    function craftRecipeData:getModData() return self.modData end
+    return craftRecipeData
 end
 
 -- A station with this sprite, with waiting fish, running batches and finished fish.
@@ -70,7 +70,7 @@ local function station(spriteName, x, outside, waiting, batches, finished)
     for _, batch in ipairs(batches) do logic.inProgress[batch] = {} end
     function logic:getInputsGroupName() return "in" end
     function logic:getOutputsGroupName() return "out" end
-    function logic:getProgress(data) return data.progress end
+    function logic:getProgress(craftRecipeData) return craftRecipeData.progress end
     logic.tag = "DryingFrame"
     function logic:getRecipeTagQuery() return self.tag end
     function logic:setRecipeTagQuery(tag) self.tag = tag end
@@ -79,17 +79,17 @@ local function station(spriteName, x, outside, waiting, batches, finished)
         local items = group == "in" and waiting or finished
         return list({ { getStoredItems = function() return list(items) end, storedSize = function() return #items end } })
     end
-    local object = { square = square(x, 0), sprites = {}, clears = 0 }
-    function object:getComponent(kind) return kind == "Resources" and resources or logic end
-    function object:getSprite() return { getName = function() return spriteName end } end
-    function object:getSquare() return self.square end
-    function object:getObjectIndex() return 0 end
-    function object:isOutside() return outside end
-    function object.square:isOutside() return outside end
-    function object.square:isInARoom() return not outside and not object.porch end
-    function object:clearAttachedAnimSprite() self.sprites = {} self.clears = self.clears + 1 end
-    function object:addAttachedAnimSpriteByName(name) table.insert(self.sprites, name) end
-    return object
+    local station = { square = square(x, 0), sprites = {}, clears = 0 }
+    function station:getComponent(componentType) return componentType == "Resources" and resources or logic end
+    function station:getSprite() return { getName = function() return spriteName end } end
+    function station:getSquare() return self.square end
+    function station:getObjectIndex() return 0 end
+    function station:isOutside() return outside end
+    function station.square:isOutside() return outside end
+    function station.square:isInARoom() return not outside and not station.porch end
+    function station:clearAttachedAnimSprite() self.sprites = {} self.clears = self.clears + 1 end
+    function station:addAttachedAnimSpriteByName(name) table.insert(self.sprites, name) end
+    return station
 end
 
 local function tick(times)
@@ -151,15 +151,15 @@ check("a beam's charque is its own run too", W.hangingSprite(T.HANGERS[408], T.S
 check("fish keep theirs", W.hangingSprite(T.HANGERS[6], 4, 1, 0) == 8 + 4 * 8 * 2)
 
 -- Rotted stacks (0.4.21): one look a kind, on the third sheet.
-check("rotten tiles start the third sheet", W.hangingSprite(T.HANGERS[6], T.ROTTEN_STATE, 1, 0) == 880
+check("rotten tiles start the third sheet", W.hangingSprite(T.HANGERS[6], T.FIRST_ROTTEN_LOOK, 1, 0) == 880
     and T.spriteName(880) == "traditionalpreservationfishmeat_03_0")
-check("and run to its 84th", W.hangingSprite(T.HANGERS[410], T.ROTTEN_STATE + T.ROTTEN_KINDS.MEAT, 2, 1) == 963
+check("and run to its 84th", W.hangingSprite(T.HANGERS[410], T.FIRST_ROTTEN_LOOK + T.ROTTEN_LOOKS.MEAT, 2, 1) == 963
     and T.spriteName(963) == "traditionalpreservationfishmeat_03_83" and T.spriteIndex("traditionalpreservationfishmeat_03_83") == 963)
 check("the first two sheets keep their names", T.spriteName(407) == "traditionalpreservationfishmeat_01_407"
     and T.spriteName(408) == "traditionalpreservationfishmeat_02_0" and T.spriteIndex("traditionalpreservationfishmeat_02_471") == 879
     and T.spriteIndex("traditionalpreservationfishmeat_04_0") == nil)
-check("a style's rotten kind", T.rottenKind(T.STYLE_SALT_HALF) == T.ROTTEN_KINDS.SALT and T.rottenKind(T.STYLE_HALF) == T.ROTTEN_KINDS.COLD
-    and T.rottenKind(T.STYLE_MEAT) == T.ROTTEN_KINDS.MEAT)
+check("a style's rotten kind", T.rottenLook(T.STYLE_SALT_HALF) == T.ROTTEN_LOOKS.SALT and T.rottenLook(T.STYLE_HALF) == T.ROTTEN_LOOKS.COLD
+    and T.rottenLook(T.STYLE_MEAT) == T.ROTTEN_LOOKS.MEAT)
 local lost = recipeData(0.4, T.STYLE_GUTTED)
 lost.modData.spoiled = 1
 local spoiledFrame = station("traditionalpreservationfishmeat_01_6", 7, true, {},
@@ -199,9 +199,9 @@ check("a frame keeps the frame's", rack:getComponent("DryingCraftLogic").tag == 
 local seen = W.inspect(shed)
 check("a look at the frame: its hanger, place and contents", seen.hanger == T.HANGERS[6] and seen.place == "Sheltered"
     and #seen.waiting == 1 and seen.finished == 1 and seen.finishedStacks == 1)
-check("and its running batch with its progress", #seen.batches == 1 and seen.batches[1].data == running and seen.batches[1].progress == 0.5)
+check("and its running batch with its progress", #seen.batches == 1 and seen.batches[1].craftRecipeData == running and seen.batches[1].progress == 0.5)
 check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place == "Enclosed" and W.inspect(smokehouse).hanger.closed)
-check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].data == smoked)
+check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].craftRecipeData == smoked)
 check("another mod's object gives nothing", W.inspect(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
 
 -- Tubs
@@ -226,9 +226,9 @@ for _, case in ipairs({ { 0, "beef", "traditionalpreservationfishmeat_02_462" },
     W.refresh(salted)
     check("a tub of " .. case[2] .. " waiting shows it", table.concat(salted.sprites, " ") == case[3])
 end
-check("the kind of a fish is none", W.tubKind({ fish(T.PACKED_FISH) }) == nil and W.tubKind({}) == nil)
-check("mixed cuts show the last put in", W.tubKind({ meat(0), meat(4) }) == "pork" and W.tubKind({ meat(4), meat(3) }) == "meat")
-check("a leg shows wherever it is", W.tubKind({ meat(T.LEG_INDEX), meat(0), meat(3) }) == "leg")
+check("the kind of a fish is none", W.tubMeat({ fish(T.PACKED_FISH) }) == nil and W.tubMeat({}) == nil)
+check("mixed cuts show the last put in", W.tubMeat({ meat(0), meat(4) }) == "pork" and W.tubMeat({ meat(4), meat(3) }) == "meat")
+check("a leg shows wherever it is", W.tubMeat({ meat(T.LEG_INDEX), meat(0), meat(3) }) == "leg")
 check("other mods' objects aren't tracked", W.track(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
 check("an untracked station is safe to ask", W.busyStacks({}) == 0)
 
@@ -248,8 +248,8 @@ check("the world file records the weather", ledger.temperature == 20 and ledger.
 
 -- B5 (2026-11-14): two stacks as far along keep one order, by when they were hung, whatever order they come in.
 local early, late = { progress = 0.5, style = 0, stackId = 10 }, { progress = 0.5, style = 1, stackId = 20 }
-local one = W.fishStates(nil, { early, late }, {})
-local other = W.fishStates(nil, { late, early }, {})
+local one = W.stackLooks(nil, { early, late }, {})
+local other = W.stackLooks(nil, { late, early }, {})
 check("stacks as far along draw the same either way, the earlier hung first",
     table.concat(one, ",") == table.concat(other, ",") and one[1] == 0 * T.DRYING_STAGES + T.dryingStage(0.5))
 

@@ -83,8 +83,8 @@ check("One takes the piece nearest to going off", #queued.pieces == 1 and queued
 picks[2].onSelect(picks[2].target, unpack(picks[2].args))
 queued = ui.queued[#ui.queued]
 check("All walks over, takes the pieces in hand, oldest first, and queues the job", ui.walks == 2 and #ui.moved == 3
-    and queued.Type == "TPPutPieces" and queued.spec.fluid == "RawSuet" and queued.pieces[1] == mutton and queued.pieces[2] == suet
-    and queued.into.object == empty)
+    and queued.Type == "TPPutPieces" and queued.asFluid.fluid == "RawSuet" and queued.pieces[1] == mutton and queued.pieces[2] == suet
+    and queued.into.station == empty)
 rows = open(withCauldron({ ml = 500, fluid = "RawPorkFat", tempC = 20 })).subOption.options
 check("a cauldron of pork fat takes more pork fat and refuses suet with the reason", not rows[1].notAvailable and rows[2].notAvailable == true
     and rows[2].toolTip.description == getText("IGUI_TraditionalPreservationFishMeat_FatNoRoom"))
@@ -96,10 +96,10 @@ check("nor does water", rows[1].notAvailable == true)
 -- Stone Hearth Info's notes: the fat in the cauldron, and the smoke note on a Stone Hearth joined to the Smokehouse
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 require "TraditionalPreservationFishMeatSmokehouseUI"
-local notes = FireUI.notes({ spec = Fire.attachment(Cauldron.ID), part = { ml = 500, fluid = "MeltedLard", tempC = 90 }, lit = true })
+local notes = FireUI.notes({ attachment = Fire.attachment(Cauldron.ID), part = { ml = 500, fluid = "MeltedLard", tempC = 90 }, lit = true })
 check("melted fat in the cauldron gets its note", table.concat(notes, "|"):find(getText("IGUI_TraditionalPreservationFishMeat_FatMelted"), 1, true) ~= nil)
 local smokes = getText("IGUI_TraditionalPreservationFishMeat_FlueSmokes")
-notes = FireUI.notes({ help = StoneHearth.kind.display.help, lit = true, joinedSpec = { id = Smokehouse.ID }, joined = { kind = "Pipe" } })
+notes = FireUI.notes({ help = StoneHearth.kind.display.help, lit = true, connection = { id = Smokehouse.ID }, joined = { kitName = "Pipe" } })
 check("a Stone Hearth joined to the Smokehouse says what its fire does to the stacks", notes[#notes] == smokes)
 notes = FireUI.notes({ help = StoneHearth.kind.display.help, lit = true })
 check("one joined to nothing doesn't", notes[#notes] ~= smokes)

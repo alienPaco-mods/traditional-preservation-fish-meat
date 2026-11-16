@@ -12,9 +12,9 @@ local function food(fullType, values)
     function item:getFullType() return self.fullType end
     for _, field in ipairs({ "BaseHunger", "Calories", "Proteins", "Lipids", "Carbohydrates", "Age" }) do
         item["get" .. field] = function(self) return self.values[field] or 0 end
-        item["set" .. field] = function(self, value) self.values[field] = value end
+        item["set" .. field] = function(self, amount) self.values[field] = amount end
     end
-    function item:setHungChange(value) self.values.HungChange = value end
+    function item:setHungChange(hungChange) self.values.HungChange = hungChange end
     function item:getDisplayName() return "Leg of Pork" end
     function item:getContainer() return self.container end
     return item

@@ -185,13 +185,13 @@ end
 -- Every key of a family, each once, in a fixed order.
 local FAMILY_KEYS = {}
 for family, keys in pairs(F.TOTALS) do
-    local list, seen = {}, {}
+    local familyKeys, seen = {}, {}
     if type(keys) == "string" then keys = { Open = keys } end
     for _, place in ipairs({ "Open", "Covered", "Shed", "Room", "Loft", "Basement" }) do
         local key = keys[place]
-        if key and not seen[key] then seen[key], list[#list + 1] = true, key end
+        if key and not seen[key] then seen[key], familyKeys[#familyKeys + 1] = true, key end
     end
-    FAMILY_KEYS[family] = list
+    FAMILY_KEYS[family] = familyKeys
 end
 F.FAMILY_KEYS = FAMILY_KEYS
 
@@ -507,7 +507,7 @@ function F.charqueStatus(modData, ledger)
             progress = F.cookShare(modData) or 0,
             rate = stoked and 1 or 0,
             reason = not stoked and "NeedsStoking" or nil,
-            hoursLeft = stoked and math.max((modData.hotNeed or 0) - (modData.hot or 0), 0) or nil,
+            hoursLeft = stoked and math.max((modData.hotSmokeHoursNeeded or 0) - (modData.hotSmokeHours or 0), 0) or nil,
             spoiled = math.min((modData.spoiled or 0) + (modData.underSpoiled or 0), 1),
             spoiling = false,
             scorching = false,
@@ -579,13 +579,13 @@ end
 -- The ledger is the mod's global ModData table itself, so its keys are the ones in every save. A new save's table
 -- (or one without the newest total) gets the totals it lacks.
 function F.getLedger()
-    local data = ModData.getOrCreate(F.MOD_DATA_KEY)
-    if data[NEWEST_TOTAL] == nil then
-        for key, value in pairs(F.newLedger(getGameTime():getWorldAgeHours())) do
-            if data[key] == nil then data[key] = value end
+    local fishMeatModData = ModData.getOrCreate(F.MOD_DATA_KEY)
+    if fishMeatModData[NEWEST_TOTAL] == nil then
+        for key, field in pairs(F.newLedger(getGameTime():getWorldAgeHours())) do
+            if fishMeatModData[key] == nil then fishMeatModData[key] = field end
         end
     end
-    return data
+    return fishMeatModData
 end
 
 -- The totals each kind of stack reads, marked at its start and at every look.

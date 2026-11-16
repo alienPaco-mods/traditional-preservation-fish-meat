@@ -77,17 +77,17 @@ end
 -- the Smokehouse makes it Hot Smoked, its hours of smoke Cold Smoked, else it is air dried there; on a frame meat
 -- is charque unless it dry cures. The names of its pieces' products, each once ("Rotten" for a lost piece). The
 -- likeliest result, not a promise: the next stoking, banking or move can change it. For the stack's popup.
-function F.stackOutcome(modData, items, kind)
+function F.stackOutcome(modData, items, method)
     if (modData.spoiled or 0) >= 1 then return getText("IGUI_TraditionalPreservationFishMeat_OutcomeRotten") end
     local way
     if F.inShed(modData) then
         way = (modData.hotOnly or F.cookShare(modData) or F.hotStations[modData.stackId]) and "hot"
             or F.coldDone(modData) and "smoked" or "airDried"
-    elseif kind == "meat" then
+    elseif method == "meat" then
         way = F.dryCuring(modData) and "airDried" or "charque"
     end
-    if kind ~= "meat" then
-        local fullType = kind == "cold" and F.COLD_DRIED or way == "hot" and F.HOT_FISH
+    if method ~= "meat" then
+        local fullType = method == "cold" and F.COLD_DRIED or way == "hot" and F.HOT_FISH
             or way == "smoked" and F.COLD_FISH_OUT or F.SALT_DRIED
         return getItemNameFromFullType(fullType)
     end
@@ -138,11 +138,11 @@ function F.stageName(item)
     if stage.matures or stage.ripened then return stockfishName(item, fishName) end
     if stage.prep then return stage.name and getText(stage.name, fishName) or fishName end
     if F.wasGutted(item) then fishName = getText("IGUI_TraditionalPreservationFishMeat_Gutted", fishName) end
-    local state = getText(stage.name)
+    local stageText = getText(stage.name)
     if stage.salty and modData.rinsed then
-        state = getText("IGUI_TraditionalPreservationFishMeat_And", state, getText("IGUI_TraditionalPreservationFishMeat_Rinsed"))
+        stageText = getText("IGUI_TraditionalPreservationFishMeat_And", stageText, getText("IGUI_TraditionalPreservationFishMeat_Rinsed"))
     end
-    return getText("IGUI_TraditionalPreservationFishMeat_Named", fishName, state)
+    return getText("IGUI_TraditionalPreservationFishMeat_Named", fishName, stageText)
 end
 
 -- Brings a fish stage's name up to date (ripening, ageing), and a maturing

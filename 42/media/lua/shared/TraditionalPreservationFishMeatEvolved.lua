@@ -82,12 +82,12 @@ Wrap.method("ISAddItemInRecipe", "complete", function(vanillaComplete, self)
     local used = self.usedItem
     local usedType = used and used:getFullType()
     local animalStandin = F.standinFor(usedType, cutOf(used), used and used:getModData().airDried)
-    local result = vanillaComplete(self)
+    local vanillaReturn = vanillaComplete(self)
     F.carryStock(stock, self.baseItem, self.recipe)
     local renamed = F.useAnimalStandin(self.baseItem, usedType, animalStandin)
     F.useStandins(self.baseItem)
     if renamed and not self.baseItem:isCustomName() then ISAddItemInRecipe.checkName(self.baseItem, self.recipe) end
-    return result
+    return vanillaReturn
 end)
 
 -- A stock's soup or stew is named "Fish Head Soup with Fish and Carrots" rather than vanilla's "Fish Fish
@@ -104,10 +104,10 @@ F.STOCK_POTS = {
     ["TraditionalPreservationFishMeat.PotForgedChickenStock"] = "ChickenStock",
 }
 F.STOCK_DISHES = {}
-for _, kind in ipairs({ "FishHead", "BoneBroth", "Chicken" }) do
+for _, stock in ipairs({ "FishHead", "BoneBroth", "Chicken" }) do
     for _, dish in ipairs({ "Soup", "Stew" }) do
         for _, pot in ipairs({ "PotOf", "PotForged" }) do
-            F.STOCK_DISHES["TraditionalPreservationFishMeat." .. pot .. kind .. dish] = kind .. dish
+            F.STOCK_DISHES["TraditionalPreservationFishMeat." .. pot .. stock .. dish] = stock .. dish
         end
     end
 end
@@ -135,11 +135,11 @@ end
 
 local MAX_NAMED = 3
 
-local function namedKinds(list, skipHead, withMinor)
+local function foodTypeNames(foods, skipHead, withMinor)
     local names, byType, order, plain = {}, {}, {}, nil
     local skipParts = skipHead
-    for i = 0, list:size() - 1 do
-        local food = list:get(i)
+    for i = 0, foods:size() - 1 do
+        local food = foods:get(i)
         if skipHead and food == F.FISH_HEAD then
             skipHead = false
         elseif skipParts and F.STOCK_PARTS[food] then
@@ -183,10 +183,10 @@ end
 -- Nil to keep vanilla's name. Too many kinds to name gives the plain dish.
 function F.stockName(stock, recipe)
     local dish = getText("ContextMenu_EvolvedRecipe_" .. recipe:getUntranslatedName())
-    local names = stock:getExtraItems() and namedKinds(stock:getExtraItems(), true, true) or {}
+    local names = stock:getExtraItems() and foodTypeNames(stock:getExtraItems(), true, true) or {}
     if #names > MAX_NAMED then return dish end
     if stock:getSpices() then
-        local spices = namedKinds(stock:getSpices(), false, false)
+        local spices = foodTypeNames(stock:getSpices(), false, false)
         if #names + #spices <= MAX_NAMED then
             for _, name in ipairs(spices) do table.insert(names, name) end
         end

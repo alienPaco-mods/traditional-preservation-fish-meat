@@ -132,7 +132,7 @@ local function tubWith(stored)
     local resources = { getResourcesFromGroup = function() return list({ slot }) end }
     return {
         getSprite = function() return { getName = function() return TUB end } end,
-        getComponent = function(_, kind) return kind == ComponentType.Resources and resources or logic end,
+        getComponent = function(_, componentType) return componentType == ComponentType.Resources and resources or logic end,
     }
 end
 local craftLogic = { getCraftLogic = function() return { getInputsGroupName = function() return "craft_inputs" end } end }
@@ -274,8 +274,8 @@ local function stackLines(recipeName, modData, ledger)
     function tip:beginLayout() return layout end
     function tip:endLayout() end
     function tip:getWidth() return self.width end
-    function tip:setWidth(value) self.width = value end
-    function tip:setHeight(value) self.height = value end
+    function tip:setWidth(width) self.width = width end
+    function tip:setHeight(height) self.height = height end
     slot:drawTooltip(tip)
     check("the popup sizes itself", tip.height == 95 and tip.width == 150)
     return lines
@@ -311,9 +311,9 @@ function listTip:getFont() return "font" end
 function listTip:getLineSpacing() return 20 end
 function listTip:adjustWidth() end
 function listTip:DrawText(_, text) table.insert(drawn, text) end
-function listTip:setHeight(value) self.height = value end
+function listTip:setHeight(height) self.height = height end
 function listTip:getWidth() return self.width end
-function listTip:setWidth(value) self.width = value end
+function listTip:setWidth(width) self.width = width end
 meatWidget.outputItems.drawTooltip({}, listTip)
 check("it lists the five ends under its title", #drawn == 6 and drawn[1] == "IGUI_TraditionalPreservationFishMeat_ComesOutAs"
     and drawn[2] == "IGUI_TraditionalPreservationFishMeat_Ends_Charque")
