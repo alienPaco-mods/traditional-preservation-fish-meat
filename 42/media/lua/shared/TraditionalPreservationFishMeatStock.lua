@@ -2,6 +2,7 @@
 -- to.
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
+local Handcraft = require "TraditionalPreservationCore/Handcraft"
 
 -- The stock carries the head's calories, not its hunger (every stock reads hunger -5: a design decision), and lists the head among its ingredients, as a vanilla stew lists what went in.
 function F.onCreateHeadStock(craftRecipeData)
@@ -88,10 +89,10 @@ function F.onCreateBoneBroth(craftRecipeData)
     end
 end
 
--- Smashing a boiled bone gives boiled pieces, or the same bone would make stock twice. Vanilla's Smash Bone
--- has no OnCreate; F.hookSmashBone gives it this one. Load renames the recipe to the name it is given and looks
--- up its translation by it, so it gets the recipe's own name ("SmashBone"), not the full one.
-function F.onCreateSmashedBone(craftRecipeData)
+-- Smashing a boiled bone gives boiled pieces, or the same bone would make stock twice. Vanilla's Smash Bone has no
+-- OnCreate, and giving its script one would replace any other mod's, so this runs after the hand craft instead
+-- (F.onSmashBone, on TP Core's Handcraft) and the vanilla recipe is left as it is.
+function F.markSmashedBone(craftRecipeData)
     local boiled = false
     local inputs = craftRecipeData:getAllInputItems()
     for i = 0, inputs:size() - 1 do
@@ -107,12 +108,11 @@ function F.onCreateSmashedBone(craftRecipeData)
     end
 end
 
-function F.hookSmashBone()
-    local recipe = ScriptManager.instance:getCraftRecipe("Base.SmashBone")
-    if recipe then recipe:Load(recipe:getName(), "{ OnCreate = TraditionalPreservationFishMeat.onCreateSmashedBone, }") end
+function F.onSmashBone(action, recipeData)
+    if recipeData:getRecipe():getName() == "SmashBone" then F.markSmashedBone(recipeData) end
 end
 
-Events.OnInitGlobalModData.Add(F.hookSmashBone)
+Handcraft.after(F.onSmashBone)
 
 -- Each part gives what F.STOCK_PARTS says; the stock lists one chicken icon.
 function F.onCreateChickenStock(craftRecipeData)

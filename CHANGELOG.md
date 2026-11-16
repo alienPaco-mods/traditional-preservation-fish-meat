@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.56
+- **Smash Bone left as vanilla's** (2026-11-16): a boiled bone still smashes into boiled pieces, but the mark is now passed after the hand craft (`F.onSmashBone`, on TP Core's `Handcraft`) instead of by giving vanilla's recipe an OnCreate at load (`F.hookSmashBone` is gone). Another mod that gives Smash Bone its own OnCreate no longer replaces ours or is replaced by it. test_curing.
+
 ## 0.4.55
 - **One or All** (2026-11-16, TP Core's `PiecesUI` and `TPPutPieces`): Put Fat in the Cauldron puts one piece (the nearest to going off) or all that fit, the oldest first; before, every piece carried went in. test_fat_ui.
 

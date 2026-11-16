@@ -935,19 +935,22 @@ T.onCreateBoneBroth(newRecipeData(0, smalls, { small }))
 check("six Small bones give what two Animal Bones do", near(small.values.Calories, 80) and near(small.values.Proteins, 10) and near(small.values.Lipids, 3))
 
 -- Smashing a boiled bone gives boiled pieces
-T.hookSmashBone()
-check("Smash Bone gets the OnCreate under its own name, so it keeps its translation", loaded["SmashBone"] == "{ OnCreate = TraditionalPreservationFishMeat.onCreateSmashedBone, }")
-local function smashData(input, pieces)
+check("Smash Bone's script is left as vanilla's", loaded["SmashBone"] == nil)
+local function smashData(input, pieces, recipeName)
     local data = newRecipeData(0, {}, pieces)
     function data:getAllInputItems() return list({ newFood("Base.Hammer", {}), input }) end
+    function data:getRecipe() return { getName = function() return recipeName or "SmashBone" end } end
     return data
 end
 local pieces = { newBone("Base.SmallAnimalBone"), newBone("Base.SmallAnimalBone") }
-T.onCreateSmashedBone(smashData(bones[1], pieces))
+T.onSmashBone({}, smashData(bones[1], pieces))
 check("a boiled bone smashes into boiled pieces", pieces[1]:getModData().boiled and pieces[2]:getModData().boiled and not T.canBoil(pieces[1]))
 local freshPieces = { newBone("Base.SmallAnimalBone"), newBone("Base.SmallAnimalBone") }
-T.onCreateSmashedBone(smashData(newBone("Base.AnimalBone"), freshPieces))
+T.onSmashBone({}, smashData(newBone("Base.AnimalBone"), freshPieces))
 check("a fresh bone smashes into fresh pieces", T.canBoil(freshPieces[1]) and not freshPieces[1]:getModData().boiled)
+local otherPieces = { newBone("Base.SmallAnimalBone") }
+T.onSmashBone({}, smashData(bones[2], otherPieces, "SomeOtherRecipe"))
+check("another hand craft with a boiled bone marks nothing", not otherPieces[1]:getModData().boiled)
 
 -- Chicken Stock: a foot gives its gelatin, a head a little, no hunger, and all are listed
 local poultry = newFood("TraditionalPreservationFishMeat.PotOfChickenStock", { Calories = 140, BaseHunger = -0.05, HungChange = -0.05 })

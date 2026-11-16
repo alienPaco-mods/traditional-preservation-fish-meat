@@ -1172,7 +1172,7 @@ module TraditionalPreservationFishMeat
        and BoredomChange -10, at hunger -5 with small calories (F.STOCK_BONES, F.STOCK_FOOT, F.STOCK_HEAD). Balance
        passes leave these alone.
        Bone Broth: the bones are kept and come back boiled (onCreateBoneBroth); canBoil refuses a boiled one, and a
-       boiled bone smashed gives boiled pieces (onCreateSmashedBone). Two Animal Bones, one Large or six Small make a pot. */
+       boiled bone smashed gives boiled pieces (onSmashBone). Two Animal Bones, one Large or six Small make a pot. */
     item PotOfBoneBroth
     {
         DisplayCategory = Food,
