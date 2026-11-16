@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.58
+- **Wraps through TP Core's `Wrap`** (2026-11-16): `ISAddItemInRecipe.complete` and `checkName` go in late and guarded. Nothing changes in game.
+
 ## 0.4.57
 - **Refusal and status keys as constants** (2026-11-16): the keys the drying and tub rules return are `F.REFUSALS`, the popup's spoilage, temperature and wind words `F.WORDS` (TP Core's DEVGUIDE "Translation keys"). Same keys, nothing changes in game.
 

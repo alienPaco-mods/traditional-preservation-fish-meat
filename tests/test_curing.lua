@@ -965,8 +965,14 @@ check("it lists one chicken icon, not its parts", poultry.extras and #poultry.ex
 end
 
 -- Ingredient stand-ins
-ISAddItemInRecipe = { complete = function() return true end }
-function require() end
+ISAddItemInRecipe = { complete = function() return true end, checkName = function() end }
+-- Vanilla's files load as nothing here; TP Core's own modules load as usual.
+do
+    local realRequire = require
+    function require(name)
+        if name:find("^TraditionalPreservationCore/") then return realRequire(name) end
+    end
+end
 -- Every stand-in the code builds is in the scripts (checked below).
 getScriptManager = function() return { FindItem = function() return true end } end
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatEvolved.lua")

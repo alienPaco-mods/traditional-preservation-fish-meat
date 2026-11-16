@@ -4,6 +4,7 @@
 -- single-icon stand-in for that stage instead, which names the dish the same way.
 require "TraditionalPreservationFishMeat/Common"
 require "TimedActions/ISAddItemInRecipe"
+local Wrap = require "TraditionalPreservationCore/Wrap"
 
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
@@ -74,10 +75,9 @@ function F.useAnimalStandin(dish, fullType, standin)
     return false
 end
 
--- Once vanilla has added an ingredient, its list entry is swapped for the stand-in (see the top).
-local vanillaComplete = ISAddItemInRecipe.complete
-
-function ISAddItemInRecipe:complete()
+-- Once vanilla has added an ingredient, its list entry is swapped for the stand-in (see the top). Wraps
+-- ISAddItemInRecipe.complete through TP Core's Wrap: compare with vanilla after a game update.
+Wrap.method("ISAddItemInRecipe", "complete", function(vanillaComplete, self)
     local stock = self.baseItem
     local used = self.usedItem
     local usedType = used and used:getFullType()
@@ -88,7 +88,7 @@ function ISAddItemInRecipe:complete()
     F.useStandins(self.baseItem)
     if renamed and not self.baseItem:isCustomName() then ISAddItemInRecipe.checkName(self.baseItem, self.recipe) end
     return result
-end
+end)
 
 -- A stock's soup or stew is named "Fish Head Soup with Fish and Carrots" rather than vanilla's "Fish Fish
 -- Head Soup". The rules are vanilla's: each food type is named by its first ingredient, or by the type once
@@ -196,17 +196,15 @@ function F.stockName(stock, recipe)
 end
 
 -- A stock's soup or stew is named by stockName instead of vanilla's rule; other dishes pass through.
--- Wraps ISAddItemInRecipe.checkName: compare with vanilla after a game update.
-local vanillaCheckName = ISAddItemInRecipe.checkName
-
-ISAddItemInRecipe.checkName = function(baseItem, recipe)
+-- Wraps ISAddItemInRecipe.checkName through TP Core's Wrap: compare with vanilla after a game update.
+Wrap.method("ISAddItemInRecipe", "checkName", function(vanillaCheckName, baseItem, recipe)
     if not (baseItem and (F.STOCK_POTS[baseItem:getFullType()] or F.STOCK_DISHES[baseItem:getFullType()])) or baseItem:isCustomName() then
         return vanillaCheckName(baseItem, recipe)
     end
     local name = F.stockName(baseItem, recipe)
     if name then baseItem:setName(name) end
     if not isServer() then ISInventoryPage.dirtyUI() end
-end
+end)
 
 -- Vanilla's inheritFoodNameBowl names a bowl after the pot, so a stock with nothing added gave "Bowl of Pot of
 -- Bone Broth". The bowls are named after the dish instead: "Bowl of Bone Broth", "Bowl of Bone Broth Soup with
