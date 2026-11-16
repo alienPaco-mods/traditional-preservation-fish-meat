@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.61
+- **Grain's season in the guide** (2026-11-16): the almanac and "What the base game gives" now say wheat, barley and rye are sown August to October (best in September) and take about three and a half months to ripen; were "nothing is sown after summer" and "October to January: nothing may be sown" (vanilla 42.22 `farming_vegetableconf_vegetables.lua`). Guide 1 only; nothing changes in game.
+
 ## 0.4.60
 - **Pork Fat (Raw, Fresh) and Suet (Raw, Fresh)** (2026-11-16): anything that goes off shows *(Fresh)* in its good state, so raw fat in the cauldron says it can go rancid; were Pork Fat (Raw) and Suet (Raw). Fluid names only.
 - **Animal Blood (Cured, Fresh)** (2026-11-16): cured blood still spoils (3 days at 20 C, 7 in a fridge), so it shows *(Fresh)* too; was Animal Blood (Cured). README, DEVHELP, guide 1.

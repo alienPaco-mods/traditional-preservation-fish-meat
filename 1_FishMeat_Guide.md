@@ -903,12 +903,12 @@ What to start, and what the base game is doing meanwhile.
 
 | Months | Fish | Meat | Garden and water |
 |---|---|---|---|
-| **Nov, Dec** | **Stockfish** on the racks; Cold Smoked on a banked fire | **Slaughter.** Render the fat; **Country Cure** the legs first (21 days), then cuts (10); Potted Meat into a cold pantry | Nothing grows. Fish bite at about half |
+| **Nov, Dec** | **Stockfish** on the racks; Cold Smoked on a banked fire | **Slaughter.** Render the fat; **Country Cure** the legs first (21 days), then cuts (10); Potted Meat into a cold pantry | Only the autumn-sown grain is in the ground. Fish bite at about half |
 | **Jan, Feb** | Stockfish, the last hung in the open by **the end of February**, under a roof into March; salt fish slowly, about 4 weeks | Hang the Country Cured meat: Smokehouse with a daily fire, or a cellar beam. A second long cure for beef or venison | Sowing starts in February |
 | **Mar, Apr** | Salt fish again, slowly; Cold Smoked on cool days; stockfish maturing on the pallet | The **last long cures** (April at the latest); hung meat finishes fastest now, 4 to 5 weeks | First radishes and greens. Fish bite at three quarters |
 | **May** | Salt fish, 2 to 3 weeks | The first **charque**; crocks move to the basement or the fridge | Harvests begin; full bite on warm days |
 | **Jun, Jul, Aug** | **Salt fish** under an open roof, fastest; mind a warm cure in July | **Charque** at its best, 1 to 2 weeks; no long cure; hot smoke for the week | Potatoes, tomatoes, cabbages. Fish bite best |
-| **Sep, Oct** | The last quick salt fish in September; the first stockfish in October under a roof (in the open it rots on warm afternoons) | The last charque in September; the **long cure opens again** in October | The last harvests. Nothing is sown after summer |
+| **Sep, Oct** | The last quick salt fish in September; the first stockfish in October under a roof (in the open it rots on warm afternoons) | The last charque in September; the **long cure opens again** in October | The last vegetable harvests. **Sow wheat, barley and rye** (August to October, best in September) |
 | **Any month** | Hot Smoked, for this week | Hot Smoked and Ham, for this week; Potted Meat | |
 
 **When each larder runs out**
@@ -928,7 +928,8 @@ Summer's food carries you to midwinter, and winter's carries you back to summer.
 | | When | Keeps fresh |
 |---|---|---|
 | Most crops | Sown **February to July**; cabbages and greens take about 2 months, potatoes, carrots and tomatoes about 3 | A cabbage 2 days, a potato about 4 weeks |
-| The garden's dead months | **October to January**: nothing may be sown and little survives | |
+| Wheat, barley, rye | Sown **August to October**, best in September; about three and a half months to ripen, longer if winter slows it | A fresh sheaf 7 days; dried and threshed, the grain keeps |
+| The garden's dead months | **November to January**: nothing may be sown (October takes grain only) and little survives | |
 | Animals | Butchered whenever you choose; a carcass on the Butchering Hook gives far more than one on the ground | Raw meat 2 / 4 days |
 
 | Air temperature | Fish bite |
