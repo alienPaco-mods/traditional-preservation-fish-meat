@@ -22,7 +22,7 @@ ArrayList = { new = function() return list({}) end }
 function getPlayer() return {} end
 function getClimateManager()
     return {
-        getTemperature = function() return 20 end,
+        isUpdated = function() return true end, getTemperature = function() return 20 end,
         getHumidity = function() return 0.4 end,
         getPrecipitationIntensity = function() return 0 end,
         getPrecipitationIsSnow = function() return false end,
