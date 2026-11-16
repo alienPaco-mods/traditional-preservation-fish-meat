@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.54
+- **Console** (2026-11-16): `TPFM.crocks` and `TPFM.keep` find crocks through TP Core's `PlaceKeepingUI.near` (the same search, moved to Core so Dairy's butter shares it). Nothing changes.
 - **Potted Meat under Clarified Butter** (2026-11-15): with Dairy on, Put Meat in Fat (was Put Meat in Lard or Tallow) also takes Dairy's Clarified Butter, a block like Lard. The line is widened at load (`F.applyPottedButter`, TP Core's `Recipes.addItems`), so without Dairy nothing changes. Tooltip. test_potted. In-game step in TP Core's `TESTING_GUIDE.md` (butter).
 - **Refactor: Put Fat in the Cauldron on TP Core's shared pieces** (2026-11-15): the menu is `CauldronUI.addPieces`, the job TP Core's `TPCauldronPieces` (`TPFMFatCauldron` is gone), `F.cauldronFatRoom` and `F.putFatInCauldron` call `CauldronFluid.pieceRoom` / `putPieces`. Same rows, texts, room and rancid hour. test_fat_ui checks the core's job. Nothing changes in game.
 - **Refactor: Potted Meat keeps by place through TP Core's `PlaceKeeping`** (2026-11-15): `F.POTTED` is the keeper; `F.keepCrock`, `F.pottedLedger`, `F.recordPotted`, `F.pottedRate`, `F.POTTED_AGEING` and the curve, ledger and modData keys are as before. `TPFM.crocks` and `TPFM.keep` use the keeper's `describe` and `age`. `F.pottedTemperature` is gone (Weather's own). Nothing changes in game; tests and golden results unchanged.

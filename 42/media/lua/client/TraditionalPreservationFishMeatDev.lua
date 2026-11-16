@@ -7,6 +7,7 @@ local Weather = require "TraditionalPreservationCore/Weather"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Season = require "TraditionalPreservationCore/Season"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
+local PlaceKeepingUI = require "TraditionalPreservationCore/PlaceKeepingUI"
 TPFM = {}
 
 local function say(text) print("[TPFM] " .. text) end
@@ -576,33 +577,15 @@ function TPFM.blood(hours)
     end
 end
 
--- Crocks carried, and in containers within CROCK_REACH tiles on the player's floor.
-local CROCK_REACH = 4
+-- Crocks carried, and in containers within TP Core's PlaceKeepingUI.REACH tiles on the player's floor.
 local function nearbyCrocks()
-    local player, found = getPlayer(), {}
-    local function add(container)
-        local crocks = container and container:getAllTypeRecurse(F.CROCK)
-        for i = 0, crocks and crocks:size() - 1 or -1 do table.insert(found, crocks:get(i)) end
-    end
-    add(player:getInventory())
-    local cell, x, y, z = getCell(), player:getX(), player:getY(), player:getZ()
-    for dx = -CROCK_REACH, CROCK_REACH do
-        for dy = -CROCK_REACH, CROCK_REACH do
-            local square = cell:getGridSquare(x + dx, y + dy, z)
-            local objects = square and square:getObjects()
-            for i = 0, objects and objects:size() - 1 or -1 do
-                local object = objects:get(i)
-                for c = 0, object:getContainerCount() - 1 do add(object:getContainerByIndex(c)) end
-            end
-        end
-    end
-    return found
+    return PlaceKeepingUI.near({ [F.CROCK] = true })
 end
 
 function TPFM.crocks()
     if not F.pottedByPlace() then say("Potted Meat keeping by place is off in the sandbox.") end
     local crocks = nearbyCrocks()
-    if #crocks == 0 then return say("No Crock of Potted Meat on you or within " .. CROCK_REACH .. " tiles.") end
+    if #crocks == 0 then return say("No Crock of Potted Meat on you or within " .. PlaceKeepingUI.REACH .. " tiles.") end
     for _, crock in ipairs(crocks) do
         say(F.POTTED.describe(crock) .. (crock:getModData().tpfmOpened and ", opened" or ""))
     end
