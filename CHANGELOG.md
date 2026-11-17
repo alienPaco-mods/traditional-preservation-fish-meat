@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.64
+- **Docs** (2026-11-17): the Stone Hearth beside the Smokehouse takes 12 Clay (TP Core 0.1.9; was 2). README.
+
 ## 0.4.63
 - **Fixed** (2026-11-17, found in the long save): the Fish Guts from Gut Fish and from Pack Fish in Salt came out fresh from a stale fish; they now keep the fish's age, as the head already did (`F.onCreateGutted`). test_curing checks both recipes.
 
