@@ -93,9 +93,10 @@ function F.canSliceHot(item)
     return item:getFullType() ~= F.HOT_MEAT or not F.isHotOnly(item)
 end
 
--- Whether this is a whole hot smoked bird of the MEAT_CUTS index wanted.
-local function wholeBird(item, index)
-    return item:getFullType() ~= F.HOT_MEAT or item:getModelIndex() == index
+-- Whether this is a whole bird of the MEAT_CUTS index wanted, at a stage (a full type; Hot Smoked if left out).
+-- Anything else in the recipe (the knife) passes.
+local function wholeBird(item, index, stage)
+    return item:getFullType() ~= (stage or F.HOT_MEAT) or item:getModelIndex() == index
 end
 
 function F.canCarveChicken(item)
@@ -106,11 +107,37 @@ function F.canCarveTurkey(item)
     return wholeBird(item, F.WHOLE_TURKEY)
 end
 
+-- A whole bird packed in salt, or corned in the tub, is carved too, so a bird packed whole can still go on in pieces.
+function F.canCarvePackedChicken(item)
+    return wholeBird(item, F.WHOLE_CHICKEN, F.PACKED_MEAT)
+end
+
+function F.canCarvePackedTurkey(item)
+    return wholeBird(item, F.WHOLE_TURKEY, F.PACKED_MEAT)
+end
+
+function F.canCarveCornedChicken(item)
+    return wholeBird(item, F.WHOLE_CHICKEN, F.CURED_MEAT)
+end
+
+function F.canCarveCornedTurkey(item)
+    return wholeBird(item, F.WHOLE_TURKEY, F.CURED_MEAT)
+end
+
+-- A copy of a modData value, tables copied through, so the pieces don't share one.
+local function copyValue(value)
+    if type(value) ~= "table" then return value end
+    local copy = {}
+    for key, inner in pairs(value) do copy[key] = copyValue(inner) end
+    return copy
+end
+
 local created = Recipes.created
 
--- Carve Chicken / Turkey (Hot Smoked): the script's six pieces become 2 legs, 2 wings and 2 fillets (WHOLE_BIRDS),
--- sharing the bird's food by the vanilla cuts' hunger and weighing CARVE_BIRD_SHARE of it in all, as vanilla's Cut
--- Chicken does; each keeps the bird's mood, salt, age and rinse.
+-- Carve Chicken / Turkey (Hot Smoked, Salt Packed or Corned): the script's six pieces become 2 legs, 2 wings and 2
+-- fillets (WHOLE_BIRDS), sharing the bird's food by the vanilla cuts' hunger and weighing CARVE_BIRD_SHARE of it in
+-- all, as vanilla's Cut Chicken does; each keeps the bird's mood, salt and age. A smoked bird's cuts keep its rinse,
+-- stack and style; a packed or corned bird's keep its whole cure record, so they go on in the tub or the shed as it would.
 function F.onCreateBirdCarved(craftRecipeData)
     local bird = craftRecipeData:getAllInputItemsWithFlag("ItemCount"):get(0)
     local cuts = F.WHOLE_BIRDS[bird:getModelIndex()]
@@ -131,7 +158,11 @@ function F.onCreateBirdCarved(craftRecipeData)
         piece:setAge(bird:getAge())
         piece:setModelIndex(cuts[n])
         local modData, birdData = piece:getModData(), bird:getModData()
-        modData.rinsed, modData.stackId, modData.style = birdData.rinsed, birdData.stackId, birdData.style
+        if bird:getFullType() == F.HOT_MEAT then
+            modData.rinsed, modData.stackId, modData.style = birdData.rinsed, birdData.stackId, birdData.style
+        else
+            for key, value in pairs(birdData) do modData[key] = copyValue(value) end
+        end
         F.rename(piece)
     end
 end

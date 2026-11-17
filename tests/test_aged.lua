@@ -139,6 +139,23 @@ check("sharing the bird by vanilla's hunger", near(cuts[1].values.HungChange, -1
     and near(cuts[1].values.ActualWeight + cuts[3].values.ActualWeight + cuts[5].values.ActualWeight, 0.8 * 0.9 / 2))
 check("each keeps the bird's age and rinse, named by its cut", cuts[5].values.Age == 2 and cuts[5].modData.rinsed
     and cuts[1].values.Name == "Chicken (Hot Smoked)" and cuts[5].values.Name == "ChickenFillet (Hot Smoked)")
+
+-- A bird packed in salt or corned carves the same way, at its stage, each cut keeping the whole cure record
+local packedBird = food(F.PACKED_MEAT, { ModelIndex = 10, Age = 1, Calories = 1640, HungChange = -1.64, BaseHunger = -1.64,
+    ActualWeight = 1.2 }, { stackId = 7, underScale = 0.8, style = "corned", nested = { at = 3 } })
+check("the packed chicken recipe takes a whole packed chicken only", F.canCarvePackedChicken(packedBird)
+    and not F.canCarvePackedTurkey(packedBird) and not F.canCarveChicken(food(F.HOT_MEAT, { ModelIndex = 7 }))
+    and not F.canCarvePackedChicken(food(F.PACKED_MEAT, { ModelIndex = 7 })) and F.canCarvePackedChicken(food("Base.KitchenKnife")))
+check("a corned whole turkey for the corned turkey recipe", F.canCarveCornedTurkey(food(F.CURED_MEAT, { ModelIndex = F.WHOLE_TURKEY }))
+    and not F.canCarveCornedTurkey(food(F.CURED_MEAT, { ModelIndex = 10 })))
+local packedData, packedCuts = recipe(packedBird, F.PACKED_MEAT, 6)
+F.onCreateBirdCarved(packedData)
+check("six packed cuts, food by vanilla's hunger, weight shared", packedCuts[1].values.ModelIndex == 7 and packedCuts[6].values.ModelIndex == 9
+    and near(packedCuts[3].values.Calories, 1640 * 0.19 / 1.64)
+    and near(packedCuts[1].values.ActualWeight + packedCuts[3].values.ActualWeight + packedCuts[5].values.ActualWeight, 1.2 * 0.9 / 2))
+check("each keeps the bird's cure record and age, its own copy", packedCuts[4].modData.stackId == 7 and packedCuts[4].modData.underScale == 0.8
+    and packedCuts[4].modData.style == "corned" and packedCuts[4].modData.nested.at == 3
+    and packedCuts[4].modData.nested ~= packedCuts[5].modData.nested and packedCuts[4].values.Age == 1)
 instanceItem = oldInstance
 
 -- Carving a ham: 15 slices of hunger 14 from a leg, in three carvings

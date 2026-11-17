@@ -116,5 +116,13 @@
   "HangSausageToSmoke": "Hang Sausage to Smoke",
   "TraditionalPreservationFishMeat.HangSausageToSmoke": "Hang Sausage to Smoke",
   "SliceSmokedSausage": "Slice Smoked Sausage",
-  "TraditionalPreservationFishMeat.SliceSmokedSausage": "Slice Smoked Sausage"
+  "TraditionalPreservationFishMeat.SliceSmokedSausage": "Slice Smoked Sausage",
+  "CarvePackedChicken": "Carve Chicken (Salt Packed)",
+  "TraditionalPreservationFishMeat.CarvePackedChicken": "Carve Chicken (Salt Packed)",
+  "CarvePackedTurkey": "Carve Turkey (Salt Packed)",
+  "TraditionalPreservationFishMeat.CarvePackedTurkey": "Carve Turkey (Salt Packed)",
+  "CarveCornedChicken": "Carve Chicken (Corned)",
+  "TraditionalPreservationFishMeat.CarveCornedChicken": "Carve Chicken (Corned)",
+  "CarveCornedTurkey": "Carve Turkey (Corned)",
+  "TraditionalPreservationFishMeat.CarveCornedTurkey": "Carve Turkey (Corned)"
 }

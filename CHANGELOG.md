@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.65
+- **Carve a packed or corned bird** (2026-11-18): **Carve Chicken / Turkey (Salt Packed)** and **(Corned)**, a knife on a surface, cut a whole bird packed in salt or corned into 2 legs, 2 wings and 2 fillets at its stage, as the hot smoked carve does (food by vanilla's cut hunger, 90% of the weight). Each cut keeps the bird's age and a copy of its whole modData (the cure and spoilage record), so it goes on in the tub or the Smokehouse in a cut's times. `F.canCarvePackedChicken` and the rest, `F.onCreateBirdCarved`; test_aged. README, guide.
+
 ## 0.4.64
 - **Docs** (2026-11-17): the Stone Hearth beside the Smokehouse takes 12 Clay (TP Core 0.1.9; was 2). README.
 

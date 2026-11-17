@@ -854,6 +854,88 @@ module TraditionalPreservationFishMeat
         }
     }
 
+    /* A whole bird packed in salt or corned is carved the same way, at its stage (onCreateBirdCarved keeps its cure
+       record on every cut), so a bird packed whole can still be brined and smoked in pieces. */
+    craftRecipe CarvePackedChicken
+    {
+        timedAction = SliceMeat_Surface,
+        time = 150,
+        Tags = AnySurfaceCraft;Cooking,
+        category = Cooking,
+        xpAward = Cooking:10,
+        OnTest = TraditionalPreservationFishMeat.canCarvePackedChicken,
+        OnCreate = TraditionalPreservationFishMeat.onCreateBirdCarved,
+        inputs
+        {
+            item 1 tags[base:sharpknife;base:meatcleaver] mode:keep flags[IsNotDull;SharpnessCheck],
+            item 1 [TraditionalPreservationFishMeat.SaltPackedMeat] flags[ItemCount] mode:destroy,
+        }
+        outputs
+        {
+            item 6 TraditionalPreservationFishMeat.SaltPackedMeat,
+        }
+    }
+
+    craftRecipe CarvePackedTurkey
+    {
+        timedAction = SliceMeat_Surface,
+        time = 150,
+        Tags = AnySurfaceCraft;Cooking,
+        category = Cooking,
+        xpAward = Cooking:10,
+        OnTest = TraditionalPreservationFishMeat.canCarvePackedTurkey,
+        OnCreate = TraditionalPreservationFishMeat.onCreateBirdCarved,
+        inputs
+        {
+            item 1 tags[base:sharpknife;base:meatcleaver] mode:keep flags[IsNotDull;SharpnessCheck],
+            item 1 [TraditionalPreservationFishMeat.SaltPackedMeat] flags[ItemCount] mode:destroy,
+        }
+        outputs
+        {
+            item 6 TraditionalPreservationFishMeat.SaltPackedMeat,
+        }
+    }
+
+    craftRecipe CarveCornedChicken
+    {
+        timedAction = SliceMeat_Surface,
+        time = 150,
+        Tags = AnySurfaceCraft;Cooking,
+        category = Cooking,
+        xpAward = Cooking:10,
+        OnTest = TraditionalPreservationFishMeat.canCarveCornedChicken,
+        OnCreate = TraditionalPreservationFishMeat.onCreateBirdCarved,
+        inputs
+        {
+            item 1 tags[base:sharpknife;base:meatcleaver] mode:keep flags[IsNotDull;SharpnessCheck],
+            item 1 [TraditionalPreservationFishMeat.SaltCuredMeat] flags[ItemCount] mode:destroy,
+        }
+        outputs
+        {
+            item 6 TraditionalPreservationFishMeat.SaltCuredMeat,
+        }
+    }
+
+    craftRecipe CarveCornedTurkey
+    {
+        timedAction = SliceMeat_Surface,
+        time = 150,
+        Tags = AnySurfaceCraft;Cooking,
+        category = Cooking,
+        xpAward = Cooking:10,
+        OnTest = TraditionalPreservationFishMeat.canCarveCornedTurkey,
+        OnCreate = TraditionalPreservationFishMeat.onCreateBirdCarved,
+        inputs
+        {
+            item 1 tags[base:sharpknife;base:meatcleaver] mode:keep flags[IsNotDull;SharpnessCheck],
+            item 1 [TraditionalPreservationFishMeat.SaltCuredMeat] flags[ItemCount] mode:destroy,
+        }
+        outputs
+        {
+            item 6 TraditionalPreservationFishMeat.SaltCuredMeat,
+        }
+    }
+
     /* Five slices (hunger 14 each) come off and the ham is kept, lighter (onCreateCarved), while it has more on it than one last
        carving (canCarve). */
     craftRecipe CarveCountryHam
