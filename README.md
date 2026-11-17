@@ -1,4 +1,4 @@
-# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.62)
+# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.63)
 
 **Status: experimental.** The stations build, open and hang fish and meat in the game, but a full year hasn't been played. Back up your save before enabling.
 
@@ -30,7 +30,7 @@ Copy this folder to `~/Zomboid/mods/TraditionalPreservationFishMeat`, as a real 
 
 ### Preparing fish and meat
 
-- **Gut Fish** (a raw whole fish, a sharp knife or meat cleaver kept): a Gutted Fish, which keeps like fresh fish and must be cooked like one, plus Fish Guts and a Fish Head if it has them. Fillets can't be gutted.
+- **Gut Fish** (a raw whole fish, a sharp knife or meat cleaver kept): a Gutted Fish, which keeps like fresh fish and must be cooked like one, plus Fish Guts and a Fish Head if it has them, both as old as the fish. Fillets can't be gutted.
 - **Split Fish**: a Gutted Fish over 2.5 weight, too heavy for a frame stack, becomes two Fish Halves, each half the weight and food, named for the fish (*Medium Walleye Half*).
 - **Slice Fish**: a whole fish over 0.6 weight can still be filleted after it's been salted, dried or rehydrated: 2 fillets at the same stage, each with half the fish's food and weight (a cured fish has no guts left to lose). Fillets and smaller fish can't be cut.
 - **Fish Guts**: Gut Fish and Pack Fish in Salt both give one from a whole fish over 0.6 weight, vanilla's filleting limit. They weigh 10% of the fish, which loses that weight. Smaller fish, fillets and salmon give none. Filleting later gives no more.

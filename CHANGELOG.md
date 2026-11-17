@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.63
+- **Fixed** (2026-11-17, found in the long save): the Fish Guts from Gut Fish and from Pack Fish in Salt came out fresh from a stale fish; they now keep the fish's age, as the head already did (`F.onCreateGutted`). test_curing checks both recipes.
+
 ## 0.4.62
 - **Docs** (2026-11-16): the Stone Hearth beside the Smokehouse is built of 12 Stone Blocks, 2 Clay and a trowel (TP Core 0.1.7; was 8 Clay Bricks). README only; nothing changes in game.
 

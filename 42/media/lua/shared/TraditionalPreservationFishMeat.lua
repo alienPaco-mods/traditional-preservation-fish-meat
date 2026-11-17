@@ -1164,7 +1164,7 @@ function F.fishHead(fish)
 end
 
 -- For recipes that clean a fish. A recipe can't leave an output out, so the guts and head go
--- straight in the inventory.
+-- straight in the inventory. The guts keep the fish's age, as the head does: a stale fish's guts are stale.
 function F.onCreateGutted(craftRecipeData, character)
     local fish = craftRecipeData:getAllInputItemsWithFlag("ItemCount"):get(0)
     local stage = F.STAGES[craftRecipeData:getAllCreatedItems():get(0):getFullType()]
@@ -1173,7 +1173,9 @@ function F.onCreateGutted(craftRecipeData, character)
 
     local share = F.GUTS_WEIGHT
     local inventory = (character or craftRecipeData:getCharacter()):getInventory()
-    inventory:AddItem(cutFrom(fish, "Base.FishGuts", share, share))
+    local guts = cutFrom(fish, "Base.FishGuts", share, share)
+    guts:setAge(fish:getAge())
+    inventory:AddItem(guts)
     if stage.headless and F.hasHead(fish) then
         inventory:AddItem(F.fishHead(fish))
     end
