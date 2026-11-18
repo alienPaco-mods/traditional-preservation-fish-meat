@@ -261,7 +261,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 | **Drying Frame** | Carpentry 2 | 6 long sticks, 3 nails, 4 twine | 8 stacks × 2.5 weight, 25 pieces | Anywhere, a room too |
 | **Hanging Beam** | Carpentry 4 | 6 planks, 6 nails, 1 large hook | 4 stacks × 15 weight, 12 pieces | Anywhere: open air, under a roof, in a room or a basement |
 | **Gantry** | Carpentry 6 | 2 logs, 2 planks, 8 nails, 2 large hooks | 2 stacks × 50 weight, 6 pieces | Open air or under an open roof |
-| **Smokehouse** | Carpentry 3 | 14 planks, 20 nails | 6 stacks × 15 weight, 25 pieces | Open air or under an open roof; two tiles; chapter 10 |
+| **Smokehouse** | Carpentry 3 | 14 planks, 20 nails | 6 stacks × 15 weight, 25 pieces | Open air or under an open roof; four tiles, two by two; chapter 10 |
 
 | Recipe | Frame, Beam, Gantry | Smokehouse |
 |---|---|---|
@@ -363,7 +363,7 @@ Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub,
 
 ## 10. The Smokehouse
 
-A plank shed two tiles long under a flat roof of boards, its wide door on one end. On its own it's a dry room for salt fish and the place where meat **dry cures**; with a **Stone Hearth** joined to it, it **hot smokes** on a stoked fire and **cold smokes** on a banked one.
+A plank shed on four tiles, two by two, under a low pitched roof, its pair of doors under the gable. On its own it's a dry room for salt fish and the place where meat **dry cures**; with a **Stone Hearth** joined to it, it **hot smokes** on a stoked fire and **cold smokes** on a banked one.
 
 | | |
 |---|---|

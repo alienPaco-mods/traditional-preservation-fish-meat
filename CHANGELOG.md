@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.68
+- **Docs and tests for TP Core 0.1.13's 2 x 2 Smokehouse** (2026-11-19): nothing changes in this mod's play. The shed
+  is four tiles, the two in front of its doors stay clear, and a piece hangs by the door for every two finished stacks
+  (Core counts them by this mod's `stackId`). test_world and test_ui read the shed's tiles from Core's `Tiles.CHAMBERS`.
+  README, guide, Workshop text.
+
 ## 0.4.67
 - **Fixed** (2026-11-18, found in game): a whole fish of exactly 0.6 weight was refused by the Salting Tub ("gutted first") and gave Fish Guts, though 0.6 is the limit it may go in whole at. The game keeps weights as floats, so 0.6 reads 0.6000000238; the weight limits (guts, head, Slice Fish) are now passed only by more than `F.WEIGHT_SLACK` (`F.heavierThan`). test_curing.
 - **Tub Info** (2026-11-19): the cure's speed row reads **Cure Speed** (it borrowed the drying stations' "Drying Rate"), and Next reads the time left in days past two days, "Cured in about 21 days" (TP Core 0.1.12's `UI.durationText`).

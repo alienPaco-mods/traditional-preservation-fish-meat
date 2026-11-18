@@ -92,7 +92,7 @@ local RAW, PRESSED = "Base.Walleye", "TraditionalPreservationFishMeat.SaltPresse
 local GUTTED, HALF = "TraditionalPreservationFishMeat.GuttedFish", "TraditionalPreservationFishMeat.FishHalf"
 local TUB, FRAME = "traditionalpreservationfishmeat_01_0", "traditionalpreservationfishmeat_01_7"
 -- TP Core's Smokehouse, its door's tile facing S.
-local SHED = "traditionalpreservationcore_01_33"
+local SHED = require("TraditionalPreservationCore/Tiles").CHAMBERS[2]
 local function green(slot, item) return ISItemSlot.defaultVerifyItem({}, slot, item) end
 
 check("a frame is green for pressed fish", green(station(FRAME), fish(PRESSED, 0.5)))

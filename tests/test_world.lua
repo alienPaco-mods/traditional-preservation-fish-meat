@@ -110,8 +110,9 @@ local PRESSED, GUTTED = "TraditionalPreservationFishMeat.SaltPressedFish", "Trad
 check("the map loader knows the tub, the frame and both beams", loaders.traditionalpreservationfishmeat_01_0
     and loaders.traditionalpreservationfishmeat_01_7 and loaders.traditionalpreservationfishmeat_02_0 and loaders.traditionalpreservationfishmeat_02_3)
 check("and nothing else", loaders.traditionalpreservationfishmeat_01_8 == nil)
-check("and both tiles of TP Core's Smokehouse, either way round, for this mod's stacks in it", loaders.traditionalpreservationcore_01_32
-    and loaders.traditionalpreservationcore_01_33 and loaders.traditionalpreservationcore_01_34 and loaders.traditionalpreservationcore_01_35)
+local shedTilesLoaded = true
+for _, name in ipairs(require("TraditionalPreservationCore/Tiles").CHAMBERS) do shedTilesLoaded = shedTilesLoaded and loaders[name] ~= nil end
+check("and all four tiles of TP Core's Smokehouse, either way round, for this mod's stacks in it", shedTilesLoaded)
 
 -- Frames: a finished salt stack, a gutted stack halfway, and pressed fish waiting.
 local running = recipeData(0.5, T.STYLE_GUTTED)
@@ -181,7 +182,7 @@ check("all Corned, it is lost", T.stackRotten(mixed.modData))
 
 -- TP Core's Smokehouse: Enclosed wherever it stands (out of the rain, by the day's air). Core draws its look; this
 -- mod steps only its own stacks, and counts another mod's as taking room.
-local SHED = "traditionalpreservationcore_01_33"
+local SHED = require("TraditionalPreservationCore/Tiles").CHAMBERS[2]
 local smoked = recipeData(0.5, T.STYLE_MEAT)
 smoked.modData.smokeOwner = T.OWNER
 local cheese = recipeData(0.2)

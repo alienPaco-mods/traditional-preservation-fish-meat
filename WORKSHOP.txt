@@ -50,7 +50,7 @@ Each press of Craft hangs one stack, which keeps its spot until collected. Hover
 [*][b]Drying Frame:[/b] Carpentry 2. 6 long sticks, 3 nails, 4 twine, hammer kept. 8 stacks of 2.5 weight. It can stand anywhere, a room or a basement too.
 [*][b]Hanging Beam:[/b] Carpentry 4. 6 planks, 6 nails, 1 large hook, hammer kept. 4 stacks of 15. Anywhere, a room or a basement too.
 [*][b]Gantry:[/b] Carpentry 6. 2 logs, 2 planks, 8 nails, 2 large hooks, hammer kept. 2 stacks of 50. Open air or under an open roof.
-[*][b]Smokehouse[/b] (TP Core's): Carpentry 3. 14 planks, 20 nails, hammer kept. 6 stacks of 15. Two tiles; open air or under an open roof. Salt fish, meat and sausage.
+[*][b]Smokehouse[/b] (TP Core's): Carpentry 3. 14 planks, 20 nails, hammer kept. 6 stacks of 15. Four tiles, two by two; open air or under an open roof. Salt fish, meat and sausage.
 [/list]
 
 [h2]Salt Dried fish[/h2]
@@ -72,7 +72,7 @@ Gut Fish (a big one also gives a Fish Head), split it if it's over 2.5 weight, a
 [*][b]Dry curing:[/b] meat hung in the Smokehouse is never charque. Country cured, it dries slowly in cool air: 3 weeks at best for a cut, 6 for a leg, longer in frost. Without smoke it comes out air dried: Beef, Mutton, Venison or Pork (Dry Cured), and a Country Ham from a leg, which keeps half a year to a year. No Smokehouse yet? Country cured meat dries the same way on any drying station under a roof, on a Frame or Beam indoors, and in a basement by the cellar's own temperature: about a month for a cut from June to October, two to three months in midwinter, twice that for a leg.
 [*][b]Ageing:[/b] dry cured meat ages after it has dried: 30 days for a cut, 90 for a Country Ham, or three quarters of that if you leave it hanging where it dried (once taken down it can't go back up). Aged meat lifts the mood more, and an aged Country Ham takes the boredom off too.
 [*][b]Slices:[/b] slice a dry cured or hot smoked cut (2 to 6 slices by its size), or carve a Country Ham 5 slices at a time, 15 from a leg, and keep the rest on the bone. Slices go wherever Ham Slices go (sandwiches, pizza, salads, the pot) and keep half as long as the whole piece.
-[*]A smoked ham hangs by the door while finished stacks wait inside.
+[*]While finished stacks wait inside, a piece hangs by the door for every two: a country ham, a smoked chicken, a smoked rabbit.
 [/list]
 
 [h2]Lard, Tallow and Cracklings[/h2]
