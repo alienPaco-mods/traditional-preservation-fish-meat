@@ -206,6 +206,7 @@
   "IGUI_TraditionalPreservationFishMeat_TubStartHelp_long": "The long cure, about %1 at full speed (10 days for cuts, 21 with a Leg of Pork): the salt goes all the way through, for dry cured meat and country ham. A cold-season job: in a warm season it spoils by the bone.",
   "IGUI_TraditionalPreservationFishMeat_TubInfoStage": "Stage",
   "IGUI_TraditionalPreservationFishMeat_TubInfoNext": "Next",
+  "IGUI_TraditionalPreservationFishMeat_TubInfoSpeed": "Cure Speed",
   "IGUI_TraditionalPreservationFishMeat_TubNoteEmpty": "Fish or meat, never both: the first piece in decides. A whole fish over 0.6 weight is gutted first; a small one goes in whole.",
   "IGUI_TraditionalPreservationFishMeat_TubNotePacking": "Until it is salted everything comes back out (Unpack), but it keeps going off as it would lying out.",
   "IGUI_TraditionalPreservationFishMeat_TubNoteCuring": "The cure slows below 2 C, to a quarter at -10 C. A warm season (over 20 C) spoils it by the bone before the salt gets there; the long cure minds anything over 10 C.",

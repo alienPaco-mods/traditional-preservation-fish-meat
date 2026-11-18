@@ -891,6 +891,8 @@ gut(newFood("Base.Bluegill", { ActualWeight = 0.9 }), "GuttedFish")
 check("a fish too small for a head still gives guts", #gutsMade == 1 and gutsMade[1].fullType == "Base.FishGuts")
 gut(newFood("Base.Bluegill", { ActualWeight = T.HEAD_MIN_WEIGHT }), "GuttedFish")
 check("the head limit is above, not at", #gutsMade == 1)
+gut(newFood("Base.Bluegill", { ActualWeight = 0.6000000238418579 }), "GuttedFish")
+check("a fish at 0.6 as the game keeps it gives no guts", #gutsMade == 0)
 local tinyGutted = gut(newFood("Base.Bluegill", { ActualWeight = 0.5 }), "GuttedFish")
 check("nor has a fish too small for vanilla to cut", #gutsMade == 0 and near(tinyGutted.values.ActualWeight, 0.5))
 gut(newFood("Base.Salmon", { ActualWeight = 2 }), "GuttedFish")
@@ -1143,6 +1145,8 @@ do
 instanceof = function(item, name) return name == "Food" and item.fullType ~= "Base.HuntingKnife" end
 local function refusal(fullType, weight) return T.tubItemRefusal(newFood(fullType, { ActualWeight = weight })) end
 check("a small fish goes in whole, guts and all", refusal("Base.Bluegill", 0.5) == nil and refusal("Base.Bluegill", T.MIN_SLICE_WEIGHT) == nil)
+-- The game keeps 0.6 as the float 0.6000000238 (0.4.67: it was refused).
+check("a fish at 0.6 as the game keeps it goes in whole", refusal("Base.Bluegill", 0.6000000238418579) == nil)
 check("a bigger whole fish is gutted first", refusal("Base.Walleye", 0.7) == "GutFirst" and refusal("Base.Walleye", 4.6) == "GutFirst")
 check("a fillet, salmon and a gutted fish go in", refusal("Base.FishFillet", 4) == nil and refusal("Base.Salmon", 2) == nil
     and refusal(T.GUTTED_FISH, 4.5) == nil)

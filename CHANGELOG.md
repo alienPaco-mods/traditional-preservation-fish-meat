@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.67
+- **Fixed** (2026-11-18, found in game): a whole fish of exactly 0.6 weight was refused by the Salting Tub ("gutted first") and gave Fish Guts, though 0.6 is the limit it may go in whole at. The game keeps weights as floats, so 0.6 reads 0.6000000238; the weight limits (guts, head, Slice Fish) are now passed only by more than `F.WEIGHT_SLACK` (`F.heavierThan`). test_curing.
+- **Tub Info** (2026-11-19): the cure's speed row reads **Cure Speed** (it borrowed the drying stations' "Drying Rate"), and Next reads the time left in days past two days, "Cured in about 21 days" (TP Core 0.1.12's `UI.durationText`).
+
 ## 0.4.66
 - **The Salting Tub is worked from its right-click menu** (2026-11-18), as the kraut barrel is, with a **Tub Info** window (from the menu, or click the tub); no crafting window. **Put \<fish or meat\> in the Tub** (All, then One): raw fish whole up to 0.6 weight (a small fish keeps its guts), gutted, halved or filleted; a bigger whole fish is gutted first, one over 4.5 split; meat as vanilla cuts it. The first piece decides fish or meat. **Unpack** gives it all back before the start, aged as it would be lying out. **Cure Fish**, **Corn the Meat** and **Country Cure** salt the batch at the start (each piece's salt, the old rule) and press it under a **Plank and a Flat Stone**; each row says in red why it can't start. **Take Out** (All, One) when cured; the last piece gives the plank and stone back. Cured pieces left in the tub go off as they would lying out.
 - **Same cure:** hours by the heaviest piece, the cold curve, the warm and long cure spoilage, places, weights, food and names. The batch lives in the tub's movableData (`F.TUB_KEY`, `TraditionalPreservationFishMeatTub.lua`, `TPFMSaltingTub`, `...TubUI.lua`).

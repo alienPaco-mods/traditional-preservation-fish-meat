@@ -168,7 +168,7 @@ end
 local function nextText(tub, status)
     if status.stage == "Curing" then
         if not status.hoursLeft then return getText(KEY .. "Paused") end
-        return say(KEY .. "TubReadyIn", UI.hoursText(status.hoursLeft))
+        return say(KEY .. "TubReadyIn", UI.durationText(status.hoursLeft))
     end
     return say(KEY .. "TubHelp" .. status.stage, F.tubSalt(tub))
 end
@@ -236,7 +236,7 @@ function TubWindow:render()
     if status.stage == "Curing" then
         local slow = status.spoiling or not status.hoursLeft
         y = self:bar(y, METHOD_NAMES[tub.method], status.progress, slow and SLOW_COLOUR or CURE_COLOUR, UI.percent(status.progress))
-        y = self:row(y, KEY .. "Rate", UI.percent(status.rate))
+        y = self:row(y, KEY .. "TubInfoSpeed", UI.percent(status.rate))
         if status.spoiling or status.spoiled > 0 then
             table.insert(notes, say(status.spoiling and KEY .. "SpoilingWarmCure" or KEY .. "Spoiled", UI.percent(status.spoiled)))
         end

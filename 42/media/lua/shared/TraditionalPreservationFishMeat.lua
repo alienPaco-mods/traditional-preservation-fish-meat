@@ -59,6 +59,8 @@ F.CHAMBER_HANGER = { stacks = Smokehouse.STACKS, stackWeight = STACK_WEIGHTS.cha
 -- Vanilla's rules for cutting a fish: over this weight, into two fillets of this share of its
 -- weight (more in spawning season, when part goes to roe), each with half its food.
 F.MIN_SLICE_WEIGHT = 0.6
+-- The game keeps a weight as a float, so a fish set to 0.6 reads 0.6000000238: a limit is passed only by more than this.
+F.WEIGHT_SLACK = 1e-4
 F.FILLET_WEIGHT = 0.05
 -- These are already cut, so vanilla doesn't slice them.
 F.UNSLICEABLE = { ["Base.FishFillet"] = true, ["Base.Salmon"] = true }
@@ -741,15 +743,20 @@ function F.iconIndex(source)
     return FISH_ICON_INDEX[fullType] or CUT_INDEX[fullType] or -1
 end
 
+-- Whether a piece weighs more than a limit, past the float's rounding (WEIGHT_SLACK).
+function F.heavierThan(item, limit)
+    return item:getActualWeight() > limit + F.WEIGHT_SLACK
+end
+
 -- Whether vanilla could cut this fish, which is what gives guts.
 function F.hasGuts(fish)
     return fish:hasTag(ItemTag.UNCUT_FISH) and not F.UNSLICEABLE[fish:getFullType()]
-        and fish:getActualWeight() > F.MIN_SLICE_WEIGHT
+        and F.heavierThan(fish, F.MIN_SLICE_WEIGHT)
 end
 
 -- Whether gutting this fish gives a Fish Head.
 function F.hasHead(fish)
-    return F.hasGuts(fish) and fish:getActualWeight() > F.HEAD_MIN_WEIGHT
+    return F.hasGuts(fish) and F.heavierThan(fish, F.HEAD_MIN_WEIGHT)
 end
 
 -- A fillet vanilla cut counts as the food it holds; anything else, a loot fillet included, as what it weighs.
@@ -828,7 +835,7 @@ function F.carry(source, target)
     if sourceData.fishName then
         targetData.sliceable = sourceData.sliceable
     else
-        targetData.sliceable = not F.UNSLICEABLE[source:getFullType()] and source:getActualWeight() > F.MIN_SLICE_WEIGHT
+        targetData.sliceable = not F.UNSLICEABLE[source:getFullType()] and F.heavierThan(source, F.MIN_SLICE_WEIGHT)
     end
 
     if sourceData.rinsed then
