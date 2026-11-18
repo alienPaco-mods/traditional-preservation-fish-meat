@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.66
+- **The Salting Tub is worked from its right-click menu** (2026-11-18), as the kraut barrel is, with a **Tub Info** window (from the menu, or click the tub); no crafting window. **Put \<fish or meat\> in the Tub** (All, then One): raw fish whole up to 0.6 weight (a small fish keeps its guts), gutted, halved or filleted; a bigger whole fish is gutted first, one over 4.5 split; meat as vanilla cuts it. The first piece decides fish or meat. **Unpack** gives it all back before the start, aged as it would be lying out. **Cure Fish**, **Corn the Meat** and **Country Cure** salt the batch at the start (each piece's salt, the old rule) and press it under a **Plank and a Flat Stone**; each row says in red why it can't start. **Take Out** (All, One) when cured; the last piece gives the plank and stone back. Cured pieces left in the tub go off as they would lying out.
+- **Same cure:** hours by the heaviest piece, the cold curve, the warm and long cure spoilage, places, weights, food and names. The batch lives in the tub's movableData (`F.TUB_KEY`, `TraditionalPreservationFishMeatTub.lua`, `TPFMSaltingTub`, `...TubUI.lua`).
+- **Removed:** Salt Packed Fish and Salt Packed Meat, Pack Fish / Gutted Fish / Meat in Salt, Cure Salted Fish, Corn Salted Meat and Country Cure Salted Meat as recipes, and Carve Chicken / Turkey (Salt Packed). A tub built before keeps its old crafting components in a save (the engine re-creates them on load): rebuild it.
+- Console: `TPFM.kit("tub")`, `TPFM.tubCure(hours)`. Tests: test_tub (menu and actions), test_curing, test_world, test_ui, test_info, test_aged.
+
 ## 0.4.65
 - **Carve a packed or corned bird** (2026-11-18): **Carve Chicken / Turkey (Salt Packed)** and **(Corned)**, a knife on a surface, cut a whole bird packed in salt or corned into 2 legs, 2 wings and 2 fillets at its stage, as the hot smoked carve does (food by vanilla's cut hunger, 90% of the weight). Each cut keeps the bird's age and a copy of its whole modData (the cure and spoilage record), so it goes on in the tub or the Smokehouse in a cut's times. `F.canCarvePackedChicken` and the rest, `F.onCreateBirdCarved`; test_aged. README, guide.
 

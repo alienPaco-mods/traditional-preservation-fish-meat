@@ -36,7 +36,7 @@ function TPFM.help()
     say("TPFM.fish(name, n, weight, stage) spawn n fish, e.g. TPFM.fish(\"Walleye\", 2, 4); stage \"cured\", \"dried\", \"hotSmoked\", \"coldSmoked\" or \"stockfish\" (it may take weight's place); TPFM.fish() lists the names, \"all\" gives each")
     say("TPFM.meat(name, n, stage)  spawn n of a cut, e.g. TPFM.meat(\"Steak\", 2) or TPFM.meat(\"all\", 1, \"corned\"); stage \"corned\", \"country\", \"charque\", \"hotSmoked\" or \"dryCured\" (chicken, turkey and rabbit: corned and hotSmoked only); TPFM.meat() lists the names")
     say("TPFM.give(name, n, option) spawn n of: head, stock, salt, fat, fatPot (option \"burnt\" or \"raw\"), crock (full, four Steaks in Lard), blood (a Bucket of 4 L; option \"cured\" or \"spoiled\"), casings, saltedCasings, blackPudding, bloodSausage (boiled; option \"stale\"), smokedBloodSausage, freshSausage (raw; option \"seasoned\" or \"stale\"), smokedSausage (option \"seasoned\"). TPFM.give() lists them")
-    say("TPFM.kit(kind)             the things a test needs: \"potted\" (Potted Meat), \"stock\", \"poultry\" (hot smoked poultry), \"blood\" (black pudding, blood sausage, smoked blood sausage) or \"sausage\" (Smoked Sausage); the Smokehouse's and the flue's are TP Core's (TPC.kit). TPFM.kit() lists the kinds")
+    say("TPFM.kit(kind)             the things a test needs: \"tub\" (the Salting Tub), \"potted\" (Potted Meat), \"stock\", \"poultry\" (hot smoked poultry), \"blood\" (black pudding, blood sausage, smoked blood sausage) or \"sausage\" (Smoked Sausage); the Smokehouse's and the flue's are TP Core's (TPC.kit). TPFM.kit() lists the kinds")
     say("TPFM.animals()             live animals and carcasses within 6 tiles: weight, and the blood each gives (3.5 cl a kg)")
     say("TPFM.blood(hours)          the blood you carry: state, age, hours left at 20 C, place; with hours, ages it that much first")
     say("TPFM.pallet()              the Stockfish Pallet near you: its place, ripening speed, stack and fish")
@@ -48,7 +48,8 @@ function TPFM.help()
     say("TPFM.stoke(hours)          add stoked hours to the running session of those joined Stone Hearths (stoke it first)")
     say("TPFM.bank(hours)           add banked hours (default 6) to those joined Stone Hearths: smoke, but only on a day of 15 C or less")
     say("TPFM.addSmoke(hours)       add hours of smoke (default 60) straight to the stacks in those Smokehouses, whatever the weather")
-    say("The Salting Tub runs on the game clock, so TPFM.age doesn't speed up curing.")
+    say("TPFM.tubCure(hours)        add this many hours of full-speed cure (default 24) to every running Salting Tub, wherever it stands")
+    say("The Salting Tub cures on its own totals, so TPFM.age doesn't speed it up: TPFM.tubCure does.")
 end
 
 function TPFM.weather()
@@ -201,6 +202,14 @@ function TPFM.warmCure(hours)
         hours, hours * 1.5 * F.WARM_CURE_SHARE / F.RAW_SPOIL_HOURS * 100))
 end
 
+-- Hours of cure at full speed for every running tub, at every place (the ledger's tubCure totals).
+function TPFM.tubCure(hours)
+    hours = hours or 24
+    local ledger = F.getLedger()
+    for _, key in ipairs(F.FAMILY_KEYS.tubCure) do ledger[key] = (ledger[key] or 0) + hours end
+    say(string.format("Added %.0f hours of cure to every running Salting Tub: a fish batch takes 24 to 48, Corn 24 to 48, Country Cure 240 or 504. Look at the tub to bring it up to date.", hours))
+end
+
 -- Ripeness runs on the fish's own food clock, so this ages the fish themselves.
 -- Hours of a 15 C season for a running Country Cure: a leg's 504 hours of it are a rotten batch.
 function TPFM.longCure(hours)
@@ -292,12 +301,16 @@ local function listNames(label, fullTypes, stages)
     say(label .. ": " .. table.concat(names, ", ") .. ", or \"all\". Stages: " .. stages)
 end
 
--- A fish packed and cured as the tub would: "Walleye (Salt Cured)".
+-- A fish cured as the tub would: "Walleye (Salt Cured)", gutted first if it is big enough to have guts.
 local function curedFish(fullType, weight)
-    local raw, packed, cured = instanceItem(fullType), instanceItem(F.PACKED_FISH), instanceItem(F.PRESSED_FISH)
+    local raw, cured = instanceItem(fullType), instanceItem(F.PRESSED_FISH)
     setWeight(raw, weight)
-    F.carry(raw, packed)
-    F.carry(packed, cured)
+    if F.hasGuts(raw) then
+        local gutted = instanceItem(F.GUTTED_FISH)
+        F.carry(raw, gutted)
+        raw = gutted
+    end
+    F.carry(raw, cured)
     return cured
 end
 
@@ -495,6 +508,9 @@ local KITS = {
         "TraditionalPreservationFishMeat.PorkFat", "Base.Salt", "Base.Salt", "Base.Salt", "Base.Salt", "Base.Vinegar2",
         F.CASING_ITEM, "TraditionalPreservationFishMeat.SaltedCasings", "Base.KitchenKnife",
         give = { blood = 1, bloodSausage = 6, smokedBloodSausage = 1 } },
+    tub = { about = "a Plank, a Flat Stone, 5 Salt and a Kitchen Knife for the Salting Tub, with 2 Steaks, Beef, Pork, a Leg of Pork and a whole Chicken; for fish, TPFM.fish(\"Bluegill\", 4, 0.5) goes in whole and TPFM.fish(\"Walleye\", 2, 3) is gutted first",
+        "Base.Plank", "Base.FlatStone", "Base.Salt", "Base.Salt", "Base.Salt", "Base.Salt", "Base.Salt", "Base.KitchenKnife",
+        "Base.Steak", "Base.Steak", "Base.Beef", "Base.Pork", F.LEG_OF_PORK, "Base.ChickenWhole" },
     sausage = { about = "2 Pork, a Pork Chop, Beef, Venison, Pork Fat, Lard, 2 Salt, Garlic, Onion, Pepper, Oregano, Thyme, Sage (to season links), 2 Salted Casings, a Pot and a Kitchen Knife, for Smoked Sausage (fill the Pot with 1.5 L of water); 6 raw Fresh Sausages for the Smokehouse and a seasoned Smoked Sausage",
         "Base.Pork", "Base.Pork", "Base.PorkChop", "Base.Beef", "Base.Venison", "TraditionalPreservationFishMeat.PorkFat",
         "Base.Lard", "Base.Salt", "Base.Salt", "Base.Garlic", "Base.Onion", "Base.Pepper", "Base.Oregano", "Base.Thyme", "Base.Sage",

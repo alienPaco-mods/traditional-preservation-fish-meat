@@ -1,8 +1,8 @@
 -- Traditional Preservation (Fish & Meat): a station's info, in its own crafting window under In Progress, Done and
--- Take All (TP Core's StationInfo), for the Salting Tub, the Drying Frame, the Hanging Beam, the Gantry and the
--- Smokehouse. One look at the whole station: where it stands, what it holds, the weather, and a bar for every
+-- Take All (TP Core's StationInfo), for the Drying Frame, the Hanging Beam, the Gantry and the Smokehouse (the
+-- Salting Tub has its own Info window, ...TubUI.lua). One look at the whole station: where it stands, what it holds, the weather, and a bar for every
 -- running batch with what is stopping or spoiling it. It reads the same status the stack popups do (F.stackStatus,
--- F.charqueStatus, F.pressStatus), so the two agree, and nothing is simulated here.
+-- F.charqueStatus), so the two agree, and nothing is simulated here.
 local UI = require "TraditionalPreservationCore/UI"
 local StationInfo = require "TraditionalPreservationCore/StationInfo"
 local Fire = require "TraditionalPreservationCore/Fire"
@@ -18,18 +18,10 @@ local KEY = "IGUI_TraditionalPreservationFishMeat_"
 local PLACES = { Open = true, Covered = true, Sheltered = true, Loft = true, Basement = true, Enclosed = true }
 -- A running batch's method, by its recipe's short name.
 local RECIPE_METHODS = { HangFishToDry = "salt", HangFishToColdDry = "cold", HangMeatToDry = "meat",
-    PressSaltedFish = "fishCure", PressSaltedMeat = "corn", [F.LONG_CURE_RECIPE] = "long",
     HangSausageToSmoke = "sausage" }
 local METHOD_NAMES = { salt = KEY .. "InfoSalt", cold = KEY .. "InfoCold", meat = KEY .. "InfoCharque",
-    fishCure = KEY .. "InfoCure", corn = KEY .. "InfoCorn", long = KEY .. "InfoLongCure", sausage = KEY .. "InfoSausage",
-    freshSausage = KEY .. "InfoSmokedSausage" }
+    sausage = KEY .. "InfoSausage", freshSausage = KEY .. "InfoSmokedSausage" }
 local GOOD_COLOUR, SLOW_COLOUR = { 0.35, 0.6, 0.3 }, { 0.75, 0.55, 0.2 }
-
-local function weightOf(items)
-    local weight = 0
-    for _, item in ipairs(items) do weight = weight + item:getActualWeight() end
-    return weight
-end
 
 -- A stack of blood sausage or Fresh Sausage (F.sausageStatus): smoke only (a hot run for Fresh Sausage), no drying or
 -- spoiling of its own.
@@ -51,10 +43,8 @@ end
 -- lines to say about it below. method is RECIPE_METHODS'.
 function Info.batch(method, modData, ledger, now)
     if method == "sausage" then return Info.sausageBatch(modData, ledger, now) end
-    local isPress = method == "fishCure" or method == "corn" or method == "long"
     local isCold, isMeat = method == "cold", method == "meat"
-    local status = isPress and F.pressStatus(modData, ledger)
-        or isMeat and F.charqueStatus(modData, ledger) or F.stackStatus(isCold, modData, ledger)
+    local status = isMeat and F.charqueStatus(modData, ledger) or F.stackStatus(isCold, modData, ledger)
     local row = { name = status.hotOnly and KEY .. "InfoHotOnly" or status.dryCuring and KEY .. "InfoDryCure" or METHOD_NAMES[method],
         progress = status.progress, notes = {} }
     local share = UI.percent(status.progress)
@@ -63,17 +53,12 @@ function Info.batch(method, modData, ledger, now)
     elseif status.hoursLeft then
         local hours = math.ceil(status.hoursLeft)
         row.progressText = UI.say(KEY .. "InfoLeft", share, tostring(math.floor(hours / 24)), tostring(hours % 24))
-        row.weather = not isPress
+        row.weather = true
     else
         row.progressText, row.slow = UI.say(KEY .. "InfoShare", share, getText(KEY .. "Paused")), true
     end
 
-    local warning
-    if isPress then
-        warning = status.spoiling and KEY .. "SpoilingWarmCure" or status.spoiled > 0 and KEY .. "Spoiled" or nil
-    else
-        warning = F.spoilWarning(status, isCold)
-    end
+    local warning = F.spoilWarning(status, isCold)
     if warning then
         table.insert(row.notes, UI.say(warning, UI.percent(status.spoiled)))
         row.slow = true
@@ -82,7 +67,6 @@ function Info.batch(method, modData, ledger, now)
         table.insert(row.notes, UI.say(KEY .. (status.hotOnly and "UnderSaltedHotOnly" or "UnderSaltedShed"), string.format("%.0f", status.shedTemperature)))
         row.slow = true
     end
-    if isPress then return row end
     -- In a Smokehouse joined to a Stone Hearth: a stoked run that is cooking the stack, and its smoke so far.
     if F.cookShare(modData) then
         table.insert(row.notes, UI.say(KEY .. "InfoCooking", string.format("%.1f", modData.hotSmokeHours), string.format("%.0f", modData.hotSmokeHoursNeeded)))
@@ -99,17 +83,10 @@ function Info.rows(found, ledger, now, fire)
     local hanger = found.hanger
     local rows, bars, notes = {}, {}, {}
     table.insert(rows, { KEY .. "Place", UI.placeName(PLACES[found.place] and found.place or "Sheltered") })
-    if hanger then
-        table.insert(rows, { KEY .. "InfoHolds", UI.say(KEY .. "InfoStacks", tostring(found.finishedStacks + #found.batches),
-            tostring(hanger.stacks), tostring(hanger.stackWeight)) })
-    elseif #found.batches > 0 or found.finished > 0 then
-        table.insert(rows, { KEY .. "InfoHolds", getText(KEY .. "InfoTubBusy") })
-    else
-        table.insert(rows, { KEY .. "InfoHolds", UI.say(KEY .. "InfoTub", string.format("%.1f", weightOf(found.waiting)),
-            tostring(F.TUB_CAPACITY), tostring(#found.waiting), tostring(F.TUB_MAX_ITEMS)) })
-    end
+    table.insert(rows, { KEY .. "InfoHolds", UI.say(KEY .. "InfoStacks", tostring(found.finishedStacks + #found.batches),
+        tostring(hanger.stacks), tostring(hanger.stackWeight)) })
     local temperature = ledger.temperature or 0
-    -- Below ground, in a loft and in a room the stacks and the tub go by the place's own temperature, not the day's
+    -- Below ground, in a loft and in a room the stacks go by the place's own temperature, not the day's
     -- (the Smokehouse, Enclosed, goes by the day's as the open air does).
     if found.place == "Basement" or found.place == "Loft" or found.place == "Sheltered" then
         table.insert(rows, { KEY .. "InfoAir", UI.placeText(found.place, F.ownTemperature(ledger, found.place)) })
@@ -117,11 +94,11 @@ function Info.rows(found, ledger, now, fire)
         table.insert(rows, { KEY .. "InfoAir", UI.say(KEY .. "InfoAirValue", UI.degrees(temperature),
             UI.degrees(ledger.seasonTemperature or temperature)) })
     end
-    -- Wind and rain reach a hanger in the open or under an open roof; the tub goes by the season alone.
-    if hanger and (found.place == "Open" or found.place == "Covered") then
+    -- Wind and rain reach a hanger in the open or under an open roof.
+    if found.place == "Open" or found.place == "Covered" then
         table.insert(rows, { KEY .. "Wind", getText(F.windWord(ledger.wind)) })
     end
-    if hanger and found.place == "Open" then
+    if found.place == "Open" then
         table.insert(rows, { KEY .. "InfoWetness", UI.percent(ledger.wetness or 0) })
     end
     if fire then
@@ -134,22 +111,19 @@ function Info.rows(found, ledger, now, fire)
         local method = recipe and RECIPE_METHODS[UI.shortName(recipe)]
         if method then
             local row = Info.batch(method, batch.craftRecipeData:getModData(), ledger, now)
-            -- A tub cures one batch at a time, so its bar and notes need no number.
-            local name = getText(row.name)
-            table.insert(bars, { text = hanger and UI.say(KEY .. "InfoBatch", tostring(#bars + 1), name) or name,
+            table.insert(bars, { text = UI.say(KEY .. "InfoBatch", tostring(#bars + 1), getText(row.name)),
                 share = row.progress, progressText = row.progressText, colour = row.slow and SLOW_COLOUR or GOOD_COLOUR })
             for _, note in ipairs(row.notes) do
-                table.insert(notes, hanger and UI.say(KEY .. "InfoNote", tostring(#bars), note) or note)
+                table.insert(notes, UI.say(KEY .. "InfoNote", tostring(#bars), note))
             end
             weather = weather or row.weather == true
         end
     end
-    if #found.waiting > 0 and (hanger or #found.batches == 0) then
+    if #found.waiting > 0 then
         table.insert(notes, UI.say(KEY .. "InfoWaiting", tostring(#found.waiting)))
     end
     if found.finished > 0 then
-        table.insert(notes, hanger and UI.say(KEY .. "InfoFinished", tostring(found.finished), tostring(found.finishedStacks))
-            or UI.say(KEY .. "InfoFinishedTub", tostring(found.finished)))
+        table.insert(notes, UI.say(KEY .. "InfoFinished", tostring(found.finished), tostring(found.finishedStacks)))
     end
     if weather then table.insert(notes, getText(KEY .. "InfoWeather")) end
     if #bars == 0 and #notes == 0 then table.insert(notes, getText(KEY .. "InfoEmpty")) end

@@ -88,7 +88,7 @@ local function station(sprite, stored, running, indoors)
     return { resource = resource }
 end
 
-local PACKED, PRESSED = "TraditionalPreservationFishMeat.SaltPackedFish", "TraditionalPreservationFishMeat.SaltPressedFish"
+local RAW, PRESSED = "Base.Walleye", "TraditionalPreservationFishMeat.SaltPressedFish"
 local GUTTED, HALF = "TraditionalPreservationFishMeat.GuttedFish", "TraditionalPreservationFishMeat.FishHalf"
 local TUB, FRAME = "traditionalpreservationfishmeat_01_0", "traditionalpreservationfishmeat_01_7"
 -- TP Core's Smokehouse, its door's tile facing S.
@@ -96,7 +96,6 @@ local SHED = "traditionalpreservationcore_01_33"
 local function green(slot, item) return ISItemSlot.defaultVerifyItem({}, slot, item) end
 
 check("a frame is green for pressed fish", green(station(FRAME), fish(PRESSED, 0.5)))
-check("not for packed fish", not green(station(FRAME), fish(PACKED, 0.5)))
 check("not when the stack is full", not green(station(FRAME, { fish(PRESSED, 2.1) }), fish(PRESSED, 0.5)))
 check("not for a fish over the stack limit", not green(station(FRAME), fish(PRESSED, 3)))
 check("green while the stack has room", green(station(FRAME, { fish(PRESSED, 0.5) }), fish(PRESSED, 0.5)))
@@ -122,32 +121,6 @@ check("not for meat on a fish stack, nor fish on a meat one", not green(station(
     and not green(station(FRAME, { fish(CURED, 0.3) }), fish(GUTTED, 0.5)))
 check("meat stacks with meat", green(station(FRAME, { fish(CURED, 0.3) }), fish(CURED, 0.5)))
 
--- The short cure refuses a Leg of Pork (Core's recipeRefusal): the station's CraftLogic says which recipe, in full.
-local PACKED_MEAT = "TraditionalPreservationFishMeat.SaltPackedMeat"
-local selected = "PressSaltedMeat"
-local function tubWith(stored)
-    local logic = { isRunning = function() return false end,
-        getCurrentRecipe = function() return { getName = function() return "TraditionalPreservationFishMeat." .. selected end } end }
-    local slot = { getStoredItems = function() return list(stored) end }
-    local resources = { getResourcesFromGroup = function() return list({ slot }) end }
-    return {
-        getSprite = function() return { getName = function() return TUB end } end,
-        getComponent = function(_, componentType) return componentType == ComponentType.Resources and resources or logic end,
-    }
-end
-local craftLogic = { getCraftLogic = function() return { getInputsGroupName = function() return "craft_inputs" end } end }
-local tubSlot = { resource = { getIO = function() return ResourceIO.Input end, getGameEntity = function() return tubWith({}) end,
-    getStoredItems = function() return list({}) end } }
-check("a packed leg's border is red while the tub is set to corn", not green(tubSlot, fish(PACKED_MEAT, 2.5, 6))
-    and green(tubSlot, fish(PACKED_MEAT, 0.5, 4)))
-halos = {}
-ISWidgetCraftLogicControl.startCraft({ entity = tubWith({ fish(PACKED_MEAT, 0.5, 4), fish(PACKED_MEAT, 2.5, 6) }), player = "player", logic = craftLogic })
-check("corning with a leg already in is refused at Craft, with a reason", vanillaStarts == 0 and halos[1] == "IGUI_TraditionalPreservationFishMeat_LegNeedsLongCure")
-selected = "CountryCureMeat"
-check("and green when it is set to country cure", green(tubSlot, fish(PACKED_MEAT, 2.5, 6)))
-ISWidgetCraftLogicControl.startCraft({ entity = tubWith({ fish(PACKED_MEAT, 2.5, 6) }), player = "player", logic = craftLogic })
-check("the long cure starts with it", vanillaStarts == 1)
-halos = {}
 check("Salt Cured pork is refused on a frame", not green(station(FRAME), fish(CURED, 0.5, 4)))
 check("and a leg", not green(station(FRAME), fish(CURED, 2.3, 6)))
 check("but hangs in the Smokehouse", green(station(SHED), fish(CURED, 0.5, 4))
@@ -165,26 +138,7 @@ check("and no more", not green(station(MEDIUM), fish(PRESSED, 1)))
 busyStacks = 2
 check("a large beam has 2", not green(station(LARGE), fish(PRESSED, 1)))
 busyStacks = 0
-check("a tub is green for packed fish", green(station(TUB), fish(PACKED, 2)))
-check("not for raw fish", not green(station(TUB), fish("Base.Walleye", 2)))
-check("not while pressing", not green(station(TUB, nil, true), fish(PACKED, 2)))
-busyStacks = 1
-check("not before the pressed fish is out", not green(station(TUB), fish(PACKED, 2)))
-busyStacks = 0
-check("an empty tub with old slot counts is open", green(station(TUB), fish(PACKED, 2)))
-local thirtyFour, thirtyFive = {}, {}
-for i = 1, 35 do
-    if i < 35 then thirtyFour[i] = fish(PACKED, 0.01) end
-    thirtyFive[i] = fish(PACKED, 0.01)
-end
-check("a tub takes a 35th fish", green(station(TUB, thirtyFour), fish(PACKED, 0.01)))
-check("but not a 36th, however light", not green(station(TUB, thirtyFive), fish(PACKED, 0.01)))
-check("not past its capacity", not green(station(TUB, { fish(PACKED, TraditionalPreservationFishMeat.TUB_CAPACITY - 0.5) }), fish(PACKED, 1)))
-local MEAT = "TraditionalPreservationFishMeat.SaltPackedMeat"
-check("an empty tub is green for packed meat", green(station(TUB), fish(MEAT, 0.5)))
-check("meat goes in with meat", green(station(TUB, { fish(MEAT, 0.3) }), fish(MEAT, 0.5)))
-check("not with fish", not green(station(TUB, { fish(PACKED, 1) }), fish(MEAT, 0.5)))
-check("nor fish with meat", not green(station(TUB, { fish(MEAT, 0.5) }), fish(PACKED, 1)))
+check("a tub (one saved with its old slots) is left to vanilla: it has its own menu", green(station(TUB), fish(RAW, 2)))
 
 vanillaVerdict = false
 check("vanilla can still say no", not green(station(FRAME), fish(PRESSED, 0.5)))
@@ -194,19 +148,19 @@ local other = station("carpentry_02_122")
 check("other mods' slots are left alone", green(other, fish("Base.Plank", 1)))
 local output = station(FRAME)
 output.resource.getIO = function() return ResourceIO.Output end
-check("output slots are left alone", green(output, fish(PACKED, 1)))
-check("a slot with no resource is safe", green({}, fish(PACKED, 1)))
+check("output slots are left alone", green(output, fish(RAW, 1)))
+check("a slot with no resource is safe", green({}, fish(RAW, 1)))
 local spriteless = station(FRAME)
 spriteless.resource.getGameEntity = function() return nil end
-check("a slot with no entity is safe", green(spriteless, fish(PACKED, 1)))
+check("a slot with no entity is safe", green(spriteless, fish(RAW, 1)))
 
 local frame = station(FRAME)
-ISMouseDrag.dragging = { fish(PACKED, 1) }
+ISMouseDrag.dragging = { fish(RAW, 1) }
 ISItemSlot.onMouseUp(frame, 0, 0)
 check("a refused drop says why", halos[1] == "IGUI_TraditionalPreservationFishMeat_NeedsPressed" and vanillaUps == 1)
 
 halos = {}
-ISMouseDrag.dragging = { fish(PACKED, 1), fish(PRESSED, 0.5) }
+ISMouseDrag.dragging = { fish(RAW, 1), fish(PRESSED, 0.5) }
 ISItemSlot.onMouseUp(frame, 0, 0)
 check("a mixed drag that can partly go in says nothing", #halos == 0 and vanillaUps == 2)
 
@@ -214,7 +168,7 @@ ISMouseDrag.dragging = nil
 ISItemSlot.onMouseUp(frame, 0, 0)
 check("a plain click says nothing", #halos == 0 and vanillaUps == 3)
 
-ISMouseDrag.dragging = { fish(PACKED, 1) }
+ISMouseDrag.dragging = { fish(RAW, 1) }
 ISMouseDrag.draggingFocus = frame
 ISItemSlot.onMouseUp(frame, 0, 0)
 check("dragging from the slot itself says nothing", #halos == 0)
@@ -224,24 +178,12 @@ local entityList = {}
 ISEntityUI = { WalkToEntity = function() return true end }
 ISItemSlotAddAction = { new = function(_, _, _, item) table.insert(entityList, item); return {} end }
 ISTimedActionQueue = { add = function() end }
-local function refusedWith(slot)
-    halos = {}
-    ISCraftLogicPanel.ItemSlotAddItems("player", slot.resource:getGameEntity(), slot, { fish(PACKED, 1) }, slot.resource:getGameEntity():getComponent())
-    return halos[1]
-end
-check("a running tub says it's in use", refusedWith(station(TUB, nil, true)) == "IGUI_TraditionalPreservationFishMeat_TubInUse")
-busyStacks = 1
-check("a finished one says to empty it", refusedWith(station(TUB)) == "IGUI_TraditionalPreservationFishMeat_TubNotEmpty")
-busyStacks = 0
-local tubSlot = station(TUB)
+local frameSlot = station(FRAME)
 halos = {}
-ISCraftLogicPanel.ItemSlotAddItems("player", tubSlot.resource:getGameEntity(), tubSlot, { fish(PRESSED, 1) }, tubSlot.resource:getGameEntity():getComponent())
-check("adding the wrong fish is refused", #entityList == 0 and halos[1] == "IGUI_TraditionalPreservationFishMeat_NeedsPacked")
-ISCraftLogicPanel.ItemSlotAddItems("player", tubSlot.resource:getGameEntity(), tubSlot, { fish(PACKED, 1), fish(PACKED, 1) }, tubSlot.resource:getGameEntity():getComponent())
+ISCraftLogicPanel.ItemSlotAddItems("player", frameSlot.resource:getGameEntity(), frameSlot, { fish(RAW, 1) }, frameSlot.resource:getGameEntity():getComponent())
+check("adding the wrong fish is refused", #entityList == 0 and halos[1] == "IGUI_TraditionalPreservationFishMeat_NeedsPressed")
+ISCraftLogicPanel.ItemSlotAddItems("player", frameSlot.resource:getGameEntity(), frameSlot, { fish(PRESSED, 1), fish(PRESSED, 1) }, frameSlot.resource:getGameEntity():getComponent())
 check("the right fish goes in", #entityList == 2)
-entityList, halos = {}, {}
-ISCraftLogicPanel.ItemSlotAddItems("player", tubSlot.resource:getGameEntity(), tubSlot, { fish(MEAT, 0.5), fish(PACKED, 1) }, tubSlot.resource:getGameEntity():getComponent())
-check("meat and fish dragged in together are refused at the fish", #entityList == 1 and halos[1] == "IGUI_TraditionalPreservationFishMeat_MixedTub")
 
 -- A hanging stack's popup
 local function stackLines(recipeName, modData, ledger)

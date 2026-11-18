@@ -55,9 +55,9 @@ Fish and meat share one workshop. The same **Salting Tub** cures both, the same 
 
 > **Requires Traditional Preservation (Core)**, the series' shared mod (TP Core for short). Enable it alongside this one; it loads first.
 
-- **Summer catch?** Pack it in salt → cure it in a **Salting Tub** → hang it on a **Drying Frame**.
+- **Summer catch?** Gut the big ones → salt it in a **Salting Tub** → hang it on a **Drying Frame**.
 - **Winter catch?** Gut it → hang it on the frame. No salt needed.
-- **Summer beef?** Pack it in salt → the same tub → the same frame, in the hot sun: **charque**.
+- **Summer beef?** Salt it in the same tub → the same frame, in the hot sun: **charque**.
 - **Butchered a pig?** Render the fat → cook the meat in it → seal it in a clay jar: **Potted Meat**.
 - **Bled it into a bucket?** Cure the blood with salt or vinegar → mix it with oats or grain and fat → bake it in a pan, or stuff it into salted casings and boil it: **Black Pudding** and **Blood Sausage**.
 - **Want it ready to eat?** Hang salt-cured fish or meat in a **Smokehouse** joined to a **Stone Hearth** and keep the fire stoked for an afternoon: **Hot Smoked**.
@@ -181,45 +181,50 @@ Numbers are for an average animal and an unskilled butcher. A bigger or meatier 
 
 ## 5. The Salting Tub
 
-**Build:** Carpentry 2: 4 planks, 6 nails, 2 twine; hammer and saw kept. Holds **50 weight or 35 items**, **fish or meat, never both at once**.
+**Build:** Carpentry 2: 4 planks, 6 nails, 2 twine; hammer and saw kept. Holds **50 weight or 35 pieces**, **fish or meat, never both at once**: the first piece in decides. Everything is on its **right-click menu**; **Tub Info** (in the menu, or click the tub) shows what is in it, where it stands and how the cure is going.
 
-### Step 1. Pack in salt (crafting menu)
+### Step 1. Put it in
 
-| | **Pack Fish in Salt** | **Pack Meat in Salt** |
+**Put \<fish or meat\> in the Tub**: a row for each kind you carry, **All** (as many as fit), then **One**, oldest first.
+
+| | **Fish** | **Meat** |
 |---|---|---|
-| Takes | A raw fish, fillet, Gutted Fish or Fish Half; knife or cleaver (kept) | A Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop or Leg of Pork; chicken, turkey and rabbit too, at half the rate (chapter 10); no knife |
-| Salt | **2 for each quarter weight** of the packed fish, to the nearest quarter, never under 2 (about 15%) | The same: **4** for a Beef, Venison or Pork, **2** for a Steak or a chop; a Leg of Pork **half the rate**, **10** for 2.5 weight (about 8%) |
-| Gives | **Salt Packed** fish (+ Fish Guts from a whole fish over 0.6) | Salt Packed meat, named for its cut (*Steak (Salt Packed)*) |
+| Takes | A raw fish **up to 0.6 weight whole**, a Gutted Fish, a Fish Half or a fillet | A Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop or Leg of Pork, as the butcher gives it; chicken, turkey and rabbit too (chapter 10) |
+| Before | **A whole fish over 0.6 is gutted first** (Gut Fish); one over **4.5** split too | Nothing: the salt is rubbed into the cut as it is |
 | Not | Rotten, frozen or cooked fish | Rotten, frozen or cooked meat |
 
-- Fresh, stale, even **part-eaten** fish works.
-- **Big fish get split first:** a whole or gutted fish over **4.5 weight** (about 2 kg) is too thick to salt whole. **Gut Fish**, then **Split Fish**, and pack the halves. Bream-sized fish and smaller go in whole, heads on.
-- **Salt can be anywhere in reach:** on you or in the containers around you. Any salt works: a vanilla shaker holds **10**, the Salt mod's Evaporated Salt **5** and a Bag of Salt **50**. Part-used salt goes first.
-- Packed fish and meat keep only 3 / 6 days. Get them in the tub.
+- Fresh, stale, even **part-eaten** fish works. A refused row says why in red.
+- **Small fish go in whole, guts and all.** On the Volga, vobla and the little roach are salted whole; the guts come away easily once the fish is dry.
+- **Changed your mind?** **Unpack** gives everything back until the salt goes on. The tub is no cold store: what waits in it goes off as it would lying out.
 
-| Fish | Salting weight (what the salt is charged on) | Salt |
+### Step 2. Salt and press
+
+Three rows start the cure. Each salts the whole batch and lays a **plank and a flat stone** on it; each says in red what's missing. The plank and stone come back with the last piece out.
+
+| Row | Gives | For |
 |---|---|---|
-| Bluegill, 0.3 | 0.3 | 2 |
-| Bluegill, 0.5 | 0.5 | 4 |
-| Walleye, 4.0 | 3.6 | 28 |
-| Walleye, 4.5 (the most salted whole) | 4.05 | 32 |
-| Catfish, 10.0: too big, gut and split | each half 4.0 | 32 a half |
-| Vanilla fillet of that catfish, 0.5 on the scales | 4.5 (see below) | 36 |
+| **Cure Fish** | **Salt Cured** fish (*Walleye (Salt Cured)*) | Every fish road |
+| **Corn the Meat** (the short cure) | **Corned** meat (*Steak (Corned)*) | Charque and hot smoking. Not a Leg of Pork: too thick |
+| **Country Cure** (the long cure) | **Country Cured** meat (*Leg of Pork (Country Cured)*) | The Smokehouse's dry cured meat and country ham. Not poultry or rabbit |
 
-The salting weight is the gutted fish's own for a whole fish or a half. A vanilla fillet is the exception: the game weighs it at a twentieth of its fish though it holds half the food, so the salt goes by what it holds, half the gutted fish, and it comes out of the tub that heavy.
+**Salt: 2 for each quarter weight** of each piece, to the nearest quarter, never under 2 a piece (about 15%). A Leg of Pork, poultry and rabbit take **half the rate** (a 2.5 leg 10, a whole chicken 5). The salt must be **on you** (bags count). Any salt works: a vanilla shaker holds **10**, the Salt mod's Evaporated Salt **5** and a Bag of Salt **50**. Part-used salt goes first.
+
+| Piece | Salting weight (what the salt is charged on) | Salt |
+|---|---|---|
+| Bluegill, 0.3, whole | 0.3 | 2 |
+| Bluegill, 0.5, whole | 0.5 | 4 |
+| Walleye, 4.0, gutted (3.2) | 3.2 | 26 |
+| Walleye, 4.5, gutted (4.05) | 4.05 | 32 |
+| Catfish, 10.0: gut and split | each half 4.0 | 32 a half |
+| Vanilla fillet of that catfish, 0.5 on the scales | 4.5 (see below) | 36 |
+| Beef, Venison or Pork | 0.5 | 4 |
+| Steak or a chop | 0.3 | 2 |
+
+A vanilla fillet is the odd one: the game weighs it at a twentieth of its fish though it holds half the food, so the salt goes by what it holds, half the gutted fish, and it comes out of the tub that heavy.
 
 > *Margin note:* on the Volga a salter reckons 1 to 1.5 kg of salt for 10 kg of vobla, 10 to 15%. The mod charges about 15%. A split catfish costs you more than a whole Bag of Salt, which is why the Salt mod's lick is worth the walk.
 
-### Step 2. Cure
-
-Pick the cure, load the tub, press **Craft**. Until then the tub stands open and shows its top layer in the salt: fish, red cuts, pale pork, or a leg (a leg always shows, it fills the tub). The board and stones go on, and the **heaviest piece sets the time**. Fish has one cure; meat has two:
-
-| Recipe | Gives | For |
-|---|---|---|
-| **Cure Salted Fish** | **Salt Cured** fish (*Walleye (Salt Cured)*) | Every fish road |
-| **Corn Salted Meat** (the short cure) | **Corned** meat (*Steak (Corned)*) | Charque and hot smoking. Not a Leg of Pork: too thick |
-| **Country Cure Salted Meat** (the long cure) | **Country Cured** meat (*Leg of Pork (Country Cured)*) | The Smokehouse's dry cured meat and country ham |
-
+The open tub shows its top layer in the salt: fish, red cuts, pale pork, or a leg (a leg always shows, it fills the tub). Once salted the board and stone go on, and the **heaviest piece sets the time**:
 
 | Batch | Cure |
 |---|---|
@@ -230,10 +235,10 @@ Pick the cure, load the tub, press **Craft**. Until then the tub stands open and
 | Country Cured: cuts | **10 days** |
 | Country Cured: any Leg of Pork in the batch | **21 days** |
 
-These are at full speed. **The cold slows the salt**: a tub cures at full speed from 2 C, half speed at −5 C and a quarter from −10 C, by where it stands (a roof or a room by the season, the open air by the day, a basement by its own), so a January tub outdoors takes about twice as long and a basement tub never slows. Hover the batch for its time left at today's speed. It runs while you're away. The tub stays closed until you've taken every piece out.
+These are at full speed. **The cold slows the salt**: a tub cures at full speed from 2 C, half speed at −5 C and a quarter from −10 C, by where it stands (a roof or a room by the season, the open air by the day, a basement by its own), so a January tub outdoors takes about twice as long and a basement tub never slows. **Tub Info** gives its time left at today's speed. It runs while you're away. Nothing more goes in until you've taken every piece out (**Take Out**, All or One).
 
-- **Mind a warm spell.** When the last ten days average above 20 C, the flesh by the spine starts to spoil (bone taint) before the salt reaches it, and the finished batch keeps less long: about a seventh off for a day at 21 C, over a third for two days at 25 C. Hover the batch to see it (*Spoiling (Warm cure)*). Salt in spring and autumn, or cure small fish. **A tub in a room minds the room**: 22 C while the power grid is on, so in the first weeks a batch indoors loses about a third of its keeping on a two-day press and a long cure rots. Put the tub under an open roof, in an outbuilding or in a basement. **The long cure wants the cold**: its salt takes weeks to reach the bone, so it is safe only while the last ten days average **10 C or less**, about **October to April**. Warmer, it spoils in step: at 12 C a leg loses two fifths of its keeping and cuts a fifth; at 15 C a leg rots in the tub and cuts lose half. The short cure and fish only mind 20 C.
-- **Salt Cured** fish, **Corned** and **Country Cured** meat keep 7 / 14 days and are raw: cook them before eating, or hang them.
+- **Mind a warm spell.** When the last ten days average above 20 C, the flesh by the spine starts to spoil (bone taint) before the salt reaches it, and the finished batch keeps less long: about a seventh off for a day at 21 C, over a third for two days at 25 C. Tub Info shows it (*Spoiling (Warm cure)*). Salt in spring and autumn, or cure small fish. **A tub in a room minds the room**: 22 C while the power grid is on, so in the first weeks a batch indoors loses about a third of its keeping on a two-day press and a long cure rots. Put the tub under an open roof, in an outbuilding or in a basement. **The long cure wants the cold**: its salt takes weeks to reach the bone, so it is safe only while the last ten days average **10 C or less**, about **October to April**. Warmer, it spoils in step: at 12 C a leg loses two fifths of its keeping and cuts a fifth; at 15 C a leg rots in the tub and cuts lose half. The short cure and fish only mind 20 C.
+- **Salt Cured** fish, **Corned** and **Country Cured** meat keep 7 / 14 days and are raw: cook them before eating, or hang them. Left in the tub, they go off as they would lying out.
 
 > *Old names:* *corned* is the old word for dry-salted with coarse grains of salt, "corns": corned beef was a short cure, boiled with cabbage, long before it came in tins. *Country cured* is what Kentucky still calls a ham rubbed in dry salt and left in the box: "a day and a half to the pound", hogs killed after the first hard frost so the meat cools before the salt reaches the bone.
 
@@ -276,7 +281,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 
 **Hover a stack** to see its method, what it **comes out as** if it came down now (the recipe's output picture always shows Charque or Salt Dried; chapter 23 has every end), progress, time left, place, the temperature, the wind, how wet it is and how fast it's drying right now, a warning if the season is spoiling it, and in a Smokehouse its smoke.
 
-**The station's own window tells you the rest.** Under *In Progress*, *Done* and *Take All*, every station (the Salting Tub and the Smokehouse too) lists the place, how many stacks are in use, the air now and over the season (below ground, the basement's own temperature), and a bar for every running batch with its share, its time left or the reason it stands still. Under the bars it lists what wants your eye: a batch that is spoiling, a hot cook under way, the smoke so far, pieces loaded but never started, finished ones waiting to be taken.
+**The station's own window tells you the rest.** Under *In Progress*, *Done* and *Take All*, every drying station (the Smokehouse too) lists the place, how many stacks are in use, the air now and over the season (below ground, the basement's own temperature), and a bar for every running batch with its share, its time left or the reason it stands still. Under the bars it lists what wants your eye: a batch that is spoiling, a hot cook under way, the smoke so far, pieces loaded but never started, finished ones waiting to be taken.
 
 > *Margin note:* the times left assume today's weather holds. Nobody on the Volga could promise that either.
 
@@ -292,7 +297,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 - **Hot sun**: above 25 C, salt fish in the open air that is less than half dry takes a little off how long it keeps (the popup says *Too hot in the sun*). A few percent in a Kentucky summer; under an open roof it's spared.
 - **Muggy summers**: salt fish only loses keeping time in a warm, damp spell: when the air has been humid for days *and* the place is over 22 C. In the open air, under an open roof and in the Smokehouse that goes by the **average of the last ten days**, so a hot afternoon alone does nothing: a few days in a hot July, if any. A room, a loft and a basement go by their own temperature: a **July loft** (about 24 C under the roof) is muggy for weeks, and a batch dried there loses about two thirds of its keeping; a cellar never is. Dry cured meat doesn't mind: hams were aged through the summer heat.
 
-> **Warning:** Packed and cured fish are **not** safe uncooked. Drying is what makes salt fish safe.
+> **Warning:** Raw and Salt Cured fish are **not** safe uncooked. Drying is what makes salt fish safe.
 
 ---
 
@@ -300,7 +305,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 
 Charque is the summer road for red meat: salted and cured in the tub like fish, then dried in summer heat. Hot sun is best, and an open roof does as well and keeps the rain off; what it can't do without is the warmth.
 
-1. **Pack Meat in Salt** and **Corn Salted Meat** (chapter 5). Out comes **Corned** meat (*Steak (Corned)*). Beef, mutton and venison only: pork is never charque, and Country Cured meat is for dry curing (chapter 11).
+1. **Corn the Meat** in the Salting Tub (chapter 5). Out comes **Corned** meat (*Steak (Corned)*). Beef, mutton and venison only: pork is never charque, and Country Cured meat is for dry curing (chapter 11).
 2. **Hang Salted Meat to Dry** on any drying station **in the open or under an open roof**: **five days in hot sun (25 C and up) and a fair breeze**.
 3. Take down the **Charque** (*Beef Charque*, *Mutton Charque*, *Venison Charque*): about half the raw weight, 90% of the food, keeps **120 / 180 days** (rinsed 108 / 162).
 4. **Soak Charque** (1 L of water) before you eat it: it's salty and as hard as leather. Soaked (*Beef Charque (Soaked)*) it's still a little salty, cooks like a steak in about 40 minutes, goes into soups, stews, pies and more, and spoils like fresh meat (2 / 4 days).
@@ -425,8 +430,8 @@ Light the joined Stone Hearth and keep it going. A lit Stone Hearth is **stoked*
 
 Birds and rabbits take **one road through the salt: the hot cook.** No charque, no dry curing, no cold smoke.
 
-1. **Pack Meat in Salt** takes the six cuts (legs, wings and fillets), a **whole Chicken or Turkey**, and **Rabbit Meat**. It's a brine's salt, half what red meat takes: 2 for a cut, 5 for a whole chicken.
-2. **Corn Salted Meat** in the tub. A cut takes about **29 hours**, a **whole chicken 38**, a **turkey 48**. A bird is hollow, so the salt only has to go as deep as a thick steak. **Country Cure refuses them**, and the tub tells you why.
+1. **The Salting Tub** takes the six cuts (legs, wings and fillets), a **whole Chicken or Turkey**, and **Rabbit Meat**. It's a brine's salt, half what red meat takes: 2 for a cut, 5 for a whole chicken.
+2. **Corn the Meat** in the tub. A cut takes about **29 hours**, a **whole chicken 38**, a **turkey 48**. A bird is hollow, so the salt only has to go as deep as a thick steak. **Country Cure refuses them**, and the tub tells you why.
 3. Out comes *Chicken Leg (Corned)*, *Turkey (Whole) (Corned)* and the rest. A light brine keeps **3 / 6 days**, not red meat's week, so hang it soon.
 4. Hang it in the **Smokehouse**: nowhere else will take it, and it hangs **apart from red meat** (a stack is poultry and rabbit, or red meat). There it **never dries and never takes smoke**. It only waits for its **stoked hours in a row**: about 6 for a cut, **7 for a whole chicken, 8 for a turkey**. A broken run starts again from nothing.
 5. **While it waits, it spoils**, like Corned red meat left in the shed but **more than twice as fast**: about 12 days at 10 C, 2½ days at 20 C, and **within two weeks** in any weather above freezing. Frozen, it keeps: a bird hung in a hard frost waits weeks for its fire, as farms hung them all winter. A banked fire warms the shed and speeds it up. The popup says *Hot smoking only* and, until the Stone Hearth is stoked, *Waiting (Needs a stoked Stone Hearth)*.
@@ -491,7 +496,7 @@ Dry curing is the winter road for meat: a long salting in the cold, then weeks o
 
 **The road, step by step**
 
-1. **Salt it in the cold months.** **Pack Meat in Salt**, then **Country Cure Salted Meat** in the tub (chapter 5): **10 days** for cuts, **21** with a Leg of Pork. Only while the last ten days average **10 C or less**, about **October to April**: warmer, the long cure spoils in the tub.
+1. **Salt it in the cold months.** **Country Cure** it in the Salting Tub (chapter 5): **10 days** for cuts, **21** with a Leg of Pork. Only while the last ten days average **10 C or less**, about **October to April**: warmer, the long cure spoils in the tub.
 2. **Hang it in the shade** with **Hang Salted Meat to Dry**: in the **Smokehouse**, on **any drying station under a roof**, or on a **Frame or Hanging Beam in a room or a basement**. Never in the open: sun and rain are for charque.
 3. **Smoke it, or don't.** In a Smokehouse with a Stone Hearth, bank the fire a few hours a day until the stack has its hours of smoke: **60** for cuts, **120** with a leg, on days of 15 C or less (chapter 10). Anywhere else, or with no fire, it air dries.
 4. **Wait.** Three weeks for a cut and six for a leg at full speed; longer in the cold (below).
@@ -772,7 +777,6 @@ The other half of the pig-killing is the meat sausage: coarse pork, salt and gar
 
 | Stage | Weight* | Food | Fresh / rotten days | Eat it? |
 |---|---|---|---|---|
-| Salt Packed | 90% | 100% | 3 / 6 | No |
 | Salt Cured | 79–84% | 100% | 7 / 14 | Cooked |
 | **Salt Dried** | ~37% | 90% | **120 / 180** (rinsed 108 / 162) | Yes, salty |
 | Soaked Salt Dried | ~66% | 90% | 2 / 4 | Yes |
@@ -783,13 +787,12 @@ The other half of the pig-killing is the meat sausage: coarse pork, salt and gar
 | Stockfish (Soaked) | ~53% | 89% | 2 / 4 | Yes |
 | Fish Head | 10% | 6% | 3 / 6 | Cooked, or stock |
 
-\*Gutting and packing remove the guts (10%) from a fish over 0.6 weight, and gutting takes the head of one over 1.0. A smaller fish keeps that weight at every stage.
+\*Gutting removes the guts (10%) from a fish over 0.6 weight and the head of one over 1.0; the tub takes nothing bigger whole. A smaller fish keeps that weight at every stage.
 
 **Meat** (weight compared with the raw cut)
 
 | Stage | Weight | Food | Fresh / rotten days | Eat it? |
 |---|---|---|---|---|
-| Salt Packed | 100% | 100% | 3 / 6 | No |
 | Corned, Country Cured | 88–93% | 100% | 7 / 14 (Corned poultry and rabbit 3 / 6) | Cooked |
 | **Charque** | ~50% | 90% | **120 / 180** (rinsed 108 / 162) | No: rehydrate |
 | Charque (Soaked) | ~80% | 90% | 2 / 4 | Cooked |
@@ -816,7 +819,6 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 
 | Stage | Eat as it is? | Cook | Into | Recipe |
 |---|---|---|---|---|
-| Salt Packed | No | Can't | - | Cure it in the tub |
 | Salt Cured | Cooked | 20 min (burns at 50) | - | Hang it to dry or smoke; Slice Fish |
 | **Salt Dried** | Yes, very salty | - | Soup, stew, rice, pasta | **Soak Fish** (1 L of water); Slice Fish |
 | Soaked Salt Dried | Yes, better hot | 20 min (50) | Soup, stew, pie, pizza, stir fry, rice, pasta; then sandwich, burger, salad, taco, burrito | Slice Fish |
@@ -833,7 +835,7 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 
 | Stage | Eat as it is? | Cook | Into | Recipe |
 |---|---|---|---|---|
-| Leg of Pork | Cooked | 2½ hours (burns at 3½) | - | Pack Meat in Salt (10 salt) |
+| Leg of Pork | Cooked | 2½ hours (burns at 3½) | - | Country Cure it in the tub (10 salt) |
 | Animal Bones | No | - | - | **Make Bone Broth** (1.5 L): 2, 1 Large or 6 Small; they come back boiled |
 | Chicken Feet, chicken or turkey heads | Feet as the game has them; heads no | - | - | **Make Chicken Stock** (1.5 L), 2 parts |
 | Bone Broth, Chicken Stock | Cooked | 70 min (140) | Its first ingredient makes the soup or stew | Divide into 2 or 4 bowls |
@@ -841,7 +843,6 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 | Pot of fat | No | 60 min (150) | - | Pour Off, then Strain |
 | Lard, Tallow | As the game's Lard | - | Tallow: soup, stew, stir fry, pasta, sandwich, taco, burrito, toast; bakes wherever Lard does | Put Meat in Fat |
 | Cracklings | Yes | - | Soup, stew, stir fry, sandwich, salad | - |
-| Salt Packed meat | No | Can't | - | Corn or country cure it in the tub |
 | Corned, Country Cured | Cooked | 25 min (60) | - | Hang it: charque, dry curing or smoke |
 | **Charque** | No | Can't | - | **Soak Charque** (1 L) |
 | Charque (Soaked) | Cooked | 40 min (80) | Soup, stew, pie, stir fry, rice, pasta; then sandwich, burger, salad, taco, burrito | - |
@@ -1038,8 +1039,8 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 
 ### Why it works the way it does
 
-- **Why does salt dry fish and meat?** Salt draws water out through the flesh, and bacteria can't live in what's left. That's why packed fish keeps only days, cured fish a week or two, and fully dried fish for months.
-- **Why press it?** The board and stones squeeze out the brine the salt has pulled, so drying starts from a firmer, drier piece. Volga salters weight the fish in the vat under a wooden lid and stones, the *gnyot*; the charqueadas piled their salted beef and let the pile's own weight press it.
+- **Why does salt dry fish and meat?** Salt draws water out through the flesh, and bacteria can't live in what's left. That's why fresh fish keeps only days, cured fish a week or two, and fully dried fish for months.
+- **Why press it?** The plank and stone squeeze out the brine the salt has pulled, so drying starts from a firmer, drier piece. Volga salters weight the fish in the vat under a wooden lid and stones, the *gnyot*; the charqueadas piled their salted beef and let the pile's own weight press it.
 - **Why won't a room take gutted fish?** Stockfish dries in moving air at around freezing: cold enough that nothing rots, dry and windy enough that the water leaves. In a room the air goes still.
 - **Why dry salt fish in the shade?** In full summer sun the skin dries hard before the inside does, trapping the wet, and the fat turns rusty. Volga salters hang their vobla under awnings and in open sheds.
 - **Why does charque want the sun?** Lean beef has little fat to turn rancid, and heavy salt keeps flies and rot off while the heat drives the water out in days.
@@ -1060,7 +1061,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 ## 19. Secrets & Hidden Features
 
 - **Icons change with the cure.** Pale with salt when cured, browned when salt dried, grey when cold dried, gold when hot smoked, smoky bronze when cold smoked, darker again when rehydrated. Gutted fish are drawn **without their heads**, as stockfish were; halves show red flesh and a backbone. Meat goes from red to cured red-brown, charque nearly black, hot smoked mahogany, Dry Cured a deep burgundy.
-- **Changed your mind?** A Gutted Fish or Fish Half can still be packed in salt. It won't give a second lot of guts.
+- **Changed your mind?** Until the salt goes on, **Unpack** gives the tub's pieces back.
 - **Damp air matters a little.** Air more humid than 50% slows salt drying and charque, though the game's air is rarely that damp.
 - **Every frame looks different.** Each stack picks its hanging look at random (whole, headless or split), so a full frame looks hand-hung. Charque hangs as dark cuts, red going to deep brown.
 - **Dishes show one steady icon** for each preserved ingredient, so a stew of mixed dried fish doesn't flicker.
@@ -1087,12 +1088,13 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Problem | Why |
 |---|---|
 | Tub won't accept more | It's full (50 weight or 35 items), curing, or still has cured pieces in it; or it holds the other kind (fish or meat) |
-| Pack Fish in Salt won't take a fish | A whole or gutted fish over 4.5 weight must be split first; or there isn't enough salt in reach for its size |
+| The tub won't take a fish | A whole fish over 0.6 weight is gutted first, and over 4.5 split too; the red row says which |
+| Cure Fish is red | Its hover says what's missing: salt on you (each piece's), a plank or a flat stone |
 | Pork won't hang on a frame | Corned pork hangs in the Smokehouse only. Country cure it and it hangs on a Frame or Beam under a roof, indoors or in a basement, never in the open |
-| Corn Salted Meat won't take a Leg of Pork | A leg is too thick for the short cure: take it out, or use Country Cure Salted Meat (21 days) |
+| Corn the Meat is red with a Leg of Pork in | A leg is too thick for the short cure: Unpack it, or use Country Cure (21 days) |
 | A Country Cure spoils in the tub in May | The long cure is safe at a ten-day average of 10 C or less: start it between October and April |
 | Country Cured meat won't hang on a frame | It dries in the shade: put the station under a roof, indoors or in a basement, or use the Smokehouse. For charque, corn it |
-| Pack Meat in Salt missing | Salting meat may be off in the sandbox |
+| The tub refuses all meat | Salting meat may be off in the sandbox |
 | A station refuses a fish or cut | It takes only Salt Cured fish or meat, or Gutted Fish and halves. Raw, rotten, frozen salted and cooked pieces are refused, and a frame stack holds 2.5 weight at most. A Hanging Beam stack holds 12 pieces and a Gantry stack 6, fish or meat: they are for bigger pieces, not more of them |
 | A station refuses meat (or fish) | The stack waiting to start is the other kind: one stack is one kind. Craft it first, then load the next |
 | Station indoors refuses gutted fish | It has no moving air. Cold drying needs the open or an open roof |
@@ -1103,7 +1105,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Salt fish keeps less than it should | A warm cure (the season was above 20 C while it cured) or hot sun on an open station before it was half dry |
 | Time Remaining looks wrong in the window | The window shows the time in the best weather, or the longest cure. Hover the stack or the curing batch for the real time left |
 | No Eat option on stockfish or charque | They're too hard to eat as they are. Rehydrate them first |
-| No Fish Head from gutting | The fish was 1.0 weight or less, or it was packed in salt (salted fish keep their heads) |
+| No Fish Head from gutting | The fish was 1.0 weight or less |
 | Make Fish Head Stock missing | The pot needs the full 1.5 L of water |
 | Make Bone Broth missing | The full 1.5 L of water, and bones that aren't *Boiled*: each bone gives its stock once |
 | Can't divide the stock into bowls | Like vanilla stew, it needs a table or counter nearby, and enough bowls |
@@ -1114,7 +1116,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Hot Smoke went back to 0 | The fire was out or banked for over an hour: the run broke, and its hours went to Smoke. Stoke it and start again |
 | Wanted Salt Dried, got Hot Smoked | The Stone Hearth was stoked long enough. Let it go out while salt stacks hang, or dry them on a frame |
 | Wanted Cold Smoked, got Salt Dried; wanted Beef (Cold Smoked), got Beef (Dry Cured) | The stack was short of its hours of smoke (the popup's *Smoke* line), or the days were over 15 C (*Too warm to count*). Bank the Stone Hearth more of the time, in a cooler month |
-| Meat in the shed says *Under-salted* and spoils | It is Corned. Give it its hot cook, or use Country Cure Salted Meat for meat that hangs |
+| Meat in the shed says *Under-salted* and spoils | It is Corned. Give it its hot cook, or use Country Cure for meat that hangs |
 | A stack came down as *Corned Beef (Rotten)* or a rotten pressed fish | It rotted before it was done, so it is still what you hung |
 | A finished stack looks rotten but some pieces are fine | It shows rotten when any piece rotted: a mixed Corned and Country Cured stack. Take it down and sort it |
 | Meat in the shed takes months | Dry curing is slow in frost. A banked fire a few hours a day warms the shed; March and April are the quick months |
@@ -1140,7 +1142,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Spoilage strictness | Normal | Off / Forgiving / Normal / Harsh. Covers every way a batch spoils while it cures or dries: the wrong season on a station, a warm cure, a long cure above 10 C, and under-salted Corned meat. Off, none of them bite |
 | Butchering gives fat | On | Off, butchering gives no fat and Lard is loot only, as in the base game |
 | Butchering gives legs of pork | On | Off, a pig gives all its Pork as Pork, as in the base game |
-| Salting meat | On | Off, meat can't be packed in salt or hung |
+| Salting meat | On | Off, meat can't go in the Salting Tub or hang |
 | Charque drying time (days) | 5 | In hot sun and a fair breeze. Kentucky's summer makes it about 7 to 11 under a roof; the real charqueadas took 4 to 6 |
 | Potted Meat keeps by place | On | Off, a crock keeps 60 / 90 days anywhere, as plain food, and opening it costs nothing |
 
@@ -1235,10 +1237,10 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.addSmoke(hours)` | Adds hours of smoke (default 60) straight to every stack in the Smokehouses within 3 tiles, whatever the weather or the fire |
 | `TPFM.underSalt(hours)` | Adds hours of a 10 C shed (default 168) for Corned meat hanging in a Smokehouse, a room or under a roof; it rots after 672 |
 
-The Salting Tub cures by its place's temperature on the weather's totals, but `TPFM.age` doesn't speed it up: use the game's own time controls.
+The Salting Tub cures by its place's temperature on its own totals: `TPFM.age` doesn't speed it up, `TPFM.tubCure(hours)` does. `TPFM.kit("tub")` gives a plank, a stone, salt and meat to put in.
 
 **Typical checks**
-- **Salt fish:** `TPFM.fish("Walleye", 3, 4)` and `TPFM.give("salt", 10)` (each 4 weight walleye takes 28 salt), pack and cure, then hang the fish and `TPFM.age(288)`.
+- **Salt fish:** `TPFM.fish("Walleye", 3, 4)` and `TPFM.give("salt", 10)`, gut them, put them in the tub (each gutted 4 weight walleye takes 26 salt) and Cure Fish, `TPFM.tubCure(48)`, Take Out, then hang the fish and `TPFM.age(288)`.
 - **Charque:** `TPFM.meat("all", 2, "corned")`, hang the beef, mutton and venison on a frame (it refuses the pork), `TPFM.age(120)`, take them down and rehydrate one.
 - **Potted Meat:** `TPFM.kit("potted")`, Put Meat in Fat with the Steak, Add Meat to the Pot three times, cook it two hours, Pack Potted Meat into the Glazed Clay Jar, then eat a quarter.
 - **Hot smoking:** build a Smokehouse (`TPC.kit("smokehouse")`), `TPC.kit("stone")` and `TPC.kit("flue")`, build a Stone Hearth by a long side with its door turned away, Connect the Stone Hearth, hang `TPFM.meat("all", 2, "corned")` inside, light the Stone Hearth, then `TPFM.stoke(8)`: Hot Smoked meat, and a ham by the door.

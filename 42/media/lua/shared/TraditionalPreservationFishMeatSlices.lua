@@ -107,15 +107,7 @@ function F.canCarveTurkey(item)
     return wholeBird(item, F.WHOLE_TURKEY)
 end
 
--- A whole bird packed in salt, or corned in the tub, is carved too, so a bird packed whole can still go on in pieces.
-function F.canCarvePackedChicken(item)
-    return wholeBird(item, F.WHOLE_CHICKEN, F.PACKED_MEAT)
-end
-
-function F.canCarvePackedTurkey(item)
-    return wholeBird(item, F.WHOLE_TURKEY, F.PACKED_MEAT)
-end
-
+-- A whole bird corned in the tub is carved too, so a bird cured whole can still go on in pieces.
 function F.canCarveCornedChicken(item)
     return wholeBird(item, F.WHOLE_CHICKEN, F.CURED_MEAT)
 end
@@ -134,10 +126,10 @@ end
 
 local created = Recipes.created
 
--- Carve Chicken / Turkey (Hot Smoked, Salt Packed or Corned): the script's six pieces become 2 legs, 2 wings and 2
+-- Carve Chicken / Turkey (Hot Smoked or Corned): the script's six pieces become 2 legs, 2 wings and 2
 -- fillets (WHOLE_BIRDS), sharing the bird's food by the vanilla cuts' hunger and weighing CARVE_BIRD_SHARE of it in
 -- all, as vanilla's Cut Chicken does; each keeps the bird's mood, salt and age. A smoked bird's cuts keep its rinse,
--- stack and style; a packed or corned bird's keep its whole cure record, so they go on in the tub or the shed as it would.
+-- stack and style; a corned bird's keep its whole cure record, so they go on in the shed as it would.
 function F.onCreateBirdCarved(craftRecipeData)
     local bird = craftRecipeData:getAllInputItemsWithFlag("ItemCount"):get(0)
     local cuts = F.WHOLE_BIRDS[bird:getModelIndex()]

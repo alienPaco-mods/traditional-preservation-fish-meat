@@ -443,34 +443,11 @@ module TraditionalPreservationFishMeat
         }
     }
 
-    /* Charque, phase 3b: red meat salted in the Salting Tub; pork and the Leg of Pork since 6a, for the Smokehouse
-       and, Country Cured, for a Frame or Beam in the shade (its fat goes rancid in sun and wind, TraditionalPreservationFishMeat.meatRefusal). The cuts go in as vanilla gives them. As with fish, nutrition, hunger and weight come from
-       the cut that went in (TraditionalPreservationFishMeat.onCreateCured), and the name from it too ("Steak (Salt
-       Cured)"). IconsForTexture and WorldStaticModelsByIndex are in MEAT_CUTS' order in TraditionalPreservationFishMeat.lua. */
-    item SaltPackedMeat
-    {
-        DisplayCategory = Food,
-        ItemType = base:food,
-        Weight = 0.3,
-        Icon = SaltPacked_Beef,
-        IconsForTexture = SaltPacked_Beef;SaltPacked_Steak;SaltPacked_Mutton;SaltPacked_Venison;SaltPacked_Pork;SaltPacked_PorkChop;SaltPacked_Leg;SaltPacked_ChickenLeg;SaltPacked_ChickenWing;SaltPacked_ChickenFillet;SaltPacked_ChickenWhole;SaltPacked_TurkeyLeg;SaltPacked_TurkeyWing;SaltPacked_TurkeyFillet;SaltPacked_TurkeyWhole;SaltPacked_Rabbit,
-        CantEat = true,
-        DangerousUncooked = true,
-        DaysFresh = 3,
-        DaysTotallyRotten = 6,
-        HungerChange = -40.0,
-        Calories = 220.0,
-        Carbohydrates = 0.0,
-        Lipids = 9.35,
-        Proteins = 31.62,
-        FoodType = Beef,
-        StaticModel = Steak,
-        WorldStaticModel = Steak,
-        WorldStaticModelsByIndex = Beef;Steak;MuttonChop;Venison;Pork;PorkChop;LegOfPork;Chicken;PoultryWing;PoultryFillet;ChickenWhole;Chicken;PoultryWing;PoultryFillet;TurkeyWhole;RabbitMeat,
-        Tooltip = Tooltip_TraditionalPreservationFishMeat_PackedMeat,
-    }
-
-    /* Cured but still damp, as Salt Cured fish: it keeps a week or so until it is dried. */
+    /* Charque, phase 3b: red meat cured in the Salting Tub (TraditionalPreservationFishMeatTub.lua); pork and the Leg
+       of Pork since 6a, poultry and rabbit since 0.4.34. Corned by the short cure, Country Cured by the long one
+       (modData.longCure). Still damp, as Salt Cured fish: it keeps a week or so until it is dried. Nutrition, hunger,
+       weight and the name come from the cut that went in (TraditionalPreservationFishMeat.carry: "Steak (Corned)").
+       IconsForTexture and WorldStaticModelsByIndex are in MEAT_CUTS' order in TraditionalPreservationFishMeat.lua. */
     item SaltCuredMeat
     {
         DisplayCategory = Food,
@@ -498,76 +475,6 @@ module TraditionalPreservationFishMeat
         WorldStaticModel = Steak,
         WorldStaticModelsByIndex = Beef;Steak;MuttonChop;Venison;Pork;PorkChop;Ham;Chicken;PoultryWing;PoultryFillet;ChickenWhole;Chicken;PoultryWing;PoultryFillet;TurkeyWhole;RabbitMeat,
         Tooltip = Tooltip_TraditionalPreservationFishMeat_CuredMeat,
-    }
-
-    /* Salt is rubbed into the cut as it is: no knife, nothing to gut. Fish's salt rule (canPack, onCreatePacked):
-       2 for each quarter weight to the nearest, so a Beef takes 4 and a Steak 2 (about 15%, as charque). A Leg of Pork takes half
-       that (F.saltFor), as a country ham's dry cure: 10 for a 2.5 leg. The recipe asks for the first 2. */
-    craftRecipe PackMeatInSalt
-    {
-        timedAction = MixingBowl,
-        time = 80,
-        Tags = InHandCraft;CanBeDoneFromFloor;Cooking,
-        category = Cooking,
-        xpAward = Cooking:3,
-        OnTest = TraditionalPreservationFishMeat.canPack,
-        OnCreate = TraditionalPreservationFishMeat.onCreatePacked,
-        Tooltip = Tooltip_TraditionalPreservationFishMeat_PackMeat,
-        inputs
-        {
-            item 1 [Base.Beef;Base.Steak;Base.MuttonChop;Base.Venison;Base.Pork;Base.PorkChop;TraditionalPreservationFishMeat.LegOfPork;Base.Chicken;Base.ChickenWings;Base.ChickenFillet;Base.ChickenWhole;Base.TurkeyLegs;Base.TurkeyWings;Base.TurkeyFillet;Base.TurkeyWhole;Base.Rabbitmeat] flags[InheritFoodAge;IsUncookedFoodItem;ItemCount] mode:destroy,
-            item 2 tags[base:salt],
-        }
-        outputs
-        {
-            item 1 TraditionalPreservationFishMeat.SaltPackedMeat,
-        }
-    }
-
-    /* The short cure, for charque and hot smoking: Corned meat. time is overwritten from PRESS_HOURS in
-       TraditionalPreservationFishMeat.lua; the heaviest cut sets the batch's own hours (meatPressHours). A leg is too
-       thick for it (canCorn). */
-    craftRecipe PressSaltedMeat
-    {
-        time = 43200,
-        Tags = SaltingTub,
-        category = Cooking,
-        Tooltip = Tooltip_craft_pressSaltedMeat,
-        OnTest = TraditionalPreservationFishMeat.canCorn,
-        OnStart = TraditionalPreservationFishMeat.onPressStart,
-        OnUpdate = TraditionalPreservationFishMeat.onPressUpdate,
-        OnCreate = TraditionalPreservationFishMeat.onCreatePressed,
-        inputs
-        {
-            item variable[1:35] [TraditionalPreservationFishMeat.SaltPackedMeat] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item variable[1:35] TraditionalPreservationFishMeat.SaltCuredMeat,
-        }
-    }
-
-    /* The long cure (6a), for the Smokehouse's dry cured meat and country ham: Country Cured meat, LONG_CUT_HOURS
-       for cuts, LONG_LEG_HOURS if a leg is in the batch (onPressStart). time is the leg's. Same item as the short
-       cure, marked longCure (onCreateLongCured). */
-    craftRecipe CountryCureMeat
-    {
-        time = 1814400,
-        Tags = SaltingTub,
-        category = Cooking,
-        Tooltip = Tooltip_craft_countryCureMeat,
-        OnTest = TraditionalPreservationFishMeat.canCountryCure,
-        OnStart = TraditionalPreservationFishMeat.onPressStart,
-        OnUpdate = TraditionalPreservationFishMeat.onPressUpdate,
-        OnCreate = TraditionalPreservationFishMeat.onCreateLongCured,
-        inputs
-        {
-            item variable[1:35] [TraditionalPreservationFishMeat.SaltPackedMeat] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item variable[1:35] TraditionalPreservationFishMeat.SaltCuredMeat,
-        }
     }
 
     /* Charque, phase 3c: Salt Cured meat sun dried on any drying station (HangMeatToDry). Like Salt Dried fish it
@@ -851,48 +758,6 @@ module TraditionalPreservationFishMeat
         outputs
         {
             item 6 TraditionalPreservationFishMeat.HotSmokedMeat,
-        }
-    }
-
-    /* A whole bird packed in salt or corned is carved the same way, at its stage (onCreateBirdCarved keeps its cure
-       record on every cut), so a bird packed whole can still be brined and smoked in pieces. */
-    craftRecipe CarvePackedChicken
-    {
-        timedAction = SliceMeat_Surface,
-        time = 150,
-        Tags = AnySurfaceCraft;Cooking,
-        category = Cooking,
-        xpAward = Cooking:10,
-        OnTest = TraditionalPreservationFishMeat.canCarvePackedChicken,
-        OnCreate = TraditionalPreservationFishMeat.onCreateBirdCarved,
-        inputs
-        {
-            item 1 tags[base:sharpknife;base:meatcleaver] mode:keep flags[IsNotDull;SharpnessCheck],
-            item 1 [TraditionalPreservationFishMeat.SaltPackedMeat] flags[ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item 6 TraditionalPreservationFishMeat.SaltPackedMeat,
-        }
-    }
-
-    craftRecipe CarvePackedTurkey
-    {
-        timedAction = SliceMeat_Surface,
-        time = 150,
-        Tags = AnySurfaceCraft;Cooking,
-        category = Cooking,
-        xpAward = Cooking:10,
-        OnTest = TraditionalPreservationFishMeat.canCarvePackedTurkey,
-        OnCreate = TraditionalPreservationFishMeat.onCreateBirdCarved,
-        inputs
-        {
-            item 1 tags[base:sharpknife;base:meatcleaver] mode:keep flags[IsNotDull;SharpnessCheck],
-            item 1 [TraditionalPreservationFishMeat.SaltPackedMeat] flags[ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item 6 TraditionalPreservationFishMeat.SaltPackedMeat,
         }
     }
 

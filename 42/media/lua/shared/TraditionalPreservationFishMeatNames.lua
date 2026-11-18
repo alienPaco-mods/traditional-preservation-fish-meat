@@ -16,9 +16,7 @@ local function meatStageName(item)
     local cut = index and F.MEAT_CUTS[index + 1]
     if not cut then return nil end
     local animal = getText("IGUI_TraditionalPreservationFishMeat_Animal" .. F.MEAT_ANIMALS[index + 1])
-    if fullType == F.PACKED_MEAT then
-        return getText("IGUI_TraditionalPreservationFishMeat_Named", getItemNameFromFullType(cut), getText("IGUI_TraditionalPreservationFishMeat_Packed"))
-    elseif fullType == F.CURED_MEAT then
+    if fullType == F.CURED_MEAT then
         return getText(modData.longCure and "IGUI_TraditionalPreservationFishMeat_CountryCured" or "IGUI_TraditionalPreservationFishMeat_Corned",
             getItemNameFromFullType(cut))
     elseif fullType == F.CHARQUE then

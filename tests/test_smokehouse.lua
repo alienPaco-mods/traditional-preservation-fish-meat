@@ -481,9 +481,7 @@ check("poultry hangs only in the Smokehouse", F.meatRefusal({ closed = true }, "
 check("and apart from red meat", F.mixedMeat(cut(7), cut(0)) == "IGUI_TraditionalPreservationFishMeat_MixedMeat"
     and F.mixedMeat(cut(0), cut(15)) == "IGUI_TraditionalPreservationFishMeat_MixedMeat"
     and F.mixedMeat(cut(7), cut(14)) == nil and F.mixedMeat(cut(0), cut(1)) == nil)
-check("the long cure refuses it", not F.canCountryCure(cut(9)) and F.canCountryCure(cut(0))
-    and F.recipeRefusal(F.LONG_CURE_RECIPE, cut(9)) == "IGUI_TraditionalPreservationFishMeat_HotOnlyShortCure"
-    and F.recipeRefusal("PressSaltedMeat", cut(9)) == nil)
+check("the long cure refuses it (F.startRefusal)", F.isHotOnly(cut(9)) and not F.isHotOnly(cut(0)))
 
 local birdShed = F.newLedger(0)
 bird.dried, bird.spoiled, bird.stackId, bird.place = 0, 0, 1, "Enclosed"

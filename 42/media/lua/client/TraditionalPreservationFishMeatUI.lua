@@ -1,7 +1,7 @@
--- Traditional Preservation (Fish & Meat): starts showing a station's contents as soon as something goes in,
--- because one built this session hasn't been through the map loader. Also replaces vanilla's
--- free slot limit: a tub takes one batch at a time by weight, and a frame goes by stacks. The
--- same rules decide the slot's green border, so it never promises what adding then refuses.
+-- Traditional Preservation (Fish & Meat): starts showing a drying station's contents as soon as something goes in,
+-- because one built this session hasn't been through the map loader. Also replaces vanilla's free slot limit: a frame
+-- goes by stacks. The same rules decide the slot's green border, so it never promises what adding then refuses. The
+-- Salting Tub has no slots: its menu and Info window are in ...TubUI.lua.
 require "Entity/ISUI/Components/Crafting/ISCraftLogicPanel"
 require "Entity/ISUI/Controls/ISItemSlot"
 local UI = require "TraditionalPreservationCore/UI"
@@ -11,12 +11,8 @@ local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 local F = TraditionalPreservationFishMeat
 
-local FIRST_FRAME_SPRITE = Tiles.FRAME
-
 local SALT_BADGE_SIZE = 14
 local SALT_BADGE_MARGIN = 3
-
-local spriteIndex = F.stationIndex
 
 local function waitingWeight(resource)
     local weight = 0
@@ -27,28 +23,15 @@ local function waitingWeight(resource)
     return weight
 end
 
--- queued lists the fish on their way in that the slot doesn't hold yet. slot.extra says it's a tub.
+-- queued lists the fish on their way in that the slot doesn't hold yet.
 local function refusal(slot, item, queued)
-    local entity, component, resource, isTub = slot.entity, slot.component, slot.resource, slot.extra
-    local wrongFish = F.fishRefusal(isTub, item:getFullType())
+    local entity, resource = slot.entity, slot.resource
+    local wrongFish = F.fishRefusal(item:getFullType())
     if wrongFish then return wrongFish end
 
     local weight = item:getActualWeight()
     local waiting = waitingWeight(resource)
     for _, fish in ipairs(queued) do waiting = waiting + fish:getActualWeight() end
-    if isTub then
-        if component:isRunning() then return "IGUI_TraditionalPreservationFishMeat_TubInUse" end
-        -- This asks what is in the tub, because a tub keeps the slot counts it was built with.
-        if TraditionalPreservationFishMeatWorld.busyStacks(entity) > 0 then return "IGUI_TraditionalPreservationFishMeat_TubNotEmpty" end
-        local first = resource:getStoredItems():size() > 0 and resource:getStoredItems():get(0) or queued[1]
-        local mixed = F.mixedTub(first and first:getFullType(), item:getFullType())
-        if mixed then return mixed end
-        if resource:getStoredItems():size() + #queued >= F.TUB_MAX_ITEMS
-                or not F.hasRoom(F.TUB_CAPACITY, waiting, weight) then
-            return "IGUI_TraditionalPreservationFishMeat_Full"
-        end
-        return nil
-    end
     local stored = resource:getStoredItems()
     if stored:size() > 0 and F.hangMethod(stored:get(0):getFullType()) ~= F.hangMethod(item:getFullType()) then
         return "IGUI_TraditionalPreservationFishMeat_MixedStack"
@@ -68,23 +51,19 @@ local function refusal(slot, item, queued)
         stored:size() + #queued)
 end
 
--- A tub or a drying station, with whether it's a tub. Asking about one starts tracking it.
+-- A drying station's crafting component. Asking about one starts tracking it. A tub (one saved with its old crafting
+-- slots included) has none.
 local function station(entity)
-    if not F.isStation(entity) or not TraditionalPreservationFishMeatWorld then return nil end
-
-    local index = spriteIndex(entity)
-    local isTub = index ~= nil and index < FIRST_FRAME_SPRITE
-    local component = entity:getComponent(isTub and ComponentType.CraftLogic or ComponentType.DryingCraftLogic)
+    if not F.isStation(entity) or F.isTub(entity) or not TraditionalPreservationFishMeatWorld then return nil end
+    local component = entity:getComponent(ComponentType.DryingCraftLogic)
     if not component then return nil end
     TraditionalPreservationFishMeatWorld.track(entity)
-    return component, isTub
+    return component
 end
 
 UI.slotRules{
     station = station,
     refusal = refusal,
-    -- The short cure refuses a Leg of Pork, on the drop and again at Craft if the recipe changed after loading.
-    recipeRefusal = function(slot, item) return F.recipeRefusal(slot.recipe, item) end,
     -- In TP Core's Smokehouse, only this mod's own items (another mod's cheese is its own to judge).
     owns = function(entity, item) return not Smokehouse.isChamber(entity) or F.ownsItem(item) end,
     -- What hangs there now, so the count of busy stacks is current.
@@ -190,24 +169,7 @@ local function drawSausageTooltip(slot, tooltip)
     end)
 end
 
--- The tub's recipe time is the longest press, so a lighter batch says its own time left, and what a warm
--- season is taking from it.
-local function drawPressTooltip(slot, tooltip)
-    local status = F.pressStatus(slot.craftRecipeData:getModData(), F.getLedger())
-    UI.drawTooltip(tooltip, function(layout)
-        UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Progress", UI.percent(status.progress))
-        UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_TimeLeft", timeText(status.hoursLeft))
-        if status.spoiling or status.spoiled > 0 then
-            local warning = status.spoiling and "IGUI_TraditionalPreservationFishMeat_SpoilingWarmCure" or "IGUI_TraditionalPreservationFishMeat_Spoiled"
-            UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Spoilage", UI.say(warning, UI.percent(status.spoiled)), UI.WARNING_COLOUR)
-        end
-    end)
-end
-
 UI.progressTooltips({
-    PressSaltedFish = drawPressTooltip,
-    PressSaltedMeat = drawPressTooltip,
-    CountryCureMeat = drawPressTooltip,
     HangFishToDry = function(slot, tooltip) drawStackTooltip(slot, tooltip, "salt") end,
     HangFishToColdDry = function(slot, tooltip) drawStackTooltip(slot, tooltip, "cold") end,
     HangMeatToDry = function(slot, tooltip) drawStackTooltip(slot, tooltip, "meat") end,

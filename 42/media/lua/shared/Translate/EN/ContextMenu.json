@@ -24,5 +24,15 @@
   "ContextMenu_EvolvedRecipe_ChickenStewForged": "Chicken Stew",
   "ContextMenu_TraditionalPreservationFishMeat_CureBlood": "Cure Blood",
   "ContextMenu_TraditionalPreservationFishMeat_CureSalt": "Salt (%1)",
-  "ContextMenu_TraditionalPreservationFishMeat_CureVinegar": "Vinegar (%1)"
+  "ContextMenu_TraditionalPreservationFishMeat_CureVinegar": "Vinegar (%1)",
+  "ContextMenu_TraditionalPreservationFishMeat_TubInfo": "Tub Info",
+  "ContextMenu_TraditionalPreservationFishMeat_TubPut": "Put %1 in the Tub",
+  "ContextMenu_TraditionalPreservationFishMeat_TubPutNothing": "Put in the Tub",
+  "ContextMenu_TraditionalPreservationFishMeat_TubAll": "All (%1)",
+  "ContextMenu_TraditionalPreservationFishMeat_TubOne": "One",
+  "ContextMenu_TraditionalPreservationFishMeat_TubStart_fish": "Cure Fish (%1 salt)",
+  "ContextMenu_TraditionalPreservationFishMeat_TubStart_corn": "Corn the Meat (%1 salt)",
+  "ContextMenu_TraditionalPreservationFishMeat_TubStart_long": "Country Cure (%1 salt)",
+  "ContextMenu_TraditionalPreservationFishMeat_TubUnpack": "Unpack",
+  "ContextMenu_TraditionalPreservationFishMeat_TubTake": "Take Out (%1)"
 }

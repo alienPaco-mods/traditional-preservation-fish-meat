@@ -10,8 +10,6 @@ local Doors = require "TraditionalPreservationCore/Doors"
 local StoneHearth = require "TraditionalPreservationCore/StoneHearth"
 local Station = require "TraditionalPreservationCore/Station"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
-local Uses = require "TraditionalPreservationCore/Uses"
-local Action = require "TraditionalPreservationCore/Action"
 
 F.MOD_DATA_KEY = "TraditionalPreservationFishMeat"
 
@@ -69,13 +67,13 @@ F.GUTS_WEIGHT = 0.1
 -- A fillet vanilla cut weighs a twentieth of its fish and holds half its food. Salted, it counts as what it
 -- holds, half the gutted fish: it pays that much salt and comes out of the salt that heavy.
 F.FILLET_FOOD_WEIGHT = (1 - F.GUTS_WEIGHT) * 0.5 / F.FILLET_WEIGHT
--- Packing takes SALT_PER_STEP salt for each SALT_STEP of the packed fish's weight, to the nearest step, and never
--- less than the SALT_MIN the recipe itself asks for. Quarter steps since 0.4.18: a started half weight made a
+-- Salting takes SALT_PER_STEP salt for each SALT_STEP of a piece's weight in the tub, to the nearest step, and never
+-- less than SALT_MIN a piece. Quarter steps since 0.4.18: a started half weight made a
 -- Steak pay a Beef's salt and a small panfish a big one's.
 F.SALT_STEP = 0.25
 F.SALT_PER_STEP = 2
 F.SALT_MIN = 2
--- A fish over this weight is too thick to salt whole, as on the Volga: gut and split it first. Halves always pack.
+-- A fish over this weight is too thick to salt whole, as on the Volga: gut and split it first. Halves always go in.
 F.SALT_WHOLE_MAX = 4.5
 -- Gut Fish takes the head off too, as stockfish did, and a fish over HEAD_MIN_WEIGHT gives a Fish
 -- Head for the pot: this share of its weight and of its food. The limit is above the guts' so small
@@ -83,8 +81,6 @@ F.SALT_WHOLE_MAX = 4.5
 F.HEAD_MIN_WEIGHT = 1.0
 F.HEAD_WEIGHT = 0.1
 F.HEAD_FOOD = 0.06
--- Butchering XP for gutting a whole fish while packing it.
-F.PACK_GUTTING_XP = 5
 -- Charque (phase 3b): the meat cuts that go in the salt as vanilla gives them, in the order of the meat stages'
 -- IconsForTexture. Pork, Pork Chop and the Leg of Pork came with 6a, for the Smokehouse only: pork fat goes rancid
 -- in sun and wind (meatRefusal).
@@ -119,7 +115,7 @@ F.WHOLE_BIRDS = { [F.WHOLE_CHICKEN] = { 7, 8, 9 }, [F.WHOLE_TURKEY] = { 11, 12, 
 F.CARVE_BIRD_SHARE = 0.9
 -- The meat stages, which take their icon from MEAT_CUTS' index.
 F.MEAT_STAGES = {
-    [F.PACKED_MEAT] = true, [F.CURED_MEAT] = true,
+    [F.CURED_MEAT] = true,
     [F.CHARQUE] = true, [F.SOAKED_CHARQUE] = true,
     [F.HOT_MEAT] = true, [F.DRY_CURED] = true,
     [F.COUNTRY_HAM] = true,
@@ -137,7 +133,6 @@ F.MEAT_PRESS_WEIGHT = 0.5
 -- Smokehouse. LONG_CUT_HOURS for cuts, LONG_LEG_HOURS for a batch with a leg in it. A leg takes only this one.
 F.LONG_CUT_HOURS = 240
 F.LONG_LEG_HOURS = 504
-F.LONG_CURE_RECIPE = "CountryCureMeat"
 -- A leg takes half fish's salt, as a country ham's dry cure (about 8%): LEG_SALT_PER_STEP for each SALT_STEP.
 F.LEG_SALT_PER_STEP = 1
 -- What a frame cold dries.
@@ -309,7 +304,7 @@ F.CHARQUE_WINDY_RATE = 1.2
 F.CHARQUE_INDOORS_RATE = 0.65
 F.CHARQUE_REWET = 0.1
 F.CHARQUE_RAIN_HOURS = 6
--- The sandbox's Charque switch: off, meat can't be packed in salt nor hung.
+-- The sandbox's Charque switch: off, meat can't go in the Salting Tub nor hang.
 F.CHARQUE_ON = true
 
 -- Dry curing (6b): meat hung in the Smokehouse never comes out Charque. It dries slowly in cool air, as a ham or a
@@ -338,8 +333,6 @@ F.UNDER_CURE_MAX = 30
 -- rinsed piece lost surface salt too: it spoils 1 / RINSED_KEEPING as fast.
 F.UNDER_CURE_MAX_DAYS = 42
 
-local SECONDS_PER_HOUR = 3600
-
 -- The fish each IconsForTexture entry in the item scripts belongs to, in the same order.
 F.FISH_ICONS = {
     "Base.FishFillet", "Base.Salmon", "Base.LargemouthBass", "Base.SmallmouthBass", "Base.SpottedBass",
@@ -361,7 +354,6 @@ local FISH_ICON_INDEX, CUT_INDEX = indexOf(F.FISH_ICONS), indexOf(F.MEAT_CUTS)
 -- random share between weight and maxWeight. Soaking gives back the bulk drying took (hunger 0.7).
 -- A prep stage names the fish itself (Gutted Walleye, Walleye Half); the others go in brackets after it.
 F.STAGES = {
-    [F.PACKED_FISH] = { name = "IGUI_TraditionalPreservationFishMeat_Packed", weight = 1, nutrition = 1, hunger = 1, gutted = true },
     [F.PRESSED_FISH] = { name = "IGUI_TraditionalPreservationFishMeat_Pressed", weight = 0.88, maxWeight = 0.93, nutrition = 1, hunger = 1, salty = true },
     [F.SALT_DRIED] = { name = "IGUI_TraditionalPreservationFishMeat_Dried", weight = 0.45, nutrition = 0.9, hunger = 0.7, salty = true, rinsedUnhappy = 0 },
     [F.SOAKED_SALT_FISH] = { name = "IGUI_TraditionalPreservationFishMeat_SoakedSalt", weight = 1.8, nutrition = 1, hunger = 1 / 0.7 },
@@ -369,7 +361,6 @@ F.STAGES = {
     [F.FISH_HALF] = { weight = 1, nutrition = 1, hunger = 1, prep = true },
     [F.COLD_DRIED] = { name = "IGUI_TraditionalPreservationFishMeat_ColdDried", weight = 0.22, nutrition = 0.95, hunger = 0.7, matures = true },
     [F.SOAKED_COLD_FISH] = { name = "IGUI_TraditionalPreservationFishMeat_SoakedCold", weight = 3, nutrition = 1, hunger = 1 / 0.7, ripened = true },
-    [F.PACKED_MEAT] = { name = "IGUI_TraditionalPreservationFishMeat_Packed", weight = 1, nutrition = 1, hunger = 1 },
     [F.CURED_MEAT] = { name = "IGUI_TraditionalPreservationFishMeat_Cured", weight = 0.88, maxWeight = 0.93, nutrition = 1, hunger = 1, salty = true },
     -- About half the raw cut's weight (0.55 of the cured), as salt fish keeps its food. Soaked, it gets back about as much.
     [F.CHARQUE] = { name = "IGUI_TraditionalPreservationFishMeat_Charque", weight = 0.55, nutrition = 0.9, hunger = 0.7, salty = true },
@@ -405,29 +396,6 @@ function F.meatPressHours(heaviest)
     return math.min(math.max(F.PRESS_HOURS * heaviest / F.MEAT_PRESS_WEIGHT, F.PRESS_MIN_HOURS), F.PRESS_HOURS)
 end
 
--- The press runs on the plain game clock (no weather), timed from here. The inputs are already
--- taken in, so the batch's heaviest fish or cut sets its hours.
-function F.onPressStart(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    local ledger = F.getLedger()
-    -- The cure's own progress by the tub's place (TUB_CURE_POINTS): hours at full speed, and each place's totals now.
-    modData.tubDone = 0
-    F.markTub(modData, ledger)
-    local fish = craftRecipeData:getAllInputItemsWithFlag("ItemCount")
-    local heaviest, meat, leg = 0, false, false
-    for i = 0, fish:size() - 1 do
-        heaviest = math.max(heaviest, F.timingWeight(fish:get(i)))
-        meat = meat or fish:get(i):getFullType() == F.PACKED_MEAT
-        leg = leg or F.isLeg(fish:get(i))
-    end
-    local hours = meat and F.meatPressHours(heaviest) or F.pressHours(heaviest)
-    -- The engine gives the recipe's full name, module and all. A long cure also minds a place over LONG_CURE_ABOVE.
-    local recipeName = string.gsub(craftRecipeData:getRecipe():getName(), "^.*%.", "")
-    modData.countryCure = recipeName == F.LONG_CURE_RECIPE
-    if modData.countryCure then hours = F.longCureHours(leg) end
-    modData.pressHours = hours
-end
-
 -- Hours of the long cure: a leg's if the batch has one.
 function F.longCureHours(leg)
     return leg and F.LONG_LEG_HOURS or F.LONG_CUT_HOURS
@@ -461,45 +429,9 @@ function F.timingWeight(item)
     return F.TIMING_WEIGHTS[F.cutIndex(item) or -1] or item:getActualWeight()
 end
 
--- OnTest of the short cure: a leg is too thick for it, and takes the long cure only.
-function F.canCorn(item)
-    return not F.isLeg(item)
-end
-
--- OnTest of the long cure: poultry and rabbit take the short one only.
-function F.canCountryCure(item)
-    return not F.isHotOnly(item)
-end
-
--- The long cure's OnCreate: as the short one's, and each piece is marked Country Cured.
-function F.onCreateLongCured(craftRecipeData)
-    F.onCreatePressed(craftRecipeData)
-    local created = craftRecipeData:getAllCreatedItems()
-    for i = 0, created:size() - 1 do
-        created:get(i):getModData().longCure = true
-        F.rename(created:get(i))
-    end
-end
-
--- Craft timers tick at a fixed speed whatever Day Length says and stop when the area unloads,
--- so this replaces their count with the game clock. The recipe's time is the longest press (the long cure's: a
--- leg's 21 days), so a lighter batch's bar runs faster to end on its own hours.
-function F.onPressUpdate(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    if not modData.tubDone then return end
-    local hours = modData.pressHours
-    local recipeHours = craftRecipeData:getRecipe():getTime() / SECONDS_PER_HOUR
-    local ledger = F.getLedger()
-    modData.tubDone = F.pressDone(modData, ledger)
-    F.mark(modData, ledger, { "tubCure" })
-    craftRecipeData:setElapsedTime(math.min(modData.tubDone / hours, 1) * recipeHours * SECONDS_PER_HOUR)
-end
-
--- Why a tub or a drying station refuses an item, as translation keys (the *Refusal functions, F.mixedTub,
--- F.mixedMeat; Fresh Sausage's in ...Sausage).
+-- Why a drying station refuses an item, as translation keys (the *Refusal functions, F.mixedMeat; Fresh Sausage's
+-- in ...Sausage).
 F.REFUSALS = {
-    mixedTub = "IGUI_TraditionalPreservationFishMeat_MixedTub",
-    needsPacked = "IGUI_TraditionalPreservationFishMeat_NeedsPacked",
     needsPressed = "IGUI_TraditionalPreservationFishMeat_NeedsPressed",
     charqueOff = "IGUI_TraditionalPreservationFishMeat_CharqueOff",
     sausageSmokehouse = "IGUI_TraditionalPreservationFishMeat_SausageSmokehouse",
@@ -508,8 +440,6 @@ F.REFUSALS = {
     porkSmokehouse = "IGUI_TraditionalPreservationFishMeat_PorkSmokehouse",
     hotOnlySmokehouse = "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse",
     mixedMeat = "IGUI_TraditionalPreservationFishMeat_MixedMeat",
-    legNeedsLongCure = "IGUI_TraditionalPreservationFishMeat_LegNeedsLongCure",
-    hotOnlyShortCure = "IGUI_TraditionalPreservationFishMeat_HotOnlyShortCure",
     frameFull = "IGUI_TraditionalPreservationFishMeat_FrameFull",
     tooHeavy = "IGUI_TraditionalPreservationFishMeat_TooHeavy",
     stackFull = "IGUI_TraditionalPreservationFishMeat_StackFull",
@@ -518,26 +448,17 @@ F.REFUSALS = {
     freshSausageCooked = "IGUI_TraditionalPreservationFishMeat_FreshSausageCooked",
 }
 
--- A tub salts fish or meat, one batch at a time: what is waiting in it already sets the kind.
-function F.mixedTub(waitingType, fullType)
-    if waitingType and waitingType ~= fullType then return F.REFUSALS.mixedTub end
-    return nil
-end
-
 function F.hasRoom(capacity, storedWeight, weight)
     return storedWeight + weight <= capacity
 end
 
--- Vanilla slots take any item and leave Craft greyed out, so each station names its fish.
-function F.fishRefusal(isTub, fullType)
-    if isTub and fullType ~= F.PACKED_FISH and fullType ~= F.PACKED_MEAT then return F.REFUSALS.needsPacked end
-    if not isTub and fullType ~= F.PRESSED_FISH and not F.COLD_FISH[fullType] and fullType ~= F.CURED_MEAT
+-- Vanilla slots take any item and leave Craft greyed out, so each drying station names what it hangs.
+function F.fishRefusal(fullType)
+    if fullType ~= F.PRESSED_FISH and not F.COLD_FISH[fullType] and fullType ~= F.CURED_MEAT
             and fullType ~= F.BLOOD_SAUSAGE and fullType ~= F.FRESH_SAUSAGE then
         return F.REFUSALS.needsPressed
     end
-    if fullType == F.PACKED_MEAT or fullType == F.CURED_MEAT then
-        if not F.CHARQUE_ON then return F.REFUSALS.charqueOff end
-    end
+    if fullType == F.CURED_MEAT and not F.CHARQUE_ON then return F.REFUSALS.charqueOff end
     return nil
 end
 
@@ -570,13 +491,6 @@ end
 function F.mixedMeat(stored, item)
     if stored:getFullType() ~= F.CURED_MEAT or item:getFullType() ~= F.CURED_MEAT then return nil end
     if F.isHotOnly(stored) ~= F.isHotOnly(item) then return F.REFUSALS.mixedMeat end
-    return nil
-end
-
--- Why an item can't go in a tub set to this recipe (Core's recipeRefusal): a Leg of Pork is too thick to corn.
-function F.recipeRefusal(recipeName, item)
-    if recipeName == "PressSaltedMeat" and F.isLeg(item) then return F.REFUSALS.legNeedsLongCure end
-    if recipeName == F.LONG_CURE_RECIPE and F.isHotOnly(item) then return F.REFUSALS.hotOnlyShortCure end
     return nil
 end
 
@@ -650,6 +564,12 @@ function F.hangerOf(isoObject)
     local index = F.stationIndex(isoObject)
     if index then return F.hangerFor(index) end
     if Smokehouse.isChamber(isoObject) then return F.CHAMBER_HANGER end
+end
+
+-- Whether an object is a Salting Tub (its first two sprites, one a face).
+function F.isTub(isoObject)
+    local index = F.stationIndex(isoObject)
+    return index ~= nil and index < Tiles.FRAME
 end
 
 -- Whether an object is one of the stations this mod works: its own, or the Smokehouse.
@@ -840,13 +760,13 @@ function F.foodWeight(fish)
     return fish:getActualWeight()
 end
 
--- What a fish weighs once packed: gutted if it has guts, and a fillet by its food.
+-- What a fish weighs in the salt: gutted if it has guts, and a fillet by its food.
 function F.packedWeight(fish)
     if F.hasGuts(fish) then return fish:getActualWeight() * (1 - F.GUTS_WEIGHT) end
     return F.foodWeight(fish)
 end
 
--- The salt packing this fish takes in all, the recipe's own SALT_MIN included.
+-- The salt this fish or cut takes in the Salting Tub.
 function F.saltFor(fish)
     local steps = math.floor(F.packedWeight(fish) / F.SALT_STEP + 0.5 + 1e-6)
     -- Poultry and rabbit take a leg's half too: a light brine's salt, not charque's.
@@ -862,31 +782,8 @@ function F.tooBigToSaltWhole(fish)
     return (whole or gutted) and fish:getActualWeight() > F.SALT_WHOLE_MAX
 end
 
--- The salt in reach, as a craft has it (TP Core's Uses).
-function F.saltCarried(character)
-    return Uses.count(character, ItemTag.SALT)
-end
-
 function F.isMeatCut(fullType)
     return CUT_INDEX[fullType] ~= nil
-end
-
--- OnTest sees every input, so the knife and the salt pass here too. The recipe finds its first SALT_MIN
--- anywhere in reach, and so does the rest (TP Core's Uses).
-function F.canPack(item, character)
-    if item:hasTag(ItemTag.SALT) or not instanceof(item, "Food") then return true end
-    if F.tooBigToSaltWhole(item) then return false end
-    if not F.CHARQUE_ON and F.isMeatCut(item:getFullType()) then return false end
-    if not character then return true end
-    return F.saltCarried(character) >= F.saltFor(item)
-end
-
--- Uses up the salt this fish takes past the recipe's own, part-used salt first (TP Core's Uses, which gives back
--- the Salt mod's empty shaker or paper bag for what this empties, as the Salt mod does for what the recipe empties).
-function F.chargeSalt(fish, character)
-    local owed = F.saltFor(fish) - F.SALT_MIN
-    if owed <= 0 or not character then return end
-    Uses.take(character, ItemTag.SALT, owed)
 end
 
 -- Hands a share of a fish's food to another item; hungerShare defaults to share.
@@ -1061,8 +958,8 @@ function F.ageHanging(item, now)
     F.rename(item)
 end
 
--- Whether a later stage came from a Gutted Fish (headless). Packing a whole fish takes its guts but leaves it
--- whole, head on, so it isn't. The icon already says which: stages list theirs whole, gutted, then half.
+-- Whether a later stage came from a Gutted Fish (headless). A small fish salted whole keeps its head, so it isn't
+-- (nor one packed whole before 0.4.66). The icon already says which: stages list theirs whole, gutted, then half.
 function F.wasGutted(item)
     local index, count = item:getModelIndex(), #F.FISH_ICONS
     return index >= count and index < count * 2
@@ -1119,28 +1016,6 @@ function F.onCreateSoaked(craftRecipeData)
     end
 end
 
--- The press's OnCreate: a warm cure has taken its share off each fish's keeping, and the fish carries
--- that share onto the frame.
-function F.onCreatePressed(craftRecipeData)
-    F.onCreateCured(craftRecipeData)
-    local created = craftRecipeData:getAllCreatedItems()
-    -- Corned poultry and rabbit keep a light brine's days (Food saves its offAge, ENGINE_NOTES).
-    for i = 0, created:size() - 1 do
-        local piece = created:get(i)
-        if piece:getFullType() == F.CURED_MEAT and F.isHotOnly(piece) then
-            piece:setOffAge(F.HOT_ONLY_DAYS[1])
-            piece:setOffAgeMax(F.HOT_ONLY_DAYS[2])
-        end
-    end
-    local spoiled = F.cureSpoiled(craftRecipeData:getModData(), F.getLedger())
-    if spoiled <= 0 then return end
-    for i = 0, created:size() - 1 do
-        local fish = created:get(i)
-        fish:getModData().cureSpoiled = spoiled
-        fish:setAge(spoiled >= 1 and fish:getOffAgeMax() or fish:getOffAge() * spoiled)
-    end
-end
-
 -- A part cut from a fish, scaled to it as vanilla's guts are.
 local function cutFrom(fish, fullType, weightShare, foodShare)
     local part = instanceItem(fullType)
@@ -1181,17 +1056,6 @@ function F.onCreateGutted(craftRecipeData, character)
     end
 end
 
--- Packing a whole fish guts it, but a fillet only takes the salt. One recipe packs both, so its
--- xpAward can't tell them apart. Both pack recipes end here, and take the rest of the fish's salt.
-function F.onCreatePacked(craftRecipeData, character)
-    character = character or craftRecipeData:getCharacter()
-    local fish = craftRecipeData:getAllInputItemsWithFlag("ItemCount"):get(0)
-    local gutting = F.hasGuts(fish)
-    F.onCreateGutted(craftRecipeData, character)
-    F.chargeSalt(fish, character)
-    if gutting then Action.addXp(character, { "Butchering", F.PACK_GUTTING_XP }) end
-end
-
 -- OnTest sees every input, so the knife passes here too.
 function F.canSplit(item, character)
     if item:getFullType() ~= F.GUTTED_FISH then return true end
@@ -1223,7 +1087,7 @@ function F.canSlice(item, character)
     return item:getModData().sliceable == true
 end
 
--- Slicing keeps the stage, so a Salt Packed fish gives Salt Packed fillets. A cured fish has no guts left
+-- Slicing keeps the stage, so a Salt Cured fish gives Salt Cured fillets. A cured fish has no guts left
 -- to lose, so each fillet keeps half its weight with half its food, not vanilla's raw share.
 function F.onCreateSliced(craftRecipeData)
     local fish = craftRecipeData:getAllInputItemsWithFlag("ItemCount"):get(0)
@@ -1337,9 +1201,6 @@ end
 -- Sets each slow recipe's script time to the sandbox's, so the crafting window shows the right length.
 function F.applyRecipeTimes()
     F.applySandbox()
-    applyRecipeTime("TraditionalPreservationFishMeat.PressSaltedFish", F.PRESS_HOURS)
-    applyRecipeTime("TraditionalPreservationFishMeat.PressSaltedMeat", F.PRESS_HOURS)
-    applyRecipeTime("TraditionalPreservationFishMeat.CountryCureMeat", F.LONG_LEG_HOURS)
     applyRecipeTime("TraditionalPreservationFishMeat.HangFishToDry", F.DRY_HOURS)
     applyRecipeTime("TraditionalPreservationFishMeat.HangFishToColdDry", F.COLD_DRY_HOURS)
     applyRecipeTime("TraditionalPreservationFishMeat.HangMeatToDry", F.CHARQUE_HOURS)
@@ -1347,9 +1208,10 @@ end
 
 Events.OnInitGlobalModData.Add(F.applyRecipeTimes)
 
--- The parts in their own files: the weather's totals and what they do to stacks and tubs, the names, the stocks, and
--- the stockfish's pallet and bales.
+-- The parts in their own files: the weather's totals and what they do to stacks and tubs, the Salting Tub, the names,
+-- the stocks, and the stockfish's pallet and bales.
 require "TraditionalPreservationFishMeatLedger"
+require "TraditionalPreservationFishMeatTub"
 require "TraditionalPreservationFishMeatNames"
 require "TraditionalPreservationFishMeatStock"
 require "TraditionalPreservationFishMeatStockfish"

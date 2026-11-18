@@ -6,7 +6,6 @@ local F = TraditionalPreservationFishMeat
 
 -- The items.
 local function item(name) return "TraditionalPreservationFishMeat." .. name end
-F.PACKED_FISH = item("SaltPackedFish")
 F.PRESSED_FISH = item("SaltPressedFish")
 F.SALT_DRIED = item("SaltDriedFish")
 F.SOAKED_SALT_FISH = item("SoakedSaltFish")
@@ -17,7 +16,6 @@ F.SOAKED_COLD_FISH = item("SoakedColdFish")
 F.HOT_FISH = item("HotSmokedFish")
 F.COLD_FISH_OUT = item("ColdSmokedFish")
 F.FISH_HEAD = item("FishHead")
-F.PACKED_MEAT = item("SaltPackedMeat")
 F.CURED_MEAT = item("SaltCuredMeat")
 F.CHARQUE = item("Charque")
 F.SOAKED_CHARQUE = item("SoakedCharque")

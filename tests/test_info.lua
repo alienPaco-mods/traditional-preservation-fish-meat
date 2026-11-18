@@ -82,25 +82,6 @@ check("a basement: its name, no wind", valueOf(cellar, "Place") == "Basement" an
 check("its air is the basement's own, not the day's", valueOf(cellar, "InfoAir") == require("TraditionalPreservationCore/UI").placeText("Basement",
     10 + 0.4 * (ledger.seasonTemperature - 10)))
 
--- The tub: what waits against its limits, then a long cure in a warm season.
-local tub = Info.rows({ place = "Sheltered", waiting = { piece(0.5), piece(2.5) }, finished = 0, finishedStacks = 0, batches = {} }, ledger, 1000)
-check("the tub's weight and pieces", valueOf(tub, "InfoHolds") == "3.0 of 50 weight, 2 of 35 pieces" and valueOf(tub, "Place") == "Indoors")
-check("the tub has no wind line", valueOf(tub, "Wind") == nil)
-local warm = { temperature = 22, seasonTemperature = 14, warmCure = 0, longCureSpoil = 0.3, warmCureOn = false, longCureSpoilOn = true }
-local curing = Info.rows({ place = "Sheltered", waiting = {}, finished = 0, finishedStacks = 0,
-    batches = { batch("CountryCureMeat", { place = "Covered", pressHours = 240, tubDone = 120, lastWarmCure = 0, countryCure = true, lastLongCureSpoil = 0.1 }, 0.5) } }, warm, 1000)
-check("a curing tub is closed", valueOf(curing, "InfoHolds") == "Curing: closed until the last piece is out")
-check("the long cure's bar", curing.bars[1].text == "Country cure" and curing.bars[1].progressText == "50%, 5 d 0 h left")
-check("its warm season is noted", curing.notes[1] == "Spoiling (Warm cure), 20%")
-check("the tub's clock doesn't go by the weather", not hasNote(curing, "assume the weather holds"))
-local function tubBar(recipe)
-    return Info.rows({ place = "Sheltered", waiting = {}, finished = 0, finishedStacks = 0,
-        batches = { batch(recipe, { place = "Covered", pressHours = 48, tubDone = 10, lastWarmCure = 0 }, 0.2) } }, warm, 1000).bars[1].text
-end
-check("the tub names its cure, with no number", tubBar("PressSaltedFish") == "Fish cure" and tubBar("PressSaltedMeat") == "Corning")
-local cured = Info.rows({ place = "Sheltered", waiting = {}, finished = 4, finishedStacks = 1, batches = {} }, warm, 1000)
-check("cured pieces wait in the tub", hasNote(cured, "Cured and waiting to be taken: 4"))
-
 -- The Smokehouse: Corned meat with a stoked run on it, and its smoke.
 local shed = F.CHAMBER_HANGER
 local cool = { temperature = 8, seasonTemperature = 6, dryCureRate = 0.7, dryCureStokedRate = 1, dryCureBankedRate = 0.9, saltSpoilOn = false }

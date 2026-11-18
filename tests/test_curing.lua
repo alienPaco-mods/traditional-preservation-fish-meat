@@ -15,7 +15,7 @@ function ZombRandFloat(low, high)
     keptShare = low + (high - low) * 0.5
     return keptShare
 end
-ItemTag = { UNCUT_FISH = "uncut", SALT = "salt" }
+ItemTag = { UNCUT_FISH = "uncut", SALT = "salt", FISH_MEAT = "fishmeat" }
 local nextRoll = 0
 function ZombRand(limit) return nextRoll % limit end
 -- The real EN texts, so the names tested are the ones players see.
@@ -76,6 +76,7 @@ local function newFood(fullType, values)
         if tag == ItemTag.SALT then return self.salt == true end
         local meat = { ["Base.Beef"] = true, ["Base.Steak"] = true, ["Base.MuttonChop"] = true, ["Base.Venison"] = true,
             ["Base.ChickenWhole"] = true, ["Base.TurkeyLegs"] = true, ["Base.Rabbitmeat"] = true }
+        if tag == ItemTag.FISH_MEAT then return self.fullType:sub(1, 5) == "Base." and not meat[self.fullType] end
         return tag == ItemTag.UNCUT_FISH and self.fullType:sub(1, 5) == "Base." and self.fullType ~= "Base.FishFillet" and not meat[self.fullType]
     end
     function food:setWeight(weight) self.weight = weight end
@@ -87,6 +88,10 @@ local function newFood(fullType, values)
     function food:setThirstChange(thirstChange) self.thirst = thirstChange end
     function food:setAge(age) self.age = age end
     function food:getAge() return self.age or 0 end
+    function food:isRotten() return false end
+    function food:isFrozen() return false end
+    function food:isCooked() return false end
+    function food:isBurnt() return false end
     return food
 end
 
@@ -94,8 +99,8 @@ local MILD = { temperature = 20, humidity = 0.4, precipitation = 0 }
 
 -- Recipe times
 onInit()
-check("the press time comes from PRESS_HOURS", loaded["TraditionalPreservationFishMeat.PressSaltedFish"] == "{ time = " .. T.PRESS_HOURS * 3600 .. ", }")
 check("the drying time comes from DRY_HOURS", loaded["TraditionalPreservationFishMeat.HangFishToDry"] == "{ time = " .. T.DRY_HOURS * 3600 .. ", }")
+check("the tub's cures are no recipes now", loaded["TraditionalPreservationFishMeat.PressSaltedFish"] == nil)
 
 -- Rates
 check("freezing air dries nothing", T.temperatureRate(-5) == 0 and T.temperatureRate(0) == 0)
@@ -136,12 +141,14 @@ check("small fish press for a day", T.pressHours(0.3) == 24 and T.pressHours(T.P
 check("fish of about a kilo or more, two", T.pressHours(T.PRESS_BIG_WEIGHT) == 48 and T.pressHours(T.SALT_WHOLE_MAX) == 48)
 check("in between by weight", near(T.pressHours((T.PRESS_SMALL_WEIGHT + T.PRESS_BIG_WEIGHT) / 2), 36))
 
-local RECIPE_TIME = T.PRESS_HOURS * 3600
-local function pressed(weights)
-    local fish = {}
-    for i, weight in ipairs(weights) do fish[i] = newFood("TraditionalPreservationFishMeat.SaltPackedFish", { ActualWeight = weight }) end
-    return newRecipeData(RECIPE_TIME, fish)
+function instanceItem(fullType) return newFood(fullType, {}) end
+-- A tub packed with pieces of one type, by weight.
+local function packedTub(fullType, weights)
+    local tub = {}
+    for _, weight in ipairs(weights) do T.putInTub(tub, T.tubPiece(newFood(fullType, { ActualWeight = weight }), hours)) end
+    return tub
 end
+local function tubShare(tub) return tub.stage == "Done" and 1 or tub.tubDone / tub.pressHours end
 -- The tub cures by its place's temperature (0.4.34): the game's ledger, warm here, so hour for hour.
 -- The game's ledger now (a test that clears ModData gets a fresh one).
 local function tubWeather(celsius)
@@ -150,39 +157,36 @@ local function tubWeather(celsius)
     T.advance(ledger, hours, { temperature = celsius, humidity = 0.4, precipitation = 0 })
     return ledger
 end
+do
 tubWeather(15)
-local press = pressed({ 0.4, 3, 0.6 })
-T.onPressStart(press)
-check("the heaviest fish sets the batch's hours", press.modData.pressHours == 48 and press.modData.tubDone == 0)
+local press = packedTub(T.GUTTED_FISH, { 0.4, 3, 0.6 })
+T.startTub(press, "fish", T.getLedger())
+check("the heaviest fish sets the batch's hours", press.pressHours == 48 and press.tubDone == 0 and press.stage == "Curing")
 hours = hours + T.PRESS_HOURS / 2
-tubWeather(15)
-T.onPressUpdate(press)
-check("half the hours is half the press", near(press.elapsed, RECIPE_TIME / 2))
+T.updateTub(press, tubWeather(15), hours)
+check("half the hours is half the press", near(tubShare(press), 0.5))
 hours = hours + 100
-tubWeather(15)
-T.onPressUpdate(press)
-check("time away finishes the press, and no further", press.elapsed == RECIPE_TIME)
+T.updateTub(press, tubWeather(15), hours)
+check("time away finishes the press", press.stage == "Done" and press.doneHour == hours)
 
-local small = pressed({ 0.4, 0.8 })
-T.onPressStart(small)
+local small = packedTub(T.GUTTED_FISH, { 0.4, 0.8 })
+T.startTub(small, "fish", T.getLedger())
 hours = hours + 12
-tubWeather(15)
-T.onPressUpdate(small)
-check("a batch of small fish is half done in 12 hours", near(small.elapsed, RECIPE_TIME / 2))
+T.updateTub(small, tubWeather(15), hours)
+check("a batch of small fish is half done in 12 hours", near(tubShare(small), 0.5))
 hours = hours + 12
-tubWeather(15)
-T.onPressUpdate(small)
-check("and done in a day", near(small.elapsed, RECIPE_TIME))
+T.updateTub(small, tubWeather(15), hours)
+check("and done in a day", small.stage == "Done")
 
 check("the cure's speed: full from 2 C, half at -5, a quarter from -10", T.tubCureRate(2) == 1 and T.tubCureRate(20) == 1
     and near(T.tubCureRate(-5), 0.5) and near(T.tubCureRate(-10), 0.25) and near(T.tubCureRate(-30), 0.25))
-local frozen = pressed({ 0.4, 0.8 })
-T.onPressStart(frozen)
+local frozen = packedTub(T.GUTTED_FISH, { 0.4, 0.8 })
+T.startTub(frozen, "fish", T.getLedger())
 hours = hours + 24
 local tubLedger = tubWeather(-5)
-T.onPressUpdate(frozen)
-check("a day at -5 C is half a day's cure", near(frozen.elapsed, RECIPE_TIME / 2))
-local frozenStatus = T.pressStatus(frozen.modData, tubLedger)
+T.updateTub(frozen, tubLedger, hours)
+check("a day at -5 C is half a day's cure", near(tubShare(frozen), 0.5))
+local frozenStatus = T.pressStatus(frozen, tubLedger)
 check("its popup counts the rest at that speed", near(frozenStatus.hoursLeft, 24) and near(frozenStatus.rate, 0.5))
 local status = T.pressStatus({ tubDone = 6, pressHours = 24 }, T.newLedger(0))
 check("the popup says a small batch's own time left", near(status.hoursLeft, 18) and near(status.progress, 0.25))
@@ -215,22 +219,22 @@ check("a leg at 12 C loses two fifths, cuts a fifth, the short cure nothing", ne
 check("a leg at 15 C rots in the tub, cuts lose about half", near(longCure(15, 504), 1) and near(longCure(15, 240), 240 / 504))
 check("the tub's popup says a long cure is spoiling, a short one not", T.pressStatus({ place = "Covered", tubDone = 100, pressHours = 504, lastWarmCure = 0, countryCure = true, lastLongCureSpoil = 0 }, mildLedger).spoiling
     and not T.pressStatus({ place = "Covered", tubDone = 48, pressHours = 48, lastWarmCure = 0 }, mildLedger).spoiling)
-local hotPress = newRecipeData(RECIPE_TIME, { newFood("TraditionalPreservationFishMeat.SaltPackedFish", { ActualWeight = 1 }) },
-    { newFood("TraditionalPreservationFishMeat.SaltPressedFish", {}) })
-hotPress.modData.lastWarmCure, hotPress.modData.place = 0, "Covered"
-ModData.tables[T.MOD_DATA_KEY] = hotLedger
-T.onCreatePressed(hotPress)
-local hotFish = hotPress:getAllCreatedItems():get(0)
-check("pressed fish carries what the warm cure took", near(hotFish:getModData().cureSpoiled, 0.375) and hotFish.age > 0)
+local hotTub = packedTub(T.GUTTED_FISH, { 1 })
+T.startTub(hotTub, "fish", T.newLedger(0))
+hotTub.lastWarmCure, hotTub.lastTubCure, hotTub.place = 0, 0, "Covered"
+T.updateTub(hotTub, hotLedger, hours)
+check("a warm batch ends with what the cure took", hotTub.stage == "Done" and near(hotTub.spoiled, 0.375))
+local hotFish = T.curedFromTub(T.takeFromTub(hotTub), hours)
+check("its cured fish carries it", hotFish.fullType == T.PRESSED_FISH and near(hotFish:getModData().cureSpoiled, 0.375) and near(hotFish.age, 120 * 0.375))
+check("the last piece out empties the tub", T.tubStage(hotTub) == "Empty")
+local waited = packedTub(T.GUTTED_FISH, { 1 })
+waited.stage, waited.method, waited.spoiled, waited.doneHour = "Done", "fish", 0, hours - 48
+check("a cured piece left waiting in the tub has aged as lying out", near(T.curedFromTub(T.takeFromTub(waited), hours).age, 2))
 local mixed = list({ newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 3 }), newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 1 }) })
 mixed:get(0):getModData().cureSpoiled = 0.4
 check("a stack starts with its fish's share, by weight", near(T.stackCureSpoiled(mixed), 0.3))
 ModData.tables = {}
-
-press.elapsed = 0
-T.onPressStart(press)
-T.onPressUpdate(press)
-check("a reused object starts its own run", press.elapsed == 0)
+end
 
 -- The tub
 check("a tub takes fish up to its capacity", T.hasRoom(T.TUB_CAPACITY, T.TUB_CAPACITY - 1, 1))
@@ -238,10 +242,8 @@ check("and no more", not T.hasRoom(T.TUB_CAPACITY, T.TUB_CAPACITY - 0.5, 1))
 check("a fish over the capacity never fits", not T.hasRoom(T.TUB_CAPACITY, 0, T.TUB_CAPACITY + 1))
 
 -- The right fish for each station
-check("a tub takes packed fish", T.fishRefusal(true, "TraditionalPreservationFishMeat.SaltPackedFish") == nil)
-check("but not pressed or raw fish", T.fishRefusal(true, "TraditionalPreservationFishMeat.SaltPressedFish") == "IGUI_TraditionalPreservationFishMeat_NeedsPacked" and T.fishRefusal(true, "Base.Walleye") == "IGUI_TraditionalPreservationFishMeat_NeedsPacked")
-check("a frame takes pressed fish", T.fishRefusal(false, "TraditionalPreservationFishMeat.SaltPressedFish") == nil)
-check("but not packed fish", T.fishRefusal(false, "TraditionalPreservationFishMeat.SaltPackedFish") == "IGUI_TraditionalPreservationFishMeat_NeedsPressed")
+check("a frame takes pressed fish", T.fishRefusal("TraditionalPreservationFishMeat.SaltPressedFish") == nil)
+check("but not raw fish", T.fishRefusal("Base.Walleye") == "IGUI_TraditionalPreservationFishMeat_NeedsPressed")
 
 -- The frame
 check("a stack takes four fish too small to slice", T.frameRefusal(T.HANGERS[6], 0, 0.6 * 3, 0.6) == nil)
@@ -656,14 +658,14 @@ check("hunger shrinks with it", near(outBig.values.BaseHunger, -0.42) and near(o
 local whole = { Calories = 800, BaseHunger = -0.6, ActualWeight = 8 }
 local item = newFood("Base.Walleye", whole)
 item.displayName = "Medium Walleye "
-for _, stage in ipairs({ "SaltPackedFish", "SaltPressedFish", "SaltDriedFish", "SoakedSaltFish" }) do
+for _, stage in ipairs({ "SaltPressedFish", "SaltDriedFish", "SoakedSaltFish" }) do
     local nextItem = newFood("TraditionalPreservationFishMeat." .. stage, {})
     T.carry(item, nextItem)
     item = nextItem
     if stage == "SaltPressedFish" then
         check("pressed fish keeps the walleye's icon", item.modelIndex == 6)
         check("the name follows the fish", item.name == "Medium Walleye (Salt Cured)")
-        check("pressing takes 7 to 12 percent", keptShare >= 0.88 and keptShare <= 0.93 and near(item.values.ActualWeight, 8 * 0.9 * keptShare))
+        check("pressing takes 7 to 12 percent", keptShare >= 0.88 and keptShare <= 0.93 and near(item.values.ActualWeight, 8 * keptShare))
     end
 end
 check("the species survives every stage", item.name == "Medium Walleye (Soaked, Salt Dried)")
@@ -671,7 +673,7 @@ check("the fish's icon lasts to the end", item.modelIndex == 6)
 
 -- A part-eaten fish stays part-eaten. The engine has already scaled its calories.
 local bitten = newFood("Base.BlackCrappie", { Calories = 50, BaseHunger = -0.2, HungChange = -0.1, ActualWeight = 1 })
-local bittenPacked = newFood("TraditionalPreservationFishMeat.SaltPackedFish", {})
+local bittenPacked = newFood("TraditionalPreservationFishMeat.SaltPressedFish", {})
 T.carry(bitten, bittenPacked)
 check("a part-eaten fish doesn't grow back", near(bittenPacked.values.HungChange, -0.1) and near(bittenPacked.values.BaseHunger, -0.2))
 check("and keeps what's left of its calories", bittenPacked.values.Calories == 50)
@@ -689,19 +691,18 @@ local function slice(source, stage)
 end
 local bass = newFood("Base.Walleye", { Calories = 800, Proteins = 40, Lipids = 8, Carbohydrates = 2, BaseHunger = -0.6, HungChange = -0.6, ActualWeight = 3 })
 bass.displayName = "Medium Walleye "
-local packedBass = through(bass, "SaltPackedFish")
-check("a fish that could be cut still can be", T.canSlice(packedBass))
+local packedBass = bass
 local pressedBass = through(packedBass, "SaltPressedFish")
+check("a fish that could be cut still can be", T.canSlice(pressedBass))
 local driedBass = through(pressedBass, "SaltDriedFish")
 local soakedBass = through(driedBass, "SoakedSaltFish")
 check("through every stage", T.canSlice(pressedBass) and T.canSlice(driedBass) and T.canSlice(soakedBass))
 
 local tiny = newFood("Base.BlackCrappie", { BaseHunger = -0.1, HungChange = -0.1, ActualWeight = 0.6 })
-local tinyPacked = through(tiny, "SaltPackedFish")
-check("a fish too small to slice stays that way", not T.canSlice(tinyPacked) and not T.canSlice(through(tinyPacked, "SaltPressedFish")))
+check("a fish too small to slice stays that way", not T.canSlice(through(tiny, "SaltPressedFish")))
 local fillet = newFood("Base.FishFillet", { BaseHunger = -0.2, HungChange = -0.2, ActualWeight = 2 })
-check("a fillet can't be cut again", not T.canSlice(through(fillet, "SaltPackedFish")))
-check("nor can salmon", not T.canSlice(through(newFood("Base.Salmon", { ActualWeight = 2 }), "SaltPackedFish")))
+check("a fillet can't be cut again", not T.canSlice(through(fillet, "SaltPressedFish")))
+check("nor can salmon", not T.canSlice(through(newFood("Base.Salmon", { ActualWeight = 2 }), "SaltPressedFish")))
 check("the knife passes", T.canSlice(newFood("Base.HuntingKnife", {})))
 
 local one, two = slice(pressedBass, "SaltPressedFish")
@@ -754,7 +755,7 @@ for list in script:gmatch("IconsForTexture = ([^,]+),") do
     end
     check("the list covers every fish, once or three times", position == #T.FISH_ICONS or position == #T.FISH_ICONS * 3)
 end
-check("all ten stages have the list (Hot Smoked 5c, Cold Smoked 5d)", lists == 10)
+check("all nine stages have the list (Hot Smoked 5c, Cold Smoked 5d; Salt Packed gone 0.4.66)", lists == 9)
 
 -- Each model list runs in the same order as the icons, and every model exists.
 local models = io.open("42/media/scripts/TraditionalPreservationFishMeat_models.txt"):read("*a")
@@ -778,12 +779,12 @@ for list in script:gmatch("WorldStaticModelsByIndex = ([^,]+),") do
     end
     check("the model list covers every fish, once or three times", position == #T.FISH_ICONS or position == #T.FISH_ICONS * 3)
 end
-check("all ten stages have models (Hot Smoked 5c, Cold Smoked 5d)", modelLists == 10)
+check("all nine stages have models (Hot Smoked 5c, Cold Smoked 5d; Salt Packed gone 0.4.66)", modelLists == 9)
 
 local headBody = script:match("item FishHead\n    {(.-)\n    }")
 check("a head spoils like fresh fish", headBody:find("DaysFresh = 3,", 1, true) and headBody:find("DaysTotallyRotten = 6,", 1, true))
 check("and is a little unpleasant to eat", headBody:find("UnhappyChange = 5,", 1, true) ~= nil and not headBody:find("RemoveUnhappinessWhenCooked", 1, true))
-check("no drying recipe takes a head", not script:find("FishHead", (script:find("craftRecipe PressSaltedFish", 1, true)), true))
+check("no drying recipe takes a head", not script:find("FishHead", (script:find("craftRecipe HangFishToDry", 1, true)), true))
 -- Design decision: every stock, and the soups and stews made from them, starts at -10
 -- unhappiness and -10 boredom, at hunger -5 (vanilla's soups and stews start at 0). A balance pass that changes them has to change this test, and only
 -- as a deliberate design change.
@@ -826,7 +827,7 @@ for recipeName, bones in pairs({ MakeBoneBroth = "item 2 [Base.AnimalBone] mode:
 end
 end
 
-for _, name in ipairs({ "SaltPackedFish", "SaltPressedFish", "GuttedFish", "FishHalf", "FishHead" }) do
+for _, name in ipairs({ "SaltPressedFish", "GuttedFish", "FishHalf", "FishHead" }) do
     local body = script:match("item " .. name .. "\n    {(.-)\n    }")
     check(name .. " is dangerous uncooked", body:find("DangerousUncooked = true", 1, true) ~= nil)
 end
@@ -886,23 +887,14 @@ check("which the fish lost", near(gutted.values.Calories, 376) and near(gutted.v
 check("the head is named for its fish, and keeps its age", head.name == "Medium Walleye Head" and head.age == 1.5)
 check("the guts keep the fish's age too", gutsMade[1].age == 1.5)
 check("the fish lost the guts' and head's weight", near(gutted.values.ActualWeight, 3.2))
-local packedWhole = newFood("Base.Walleye", { ActualWeight = 4, Calories = 400 })
-packedWhole.age = 4
-packedWhole = gut(packedWhole, "SaltPackedFish")
-check("packing a whole fish guts it but keeps the head", #gutsMade == 1 and near(packedWhole.values.ActualWeight, 3.6) and near(packedWhole.values.Calories, 400))
-check("a stale fish packed whole gives stale guts", gutsMade[1].age == 4)
 gut(newFood("Base.Bluegill", { ActualWeight = 0.9 }), "GuttedFish")
 check("a fish too small for a head still gives guts", #gutsMade == 1 and gutsMade[1].fullType == "Base.FishGuts")
 gut(newFood("Base.Bluegill", { ActualWeight = T.HEAD_MIN_WEIGHT }), "GuttedFish")
 check("the head limit is above, not at", #gutsMade == 1)
-local packedFillet = gut(newFood("Base.FishFillet", { ActualWeight = 4 }), "SaltPackedFish")
-check("a fillet has no guts and keeps its weight", #gutsMade == 0 and near(packedFillet.values.ActualWeight, 4))
 local tinyGutted = gut(newFood("Base.Bluegill", { ActualWeight = 0.5 }), "GuttedFish")
 check("nor has a fish too small for vanilla to cut", #gutsMade == 0 and near(tinyGutted.values.ActualWeight, 0.5))
 gut(newFood("Base.Salmon", { ActualWeight = 2 }), "GuttedFish")
 check("nor has salmon, which comes cut", #gutsMade == 0)
-local gutPacked = gut(gutted, "SaltPackedFish")
-check("a gutted fish can't give guts or a head twice", #gutsMade == 0 and near(gutPacked.values.ActualWeight, 3.2))
 
 -- Fish Head Stock
 local stockHead = newFood("TraditionalPreservationFishMeat.FishHead", { Calories = 24, Proteins = 4.8, BaseHunger = -0.03, HungChange = -0.03 })
@@ -1145,21 +1137,37 @@ T.carryStock(plain, vanillaSoup, recipe)
 check("a vanilla soup is left alone", vanillaSoup.unhappy == 0 and vanillaSoup.name == nil)
 end
 
--- Butchering XP for packing
-Perks = { Butchering = "Butchering" }
-local xpGiven = {}
--- TP Core's Action.addXp adds it through the character's getXp.
-function gutter.getXp() return { AddXP = function(_, perk, amount) table.insert(xpGiven, { character = gutter, perk = perk, amount = amount }) end } end
-local function pack(fish)
-    xpGiven, gutsMade = {}, {}
-    T.onCreatePacked(newRecipeData(0, { fish }, { newFood("TraditionalPreservationFishMeat.SaltPackedFish", {}) }), gutter)
+-- What the tub takes (0.4.66): raw fish whole up to MIN_SLICE_WEIGHT, gutted, halved or filleted; a bigger whole fish
+-- is gutted first, one over SALT_WHOLE_MAX split; meat as vanilla cuts it.
+do
+instanceof = function(item, name) return name == "Food" and item.fullType ~= "Base.HuntingKnife" end
+local function refusal(fullType, weight) return T.tubItemRefusal(newFood(fullType, { ActualWeight = weight })) end
+check("a small fish goes in whole, guts and all", refusal("Base.Bluegill", 0.5) == nil and refusal("Base.Bluegill", T.MIN_SLICE_WEIGHT) == nil)
+check("a bigger whole fish is gutted first", refusal("Base.Walleye", 0.7) == "GutFirst" and refusal("Base.Walleye", 4.6) == "GutFirst")
+check("a fillet, salmon and a gutted fish go in", refusal("Base.FishFillet", 4) == nil and refusal("Base.Salmon", 2) == nil
+    and refusal(T.GUTTED_FISH, 4.5) == nil)
+check("a gutted fish over 4.5 weight is split first; a half of any size goes in", refusal(T.GUTTED_FISH, 9) == "SplitFirst"
+    and refusal(T.FISH_HALF, 9) == nil)
+check("meat goes in as vanilla cuts it", refusal("Base.Beef", 5) == nil and refusal(T.LEG_OF_PORK, 2.5) == nil)
+check("anything else is not for the tub", refusal("Base.HuntingKnife", 1) == "NotForTub" and refusal(T.PRESSED_FISH, 1) == "NotForTub")
+local rotten = newFood("Base.Bluegill", { ActualWeight = 0.5 })
+function rotten:isRotten() return true end
+check("nor a rotten, frozen or cooked piece", T.tubItemRefusal(rotten) == "Spoilt")
+local tub = {}
+T.putInTub(tub, T.tubPiece(newFood("Base.Bluegill", { ActualWeight = 0.5 }), 0))
+check("the first piece decides fish or meat", T.tubRefusal(tub, "meat", 0.5) == "Mixed" and T.tubRefusal(tub, "fish", 0.5) == nil)
+check("weight counts against the 50", T.tubRefusal(tub, "fish", T.TUB_CAPACITY) == "Full")
+for _ = 2, T.TUB_MAX_ITEMS do T.putInTub(tub, T.tubPiece(newFood("Base.Bluegill", { ActualWeight = 0.1 }), 0)) end
+check("and pieces against the 35", T.tubRefusal(tub, "fish", 0.1) == "Full")
+check("the fish row starts it, the meat rows don't", T.startRefusal(tub, "fish", { salt = 100, board = true, stone = true }) == nil
+    and T.startRefusal(tub, "corn", { salt = 100, board = true, stone = true }) == "WrongKind")
+check("it wants its salt, a plank and a stone", T.startRefusal(tub, "fish", { salt = T.tubSalt(tub) - 1, board = true, stone = true }) == "NoSalt"
+    and T.startRefusal(tub, "fish", { salt = 100, stone = true }) == "NoBoard" and T.startRefusal(tub, "fish", { salt = 100, board = true }) == "NoStone")
+check("an empty tub starts nothing", T.startRefusal({}, "fish", { salt = 100, board = true, stone = true }) == "Empty")
+local back = T.unpackTub(tub, 48)
+check("Unpack gives everything back, a day older for each day in", #back == T.TUB_MAX_ITEMS and back[1].age == 2 and T.tubStage(tub) == "Empty")
+instanceof = nil
 end
-pack(newFood("Base.Walleye", { ActualWeight = 4 }))
-check("packing a whole fish guts it, for Butchering XP", #gutsMade == 1 and #xpGiven == 1 and xpGiven[1].perk == "Butchering" and xpGiven[1].amount == T.PACK_GUTTING_XP and xpGiven[1].character == gutter)
-pack(newFood("Base.FishFillet", { ActualWeight = 4 }))
-check("a fillet only takes the salt, so gives none", #gutsMade == 0 and #xpGiven == 0)
-pack(newFood("Base.Bluegill", { ActualWeight = 0.5 }))
-check("nor does a fish too small to gut", #xpGiven == 0)
 
 -- Salt by the packed fish's weight (C11)
 local cutFillet = newFood("Base.FishFillet", { ActualWeight = 0.5 })
@@ -1173,8 +1181,7 @@ check("a gutted fish or a half by its weight, to the nearest step", T.saltFor(gu
 check("a fillet vanilla cut pays for its food, half the gutted fish", T.saltFor(cutFillet) == 36)
 check("a loot fillet, by its own weight", T.saltFor(newFood("Base.FishFillet", { ActualWeight = 0.2 })) == 2)
 check("about 15% of the fish's weight, a use weighing 0.02", near(T.SALT_PER_STEP / T.SALT_STEP * 0.02, 0.16))
-local packedCut = through(cutFillet, "SaltPackedFish")
-check("and comes out of the salt that heavy (C26)", near(packedCut.values.ActualWeight, 4.5))
+check("and counts in the tub that heavy (C26)", near(T.tubPiece(cutFillet, 0).tubWeight, 4.5) and T.tubPiece(cutFillet, 0).salt == 36)
 
 local function saltItem(fullType, uses)
     local item = newFood(fullType, {})
@@ -1199,40 +1206,13 @@ local function carry(...)
     carried, removed = { ... }, {}
     for _, item in ipairs(carried) do function item:getContainer() return container end end
 end
-local walleye4 = newFood("Base.Walleye", { ActualWeight = 4.5 })  -- packs at 4.05: 16 quarter steps, 32 salt
-carry(saltItem("Base.Salt", 10), saltItem("TraditionalPreservationSalt.LooseSalt", 5), saltItem("TraditionalPreservationSalt.BagOfSalt", 16))
-check("31 salt carried can't pack a fish that takes 32", not T.canPack(walleye4, salter))
-check("the knife, the salt and a test without a character pass", T.canPack(newFood("Base.HuntingKnife", {}), salter) and T.canPack(carried[1], salter) and T.canPack(walleye4, nil))
-local shaker, loose, bag, spent = saltItem("Base.Salt", 10), saltItem("TraditionalPreservationSalt.LooseSalt", 5), saltItem("TraditionalPreservationSalt.BagOfSalt", 20), saltItem("Base.Salt", 0)
-carry(shaker, loose, bag, spent)
-check("35 can, and a used-up shaker doesn't count", T.canPack(walleye4, salter) and T.saltCarried(salter) == 35)
-check("a whole fish over 4.5 weight is too thick to salt whole",
-    not T.canPack(newFood("Base.Walleye", { ActualWeight = 4.6 }), salter)
-    and not T.canPack(newFood("Base.Walleye", { ActualWeight = 4.6 }), nil)
-    and T.canPack(newFood("Base.Walleye", { ActualWeight = 4.5 }), nil))
-check("so is a gutted one; a half of any size packs",
-    not T.canPack(newFood("TraditionalPreservationFishMeat.GuttedFish", { ActualWeight = 9 }), nil)
-    and T.canPack(newFood("TraditionalPreservationFishMeat.FishHalf", { ActualWeight = 9 }), nil))
-local returned, listening = nil, true
-package.loaded["TraditionalPreservationCore/Uses"].onEmptied(ItemTag.SALT, function(character, emptied)
-    if listening then returned = { character = character, emptied = emptied } end
-end)
-T.chargeSalt(walleye4, salter)
-check("packing takes the other 30, part-used salt first", loose.uses == 0 and shaker.uses == 0 and bag.uses == 5 and spent.uses == 0)
-check("what it empties leaves the inventory", #removed == 2 and removed[1] == loose and removed[2] == shaker)
-check("and the Salt mod (Uses.onEmptied) gives its empties back", returned and returned.character == salter and returned.emptied:size() == 2)
-listening, returned = false, nil
-carry(saltItem("Base.Salt", 10))
-T.chargeSalt(newFood("Base.Bluegill", { ActualWeight = 0.5 }), salter)
-check("a small fish takes 2 past the recipe's 2", carried[1].uses == 8 and #removed == 0)
-T.chargeSalt(walleye4, salter)
-check("without the Salt mod, an emptied shaker just goes", carried[1].uses == 0 and #removed == 1 and returned == nil)
-local packer = { getInventory = salter.getInventory, getXp = function() return { AddXP = function() end } end }
-carry(saltItem("Base.Salt", 20))
-local packData = newRecipeData(0, { newFood("Base.Walleye", { ActualWeight = 2 }) }, { newFood("TraditionalPreservationFishMeat.SaltPackedFish", {}) })
-function packData:getCharacter() return packer end
-T.onCreatePacked(packData)
-check("both pack recipes charge in onCreatePacked, finding the packer", carried[1].uses == 8)
+local walleye4 = newFood(T.GUTTED_FISH, { ActualWeight = 4.05 })  -- 16 quarter steps, 32 salt
+local fourTub = {}
+T.putInTub(fourTub, T.tubPiece(walleye4, 0))
+T.putInTub(fourTub, T.tubPiece(newFood("Base.Bluegill", { ActualWeight = 0.5 }), 0))
+check("a batch takes each piece's salt", T.tubSalt(fourTub) == 36)
+check("31 salt carried can't start it, 36 can", T.startRefusal(fourTub, "fish", { salt = 35, board = true, stone = true }) == "NoSalt"
+    and T.startRefusal(fourTub, "fish", { salt = 36, board = true, stone = true }) == nil)
 instanceof = nil
 
 -- How a stack looks on the frame
@@ -1274,14 +1254,14 @@ check("a half is named for its fish, without Gutted", halfOne.name == "Fish Half
 check("a half can't be sliced", not T.canSlice(halfOne))
 local driedHalf = through(halfOne, "ColdDriedFish")
 check("a cold dried half is stockfish of its species", driedHalf.name == "Walleye Stockfish (Matured)")
-local saltedHalf = through(through(through(halfTwo, "SaltPackedFish"), "SaltPressedFish"), "SaltDriedFish")
+local saltedHalf = through(through(halfTwo, "SaltPressedFish"), "SaltDriedFish")
 check("a half can take the salt route too", saltedHalf.name == "Fish Half (Salt Dried)" and not T.canSlice(saltedHalf))
 check("and stays a half in its icon", saltedHalf.modelIndex == halfTwo.modelIndex + #T.FISH_ICONS * 2)
 check("as it does when cold dried", driedHalf.modelIndex == halfOne.modelIndex + #T.FISH_ICONS * 2)
-local saltedGutted = through(through(heavy, "SaltPackedFish"), "SaltPressedFish")
+local saltedGutted = through(heavy, "SaltPressedFish")
 check("a gutted fish stays headless through the salt route", saltedGutted.modelIndex == heavy.modelIndex + #T.FISH_ICONS)
 heavy:getModData().fishName = "Big Walleye"
-check("and keeps Gutted in its name", through(heavy, "SaltPackedFish").name == "Gutted Big Walleye (Salt Packed)")
+check("and keeps Gutted in its name", through(heavy, "SaltPressedFish").name == "Gutted Big Walleye (Salt Cured)")
 
 
 -- Maturing
@@ -1379,93 +1359,78 @@ check("and goes through canRinseInput and onCreateRinsed", rinseRecipe:find("OnT
     check("a 0.5 cut presses for two days", T.meatPressHours(0.5) == 48)
     check("a 0.3 cut, by weight", near(T.meatPressHours(0.3), 28.8))
     check("never under a day, never over two", T.meatPressHours(0.1) == T.PRESS_MIN_HOURS and T.meatPressHours(2) == T.PRESS_HOURS)
-    local function meatPress(weights)
-        local cuts = {}
-        for i, weight in ipairs(weights) do cuts[i] = newFood(T.PACKED_MEAT, { ActualWeight = weight }) end
-        return newRecipeData(RECIPE_TIME, cuts)
-    end
-    local steaks = meatPress({ 0.3, 0.3 })
-    T.onPressStart(steaks)
-    check("a batch of steaks sets its own hours", near(steaks.modData.pressHours, 28.8))
-    local mixedCuts = meatPress({ 0.3, 0.5, 0.3 })
-    T.onPressStart(mixedCuts)
-    check("the heaviest cut sets the batch", mixedCuts.modData.pressHours == 48)
-    check("the press time is set for meat too", loaded["TraditionalPreservationFishMeat.PressSaltedMeat"] == "{ time = " .. T.PRESS_HOURS * 3600 .. ", }")
-
-    check("a tub takes packed meat", T.fishRefusal(true, T.PACKED_MEAT) == nil)
-    check("but not raw meat", T.fishRefusal(true, "Base.Steak") == "IGUI_TraditionalPreservationFishMeat_NeedsPacked")
-    check("a frame takes cured meat, not packed", T.fishRefusal(false, T.PACKED_MEAT) and T.fishRefusal(false, T.CURED_MEAT) == nil)
-    check("an empty tub takes either", T.mixedTub(nil, T.PACKED_MEAT) == nil and T.mixedTub(nil, T.PACKED_FISH) == nil)
-    check("meat on meat is fine", T.mixedTub(T.PACKED_MEAT, T.PACKED_MEAT) == nil)
-    check("fish and meat never share a tub", T.mixedTub(T.PACKED_FISH, T.PACKED_MEAT) == "IGUI_TraditionalPreservationFishMeat_MixedTub"
-        and T.mixedTub(T.PACKED_MEAT, T.PACKED_FISH) == "IGUI_TraditionalPreservationFishMeat_MixedTub")
+    local steaks = packedTub("Base.Steak", { 0.3, 0.3 })
+    check("a batch of steaks sets its own hours", near(T.tubHours(steaks, "corn"), 28.8))
+    local mixedCuts = packedTub("Base.Beef", { 0.3, 0.5, 0.3 })
+    check("the heaviest cut sets the batch", T.tubHours(mixedCuts, "corn") == 48)
+    check("a frame takes cured meat", T.fishRefusal(T.CURED_MEAT) == nil)
 
     local steak = newFood("Base.Steak", { Calories = 220, Proteins = 31.62, Lipids = 9.35, BaseHunger = -0.4, HungChange = -0.4, ActualWeight = 0.3 })
     steak.displayName = "Steak "
-    local packedSteak = through(steak, "SaltPackedMeat")
-    check("packing a cut keeps all of it", near(packedSteak.values.ActualWeight, 0.3) and packedSteak.values.Calories == 220)
-    check("its icon is the steak's", packedSteak.modelIndex == 1)
-    check("its name too", packedSteak.name == "Steak (Salt Packed)")
-    check("a cut has nothing to slice", not T.canSlice(packedSteak))
-    check("and no guts or head", not T.hasGuts(steak) and not T.hasHead(steak))
-    local curedSteak = through(packedSteak, "SaltCuredMeat")
+    check("a steak counts in the tub as all of it", near(T.tubPiece(steak, 0).tubWeight, 0.3))
+    check("and has no guts or head", not T.hasGuts(steak) and not T.hasHead(steak))
+    local curedSteak = through(steak, "SaltCuredMeat")
     check("curing takes 7 to 12 percent", near(curedSteak.values.ActualWeight, 0.3 * keptShare))
     check("the cured cut keeps its food, icon and name", curedSteak.values.Calories == 220 and curedSteak.modelIndex == 1
         and curedSteak.name == "Steak (Corned)")
+    check("a cut has nothing to slice", not T.canSlice(curedSteak))
     local venison = newFood("Base.Venison", { ActualWeight = 0.5 })
-    check("venison is the fourth icon", through(venison, "SaltPackedMeat").modelIndex == 3)
+    check("venison is the fourth icon", through(venison, "SaltCuredMeat").modelIndex == 3)
     check("a Beef takes 4 salt, as a half-weight fish, and a Steak 2", T.saltFor(newFood("Base.Beef", { ActualWeight = 0.5 })) == 4
         and T.saltFor(steak) == 2)
     instanceof = function(_, name) return name == "Food" end
-    check("a cut is never too big to salt whole", T.canPack(newFood("Base.Beef", { ActualWeight = 5 }), nil))
+    check("a cut is never too big to salt whole", T.tubItemRefusal(newFood("Base.Beef", { ActualWeight = 5 })) == nil)
     instanceof = nil
 
     -- Pork and the leg (6a)
-    local pork = through(newFood("Base.Pork", { ActualWeight = 0.5 }), "SaltPackedMeat")
+    local rawPork = newFood("Base.Pork", { ActualWeight = 0.5 })
+    local pork = through(rawPork, "SaltCuredMeat")
     local leg = newFood(T.LEG_OF_PORK, { ActualWeight = 2.5 })
-    local packedLeg = through(leg, "SaltPackedMeat")
-    check("pork and the leg take their own icons", pork.modelIndex == 4 and packedLeg.modelIndex == T.LEG_INDEX)
-    check("and their names", pork.name == "Pork (Salt Packed)" and packedLeg.name == "LegOfPork (Salt Packed)")
-    check("a leg takes half fish's salt, 10 for 2.5", T.saltFor(leg) == 10 and T.saltFor(newFood("Base.Pork", { ActualWeight = 0.5 })) == 4)
-    check("the short cure refuses a leg, not a cut", not T.canCorn(packedLeg) and not T.canCorn(leg) and T.canCorn(pork))
-    check("pork is pork, beef is not", T.isPork(pork) and T.isPork(packedLeg) and not T.isPork(packedSteak))
+    local curedLeg = through(leg, "SaltCuredMeat")
+    check("pork and the leg take their own icons", pork.modelIndex == 4 and curedLeg.modelIndex == T.LEG_INDEX)
+    check("a leg takes half fish's salt, 10 for 2.5", T.saltFor(leg) == 10 and T.saltFor(rawPork) == 4)
+    check("pork is pork, beef is not", T.isPork(pork) and T.isPork(curedLeg) and not T.isPork(curedSteak))
+    check("the tub knows pork and a leg as they go in", T.tubPiece(rawPork, 0).pork and T.tubPiece(leg, 0).leg and not T.tubPiece(steak, 0).pork)
     -- Poultry and rabbit (0.4.34): their own icons, a brine's salt, Corned for 3 / 6 days
     local wholeChicken = newFood("Base.ChickenWhole", { ActualWeight = 1.2 })
-    local packedChicken = through(wholeChicken, "SaltPackedMeat")
-    local packedRabbit = through(newFood("Base.Rabbitmeat", { ActualWeight = 0.3 }), "SaltPackedMeat")
-    check("a whole chicken and rabbit take their own icons and names", packedChicken.modelIndex == 10 and packedRabbit.modelIndex == 15
-        and packedChicken.name == "ChickenWhole (Salt Packed)")
+    local rabbit = newFood("Base.Rabbitmeat", { ActualWeight = 0.3 })
     check("poultry takes a brine's salt, half red meat's", T.saltFor(wholeChicken) == 5 and T.saltFor(newFood("Base.TurkeyLegs", { ActualWeight = 0.3 })) == 2)
-    check("hot-smoke only, never pork", T.isHotOnly(packedChicken) and T.isHotOnly(packedRabbit) and not T.isPork(packedChicken)
-        and not T.isHotOnly(packedSteak))
-    local brine = newRecipeData(RECIPE_TIME, { packedChicken, packedSteak }, { newFood(T.CURED_MEAT, {}), newFood(T.CURED_MEAT, {}) }, "PressSaltedMeat")
-    T.onCreatePressed(brine)
-    local cornedChicken, cornedSteak = brine:getAllCreatedItems():get(0), brine:getAllCreatedItems():get(1)
+    check("hot-smoke only, never pork", T.isHotOnly(wholeChicken) and T.isHotOnly(rabbit) and not T.isPork(through(wholeChicken, "SaltCuredMeat"))
+        and not T.isHotOnly(steak))
+    check("a whole bird is timed as a thick cut", T.tubPiece(wholeChicken, 0).timing == 0.4)
+    local cornedChicken = T.curedFromTub({ piece = T.tubPiece(wholeChicken, 0), method = "corn", spoiled = 0 }, hours)
+    local cornedSteak = T.curedFromTub({ piece = T.tubPiece(steak, 0), method = "corn", spoiled = 0 }, hours)
     check("Corned poultry keeps 3 / 6 days, the steak its script's", cornedChicken.offAge == 3 and cornedChicken.offAgeMax == 6
-        and cornedSteak.offAge == nil and cornedChicken.name == "ChickenWhole (Corned)")
+        and cornedSteak.offAge == nil and cornedChicken.name == "ChickenWhole (Corned)" and cornedChicken.modelIndex == 10
+        and T.curedFromTub({ piece = T.tubPiece(rabbit, 0), method = "corn", spoiled = 0 }, hours).modelIndex == 15)
     local frame, beam, gantry, shed = T.HANGERS[6], T.HANGERS[408], T.HANGERS[410], { closed = true }
     check("pork that isn't Country Cured hangs in the Smokehouse only", T.meatRefusal(frame, "Open", pork) == "IGUI_TraditionalPreservationFishMeat_PorkSmokehouse"
         and T.meatRefusal(frame, "Covered", pork) == "IGUI_TraditionalPreservationFishMeat_PorkSmokehouse"
-        and T.meatRefusal(shed, "Sheltered", pork) == nil and T.meatRefusal(frame, "Open", packedSteak) == nil)
-    local longCuts = newRecipeData(T.LONG_LEG_HOURS * 3600, { packedSteak, pork }, nil, T.LONG_CURE_RECIPE)
-    T.onPressStart(longCuts)
-    local longLeg = newRecipeData(T.LONG_LEG_HOURS * 3600, { pork, packedLeg }, nil, T.LONG_CURE_RECIPE)
-    T.onPressStart(longLeg)
-    check("the long cure: 10 days for cuts, 21 with a leg", longCuts.modData.pressHours == 240 and longLeg.modData.pressHours == 504)
-    -- The recipe's time is the leg's 21 days, not the short press's 2: each batch's bar ends on its own hours.
-    hours = hours + 240
+        and T.meatRefusal(shed, "Sheltered", pork) == nil and T.meatRefusal(frame, "Open", curedSteak) == nil)
+    local longCuts, longLeg = {}, {}
+    T.putInTub(longCuts, T.tubPiece(steak, hours))
+    T.putInTub(longCuts, T.tubPiece(rawPork, hours))
+    T.putInTub(longLeg, T.tubPiece(rawPork, hours))
+    T.putInTub(longLeg, T.tubPiece(leg, hours))
+    local kit = { salt = 100, board = true, stone = true }
+    check("the short cure refuses a leg, the long one takes it", T.startRefusal(longLeg, "corn", kit) == "LegNeedsLongCure"
+        and T.startRefusal(longLeg, "long", kit) == nil and T.startRefusal(longCuts, "corn", kit) == nil)
+    local birds = {}
+    T.putInTub(birds, T.tubPiece(wholeChicken, hours))
+    check("poultry takes the short cure only", T.startRefusal(birds, "long", kit) == "HotOnlyShortCure" and T.startRefusal(birds, "corn", kit) == nil)
     tubWeather(15)
-    T.onPressUpdate(longCuts)
-    T.onPressUpdate(longLeg)
-    check("cuts are cured after their 10 days, a leg 10 days into its 21", near(longCuts.elapsed, T.LONG_LEG_HOURS * 3600)
-        and near(longLeg.elapsed, 240 * 3600))
+    T.startTub(longCuts, "long", T.getLedger())
+    T.startTub(longLeg, "long", T.getLedger())
+    check("the long cure: 10 days for cuts, 21 with a leg", longCuts.pressHours == 240 and longLeg.pressHours == 504)
+    hours = hours + 240
+    T.updateTub(longCuts, tubWeather(15), hours)
+    T.updateTub(longLeg, tubWeather(15), hours)
+    check("cuts are cured after their 10 days, a leg 10 days into its 21", longCuts.stage == "Done" and longLeg.stage == "Curing"
+        and near(longLeg.tubDone, 240))
     hours = hours - 240
-    local countryPork = newFood(T.CURED_MEAT, {})
-    T.onCreateLongCured(newRecipeData(0, { pork }, { countryPork }))
+    local countryPork = T.curedFromTub({ piece = T.tubPiece(rawPork, 0), method = "long", spoiled = 0 }, hours)
     check("it comes out Country Cured", countryPork:getModData().longCure and countryPork.name == "Pork (Country Cured)")
-    local countrySteak = newFood(T.CURED_MEAT, {})
-    T.onCreateLongCured(newRecipeData(0, { packedSteak }, { countrySteak }))
-    local cornedSteak = through(packedSteak, "SaltCuredMeat")
+    local countrySteak = T.curedFromTub({ piece = T.tubPiece(steak, 0), method = "long", spoiled = 0 }, hours)
     local needsShade = "IGUI_TraditionalPreservationFishMeat_CountryCuredSmokehouse"
     check("a frame in the open refuses Country Cured beef, not Corned", T.meatRefusal(frame, "Open", countrySteak) == needsShade
         and T.meatRefusal(frame, "Open", cornedSteak) == nil and T.meatRefusal(shed, "Sheltered", countrySteak) == nil)
@@ -1474,29 +1439,21 @@ check("and goes through canRinseInput and onCreateRinsed", rinseRecipe:find("OnT
         and T.meatRefusal(frame, "Covered", countryPork) == nil and T.meatRefusal(frame, "Open", countryPork) == needsShade)
     check("a roofed Gantry does too, an open one not", T.meatRefusal(gantry, "Covered", countrySteak) == nil and T.meatRefusal(gantry, "Covered", countryPork) == nil
         and T.meatRefusal(gantry, "Open", countrySteak) == needsShade and T.meatRefusal(gantry, "Open", cornedSteak) == nil)
-    check("the short cure refuses a leg, the long one takes it", T.recipeRefusal("PressSaltedMeat", packedLeg) == "IGUI_TraditionalPreservationFishMeat_LegNeedsLongCure"
-        and T.recipeRefusal("PressSaltedMeat", pork) == nil and T.recipeRefusal(T.LONG_CURE_RECIPE, packedLeg) == nil)
-    check("the long cure's time is set from the leg's", loaded["TraditionalPreservationFishMeat.CountryCureMeat"] == "{ time = " .. T.LONG_LEG_HOURS * 3600 .. ", }")
 
     local meatScript = io.open("42/media/scripts/TraditionalPreservationFishMeat_Meat.txt"):read("*a")
-    local cutList = meatScript:match("craftRecipe PackMeatInSalt.-item 1 %[([^%]]+)%]")
-    check("the pack recipe takes the cuts in MEAT_CUTS", cutList == table.concat(T.MEAT_CUTS, ";"))
-    check("pork and the leg go in the salt (6a)", cutList:find("Base.Pork;Base.PorkChop;TraditionalPreservationFishMeat.LegOfPork", 1, true) ~= nil)
-    for _, stage in ipairs({ "SaltPackedMeat", "SaltCuredMeat" }) do
-        local body = meatScript:match("item " .. stage .. "%s*{(.-)}")
-        local icons = body:match("IconsForTexture = ([^,]+),")
-        local count, missing = 0, {}
-        for icon in icons:gmatch("[^;]+") do
-            count = count + 1
-            local file = io.open("42/media/textures/Item_" .. icon .. ".png", "rb")
-            if file then file:close() else table.insert(missing, icon) end
-        end
-        check(stage .. " has an icon for each cut", count == #T.MEAT_CUTS and #missing == 0)
-        local models = body:match("WorldStaticModelsByIndex = ([^,]+),")
-        local modelCount = select(2, models:gsub("[^;]+", ""))
-        check(stage .. " has a model for each cut", modelCount == #T.MEAT_CUTS)
+    local body = meatScript:match("item SaltCuredMeat%s*{(.-)}")
+    local icons = body:match("IconsForTexture = ([^,]+),")
+    local count, missing = 0, {}
+    for icon in icons:gmatch("[^;]+") do
+        count = count + 1
+        local file = io.open("42/media/textures/Item_" .. icon .. ".png", "rb")
+        if file then file:close() else table.insert(missing, icon) end
     end
-    check("both press recipes are the tub's", meatScript:find("craftRecipe PressSaltedMeat%s*{%s*time = %d+,%s*Tags = SaltingTub") ~= nil)
+    check("SaltCuredMeat has an icon for each cut", count == #T.MEAT_CUTS and #missing == 0)
+    local models = body:match("WorldStaticModelsByIndex = ([^,]+),")
+    check("SaltCuredMeat has a model for each cut", select(2, models:gsub("[^;]+", "")) == #T.MEAT_CUTS)
+    check("no recipe salts or presses meat now: the tub does", not meatScript:find("craftRecipe PackMeatInSalt", 1, true)
+        and not meatScript:find("Tags = SaltingTub", 1, true))
 end)()
 
 -- Charque, phase 3c: Salt Cured meat sun dried on the frames
@@ -1562,7 +1519,7 @@ end)()
 
     local steak = newFood("Base.Steak", { Calories = 220, Proteins = 31.62, Lipids = 9.35, BaseHunger = -0.4, HungChange = -0.4, ActualWeight = 0.3 })
     steak.displayName = "Steak "
-    local cured = through(through(steak, "SaltPackedMeat"), "SaltCuredMeat")
+    local cured = through(steak, "SaltCuredMeat")
     local charque = newFood("TraditionalPreservationFishMeat.Charque", {})
     T.onCreateDried(newRecipeData(0, { cured }, { charque }))
     check("charque is named for its animal", charque.name == "Beef Charque" and charque.modelIndex == 1)
@@ -1574,7 +1531,7 @@ end)()
     check("cured meat can be rinsed", T.canRinse(cured))
     local rinsedCured = newFood(T.CURED_MEAT, {})
     rinsedCured.displayName = "Steak "
-    T.carry(through(steak, "SaltPackedMeat"), rinsedCured)
+    T.carry(steak, rinsedCured)
     rinsedCured.thirst = 20
     T.rinse(rinsedCured)
     check("the rinse stays out of the name", rinsedCured.name == "Steak (Corned)" and near(rinsedCured.thirst, 20 * T.RINSED_THIRST))
@@ -1587,11 +1544,10 @@ end)()
 
     T.CHARQUE_ON = false
     instanceof = function(_, name) return name == "Food" end
-    check("off, the frame refuses meat and the tub too", T.fishRefusal(false, T.CURED_MEAT) == "IGUI_TraditionalPreservationFishMeat_CharqueOff"
-        and T.fishRefusal(true, T.PACKED_MEAT) == "IGUI_TraditionalPreservationFishMeat_CharqueOff"
-        and not T.canPack(newFood("Base.Beef", { ActualWeight = 0.5 }), nil))
-    check("fish is untouched", T.fishRefusal(false, "TraditionalPreservationFishMeat.SaltPressedFish") == nil
-        and T.canPack(newFood("Base.Walleye", { ActualWeight = 1 }), nil))
+    check("off, the frame refuses meat and the tub too", T.fishRefusal(T.CURED_MEAT) == "IGUI_TraditionalPreservationFishMeat_CharqueOff"
+        and T.tubItemRefusal(newFood("Base.Beef", { ActualWeight = 0.5 })) == "CharqueOff")
+    check("fish is untouched", T.fishRefusal("TraditionalPreservationFishMeat.SaltPressedFish") == nil
+        and T.tubItemRefusal(newFood(T.GUTTED_FISH, { ActualWeight = 1 })) == nil)
     instanceof = nil
     T.CHARQUE_ON = true
 
@@ -1626,7 +1582,7 @@ end)()
     local fishScript = io.open("42/media/scripts/TraditionalPreservationFishMeat.txt"):read("*a")
     local function cut(fullType, values, longCure)
         local raw = newFood(fullType, values)
-        local cured = through(through(raw, "SaltPackedMeat"), "SaltCuredMeat")
+        local cured = through(raw, "SaltCuredMeat")
         cured:getModData().longCure = longCure
         return cured
     end

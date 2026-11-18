@@ -89,6 +89,8 @@ local function station(spriteName, x, outside, waiting, batches, finished)
     function station.square:isInARoom() return not outside and not station.porch end
     function station:clearAttachedAnimSprite() self.sprites = {} self.clears = self.clears + 1 end
     function station:addAttachedAnimSpriteByName(name) table.insert(self.sprites, name) end
+    station.modData = {}
+    function station:getModData() return self.modData end
     return station
 end
 
@@ -204,31 +206,47 @@ check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place 
 check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].craftRecipeData == smoked)
 check("another mod's object gives nothing", W.inspect(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
 
--- Tubs
-local tub = station("traditionalpreservationfishmeat_01_1", 3, true, {}, { recipeData(0.3) }, {})
-W.track(tub)
-W.refresh(tub)
-check("a pressing tub shows its weights", table.concat(tub.sprites, " ") == "traditionalpreservationfishmeat_01_5")
--- An uncovered tub shows its top layer: fish, or the meat by its kind (tiles 870-875, the second sheet from 408).
-local function meat(index)
-    local item = fish(T.PACKED_MEAT)
-    item.getModelIndex = function() return index end
-    return item
+-- Tubs: the batch is the tub's own record (movableData), not a crafting station's
+local function tubStation(x, pieces, stage)
+    local tub = station("traditionalpreservationfishmeat_01_" .. (x % 2), x, true, {}, {}, {})
+    local record = T.tubOf(tub)
+    for _, piece in ipairs(pieces) do T.putInTub(record, piece) end
+    if stage then record.stage = stage end
+    W.refresh(tub)
+    return tub, record
 end
-local filled = station("traditionalpreservationfishmeat_01_0", 9, true, { fish(T.PACKED_FISH) }, {}, {})
-W.track(filled)
-W.refresh(filled)
+local function piece(kind, extra)
+    local made = { kind = kind, tubWeight = 0.5, timing = 0.5, salt = 2 }
+    for key, value in pairs(extra or {}) do made[key] = value end
+    return made
+end
+local weighted = tubStation(3, { piece("fish") }, "Done")
+check("a cured tub keeps its board and stone on until the last piece is out", table.concat(weighted.sprites, " ") == "traditionalpreservationfishmeat_01_5")
+local empty = tubStation(5, {})
+check("an empty tub shows nothing", #empty.sprites == 0)
+-- An uncovered tub shows its top layer: fish, or the meat by its kind (tiles 870-875, the second sheet from 408).
+local filled = tubStation(8, { piece("fish") })
 check("a tub of fish waiting shows fish", table.concat(filled.sprites, " ") == "traditionalpreservationfishmeat_01_2")
-for _, case in ipairs({ { 0, "beef", "traditionalpreservationfishmeat_02_462" }, { 4, "pork", "traditionalpreservationfishmeat_02_464" },
-                         { T.LEG_INDEX, "a leg", "traditionalpreservationfishmeat_02_466" } }) do
-    local salted = station("traditionalpreservationfishmeat_01_0", 10 + case[1], true, { meat(case[1]) }, {}, {})
-    W.track(salted)
-    W.refresh(salted)
+for n, case in ipairs({ { {}, "beef", "traditionalpreservationfishmeat_02_462" }, { { pork = true }, "pork", "traditionalpreservationfishmeat_02_464" },
+                         { { leg = true, pork = true }, "a leg", "traditionalpreservationfishmeat_02_466" } }) do
+    local salted = tubStation(10 + n * 2, { piece("meat", case[1]) })
     check("a tub of " .. case[2] .. " waiting shows it", table.concat(salted.sprites, " ") == case[3])
 end
-check("the kind of a fish is none", W.tubMeat({ fish(T.PACKED_FISH) }) == nil and W.tubMeat({}) == nil)
-check("mixed cuts show the last put in", W.tubMeat({ meat(0), meat(4) }) == "pork" and W.tubMeat({ meat(4), meat(3) }) == "meat")
-check("a leg shows wherever it is", W.tubMeat({ meat(T.LEG_INDEX), meat(0), meat(3) }) == "leg")
+check("the kind of a fish is none", W.tubMeat({ pieces = { piece("fish") } }) == nil and W.tubMeat({}) == nil)
+check("mixed cuts show the last put in", W.tubMeat({ pieces = { piece("meat"), piece("meat", { pork = true }) } }) == "pork"
+    and W.tubMeat({ pieces = { piece("meat", { pork = true }), piece("meat") } }) == "meat")
+check("a leg shows wherever it is", W.tubMeat({ pieces = { piece("meat", { leg = true }), piece("meat"), piece("meat") } }) == "leg")
+local curing, record = tubStation(20, { piece("fish") })
+T.startTub(record, "fish", T.getLedger())
+-- The cure's hours in the open air come off the ledger's total there; put back after, for the weather checks below.
+local ledger = T.getLedger()
+local before = ledger.tubCureOpen
+ledger.tubCureOpen = (before or 0) + record.pressHours
+W.refresh(curing)
+ledger.tubCureOpen = before
+check("a look brings the cure up to now, where the tub stands", record.stage == "Done" and record.place == "Open"
+    and table.concat(curing.sprites, " ") == "traditionalpreservationfishmeat_01_4")
+check("a tub isn't a drying station to the Info block", W.inspect(curing) == nil)
 check("other mods' objects aren't tracked", W.track(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
 check("an untracked station is safe to ask", W.busyStacks({}) == 0)
 

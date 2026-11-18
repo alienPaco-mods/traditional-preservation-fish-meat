@@ -1,6 +1,6 @@
--- Traditional Preservation (Fish & Meat): keeps the weather totals, and shows what is in each tub and frame.
--- SpriteOverlayConfig can't show a tub waiting to start or one sprite per fish, so this reads
--- each station and layers sprites itself.
+-- Traditional Preservation (Fish & Meat): keeps the weather totals, brings each Salting Tub's batch up to now, and
+-- shows what is in each tub and frame. SpriteOverlayConfig can't show one sprite per fish, so this reads each station
+-- and layers sprites itself.
 if isClient() then return end
 
 TraditionalPreservationFishMeatWorld = TraditionalPreservationFishMeatWorld or {}
@@ -71,20 +71,34 @@ end
 
 -- What shows in an uncovered tub: fish (nil), or the meat on top, the last put in (a tub holds fish or meat, and
 -- cuts of any kind together). A leg always shows: it fills the tub.
-function TraditionalPreservationFishMeatWorld.tubMeat(items)
-    local last = items[#items]
-    if not last or not F.isMeatStage(last:getFullType()) then return nil end
-    for _, item in ipairs(items) do
-        if F.isLeg(item) then return "leg" end
+function TraditionalPreservationFishMeatWorld.tubMeat(tub)
+    local pieces = tub.pieces or {}
+    local last = pieces[#pieces]
+    if not last or last.kind ~= "meat" then return nil end
+    for _, piece in ipairs(pieces) do
+        if piece.leg then return "leg" end
     end
-    return F.isPork(last) and "pork" or "meat"
+    return last.pork and "pork" or "meat"
 end
 
--- The board and stones stay on until the pressed fish is taken out. Before that the top layer shows: fish or meat.
-function TraditionalPreservationFishMeatWorld.tubSprite(waiting, batches, finished, meat)
-    if #batches > 0 or finished > 0 then return TUB_WEIGHTED_SPRITE end
-    if waiting > 0 then return meat and TUB_MEAT_SPRITES[meat] or TUB_FILLED_SPRITE end
+-- The board and stone stay on until the last cured piece is taken out. Before that the top layer shows: fish or meat.
+function TraditionalPreservationFishMeatWorld.tubSprite(tub)
+    local stage = F.tubStage(tub)
+    if stage == "Curing" or stage == "Done" then return TUB_WEIGHTED_SPRITE end
+    if stage == "Packing" then
+        local meat = TraditionalPreservationFishMeatWorld.tubMeat(tub)
+        return meat and TUB_MEAT_SPRITES[meat] or TUB_FILLED_SPRITE
+    end
     return nil
+end
+
+-- Brings a tub's batch up to now: where it stands now counts for the time since the last look, as the old crafting
+-- station's did (F.pressDone). Returns the tub's record.
+function TraditionalPreservationFishMeatWorld.updateTub(station)
+    local tub = F.tubOf(station)
+    tub.place = Weather.placeOf(station)
+    F.updateTub(tub, F.getLedger(), getGameTime():getWorldAgeHours())
+    return tub
 end
 
 -- place is the station's (TP Core's word, the Smokehouse Enclosed).
@@ -126,10 +140,9 @@ local function showSprites(station, sessionState, signature, sprites)
     Station.showSprites(station, sessionState, signature, names)
 end
 
-local function refreshTub(tub, sessionState, faceIndex, waiting, _, batches, finishedStyles, waitingItems)
-    local sprite = TraditionalPreservationFishMeatWorld.tubSprite(waiting, batches, #finishedStyles,
-        TraditionalPreservationFishMeatWorld.tubMeat(waitingItems))
-    showSprites(tub, sessionState, tostring(sprite), sprite and { sprite + faceIndex } or {})
+local function refreshTub(station, sessionState)
+    local sprite = TraditionalPreservationFishMeatWorld.tubSprite(TraditionalPreservationFishMeatWorld.updateTub(station))
+    showSprites(station, sessionState, tostring(sprite), sprite and { sprite + sessionState.faceIndex } or {})
 end
 
 -- The same numbering as fish_index in tools/build_tileset.py. Meat has its own run of tiles, one per stage, and
@@ -155,6 +168,7 @@ local function refreshFrame(frame, sessionState, faceIndex, _, waitingStyle, bat
 end
 
 local function refresh(station, sessionState)
+    if sessionState.tub then return refreshTub(station, sessionState) end
     local resources = station:getComponent(ComponentType.Resources)
     local logic = station:getComponent(sessionState.logicType)
     local sprite = station:getSprite()
@@ -180,12 +194,12 @@ local function newSessionState(station)
     local index = F.stationIndex(station)
     if not index then return nil end
 
-    local isFrame = index >= FRAME_SPRITE
+    if index < FRAME_SPRITE then return { tub = true, faceIndex = index % FACE_COUNT } end
     return {
         hanger = F.hangerFor(index),
         faceIndex = index % FACE_COUNT,
-        logicType = isFrame and ComponentType.DryingCraftLogic or ComponentType.CraftLogic,
-        show = isFrame and refreshFrame or refreshTub,
+        logicType = ComponentType.DryingCraftLogic,
+        show = refreshFrame,
     }
 end
 
@@ -197,9 +211,10 @@ local tracker = Station.tracker({ sprites = sprites, newSessionState = newSessio
 
 TraditionalPreservationFishMeatWorld.track = tracker.track
 
--- Redraws a tracked station now, without waiting for the next tick, e.g. after a player adds fish.
+-- Redraws a tracked station now, without waiting for the next tick, e.g. after a player adds fish. A tub is tracked
+-- from here on: one built this session hasn't been through the map loader.
 function TraditionalPreservationFishMeatWorld.refresh(station)
-    local sessionState = tracker.sessionStateOf(station)
+    local sessionState = F.isTub(station) and tracker.track(station) or tracker.sessionStateOf(station)
     if sessionState then refresh(station, sessionState) end
 end
 
@@ -209,14 +224,14 @@ function TraditionalPreservationFishMeatWorld.busyStacks(station)
     return sessionState and sessionState.busyStacks or 0
 end
 
--- What a station holds now, for its Info window: its hanger (nil for a tub) and place, the items waiting in its
+-- What a drying station holds now, for its Info window: its hanger and place, the items waiting in its
 -- input slots, the finished ones and their stacks, and the running batches, furthest along first, each with its
 -- recipe data and progress. Either tile of a Smokehouse answers for the one with the slots, and lists this mod's
--- stacks only. Nil for anything else, or before there is a player.
+-- stacks only. Nil for a tub (its own Info window) or anything else, or before there is a player.
 function TraditionalPreservationFishMeatWorld.inspect(station)
     if Smokehouse.isChamber(station) then station = Smokehouse.slotTile(station) end
     local sessionState = tracker.track(station)
-    if not sessionState then return nil end
+    if not sessionState or sessionState.tub then return nil end
     local resources = station:getComponent(ComponentType.Resources)
     local logic = station:getComponent(sessionState.logicType)
     local uiLogic = resources and logic and Station.uiLogic(station, sessionState, logic)
