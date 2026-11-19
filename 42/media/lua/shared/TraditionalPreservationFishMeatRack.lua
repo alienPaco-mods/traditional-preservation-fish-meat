@@ -132,6 +132,22 @@ function F.takePiece(rack, id)
     end
 end
 
+-- A piece taken off before it is done (user, session 53): as it was hung, its age as it went up, less the keeping the
+-- hanging spoiled (its spoiling since it went up, and a Corned piece's under-salting), as a finished piece's spoilage
+-- is taken off; all of it gone, it comes off rotten. The hours on the rack don't age it by the clock.
+function F.earlyOutput(piece)
+    local state = piece.state
+    local item = F.itemFromKept(piece)
+    local lost = math.max((state.spoiled or 0) - (piece.data.cureSpoiled or 0), 0)
+    if piece.method == "meat" then lost = lost + F.underLoss(F.keptItem(piece), state) end
+    if lost >= 1 then
+        item:setAge(math.max(item:getAge(), item:getOffAgeMax()))
+    elseif lost > 0 then
+        item:setAge(item:getAge() + item:getOffAge() * lost)
+    end
+    return item
+end
+
 -- A done piece ages on the rack at vanilla's pace from the hour it finished; dry cured meat left hanging where it
 -- dried also ages on faster, as a finished stack did (F.ageHanging: its stamp moved back by the extra days).
 local function addWaited(item, piece, now)
@@ -147,13 +163,10 @@ end
 -- What a piece taken off gives, as the stack's OnCreate did (F.onCreateDried): rotten, what was hung, rotten; dry
 -- cured meat in the shade, Dry Cured (air dried); otherwise the method's output with the piece's food, look and the
 -- spoiling its stack took off its keeping, aged since it finished. A piece taken before it is done comes off as it
--- was hung, aged since it went up.
+-- was hung, with what the hanging spoiled taken off its keeping (F.earlyOutput).
 function F.rackOutput(piece, now)
     local state, source = piece.state, F.keptItem(piece)
-    if not F.pieceDone(piece) then
-        piece.age = piece.age + math.max((now or piece.hour) - piece.hour, 0) / 24 * FluidAgeing.foodRotSpeed()
-        return F.itemFromKept(piece)
-    end
+    if not F.pieceDone(piece) then return F.earlyOutput(piece) end
     local item
     if F.stackRotten(state) then
         item = F.rottenStage(source, state)

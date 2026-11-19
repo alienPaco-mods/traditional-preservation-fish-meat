@@ -124,7 +124,7 @@ Every road on one page. *Start* is when to begin it in Kentucky's weather; *Yiel
 | Craft | Takes | Gives |
 |---|---|---|
 | **Gut Fish** | A raw whole fish, knife or cleaver (kept) | **Gutted Fish**, plus **Fish Guts** (fish over 0.6 weight) and a **Fish Head** (over 1.0) |
-| **Split Fish** | A Gutted Fish over 2.5 weight, knife | Two **Fish Halves**, each half the weight and food |
+| **Split Fish** | A Gutted Fish over 2.5 weight, knife; or a gutted fish already **Salt Cured** (over 2.5), **Salt Dried** or **Stockfish** | Two **Fish Halves**, each half the weight and food, at the stage it was (a Salt Cured half hangs on a frame) |
 | **Slice Fish** | A whole fish over 0.6 weight at any salted, dried or rehydrated stage, knife | Two fillets at the same stage |
 
 - **Fillets can't be gutted**: they go to the salt.
@@ -254,24 +254,43 @@ Rinsed, whatever it becomes is **less salty** (a third less thirst; Salt Dried f
 
 ## 6. The Drying Stations
 
-Every drying station works the same way: pick a hanging recipe, load it, press **Craft**. Each press hangs **one stack**, which dries on its own timer, so you can keep adding stacks while others dry. A stack is one kind (salt fish, gutted fish or meat); a station runs all kinds side by side.
+**The Drying Frame, Hanging Beam and Gantry** hang one piece at a time, each with its own clock. **Right-click** the
+rack:
 
-| Station | Skill | Materials (hammer kept) | Holds | Where |
-|---|---|---|---|---|
-| **Drying Frame** | Carpentry 2 | 6 long sticks, 3 nails, 4 twine | 8 stacks × 2.5 weight, 25 pieces | Anywhere, a room too |
-| **Hanging Beam** | Carpentry 4 | 6 planks, 6 nails, 1 large hook | 4 stacks × 15 weight, 12 pieces | Anywhere: open air, under a roof, in a room or a basement |
-| **Gantry** | Carpentry 6 | 2 logs, 2 planks, 8 nails, 2 large hooks | 2 stacks × 50 weight, 6 pieces | Open air or under an open roof |
-| **Smokehouse** | Carpentry 3 | 14 planks, 20 nails | 6 stacks × 15 weight, 25 pieces | Open air or under an open roof; four tiles, two by two; chapter 10 |
+- a line with what it holds (pieces, kg of its total; hover for where it stands),
+- **Drying Frame Info** (Beam, Gantry: the same), also at the bottom of the main right-click menu,
+- **Hang Salt Fish**, **Hang Gutted Fish**, **Hang Corned Meat**, **Hang Country Cured Meat**: a submenu for each kind
+  you carry, each kind with **One** or **All**. A red row says why it won't hang (too heavy, full, the wrong place),
+- **Take Done (n)**: the finished pieces (greyed until one is done; its hover says when the next will be),
+- **Take Everything Off**: unfinished pieces come down as they went up, less whatever the weather spoiled while they
+  hung.
 
-| Recipe | Frame, Beam, Gantry | Smokehouse |
+**The Info window** lists every piece with a bar: how far it is, the time left, or why it stands still. Sort it
+furthest along, least along or by process; hover a row for what it will come out as. **Take Done** and **Take All**
+buttons sit under the list. Drag fish or meat from your
+inventory or a crate onto the **square under the list** to hang it: green, it all goes on; orange, some will be
+refused; red, none.
+
+> *Margin note:* a rack holding anything stays where it is. Empty it first if you want to move it.
+
+| Station | Skill | Materials (hammer kept) | Holds | Heaviest piece | Where |
+|---|---|---|---|---|---|
+| **Drying Frame** | Carpentry 2 | 6 long sticks, 3 nails, 4 twine | 20 kg, 200 pieces | 2.5 kg: small fish, every cut | Anywhere, a room too |
+| **Hanging Beam** | Carpentry 4 | 6 planks, 6 nails, 1 large hook | 60 kg, 48 pieces | 5 kg | Anywhere: open air, under a roof, in a room or a basement |
+| **Gantry** | Carpentry 6 | 2 logs, 2 planks, 8 nails, 2 large hooks | 100 kg, 12 pieces | 12 kg | Anywhere but in front of a door |
+| **Smokehouse** | Carpentry 3 | 14 planks, 20 nails | 6 stacks × 15 weight, 25 pieces | 15 (a stack) | Open air or under an open roof; four tiles, two by two; chapter 10 |
+
+The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants and hang the halves.
+
+| What hangs | Frame, Beam, Gantry | Smokehouse (its own window: load a hanging recipe, press **Craft**) |
 |---|---|---|
-| **Hang Salt Cured Fish to Dry** | Yes | Yes |
-| **Hang Salted Meat to Dry**: Corned beef, mutton, venison (charque) | Yes, in the sun or under an open roof | Yes: a hot cook, never charque; with no fire it dry cures, under-salted |
-| **Hang Salted Meat to Dry**: Country Cured meat, pork too (dry curing) | Yes, **in the shade only**: under a roof, in a room or a basement | Yes |
-| **Hang Salted Meat to Dry**: Corned pork | No | Yes: a hot cook |
-| **Hang Gutted Fish to Cold Dry** (stockfish) | Yes; in a room only with a window open | **No** |
+| **Salt fish** (Salt Cured) | Yes | Yes (**Hang Salt Cured Fish to Dry**) |
+| **Corned beef, mutton, venison** (charque) | Yes, in the sun or under an open roof | Yes (**Hang Salted Meat to Dry**): a hot cook, never charque; with no fire it dry cures, under-salted |
+| **Country Cured meat**, pork too (dry curing) | Yes, **in the shade only**: under a roof, in a room or a basement | Yes |
+| **Corned pork** | No | Yes: a hot cook |
+| **Gutted fish** (stockfish) | Yes; in a room only with a window open | **No** |
 
-**Where it hangs** (the stack's *Place*):
+**Where it hangs** (the piece's *Place*):
 - **Open air**: no roof overhead. Walls with no roof are still the open air. Rain pauses drying until the wet has dried off.
 - **Under an open roof**: a porch, an open shed, a floor laid on the level above. Rain never reaches it, and it's **in the shade**, but the air is the open air's, hour by hour: a warm afternoon stops stockfish under a roof as in the open. Salt fish, charque and dry curing dry there at the open rate.
 - **Aired room**: a room with a window to the outside open, smashed, with its glass taken out or an empty frame (not boarded). It follows the day's average, a degree warmer in winter, and **dries as a roof does**: salt fish, charque and dry curing at the open rate, stockfish a little slower (less wind gets in). Usually upstairs: the ground floor is boarded up.
@@ -279,9 +298,9 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 - **In the Smokehouse**: inside it, wherever it stands. A plank shed has an aired room's air, the **day's average**, but still: no rain and no wind, and the power grid doesn't warm it. Salt fish dries at about two thirds of the speed, gutted fish is refused and meat dry cures. Its fire warms the day's air.
 - **Basement**: any level below ground. Indoors, but at the **cellar's own temperature**, not the day's: about 5 C from January to March, 13 C from July to September, a month behind the season. Whatever dries there goes by it, so salt fish crawls (about **27 days** a batch, all year): a cellar is for keeping salt fish, not drying it.
 
-**Hover a stack** to see its method, what it **comes out as** if it came down now (the recipe's output picture always shows Charque or Salt Dried; chapter 23 has every end), progress, time left, place, the temperature, the wind, how wet it is and how fast it's drying right now, a warning if the season is spoiling it, and in a Smokehouse its smoke.
+**Hover a piece** in a rack's Info (or a stack in the Smokehouse's window) to see its method, what it **comes out as** if it came down now (chapter 23 has every end), the time left and a warning if the season is spoiling it; the Smokehouse's popup also shows the place, the weather and the smoke.
 
-**The station's own window tells you the rest.** Under *In Progress*, *Done* and *Take All*, every drying station (the Smokehouse too) lists the place, how many stacks are in use, the air now and over the season (below ground, the basement's own temperature), and a bar for every running batch with its share, its time left or the reason it stands still. Under the bars it lists what wants your eye: a batch that is spoiling, a hot cook under way, the smoke so far, pieces loaded but never started, finished ones waiting to be taken.
+**The Smokehouse's own window tells you the rest.** Under *In Progress*, *Done* and *Take All*, it lists the place, how many stacks are in use, the air now and over the season (below ground, the basement's own temperature), and a bar for every running batch with its share, its time left or the reason it stands still. Under the bars it lists what wants your eye: a batch that is spoiling, a hot cook under way, the smoke so far, pieces loaded but never started, finished ones waiting to be taken.
 
 > *Margin note:* the times left assume today's weather holds. Nobody on the Volga could promise that either.
 
@@ -290,7 +309,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 ## 7. Salt Dried Fish
 
 1. **Pack** and **cure** (chapter 5), rinse if you like.
-2. **Hang Salt Cured Fish to Dry** on any drying station. **12 days** at best: 20 C or warmer in dry air. Cold slows it, even frost, but never stops it.
+2. **Hang Salt Fish** on a rack (or **Hang Salt Cured Fish to Dry** in the Smokehouse). **12 days** at best: 20 C or warmer in dry air. Cold slows it, even frost, but never stops it.
 3. Take down **Salt Dried** fish: about 37% of the fresh fish's weight, 90% of its food, keeps **120 / 180 days** (rinsed 108 / 162).
 4. **Eat it** as it is (very salty, and safe), toss it straight into soup, stew, rice or pasta, or **Soak Fish** (1 L of water, container kept) for a mild fish that cooks like fresh and keeps 2 / 4 days.
 
@@ -306,7 +325,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 Charque is the summer road for red meat: salted and cured in the tub like fish, then dried in summer heat. Hot sun is best, and an open roof does as well and keeps the rain off; what it can't do without is the warmth.
 
 1. **Corn the Meat** in the Salting Tub (chapter 5). Out comes **Corned** meat (*Steak (Corned)*). Beef, mutton and venison only: pork is never charque, and Country Cured meat is for dry curing (chapter 11).
-2. **Hang Salted Meat to Dry** on any drying station **in the open, under an open roof or by an open window**: **five days in hot sun (25 C and up) and a fair breeze**.
+2. **Hang Corned Meat** on a rack **in the open, under an open roof or by an open window**: **five days in hot sun (25 C and up) and a fair breeze**.
 3. Take down the **Charque** (*Beef Charque*, *Mutton Charque*, *Venison Charque*): about half the raw weight, 90% of the food, keeps **120 / 180 days** (rinsed 108 / 162).
 4. **Soak Charque** (1 L of water) before you eat it: it's salty and as hard as leather. Soaked (*Beef Charque (Soaked)*) it's still a little salty, cooks like a steak in about 40 minutes, goes into soups, stews, pies and more, and spoils like fresh meat (2 / 4 days).
 
@@ -341,7 +360,7 @@ From November to February it barely dries at all: that's the season for stockfis
 Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub, keeps the longest and weighs the least, but only works in a cold season.
 
 1. **Gut Fish** (chapter 4). **Split Fish** if it's over 2.5 weight, or hang it whole on a Beam or Gantry.
-2. **Hang Gutted Fish to Cold Dry** on a frame, Beam or Gantry, **in the open, under an open roof or in a room with a window open** (slower there: less wind; in a shut room it waits). Frozen fish is fine.
+2. **Hang Gutted Fish** on a frame, Beam or Gantry, **in the open, under an open roof or in a room with a window open** (slower there: less wind; in a shut room it waits). Frozen fish is fine.
 3. **32 days** at best: 0 to 5 C in a fair breeze, about 27 in a good drying wind. A Kentucky winter's wind is mostly light, so a batch hung November to January takes about 50 to 55 days in the open, 55 to 60 under a roof. **In the open, hang by the end of February; under a roof, by March.**
 4. Take down the **Stockfish** (*Walleye Stockfish*): about 18% of the fresh weight, 89% of the food, keeps **365 / 540 days**: enough to reach next winter's fish.
 5. **Let it mature**: stockfish matures in storage over **60 days**, in any container (a fridge slows it, a freezer stops it). Then the name reads *Walleye Stockfish (Matured)*; until then the tooltip shows how far along it is.
@@ -350,8 +369,8 @@ Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub,
 **Weather**
 - Slower in frost (four fifths at -5 C, three fifths below), slower from 5 to 10 C, and it **stops above 10 C**. In the open and under a roof that is the air now: a warm afternoon stops it. **By an open window** it goes by the day's average, so a room dries on through a mild afternoon.
 - **Wind** matters as much: still air halves the speed, a good breeze (the popup's *Good drying wind*) adds a fifth. Under an open roof, three quarters of the speed, but it never waits out the rain.
-- **Fresh fish is fragile.** Until a stack is about 30% dried it has no dry skin: hard frost (below -5 C) and lying wet above freezing each take a little off how long the finished fish keeps, a quarter at most.
-- **Warmth rots it, while it's wet.** Every hour over 10 C where it hangs eats into a fresh stack (blowflies wake at about that). The drier the fish, the less it minds: half dry, a quarter of the harm; nearly dry, almost none. That is why Lofoten's racks can stand into May, and why a roof or a window, drying slower, rots more in a warm spell than the open rack.
+- **Fresh fish is fragile.** Until a fish is about 30% dried it has no dry skin: hard frost (below -5 C) and lying wet above freezing each take a little off how long the finished fish keeps, a quarter at most.
+- **Warmth rots it, while it's wet.** Every hour over 10 C where it hangs eats into a fresh fish (blowflies wake at about that). The drier the fish, the less it minds: half dry, a quarter of the harm; nearly dry, almost none. That is why Lofoten's racks can stand into May, and why a roof or a window, drying slower, rots more in a warm spell than the open rack.
 
 **Storing it**
 - **Stockfish Pallet** (build menu: Carpentry 2; 3 planks, 6 nails; hammer and saw kept): stack your stockfish on it the way the warehouses did. In a room with a **window open** (dry and airy) it matures **twice as fast** (30 days); in a **shut room**, half as fast again (40 days). Covered, outdoors or in a damp basement it does no better than a shelf. It holds 20 weight; the stack on it grows from a third to full as you load it, as long as nothing but stockfish is on it. Right-click it to see its speed there.
@@ -497,7 +516,7 @@ Dry curing is the winter road for meat: a long salting in the cold, then weeks o
 **The road, step by step**
 
 1. **Salt it in the cold months.** **Country Cure** it in the Salting Tub (chapter 5): **10 days** for cuts, **21** with a Leg of Pork. Only while it stays **10 C or less** where the tub stands, about **October to April** (a basement helps): warmer, the long cure spoils in the tub.
-2. **Hang it in the shade** with **Hang Salted Meat to Dry**: in the **Smokehouse**, on **any drying station under a roof**, or on a **Frame or Hanging Beam in a room or a basement**. Never in the open: sun and rain are for charque.
+2. **Hang it in the shade** (**Hang Country Cured Meat** on a rack, **Hang Salted Meat to Dry** in the Smokehouse): in the **Smokehouse**, on **any rack under a roof**, or on a **Frame or Hanging Beam in a room or a basement**. Never in the open: sun and rain are for charque.
 3. **Smoke it, or don't.** In a Smokehouse with a Stone Hearth, bank the fire a few hours a day until the stack has its hours of smoke: **60** for cuts, **120** with a leg, on days of 15 C or less (chapter 10). Anywhere else, or with no fire, it air dries.
 4. **Wait.** Three weeks for a cut and six for a leg at full speed; longer in the cold (below).
 5. **Take it down** and eat it as it is. What it's called goes by its animal and its smoke:
@@ -547,15 +566,15 @@ A Frame or Beam in a **basement** goes by the cellar's own temperature, which ru
 
 - **The basement is the curing cellar:** the weather never reaches it, only the season, a month late. It is slow in midwinter (the cold that keeps the cure safe slows the drying too) and at its best from June to October, and in frost it still beats an unheated shed. The Gantry can't be built there.
 - **The cellar is cool for the salt, too.** A Salting Tub in a basement goes by the cellar's temperature: fish and Corned meat never take a warm cure there, and a long cure loses far less than upstairs (a leg started in May about 4%, where upstairs it rots). It is still no summer cure: from June to September a leg in the cellar loses a third to two thirds of its keeping, and the cellar is still warm in October (about 18%). Salt from November to May.
-- **If a stack loses its roof** it waits (*Stopped (Needs a roof)*).
+- **If a piece loses its roof** it waits (*Stopped (Needs a roof)*).
 - **No smoke outside the shed.** Cold Smoked beef, mutton, venison and pork and the smoked hams need the Smokehouse and its Stone Hearth.
 
 **Mind the salt**
 
 - **Use the long cure.** *Country Cured* meat has salt for the whole hang. **Corned** meat hasn't: hung in the Smokehouse, a room or a basement it dry cures too, but its popup shows a red **Under-salted** line and it spoils by the temperature where it hangs, a fire's warmth included. Above freezing it rots within **six weeks** however cool (the middle sours before the salt gets there), in four at 10 C and two and a half in a summer basement (13 C); **frozen hours barely count**, so meat hung in a hard frost freeze-dries slowly and safely. A banked fire makes the shed 15 C warmer than the day, and a rinsed piece spoils a little faster (it lost surface salt).
 - **Corned meat has two good roads:** a hot cook in the Smokehouse (chapter 10), or the sun (chapter 8). Corned pork has only the first.
-- **A rotted stack comes down as what you hung:** *Corned Beef (Rotten)*, not Beef (Dry Cured). In a mixed stack only the Corned pieces rot.
-- **You can see rot from across the yard**: a stack that is lost turns grey-green, mottled and mouldy on the Frame, Beam or Gantry, one look each for salt fish, cold dried fish and meat. A mixed stack whose Corned share rotted keeps its drying look while the Country Cured pieces dry on; once it is done, it shows rotten if any piece in it rotted. Sort it as you take it down.
+- **A rotted piece comes down as what you hung:** *Corned Beef (Rotten)*, not Beef (Dry Cured).
+- **You can see rot from across the yard**: a spot with a rotted piece turns grey-green, mottled and mouldy on the Frame, Beam or Gantry, one look each for salt fish, gutted fish and meat. Rack Info shows which piece it is (*Rotten*).
 
 **Ageing**
 
@@ -567,7 +586,7 @@ Dried meat is ready, but it isn't finished. Left alone it **ages** on its own fo
 | Country Ham | **90 days** | **67½ days** | Unhappiness -10 | **Unhappiness -40, Boredom -20** |
 
 - **The name tells you:** *Beef (Cold Smoked)*, then *Beef (Cold Smoked, Aged)*; *Country Ham*, then *Country Ham (Aged)*. The tooltip counts the tenths on the way.
-- **Leave it hanging and it ages in three quarters of the time.** A finished stack still on its Frame, Beam, Gantry or in the Smokehouse is hanging. **Once you take a piece down it can't go back up**, and it ages at the shelf's pace from then on.
+- **Leave it hanging and it ages in three quarters of the time.** A finished piece still on its Frame, Beam or Gantry, or a stack in the Smokehouse, is hanging. **Once you take a piece down it can't go back up**, and it ages at the shelf's pace from then on.
 - **Hanging meat holds its place.** A ham left to age in the Smokehouse keeps its stack for two more months. That is the price, and why the old farms had a meat house.
 - **Young is fine.** Nothing is lost by eating it sooner but the mood. Hot Smoked meat, Ham and Charque never age.
 - **The ham's reward is its mood, not its calories:** a leg makes the same food as the Pork it came from. A whole Aged ham is worth forty points of cheer and twenty of boredom, shared out bite by bite and slice by slice.
@@ -983,7 +1002,7 @@ Three ways to live, and what each should build. For a yardstick: a survivor need
 
 The farm's year turns on two slaughters.
 
-- **Summer beef, June to August.** A cow is 50 cuts: two tub loads and **150 salt**, corned in two days each. One Drying Frame in the sun takes the whole cow, five Beef to a stack: **charque** in one to two weeks, about 10 weight of it, good until December to February. The garden feeds you meanwhile.
+- **Summer beef, June to August.** A cow is 50 cuts: two tub loads and **150 salt**, corned in two days each. One Drying Frame in the sun takes the whole cow: **charque** in one to two weeks, about 10 weight of it, good until December to February. The garden feeds you meanwhile.
 - **Hog killing, November**, once the nights are frosty.
   1. **Render the fat** in the cauldron the same day: two or three blocks of Lard.
   2. **Legs into the long cure first**, 21 days; cuts follow for 10. The tub holds one cure at a time, so a second tub earns its keep here.
@@ -1062,14 +1081,14 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 - **Icons change with the cure.** Pale with salt when cured, browned when salt dried, grey when cold dried, gold when hot smoked, smoky bronze when cold smoked, darker again when rehydrated. Gutted fish are drawn **without their heads**, as stockfish were; halves show red flesh and a backbone. Meat goes from red to cured red-brown, charque nearly black, hot smoked mahogany, Dry Cured a deep burgundy.
 - **Changed your mind?** Until the salt goes on, **Unpack** gives the tub's pieces back.
 - **Damp air matters a little.** Air more humid than 50% slows salt drying and charque, though the game's air is rarely that damp.
-- **Every frame looks different.** Each stack picks its hanging look at random (whole, headless or split), so a full frame looks hand-hung. Charque hangs as dark cuts, red going to deep brown.
+- **Every frame looks different.** Each piece picks its hanging look at random (whole or split), so a full frame looks hand-hung. Charque hangs as dark cuts, red going to deep brown.
 - **Dishes show one steady icon** for each preserved ingredient, so a stew of mixed dried fish doesn't flicker.
 
 ---
 
 ## 20. Tips from the Docks and the Block
 
-- **Big catch?** A fish heavier than a stack's limit won't fit. Split it in two, or hang it on the Beam or Gantry.
+- **Big catch?** A fish heavier than a rack's heaviest won't fit (frame 2.5 kg, Beam 5, Gantry 12). Hang it on a bigger rack, or split it in two.
 - **An open shed beats a room.** A frame under a porch or lean-to roof dries salt fish and charque at full speed, rain or shine, in the shade.
 - **Winter is stockfish season.** Gut everything you catch in December and January. Turn the heads into stock the same day, as they spoil like fresh fish.
 - **Don't eat December's stockfish in January.** Give it the 60 days. A crate in the shed is enough, a pallet in a room with the window open is better, and the freezer is the one place it won't mature.
@@ -1094,8 +1113,8 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | A Country Cure spoils in the tub in May | The long cure is safe at a ten-day average of 10 C or less: start it between October and April |
 | Country Cured meat won't hang on a frame | It dries in the shade: put the station under a roof, indoors or in a basement, or use the Smokehouse. For charque, corn it |
 | The tub refuses all meat | Salting meat may be off in the sandbox |
-| A station refuses a fish or cut | It takes only Salt Cured fish or meat, or Gutted Fish and halves. Raw, rotten, frozen salted and cooked pieces are refused, and a frame stack holds 2.5 weight at most. A Hanging Beam stack holds 12 pieces and a Gantry stack 6, fish or meat: they are for bigger pieces, not more of them |
-| A station refuses meat (or fish) | The stack waiting to start is the other kind: one stack is one kind. Craft it first, then load the next |
+| A station refuses a fish or cut | It takes only Salt Cured fish or meat, or Gutted Fish and halves. Raw, rotten, frozen salted and cooked pieces are refused. A frame takes pieces up to 2.5 kg, a Beam 5, a Gantry 12; the red row's hover says which limit it hit |
+| The Smokehouse refuses meat (or fish) | The stack waiting to start is the other kind: one stack is one kind. Craft it first, then load the next |
 | Station indoors refuses gutted fish | It has no moving air. Cold drying needs the open or an open roof |
 | Not drying | Rain on an open station (cold fish too, until it dries off), or charque at or below freezing |
 | Cold stack came out rotten | It was hung in a warm spell: over 10 C where it hung while it was still wet (October, late February) |
@@ -1116,8 +1135,8 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Wanted Salt Dried, got Hot Smoked | The Stone Hearth was stoked long enough. Let it go out while salt stacks hang, or dry them on a frame |
 | Wanted Cold Smoked, got Salt Dried; wanted Beef (Cold Smoked), got Beef (Dry Cured) | The stack was short of its hours of smoke (the popup's *Smoke* line), or the days were over 15 C (*Too warm to count*). Bank the Stone Hearth more of the time, in a cooler month |
 | Meat in the shed says *Under-salted* and spoils | It is Corned. Give it its hot cook, or use Country Cure for meat that hangs |
-| A stack came down as *Corned Beef (Rotten)* or a rotten pressed fish | It rotted before it was done, so it is still what you hung |
-| A finished stack looks rotten but some pieces are fine | It shows rotten when any piece rotted: a mixed Corned and Country Cured stack. Take it down and sort it |
+| A piece came down as *Corned Beef (Rotten)* or a rotten pressed fish | It rotted before it was done, so it is still what you hung |
+| A spot looks rotten but some pieces are fine | A spot shows rotten when any piece in it rotted: Rack Info says which one |
 | Meat in the shed takes months | Dry curing is slow in frost. A banked fire a few hours a day warms the shed; March and April are the quick months |
 | Wanted Charque, got Beef (Dry Cured), smoked or not | Meat hung in the Smokehouse is always dry cured. For charque, use a frame in the sun |
 | Drying Rate didn't rise with the fire | Below about -2 C outdoors a banked fire can't lift salt fish off its slowest rate (27 days); stoke it, which helps from about -7 C. Over about 5 C banked is already at full speed, so stoking adds nothing to drying |
@@ -1149,7 +1168,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 
 ## 23. The Yearly Plan
 
-Laid out as the game's planting seasons: the months a process works, its best and poor months, and the months it is out of season. One recipe, **Hang Salted Meat to Dry**, does most of the meat processes: what comes down depends on the cure, the place and the fire, not on the recipe's output picture, which always shows Charque. Hover over a hanging stack and its **Comes out as** line says what it would be if it came down now. The days are a Kentucky year from the game's own forecasts (the Almanac, chapter 16).
+Laid out as the game's planting seasons: the months a process works, its best and poor months, and the months it is out of season. What comes down depends on the cure, the place and the fire. Hover over a piece in Rack Info (or a stack in the Smokehouse) and its **Comes out as** line says what it would be if it came down now. The days are a Kentucky year from the game's own forecasts (the Almanac, chapter 16).
 
 | Process | Season | Best months | Poor months | Out of season | Where, at its best | Takes, at its best |
 |---|---|---|---|---|---|---|
@@ -1168,12 +1187,12 @@ Laid out as the game's planting seasons: the months a process works, its best an
 
 **A powered room** (22 C while the grid is on) dry cures a cut in 3 weeks and a leg in 6, any month.
 
-**What a stack turns into, by where it hangs**
+**What a piece turns into, by where it hangs**
 
 | Where | Corned meat | Country Cured meat | Salt Cured fish |
 |---|---|---|---|
 | In the open | **Charque** (pork refused) | Refused | Salt Dried |
-| Under an open roof | **Charque**; dry cured if a Country Cured piece shares the stack | **Dry cured**, Country Ham from a leg | Salt Dried |
+| Under an open roof | **Charque** | **Dry cured**, Country Ham from a leg | Salt Dried |
 | A shut room (once a window is open, as an aired room for the rest) or a basement | **Dry cured**, under-salted: it spoils as it hangs | **Dry cured** | Salt Dried |
 | Smokehouse, Stone Hearth stoked | **Hot Smoked**; pork becomes Ham | **Hot Smoked**; a leg never cooks | Hot Smoked |
 | Smokehouse, with its hours of smoke | **Smoked dry cured** (Beef (Cold Smoked) and kin), under-salted | **Smoked dry cured** | Cold Smoked |
@@ -1196,7 +1215,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.weather()` | The drying weather now: temperature, the 10-day season average, the basement's, an aired room's and a shut room's temperatures and their drying and tub rates, humidity, wetness, the wind, the drying speeds, whether unsalted and salted fish are spoiling, and the running totals |
 | `TPFM.here()` | Which place you're standing in, as a station there would read it: Open, Covered (a roof, no room), Sheltered (a shut room), AiredRoom (a window open) or Basement |
 | `TPFM.wind()` | Starts a log of the live wind every 10 minutes; run it again to print it beside the forecast |
-| `TPFM.age(hours)` | Gives every hanging stack this many hours of perfect drying weather. `TPFM.age(288)` finishes a salt stack, `TPFM.age(768)` a cold one, `TPFM.age(120)` a charque one |
+| `TPFM.age(hours)` | Gives everything hanging this many hours of perfect drying weather. `TPFM.age(288)` finishes salt fish, `TPFM.age(768)` gutted fish, `TPFM.age(120)` charque |
 | `TPFM.rain(hours)` | Adds hours of rain (default 6) and wets the open stations: an open charque stack loses a tenth per 6 hours. Then `TPFM.dry()` |
 | `TPFM.dry()` | Clears the wetness, so open and cold stations start drying again at once |
 | `TPFM.spoil(hours)` | Adds spoiling weather, to test rotting. A fresh cold stack rots after 48 |

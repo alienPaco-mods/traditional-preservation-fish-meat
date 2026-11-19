@@ -129,7 +129,17 @@ local hung = fish(PRESSED, 1)
 hung.values.Calories = 300
 local saltPiece = T.hangPiece(salt, hung, "Open", ledger, hours)
 local early = T.rackOutput(saltPiece, hours + 24)
-check("taken early, a piece comes off as hung, aged since", early.fullType == PRESSED and near(early:getAge(), 1))
+check("taken early, a piece comes off as hung, the hours on the rack not ageing it", early.fullType == PRESSED and early:getAge() == 0)
+saltPiece.state.spoiled = 0.25
+check("what the hanging spoiled comes off its keeping", near(T.rackOutput(saltPiece, hours + 24):getAge(), 120 * 0.25))
+saltPiece.data.cureSpoiled = 0.1
+check("but not what the tub had already taken", near(T.rackOutput(saltPiece, hours + 24):getAge(), 120 * 0.15))
+saltPiece.state.spoiled, saltPiece.data.cureSpoiled = 1.2, nil
+check("all its keeping gone, it comes off rotten", T.rackOutput(saltPiece, hours + 24):getAge() == 180)
+saltPiece.state.spoiled = 0
+local cornedPiece = T.hangPiece({}, newFood(MEAT, { ActualWeight = 0.4 }, 1), "Sheltered", ledger, hours)
+cornedPiece.state.underSpoiled = 0.5
+check("a Corned piece's under-salting counts too", near(T.rackOutput(cornedPiece, hours):getAge(), 120 * 0.5))
 hours = hours + T.DRY_HOURS + 10
 T.advance(ledger, hours, MILD)
 T.updateRack(salt, "Open", ledger, hours)

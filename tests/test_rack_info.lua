@@ -72,6 +72,9 @@ check("its share and its process", math.abs(shown.pieces[1].share - 0.6) < 1e-6 
 check("a running piece's bar says its time left", shown.pieces[1].text:find("left", 1, true) ~= nil)
 check("a done piece reads Done, full", shown.pieces[3].text == "Done" and shown.pieces[3].share == 1)
 check("the done note, and the weather's", hasNote(shown, "1 done") and hasNote(shown, "weather holds"))
+check("the window's take lists: done ids and every id, and why Take Done waits", #shown.doneIds == 1 and shown.doneIds[1] == done.id
+    and #shown.allIds == 3 and type(shown.waitText) == "string")
+check("an empty rack's wait says nothing hangs", RackUI.view({}, frame, "Open", ledger, 1000).waitText == "Nothing hangs on it.")
 check("every row has a popup", type(shown.pieces[1].popup) == "function" and type(shown.pieces[3].popup) == "function")
 
 local rotten = F.hangPiece(rack, fish(F.PRESSED_FISH, 0.5, "Perch (Salt Cured)"), "Open", ledger, 1000)

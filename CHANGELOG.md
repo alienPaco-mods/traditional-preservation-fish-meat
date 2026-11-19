@@ -1,5 +1,21 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.77
+- **Split Fish takes a gutted fish at its later stages too** (user, session 53): a Salt Cured one over 2.5 kg (so it
+  hangs on a frame), a Salt Dried one or a Stockfish over 0.6 kg, each split into two halves of its stage (the
+  recipe's `halfStage` mapper), keeping the stage's marks (rinsed, maturing, the cure's spoilage) with a half's icon
+  and name. A fish salted whole with its guts, a half and a fillet don't split.
+- **A piece taken off before it is done** (Take Everything Off, Take All; user, session 53) comes back as it was hung,
+  with only what the hanging spoiled taken off its keeping (its spoiling since it went up, and a Corned piece's
+  under-salting; all of it, rotten), as a finished piece's spoilage is; the hours on the rack no longer age it by the
+  clock (`F.earlyOutput`).
+- **Take Done (n) and Take All (n) buttons in Rack Info** (user, session 53), under the list: the same actions and
+  hovers as the menu's rows (`RackUI.take`, `RackUI.waitText`).
+- **Docs for the racks** (ROADMAP section 12, R6): README (the drying stations, the station table with each rack's
+  total, pieces and heaviest piece, the developer table and tests), the guide's drying stations chapter and its
+  rack mentions, `Balance/BuildingRecipes.md` (the racks' holds; the Gantry builds in a room, only not in front of a
+  door), TESTING_GUIDE steps 52 (the racks), 53 (Rack Info) and the rack wording in 45, 46, 54, 55, 57, 59, 60, 84.
+
 ## 0.4.76
 - **The racks' new hanging tiles** (ROADMAP section 12, R5; mock `art/rack_tiles_mock.png`): 15 tiles a spot and
   face, four looks (salt fish, salt fish half, gutted fish, meat) at three stages (fresh, half dry, dry) and a rotten

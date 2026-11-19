@@ -1272,6 +1272,29 @@ check("and stays a half in its icon", saltedHalf.modelIndex == halfTwo.modelInde
 check("as it does when cold dried", driedHalf.modelIndex == halfOne.modelIndex + #T.FISH_ICONS * 2)
 local saltedGutted = through(heavy, "SaltPressedFish")
 check("a gutted fish stays headless through the salt route", saltedGutted.modelIndex == heavy.modelIndex + #T.FISH_ICONS)
+-- Splitting a gutted fish at a later stage (user, session 53): halves of that stage.
+check("a gutted Salt Cured fish too heavy for a frame can be split", saltedGutted.values.ActualWeight > 2.5 and T.canSplit(saltedGutted))
+check("one that fits a frame can't", not T.canSplit(through(through(newFood("Base.Walleye", { ActualWeight = 2 }), "GuttedFish"), "SaltPressedFish")))
+check("nor a small fish salted whole, with its guts", not T.canSplit(through(newFood("Base.Bluegill", { ActualWeight = 3 }), "SaltPressedFish")))
+check("nor a salt half", not T.canSplit(through(halfTwo, "SaltPressedFish")))
+saltedGutted:getModData().rinsed = true
+local saltOne, saltTwo = newFood("TraditionalPreservationFishMeat.SaltPressedFish", {}), newFood("TraditionalPreservationFishMeat.SaltPressedFish", {})
+T.onCreateSplit(newRecipeData(0, { saltedGutted }, { saltOne, saltTwo }))
+check("Salt Cured halves: half the food and weight, a half's icon, the stage's markers kept",
+    near(saltOne.values.ActualWeight, saltedGutted.values.ActualWeight / 2) and near(saltTwo.values.Calories, saltedGutted.values.Calories / 2)
+    and saltOne.modelIndex == saltedGutted.modelIndex + #T.FISH_ICONS and saltOne:getModData().rinsed == true
+    and saltOne:getModData().sliceable == false)
+check("named as a half at its stage", saltOne.name:find("Half", 1, true) ~= nil and saltOne.name:find("Salt Cured", 1, true) ~= nil
+    and saltOne.name:find("Gutted", 1, true) == nil)
+check("and hang on a frame", saltOne.values.ActualWeight <= 2.5)
+local stockfish = through(heavy, "ColdDriedFish")
+stockfish:getModData().matureAge = 5
+check("a stockfish over the slicing weight can be split, any size worth halving", stockfish.values.ActualWeight > T.MIN_SLICE_WEIGHT
+    and T.canSplit(stockfish))
+local coldOne, coldTwo = newFood("TraditionalPreservationFishMeat.ColdDriedFish", {}), newFood("TraditionalPreservationFishMeat.ColdDriedFish", {})
+T.onCreateSplit(newRecipeData(0, { stockfish }, { coldOne, coldTwo }))
+check("stockfish halves keep their maturing", coldOne:getModData().matureAge == 5 and coldOne.modelIndex == stockfish.modelIndex + #T.FISH_ICONS)
+check("a Salt Dried gutted fish can be split", T.canSplit(through(saltedGutted, "SaltDriedFish")))
 heavy:getModData().fishName = "Big Walleye"
 check("and keeps Gutted in its name", through(heavy, "SaltPressedFish").name == "Gutted Big Walleye (Salt Cured)")
 

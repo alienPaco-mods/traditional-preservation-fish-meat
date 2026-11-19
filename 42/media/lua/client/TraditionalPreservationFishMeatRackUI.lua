@@ -97,7 +97,15 @@ function RackUI.view(rack, hanger, place, ledger, now)
     if done > 0 then table.insert(notes, UI.say(KEY .. "RackDoneNote", tostring(done))) end
     if weather then table.insert(notes, getText(KEY .. "InfoWeather")) end
     if #pieces == 0 then table.insert(notes, getText(KEY .. "InfoEmpty")) end
-    return { rows = Info.placeRows(place, ledger, holds), pieces = pieces, notes = notes }
+    return { rows = Info.placeRows(place, ledger, holds), pieces = pieces, notes = notes,
+        doneIds = F.pieceIds(rack, true), allIds = F.pieceIds(rack), waitText = RackUI.waitText(rack, ledger) }
+end
+
+-- Why Take Done is greyed: nothing hangs, or when the next piece will be done (or that nothing dries now).
+function RackUI.waitText(rack, ledger)
+    if F.rackCount(rack) == 0 then return getText(KEY .. "RackNothingHanging") end
+    local soonest = RackUI.soonestHours(rack, ledger)
+    return soonest and UI.say(KEY .. "RackNoneFinished", UI.durationText(soonest)) or getText(KEY .. "RackNoneFinishedStopped")
 end
 
 -- The rack brought up to now at its place, and what the window shows.
@@ -126,6 +134,14 @@ function RackWindow:render()
     for _, row in ipairs(rackView.rows) do y = self:row(y, row[1], row[2]) end
     y = self:pieceList(y, KEY .. "RackHanging", rackView.pieces)
     local station, playerObj = self.station, self.playerObj
+    -- Take Done and Take All, as the menu's rows: greyed with the reason when there is nothing to take.
+    local done, all = rackView.doneIds, rackView.allIds
+    y = self:buttonRow(y, {
+        { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeDone", tostring(#done)), enabled = #done > 0,
+          tooltip = #done == 0 and rackView.waitText or nil, onClick = function() RackUI.take(playerObj, station, done) end },
+        { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeAllCount", tostring(#all)), enabled = #all > 0,
+          tooltip = #all > #done and getText(KEY .. "RackTakeAllHelp") or nil, onClick = function() RackUI.take(playerObj, station, all) end },
+    })
     y = self:dropZone(y, getText(KEY .. "RackDropIdle"), function(items)
         local rack, place = F.rackNow(station)
         return RackUI.dropJudge(rack, F.hangerOf(station), place, items)
@@ -302,10 +318,12 @@ local function firstPiece(rack, doneOnly)
     end
 end
 
-local function onTake(playerObj, station, ids)
-    if not ISEntityUI.WalkToEntity(playerObj, station) then return end
+-- Walks to the rack and queues a take a piece, by id.
+function RackUI.take(playerObj, station, ids)
+    if #ids == 0 or not ISEntityUI.WalkToEntity(playerObj, station) then return end
     for _, id in ipairs(ids) do ISTimedActionQueue.add(TPFMRack:new(playerObj, station, "take", nil, id)) end
 end
+local onTake = RackUI.take
 
 local function addRackMenu(context, playerObj, station)
     local rack, place = F.rackNow(station)
@@ -348,12 +366,7 @@ local function addRackMenu(context, playerObj, station)
     -- What the first finished piece comes off as (Salt Dried, Stockfish, Charque); greyed, the rack's own.
     local firstDone = firstPiece(rack, true)
     finished.iconTexture = firstDone and iconOfType(F.RACK_METHODS[firstDone.method].output) or rackIcon
-    if #done == 0 then
-        local soonest = #all > 0 and RackUI.soonestHours(rack, F.getLedger())
-        UI.disable(finished, #all == 0 and getText(KEY .. "RackNothingHanging")
-            or soonest and UI.say(KEY .. "RackNoneFinished", UI.durationText(soonest))
-            or getText(KEY .. "RackNoneFinishedStopped"))
-    end
+    if #done == 0 then UI.disable(finished, RackUI.waitText(rack, F.getLedger())) end
     if #all > #done then
         local takeAll = menu:addOption(getText("ContextMenu_TraditionalPreservationFishMeat_RackTakeAll"), playerObj, onTake, station, all)
         takeAll.iconTexture = iconOfType(firstPiece(rack).fullType)

@@ -1081,9 +1081,32 @@ function F.onCreateGutted(craftRecipeData, character)
 end
 
 -- OnTest sees every input, so the knife passes here too.
+-- Split Fish: a raw Gutted Fish too heavy for a frame (over STACK_WEIGHT) becomes two Fish Halves; a gutted fish at a
+-- later stage (user, session 53) halves at that stage: Salt Cured one too heavy for a frame, so it hangs there, and
+-- Salt Dried or Stockfish (always gutted) of any size worth halving (MIN_SLICE_WEIGHT). A whole fish salted with its
+-- guts, a half and a fillet don't split. OnTest sees the knife too.
+local SPLIT_STAGES = { [F.PRESSED_FISH] = F.STACK_WEIGHT, [F.SALT_DRIED] = F.MIN_SLICE_WEIGHT, [F.COLD_DRIED] = F.MIN_SLICE_WEIGHT }
+
 function F.canSplit(item, character)
-    if item:getFullType() ~= F.GUTTED_FISH then return true end
-    return item:getActualWeight() > F.STACK_WEIGHT
+    local fullType = item:getFullType()
+    if fullType == F.GUTTED_FISH then return item:getActualWeight() > F.STACK_WEIGHT end
+    local least = SPLIT_STAGES[fullType]
+    if not least then return true end
+    return F.wasGutted(item) and item:getActualWeight() > least
+end
+
+-- One half of a gutted fish at a later stage: its stage's markers (rinsed, ripening, maturing, the cure's spoilage)
+-- kept, half its food and weight, named and drawn as a half (the icons list each fish whole, gutted, then half).
+local function stageHalf(fish, half, halfName)
+    local modData = half:getModData()
+    for key, value in pairs(fish:getModData()) do
+        if type(value) ~= "table" then modData[key] = value end
+    end
+    modData.fishName = halfName
+    modData.sliceable = false
+    half:setModelIndex(fish:getModelIndex() + #F.FISH_ICONS)
+    if modData.rinsed then F.applyRinse(half) end
+    F.rename(half)
 end
 
 -- Each half keeps half the weight, not a fillet's share, so halves can't stack deep on a frame.
@@ -1096,12 +1119,15 @@ function F.onCreateSplit(craftRecipeData)
         copyFood(fish, half, 0.5)
         half:setActualWeight(fish:getActualWeight() / 2)
         half:setCustomWeight(true)
-
-        local modData = half:getModData()
-        modData.fishName = halfName
-        modData.sliceable = false
-        F.nameAs(half, halfName)
-        half:setModelIndex(fish:getModelIndex())
+        if half:getFullType() == F.FISH_HALF then
+            local modData = half:getModData()
+            modData.fishName = halfName
+            modData.sliceable = false
+            F.nameAs(half, halfName)
+            half:setModelIndex(fish:getModelIndex())
+        else
+            stageHalf(fish, half, halfName)
+        end
     end
 end
 

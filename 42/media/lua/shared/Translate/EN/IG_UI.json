@@ -182,7 +182,7 @@
   "IGUI_TraditionalPreservationFishMeat_RackNothingHanging": "Nothing hangs on it.",
   "IGUI_TraditionalPreservationFishMeat_RackNoneFinished": "Nothing finished yet: the next in %1, if the weather holds.",
   "IGUI_TraditionalPreservationFishMeat_RackNoneFinishedStopped": "Nothing finished yet, and nothing is drying now: see Info.",
-  "IGUI_TraditionalPreservationFishMeat_RackTakeAllHelp": "Pieces not done come off as they were hung.",
+  "IGUI_TraditionalPreservationFishMeat_RackTakeAllHelp": "Pieces not done come off as they were hung, less any keeping they lost while hanging.",
   "IGUI_TraditionalPreservationFishMeat_RackDoneNote": "%1 done: they keep on the rack as food keeps, until taken.",
   "IGUI_TraditionalPreservationFishMeat_InfoCorn": "Corning",
   "IGUI_TraditionalPreservationFishMeat_BoiledBone": "Boiled %1",
