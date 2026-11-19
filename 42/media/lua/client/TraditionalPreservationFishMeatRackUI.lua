@@ -164,6 +164,12 @@ function RackUI.waitText(rack, ledger)
 end
 
 -- The Smokehouse's fire word (Info.fireWord), nil for a rack.
+-- The icon of an item by its full type, for the drop square (nil if the item is gone).
+local function itemIcon(fullType)
+    local script = getScriptManager():FindItem(fullType)
+    return script and script:getNormalTexture()
+end
+
 local function fireOf(station)
     return Smokehouse.isChamber(station) and Info.fireWord(station) or nil
 end
@@ -178,7 +184,9 @@ local RackWindow = InfoWindow:derive("TraditionalPreservationFishMeatRackWindow"
 
 function RackWindow:new(playerObj, station)
     local o = InfoWindow.new(self, playerObj, station)
-    o.title = getText(KEY .. "RackTitle_" .. F.hangerOf(station).name)
+    local hanger = F.hangerOf(station).name
+    o.title = getText(KEY .. "RackTitle_" .. hanger)
+    o.widthKey = "TraditionalPreservationFishMeat." .. hanger   -- each rack keeps its own width
     return o
 end
 
@@ -205,7 +213,8 @@ function RackWindow:render()
     y = self:dropZone(y, getText(KEY .. (Smokehouse.isChamber(station) and "RackDropIdleChamber" or "RackDropIdle")), function(items)
         local rack, place = F.rackNow(station)
         return RackUI.dropJudge(rack, F.hangerOf(station), place, items)
-    end, function(take) RackUI.hang(playerObj, station, take) end)
+    end, function(take) RackUI.hang(playerObj, station, take) end,
+        itemIcon(Smokehouse.isChamber(station) and "Base.Steak" or "Base.YellowPerch"))
     self:drawNotes(y, rackView.notes)
 end
 

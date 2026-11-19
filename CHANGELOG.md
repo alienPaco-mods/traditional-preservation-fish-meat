@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.87
+- The rack's and the Smokehouse's drop squares show an icon of what they take (a Yellow Perch, a Steak).
+- Drying Frame, Hanging Beam, Gantry and Smokehouse Info each keep their own width when resized (Core 0.1.36).
+
 ## 0.4.86
 - The window rows read the station's full name and Info (Salting Tub Info, Drying Frame Info, Hanging Beam Info, Gantry Info, Smokehouse Info), as vanilla's Fireplace Info and
   Generator Info; the window's title is the bare name. The short "Vessel Info", "Tub Info" and the like are gone.
