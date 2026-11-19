@@ -198,6 +198,7 @@ check("Take Done (0) is there, greyed: nothing hangs", finished and finished.isD
 
 choose(bluegill.subOption.options[2])
 check("All queues one action a fish", #ui.queued == 3 and ui.queued[1].mode == "hang")
+check("the moves into the inventory come first and the walk keeps them (vanilla's order)", #ui.moved == 3 and ui.cleared == 0)
 runQueued()
 local rack = F.rackOf(frameObject)
 check("three hung, gone from the hands", F.rackCount(rack) == 3 and #ui.carried == 1)

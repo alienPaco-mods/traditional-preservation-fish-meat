@@ -1,5 +1,13 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.79
+- **Items move into the inventory before the walk** (user, session 53; vanilla's order): hanging on a rack (the menu
+  and the drop square) and the Salting Tub move every piece from a crate or a bag first, then walk (TP Core's `UI.walkTo`, keeping the queue), then act.
+- **The Smokehouse's pieces, step S1** (ROADMAP section 12; nothing changes in game yet): the chamber in the rack
+  record (90 kg, 150 pieces, 12 kg at most), its pieces counting the joined fire on their own (`F.smokeStep`), cooked
+  pieces Hot Smoked, dried ones Cold Smoked or air dried, sausages on their own code; a kept piece keeps whether it
+  was cooked (a boiled link).
+
 ## 0.4.78
 - **A rack is no cold store** (user, session 53): a piece counts the hours it hangs without drying at all (a shut room,
   the wrong place, frost, rain; `piece.stalled`, each look), and taken off early it is aged by them at vanilla's pace,

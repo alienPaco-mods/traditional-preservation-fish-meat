@@ -11,7 +11,8 @@ local F = TraditionalPreservationFishMeat
 local Station = require "TraditionalPreservationCore/Station"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Weather = require "TraditionalPreservationCore/Weather"
-require "TraditionalPreservationFishMeatSmokehouse"   -- F.startSmoke, F.smokedItem
+require "TraditionalPreservationFishMeatSmokehouse"   -- F.startSmoke, F.smokeStep, F.smokedItem
+local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 
 F.RACK_KEY = "tpfmRack"       -- a rack's record in its movableData; never rename once the mod is out
 
@@ -22,6 +23,8 @@ F.RACK_LIMITS = {
     frame = { total = 20, heaviest = 2.5, pieces = 200 },
     medium = { total = 60, heaviest = 5, pieces = 48 },
     large = { total = 100, heaviest = 12, pieces = 12 },
+    -- TP Core's Smokehouse (ROADMAP section 12, the Smokehouse's S1; item 2's table).
+    chamber = { total = 90, heaviest = 12, pieces = 150 },
 }
 
 -- What each way of hanging needs and gives, by F.hangMethod: the hours at a rate of 1 (read when asked: the sandbox
@@ -33,6 +36,10 @@ local METHODS = {
         output = F.COLD_DRIED, styles = function() return F.pickStyle(F.COLD_STYLES) end },
     meat = { hours = function(state) return F.meatHours(state) end, step = function(state, ledger) F.charqueStep(state, ledger) end,
         output = F.CHARQUE, styles = function() return F.STYLE_MEAT end, smoke = true, isMeat = true },
+    -- In the Smokehouse only: links that dry nothing, only take smoke (blood sausage) or a hot run (Fresh Sausage),
+    -- on the sausages' own code (TraditionalPreservationFishMeatBlood.lua).
+    sausage = { step = function() end, styles = function() return F.STYLE_MEAT end, sausage = true },
+    freshSausage = { step = function() end, styles = function() return F.STYLE_MEAT end, sausage = "pork" },
 }
 F.RACK_METHODS = METHODS
 
@@ -80,7 +87,12 @@ function F.hangPiece(rack, item, place, ledger, now)
     piece.method = F.hangMethod(piece.fullType)
     piece.lastLook = now
     local method = METHODS[piece.method]
-    local state = { dried = 0, spoiled = piece.data.cureSpoiled or 0, stackId = now, place = place }
+    local state = {}
+    -- A sausage's counters first: its start clears the state it is given.
+    if method.sausage then
+        F.startSausageSmoke(state, listOf(item), now, FluidAgeing.foodRotSpeed(), method.sausage == "pork" and "pork" or nil)
+    end
+    state.dried, state.spoiled, state.stackId, state.place = 0, piece.data.cureSpoiled or 0, now, place
     F.markStack(state, ledger)
     if method.smoke then F.startSmoke(state, listOf(F.keptItem(piece)), method.isMeat == true) end
     state.style = method.styles()
@@ -90,9 +102,19 @@ function F.hangPiece(rack, item, place, ledger, now)
     return piece
 end
 
+-- A sausage's share: its smoke (or hot run) against its need, full once smoked or once it went stale (at the last
+-- look), as its stack's bar was (F.sausageProgress, without the wait for the World).
+local function sausageShare(piece)
+    local state = piece.state
+    if state.smokedAt or state.staleAt and (piece.lastLook or 0) >= state.staleAt then return 1 end
+    local smoke, need = F.sausageSmoke(state)
+    return math.min(smoke / need, F.SHED_WAIT)
+end
+
 -- A piece's share done (0 to 1; a rotten one counts as done), and whether it rotted.
 function F.pieceProgress(piece)
     local state = piece.state
+    if METHODS[piece.method].sausage then return sausageShare(piece), false end
     if F.stackRotten(state) then return 1, true end
     return F.stackProgress(state, METHODS[piece.method].hours(state)), false
 end
@@ -105,7 +127,11 @@ end
 -- stops there, its hour kept: from then it ages as food does. A piece that didn't dry at all since the last look
 -- (a shut room, the wrong place, frost, rain) counts those hours as stalled: drying keeps food, standing still doesn't
 -- (F.earlyOutput ages a piece taken off early by them). A piece hung before pieces had ids gets one here.
-function F.updateRack(rack, place, ledger, now)
+-- In the Smokehouse (place Smokehouse.PLACE) each piece also counts the joined Stone Hearth's fire (fire, its
+-- fireModData, or nil: F.smokeStep, its own stoked run and smoke) and is done once its cook is (F.hotDone); a
+-- sausage notes when its smoke was done (F.sausageSmokeStep).
+function F.updateRack(rack, place, ledger, now, fire)
+    local inShed = place == Smokehouse.PLACE
     for _, piece in ipairs(rack.pieces or {}) do
         if not piece.id then
             rack.nextId = (rack.nextId or 0) + 1
@@ -113,12 +139,16 @@ function F.updateRack(rack, place, ledger, now)
         end
         if not F.pieceDone(piece) then
             local state, before = piece.state, piece.state.dried
+            local method = METHODS[piece.method]
             state.place = place
-            METHODS[piece.method].step(state, ledger)
+            method.step(state, ledger)
+            if inShed then F.smokeStep(state, fire, ledger) end
+            if method.sausage then F.sausageSmokeStep(state, now) end
+            if inShed and not method.sausage and F.hotDone(state) then state.cooked = true end
             local elapsed = now - (piece.lastLook or piece.hour or now)
             if elapsed > 0 and state.dried <= before then piece.stalled = (piece.stalled or 0) + elapsed end
             piece.lastLook = now
-            if F.pieceProgress(piece) >= 1 then piece.doneHour = now end
+            if state.cooked or F.pieceProgress(piece) >= 1 then piece.doneHour = now end
         end
     end
 end
@@ -175,10 +205,20 @@ end
 -- was hung, with what the hanging spoiled taken off its keeping (F.earlyOutput).
 function F.rackOutput(piece, now)
     local state, source = piece.state, F.keptItem(piece)
+    -- A link comes down smoked if its smoke was done before it went stale, else as it was, aged by its days hung.
+    if METHODS[piece.method].sausage then
+        return F.smokedLink(F.itemFromKept(piece), state, now or piece.lastLook, FluidAgeing.foodRotSpeed())
+    end
     if not F.pieceDone(piece) then return F.earlyOutput(piece) end
     local item
     if F.stackRotten(state) then
         item = F.rottenStage(source, state)
+    elseif state.cooked then
+        -- Its cook done in the Smokehouse: Hot Smoked (pork as vanilla's Ham).
+        item = F.smokedItem(source, state, F.HOT_FISH, F.HOT_MEAT)
+    elseif F.inShed(state) and (F.coldDone(state) or state.smokeMeat) then
+        -- Dried in the shed: with its hours of smoke Cold Smoked (meat Dry Cured, smoked); meat short of them air dried.
+        item = F.smokedItem(source, state, F.COLD_FISH_OUT, F.DRY_CURED, not F.coldDone(state))
     elseif piece.method == "meat" and not F.inShed(state) and F.dryCuring(state) then
         item = F.smokedItem(source, state, F.COLD_FISH_OUT, F.DRY_CURED, true)
     else
@@ -278,10 +318,11 @@ end
 
 -- Engine side
 
--- Whether an object is one of the three racks (not the tub, not the Smokehouse).
+-- Whether an object is one of the three racks (not the tub, not the Smokehouse: its pieces have a record of their
+-- own kind, but it keeps its crafting window until the switch-over, S4).
 function F.isRack(isoObject)
     local hanger = F.hangerOf(isoObject)
-    return hanger ~= nil and F.RACK_LIMITS[hanger.name] ~= nil
+    return hanger ~= nil and not hanger.closed and F.RACK_LIMITS[hanger.name] ~= nil
 end
 
 function F.rackOf(station)
@@ -291,8 +332,12 @@ function F.rackOf(station)
 end
 
 -- A rack's record brought up to now at the place it stands (Weather.placeOf), and that place.
+-- The Smokehouse's place is always Smokehouse.PLACE, and its pieces count the joined Stone Hearth's fire.
 function F.rackNow(station)
-    local rack, place = F.rackOf(station), Weather.placeOf(station)
-    F.updateRack(rack, place, F.getLedger(), getGameTime():getWorldAgeHours())
+    local hanger = F.hangerOf(station)
+    local closed = hanger ~= nil and hanger.closed
+    local rack = F.rackOf(station)
+    local place = closed and Smokehouse.PLACE or Weather.placeOf(station)
+    F.updateRack(rack, place, F.getLedger(), getGameTime():getWorldAgeHours(), closed and Smokehouse.fireOf(station) or nil)
     return rack, place
 end

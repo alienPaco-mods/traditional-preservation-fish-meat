@@ -33,12 +33,15 @@ local function tubNow(station)
     return F.tubOf(station)
 end
 
--- One action a piece (false: an action with none); carry is brought into the inventory first (the board and stone).
+-- One action a piece (false: an action with none). Everything is moved into the inventory first (carry: the
+-- board and stone), then the walk, then the actions: vanilla's order.
 local function queue(playerObj, station, mode, items, carry, method)
-    if not ISEntityUI.WalkToEntity(playerObj, station) then return end
     for _, item in ipairs(carry or {}) do ISInventoryPaneContextMenu.transferIfNeeded(playerObj, item) end
-    for _, item in ipairs(items or { false }) do
+    for _, item in ipairs(items or {}) do
         if item then ISInventoryPaneContextMenu.transferIfNeeded(playerObj, item) end
+    end
+    if not UI.walkTo(playerObj, station) then return end
+    for _, item in ipairs(items or { false }) do
         ISTimedActionQueue.add(TPFMSaltingTub:new(playerObj, station, mode, item or nil, method))
     end
 end

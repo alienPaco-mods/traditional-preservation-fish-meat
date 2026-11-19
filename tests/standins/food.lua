@@ -30,7 +30,8 @@ return function(fullType, values, modelIndex)
     function food:getAge() return self.age or 0 end
     function food:isRotten() return false end
     function food:isFrozen() return false end
-    function food:isCooked() return false end
+    function food:isCooked() return self.cooked == true end
+    function food:setCooked(cooked) self.cooked = cooked end
     function food:isBurnt() return false end
     function food:getTexture() return "icon:" .. self.fullType end
     return food

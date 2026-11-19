@@ -86,7 +86,8 @@ end
 function F.keptPiece(item, hour)
     local piece = { fullType = item:getFullType(), age = item:getAge(), hour = hour, food = {},
         weight = item:getActualWeight(), customWeight = item:isCustomWeight(), name = item:getDisplayName(),
-        modelIndex = item:getModelIndex(), uncut = item:hasTag(ItemTag.UNCUT_FISH), data = copyValue(item:getModData()) }
+        modelIndex = item:getModelIndex(), uncut = item:hasTag(ItemTag.UNCUT_FISH), data = copyValue(item:getModData()),
+        cooked = item:isCooked() or nil }
     for _, field in ipairs(FOOD_FIELDS) do piece.food[field] = item["get" .. field](item) end
     return piece
 end
@@ -113,6 +114,7 @@ function F.keptItem(piece)
     function stored:getModelIndex() return piece.modelIndex end
     function stored:hasTag(tag) return tag == ItemTag.UNCUT_FISH and piece.uncut end
     function stored:getAge() return piece.age end
+    function stored:isCooked() return piece.cooked == true end
     for _, field in ipairs(FOOD_FIELDS) do
         stored["get" .. field] = function() return piece.food[field] end
     end
@@ -236,6 +238,7 @@ function F.itemFromKept(piece)
     local modData = item:getModData()
     for key, value in pairs(piece.data or {}) do modData[key] = copyValue(value) end
     if piece.modelIndex and piece.modelIndex >= 0 then item:setModelIndex(piece.modelIndex) end
+    if piece.cooked then item:setCooked(true) end
     item:setAge(piece.age)
     return item
 end

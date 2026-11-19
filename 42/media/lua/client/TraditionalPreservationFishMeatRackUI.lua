@@ -292,13 +292,13 @@ local function hangable(item)
     return instanceof(item, "Food") and F.fishRefusal(item:getFullType()) == nil
 end
 
--- Walks to the rack and queues a hang a piece, each brought to hand first (from a loot window, a bag).
+-- Moves the pieces into the inventory (from a loot window, a bag; not equipped), then walks to the rack and queues a hang a piece:
+-- vanilla's order, so a crate left behind is no matter.
 function RackUI.hang(playerObj, station, items)
-    if #items == 0 or not ISEntityUI.WalkToEntity(playerObj, station) then return end
-    for _, item in ipairs(items) do
-        ISInventoryPaneContextMenu.transferIfNeeded(playerObj, item)
-        ISTimedActionQueue.add(TPFMRack:new(playerObj, station, "hang", item))
-    end
+    if #items == 0 then return end
+    for _, item in ipairs(items) do ISInventoryPaneContextMenu.transferIfNeeded(playerObj, item) end
+    if not UI.walkTo(playerObj, station) then return end
+    for _, item in ipairs(items) do ISTimedActionQueue.add(TPFMRack:new(playerObj, station, "hang", item)) end
 end
 local onHang = RackUI.hang
 
@@ -320,7 +320,7 @@ end
 
 -- Walks to the rack and queues a take a piece, by id.
 function RackUI.take(playerObj, station, ids)
-    if #ids == 0 or not ISEntityUI.WalkToEntity(playerObj, station) then return end
+    if #ids == 0 or not UI.walkTo(playerObj, station) then return end
     for _, id in ipairs(ids) do ISTimedActionQueue.add(TPFMRack:new(playerObj, station, "take", nil, id)) end
 end
 local onTake = RackUI.take

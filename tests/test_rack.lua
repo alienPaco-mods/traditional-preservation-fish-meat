@@ -18,10 +18,15 @@ function ZombRand() return 0 end
 ItemTag = { UNCUT_FISH = "uncut", SALT = "salt", FISH_MEAT = "fishmeat" }
 H.installGetText()
 function getItemNameFromFullType(fullType) return (fullType:gsub("^[^.]*%.", "")) end
-Events = { OnInitGlobalModData = { Add = function() end } }
+H.installEvents()
 ScriptManager = { instance = { getCraftRecipe = function() return { Load = function() end } end } }
 dofile("42/media/lua/shared/TraditionalPreservationFishMeat.lua")
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatSmokehouse.lua")
+-- The sausages' code (the Smokehouse's links), without vanilla's animal tables.
+AnimalDefinitions, AnimalPartsDefinitions = { animals = {} }, { animals = {} }
+for _, name in ipairs({ "Cow", "Pig", "Sheep", "Deer", "AnimalParts" }) do package.loaded["Definitions/animal/" .. name .. "Definitions"] = true end
+dofile("42/media/lua/shared/TraditionalPreservationFishMeatBlood.lua")
+dofile("42/media/lua/shared/TraditionalPreservationFishMeatSausage.lua")
 local T = TraditionalPreservationFishMeat
 
 local function near(a, b) return math.abs(a - b) < 1e-6 end
@@ -208,5 +213,57 @@ three.pieces[1].id, three.pieces[1].doneHour = nil, hours
 T.updateRack(three, "Open", ledger, hours)
 check("a piece hung without an id gets a new one at the next look, and is listed done", three.pieces[1].id > three.pieces[3].id
     and #T.pieceIds(three, true) == 1 and T.pieceIds(three, true)[1] == three.pieces[1].id)
+
+-- The Smokehouse (S1): its pieces count the joined fire on their own, and come off as its stacks did.
+local Fire = require "TraditionalPreservationCore/Fire"
+local SHED = require("TraditionalPreservationCore/Smokehouse").PLACE
+local COOL = { temperature = 8, humidity = 0.4, precipitation = 0 }
+local chamber, shedFire = {}, {}
+local CHAMBER = T.CHAMBER_HANGER
+check("the Smokehouse takes 90 kg, 150 pieces, 12 kg at most, and sausages", T.rackRefusal({}, CHAMBER, SHED, fish(PRESSED, 12)) == nil
+    and T.rackRefusal({}, CHAMBER, SHED, fish(PRESSED, 12.1)) == R.tooHeavy
+    and T.rackRefusal({}, CHAMBER, SHED, newFood(T.FRESH_SAUSAGE, { ActualWeight = 0.2 })) == nil
+    and T.rackRefusal({}, CHAMBER, SHED, fish(GUTTED, 1)) == R.noColdIndoors)
+Fire.logFire(shedFire, hours, nil, nil)
+local hot = T.hangPiece(chamber, fish(PRESSED, 1), SHED, ledger, hours)
+T.updateRack(chamber, SHED, ledger, hours, shedFire)
+Fire.logFire(shedFire, hours + 0.5, Fire.STOKED, hours + 30)
+Fire.logFire(shedFire, hours + 8, Fire.STOKED, hours + 30)
+hours = hours + 8
+T.advance(ledger, hours, MILD)
+T.updateRack(chamber, SHED, ledger, hours, shedFire)
+check("a stoked run long enough cooks a salt fish: done, Hot Smoked", T.pieceDone(hot) and hot.state.cooked
+    and T.rackOutput(hot, hours).fullType == T.HOT_FISH)
+check("a rack's piece never counts a fire", not T.pieceDone(T.hangPiece({}, fish(PRESSED, 1), "Open", ledger, hours)))
+
+local smokehouse, banked = {}, {}
+Fire.logFire(banked, hours, nil, nil)
+local link = newFood(T.BLOOD_SAUSAGE, { ActualWeight = 0.2 })
+link.cooked = true
+local sausage = T.hangPiece(smokehouse, link, SHED, ledger, hours)
+local beef = newFood(MEAT, { ActualWeight = 0.4 }, 0)
+beef:getModData().longCure = true
+local cured = T.hangPiece(smokehouse, beef, SHED, ledger, hours)
+T.updateRack(smokehouse, SHED, ledger, hours, banked)
+check("a sausage piece takes the sausages' counters", sausage.state.sausage == true and sausage.state.smokeNeed == T.SMOKED_SAUSAGE_HOURS
+    and T.pieceProgress(sausage) == 0)
+for _ = 1, 10 do
+    Fire.logFire(banked, hours + 0.5, Fire.BANKED, hours + 200)
+    hours = hours + 12
+    Fire.logFire(banked, hours, Fire.BANKED, hours + 200)
+    T.advance(ledger, hours, COOL)
+    T.updateRack(smokehouse, SHED, ledger, hours, banked)
+end
+check("banked on cool days, the blood sausage has its smoke and is done", T.pieceDone(sausage) and sausage.state.smokedAt ~= nil)
+check("it comes off Smoked Blood Sausage", T.rackOutput(sausage, hours).fullType == T.SMOKED_BLOOD_SAUSAGE)
+check("the Country Cured beef counts its own smoke", (cured.state.coldSmokeHours or 0) > 0 and not T.pieceDone(cured))
+cured.state.dried = cured.state.cureNeed
+T.updateRack(smokehouse, SHED, ledger, hours, banked)
+check("dried with its smoke: Beef (Cold Smoked), not Charque", T.pieceDone(cured) and T.coldDone(cured.state)
+    and T.rackOutput(cured, hours).fullType == T.DRY_CURED and T.rackOutput(cured, hours):getModData().airDried == nil)
+local airDried = T.hangPiece({}, beef, SHED, ledger, hours)
+airDried.state.dried, airDried.doneHour = airDried.state.cureNeed, hours
+check("short of its smoke it comes off air dried", T.rackOutput(airDried, hours):getModData().airDried == true)
+check("the Smokehouse is no rack for the menu yet", T.CHAMBER_HANGER.closed and T.RACK_LIMITS.chamber ~= nil)
 
 H.done()
