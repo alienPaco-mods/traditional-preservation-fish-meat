@@ -27,6 +27,11 @@ function instanceItem(fullType) return newFood(fullType) end
 
 dofile("42/media/lua/shared/TraditionalPreservationFishMeat.lua")
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatSmokehouse.lua")
+-- The sausages' code (the Smokehouse's links), without vanilla's animal tables.
+AnimalDefinitions, AnimalPartsDefinitions = { animals = {} }, { animals = {} }
+for _, name in ipairs({ "Cow", "Pig", "Sheep", "Deer", "AnimalParts" }) do package.loaded["Definitions/animal/" .. name .. "Definitions"] = true end
+dofile("42/media/lua/shared/TraditionalPreservationFishMeatBlood.lua")
+dofile("42/media/lua/shared/TraditionalPreservationFishMeatSausage.lua")
 dofile("42/media/lua/client/TraditionalPreservationFishMeatRackUI.lua")
 local F, RackUI = TraditionalPreservationFishMeat, TraditionalPreservationFishMeatRackUI
 local KEY = "IGUI_TraditionalPreservationFishMeat_"
@@ -163,5 +168,36 @@ for _ = 1, 7 do F.hangPiece(almost, fish(F.PRESSED_FISH, 2.5, "Big"), "Open", le
 judged = RackUI.dropJudge(almost, frame, "Open", { fish(F.PRESSED_FISH, 2, "A"), fish(F.PRESSED_FISH, 2, "B"), fish(F.PRESSED_FISH, 0.4, "C") })
 check("more than the room: the lightest that fit, the rest refused as full", #judged.take == 2 and judged.take[1]:getActualWeight() == 0.4
     and judged.refused == "Full: no room for another piece." and judged.lines[3] == "Some items will be rejected.")
+
+-- Smokehouse Info (S3): the fire among the place rows, each piece's own smoke under its bar, a link's popup.
+local SHED = require("TraditionalPreservationCore/Smokehouse").PLACE
+local CHAMBER = F.CHAMBER_HANGER
+local shed = {}
+local smoked = F.hangPiece(shed, fish(F.PRESSED_FISH, 1, "Walleye (Salt Cured)"), SHED, ledger, 1000)
+smoked.state.coldSmokeHours = 12
+local cooking = F.hangPiece(shed, fish(F.PRESSED_FISH, 1, "Pike (Salt Cured)"), SHED, ledger, 1000)
+cooking.state.hotSmokeHours = 2
+local link = newFood(F.BLOOD_SAUSAGE, { ActualWeight = 0.2, OffAge = 5 })
+link.name, link.cooked = "Blood Sausage", true
+local hung = F.hangPiece(shed, link, SHED, ledger, 1000)
+shown = RackUI.view(shed, CHAMBER, SHED, ledger, 1000, "stoked")
+check("Smokehouse Info: what it holds by the Smokehouse's limits, and the fire", valueOf(shown, "InfoHolds") == "3 of 150 pieces, 2.2 of 90 kg, up to 12 kg each"
+    and valueOf(shown, "InfoFire") == "Stoked (hot)")
+check("a rack has no fire row", valueOf(RackUI.view({}, frame, "Open", ledger, 1000), "InfoFire") == nil)
+check("a fish's smoke under its bar", shown.pieces[1].note == "12.0 of 24 h of smoke")
+check("a run cooking it comes first", shown.pieces[2].note:find("^2%.0 of %d+ h stoked in a row, 0%.0 of 24 h of smoke$") ~= nil)
+check("a link's smoke and its days to stale", shown.pieces[3].note:find("^0%.0 of %d+ h of smoke, stale in %d") ~= nil
+    and shown.pieces[3].group == "Smoked blood sausage")
+check("a rack's piece has no line under its bar", RackUI.pieceRow(salt, ledger, 1000).note == nil)
+lines = {}
+shown.pieces[3].popup(tooltip)
+check("a link's popup: its smoking, what it comes down as, the fire, when it goes stale", lines[1].value == "Cold smoking (blood sausage)"
+    and lines[2].value == "BloodSausage" and lines[3].label == "Stone Hearth:" and lines[4].value:find("goes stale in", 1, true) ~= nil)
+groups = RackUI.hangGroups(shed, CHAMBER, SHED, { named(F.GUTTED_FISH, 1, "Perch (Gutted)"), sausage, country })
+check("the Smokehouse's Hang groups: gutted fish refused for its still air, Country Cured and sausages open", groupNames() == "cold,country,sausage"
+    and groups[1].refusal == getText(F.REFUSALS.noColdIndoors) and groups[2].refusal == nil and groups[3].refusal == nil)
+check("too heavy for the Smokehouse names its own limit", RackUI.refusalText(F.REFUSALS.tooHeavy, CHAMBER, fish(F.PRESSED_FISH, 12.5))
+    == "Too heavy for the Smokehouse: 12.5 kg. It takes pieces up to 12 kg.")
+check("a link has no hours left to wait on", RackUI.soonestHours({ pieces = { hung } }, ledger) == nil)
 
 H.done()

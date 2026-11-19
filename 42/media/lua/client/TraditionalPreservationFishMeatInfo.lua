@@ -139,13 +139,19 @@ function Info.rows(found, ledger, now, fire)
     return { rows = rows, bars = bars, notes = notes }
 end
 
--- The joined Stone Hearth's fire, for a Smokehouse; nil for any other station.
-local function fireOf(found)
-    if not (found.hanger and found.hanger.closed) then return nil end
-    local stoneHearth = Smokehouse.joinedStoneHearth(found.station)
+-- The fire of the Stone Hearth joined to a Smokehouse tile, as Info.placeRows takes it: "none", "out", "banked" or
+-- "stoked".
+function Info.fireWord(chamberTile)
+    local stoneHearth = Smokehouse.joinedStoneHearth(chamberTile)
     if not stoneHearth then return "none" end
     if Fire.isBanked(stoneHearth) then return "banked" end
     return Fire.isBurning(stoneHearth) and "stoked" or "out"
+end
+
+-- The joined Stone Hearth's fire, for a Smokehouse; nil for any other station.
+local function fireOf(found)
+    if not (found.hanger and found.hanger.closed) then return nil end
+    return Info.fireWord(found.station)
 end
 
 -- The block in the station's own window (Core's StationInfo), for the mod's stations only: looked up by sprite

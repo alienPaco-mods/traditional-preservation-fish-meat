@@ -1,5 +1,15 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.81
+- **Smokehouse step S3: its menu and Smokehouse Info** (ROADMAP section 12). Right-click any tile of the Smokehouse:
+  a Smokehouse submenu as the racks have (what it holds, Info, Hang groups with Hang Sausages, poultry and rabbit under
+  Hang Corned Meat, Take Done, Take Everything Off), with the joined Stone Hearth's fire on the status row's hover.
+  Smokehouse Info is Rack Info with a Fire row, each piece's own smoke under its bar (a hot run counting, cold smoke
+  against its need, a link's days to stale), a link's own popup, the buttons and the drop square. The crafting window
+  stays until S4; pieces hung from the new menu are counted when the menu or Info looks (the World steps them from S4).
+  `F.rackPlace` gives the Smokehouse's place to the hang check too, and Take Done's icon shows what the first finished
+  piece comes off as (`F.pieceOutputType`: Hot Smoked, Cold Smoked, Dry Cured, the smoked links).
+
 ## 0.4.80
 - **Smokehouse step S2** (nothing changes in game yet): its record on TP Core's record tile, and its finished pieces
   counted for the shed's door look. The Smokehouse's build is TP Core's: Carpentry 5 and 2 large hooks now (docs).

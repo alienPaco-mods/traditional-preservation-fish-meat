@@ -236,6 +236,21 @@ function F.rackOutput(piece, now)
     return item
 end
 
+-- The kind a done piece comes off as, for a menu icon only (F.rackOutput makes the real one: a leg's Country Ham,
+-- pork's Ham and a rotted piece aren't told apart here). A link that went stale before its smoke comes off as it was.
+function F.pieceOutputType(piece)
+    local state, method = piece.state, METHODS[piece.method]
+    if method.sausage then
+        local smoked = state.smokedAt and not (state.staleAt and state.staleAt <= state.smokedAt)
+        if not smoked then return piece.fullType end
+        return method.sausage == "pork" and F.SMOKED_SAUSAGE or F.SMOKED_BLOOD_SAUSAGE
+    end
+    if state.cooked then return method.isMeat and F.HOT_MEAT or F.HOT_FISH end
+    if F.inShed(state) then return method.isMeat and F.DRY_CURED or F.COLD_FISH_OUT end
+    if method.isMeat and F.dryCuring(state) then return F.DRY_CURED end
+    return method.output
+end
+
 -- What shows on the rack (ROADMAP section 12, item 7): a spot each total / spots kg, as many in use as the weight hung
 -- fills. The spots in use are shared out by kind (salt fish, gutted fish, meat: the method), so a mixed rack shows
 -- each kind: every kind gets one spot, the rest go one by one to the kind with the most weight a spot; a rack with more
@@ -319,7 +334,8 @@ end
 -- Engine side
 
 -- Whether an object is one of the three racks (not the tub, not the Smokehouse: its pieces have a record of their
--- own kind, but it keeps its crafting window until the switch-over, S4).
+-- own kind and its menu is the racks' (RackUI.isHanger), but the World draws it through its crafting window until
+-- the switch-over, S4).
 function F.isRack(isoObject)
     local hanger = F.hangerOf(isoObject)
     return hanger ~= nil and not hanger.closed and F.RACK_LIMITS[hanger.name] ~= nil
@@ -341,12 +357,17 @@ Smokehouse.countsFinished(function(recordTile)
     return rack and #F.pieceIds(rack, true) or 0
 end)
 
--- The Smokehouse's place is always Smokehouse.PLACE, and its pieces count the joined Stone Hearth's fire.
-function F.rackNow(station)
+-- Where a rack's pieces hang: the Smokehouse's place is always Smokehouse.PLACE, a rack's where it stands.
+function F.rackPlace(station)
     local hanger = F.hangerOf(station)
-    local closed = hanger ~= nil and hanger.closed
-    local rack = F.rackOf(station)
-    local place = closed and Smokehouse.PLACE or Weather.placeOf(station)
-    F.updateRack(rack, place, F.getLedger(), getGameTime():getWorldAgeHours(), closed and Smokehouse.fireOf(station) or nil)
+    if hanger and hanger.closed then return Smokehouse.PLACE end
+    return Weather.placeOf(station)
+end
+
+-- The Smokehouse's pieces count the joined Stone Hearth's fire.
+function F.rackNow(station)
+    local rack, place = F.rackOf(station), F.rackPlace(station)
+    F.updateRack(rack, place, F.getLedger(), getGameTime():getWorldAgeHours(),
+        place == Smokehouse.PLACE and Smokehouse.fireOf(station) or nil)
     return rack, place
 end

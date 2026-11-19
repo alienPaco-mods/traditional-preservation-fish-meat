@@ -1,15 +1,17 @@
--- Traditional Preservation (Fish & Meat): the right-click menu of a Drying Frame, a Hanging Beam or a Gantry (what it
--- holds, Info, a Hang submenu a group (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages) with a row
--- for each kind carried, One / All, Take Done, Take Everything Off; TPFMRack does the hand
+-- Traditional Preservation (Fish & Meat): the right-click menu of a Drying Frame, a Hanging Beam, a Gantry or TP Core's
+-- Smokehouse (what it holds, Info, a Hang submenu a group (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat,
+-- Sausages) with a row for each kind carried, One / All, Take Done, Take Everything Off; TPFMRack does the hand
 -- jobs) and Rack Info, its info window (TP Core's InfoWindow, its pieces in TP Core's scrolling list). The place rows (Info.placeRows), what the rack holds,
 -- then one row a piece: its bar and text from the stack status it always had (Info.batch on the piece's own state),
 -- its process for the by-process sort, and a popup with its method, what it comes out as, the time left and any
--- warning. Opening it brings the rack up to now, as the World's look does.
+-- warning. Opening it brings the rack up to now, as the World's look does. Smokehouse Info adds the joined Stone
+-- Hearth's fire to the place rows and each piece's own smoke under its bar.
 require "TraditionalPreservationFishMeatInfo"
 require "TimedActions/TPFMRack"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
 local PiecesUI = require "TraditionalPreservationCore/PiecesUI"
 local UI = require "TraditionalPreservationCore/UI"
+local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local F = TraditionalPreservationFishMeat
 local Info = TraditionalPreservationFishMeatInfo
 
@@ -36,9 +38,29 @@ local function iconOf(piece)
     return icon or nil
 end
 
+-- A link's popup: its smoking, what it comes down as, what the fire does for it, and when it goes stale.
+local function drawSausagePopup(tooltip, piece, ledger, now)
+    local status = F.sausageStatus(piece.state, ledger, now)
+    UI.drawTooltip(tooltip, function(layout)
+        UI.addLine(layout, KEY .. "Method", getText(status.hot and KEY .. "MethodSmokedSausage" or KEY .. "MethodSausage"))
+        UI.addLine(layout, KEY .. "ComesOutAs", getItemNameFromFullType(F.pieceOutputType(piece)))
+        if F.pieceDone(piece) then
+            UI.addLine(layout, KEY .. "TimeLeft", getText(KEY .. "RackDone"))
+        else
+            UI.addLine(layout, KEY .. "InfoFire", getText(KEY .. "Sausage" .. status.fireEffect),
+                status.fireEffect ~= (status.hot and "Cooking" or "Smoking") and UI.SLOW_COLOUR or nil)
+        end
+        if status.staleDays then
+            UI.addLine(layout, KEY .. "Spoilage", UI.say(KEY .. (status.hot and "FreshSausageStaleIn" or "SausageStaleIn"),
+                string.format("%.1f", status.staleDays)), UI.WARNING_COLOUR)
+        end
+    end)
+end
+
 -- The popup: method, what it comes out as, time left (or why it stopped) and its warnings. The place and the
 -- weather are the window's rows.
-local function drawPopup(tooltip, piece, ledger)
+local function drawPopup(tooltip, piece, ledger, now)
+    if F.RACK_METHODS[piece.method].sausage then return drawSausagePopup(tooltip, piece, ledger, now) end
     local state, method = piece.state, piece.method
     local isCold, isMeat = method == "cold", method == "meat"
     local status = isMeat and F.charqueStatus(state, ledger) or F.stackStatus(isCold, state, ledger)
@@ -65,13 +87,38 @@ local function drawPopup(tooltip, piece, ledger)
     end)
 end
 
--- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first.
+-- The Smokehouse's line under a piece's bar (panel C of art/rack_window_mock.png): its own smoke since it was hung.
+-- A hot run counting (always for poultry, rabbit and Fresh Sausage), then its cold smoke against its need, and a
+-- link's days to stale until it is smoked.
+function RackUI.smokeNote(piece, now)
+    local state, parts = piece.state, {}
+    local function hours(key, have, need)
+        table.insert(parts, UI.say(KEY .. key, string.format("%.1f", have or 0), string.format("%.0f", need)))
+    end
+    if F.RACK_METHODS[piece.method].sausage then
+        local smoke, need = F.sausageSmoke(state)
+        hours(state.sausage == "pork" and "HotSmokeHours" or "ColdSmokeNeed", smoke, need)
+        if not state.smokedAt and state.staleAt and state.staleAt > now then
+            table.insert(parts, UI.say(KEY .. "RackStaleIn", string.format("%.1f", (state.staleAt - now) / 24)))
+        end
+    else
+        if state.hotSmokeHoursNeeded and not state.noHotSmoke and (state.hotOnly or F.cookShare(state)) then
+            hours("HotSmokeHours", state.hotSmokeHours, state.hotSmokeHoursNeeded)
+        end
+        if not state.hotOnly and state.smokeNeed then hours("ColdSmokeNeed", state.coldSmokeHours, state.smokeNeed) end
+    end
+    return #parts > 0 and table.concat(parts, ", ") or nil
+end
+
+-- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first. In the
+-- Smokehouse each row has its smoke under the bar.
 function RackUI.pieceRow(piece, ledger, now)
-    local batch = Info.batch(piece.method, piece.state, ledger, now)
+    local batch = Info.batch(piece.method == "freshSausage" and "sausage" or piece.method, piece.state, ledger, now)
     local progress, rotten = F.pieceProgress(piece)
     local row = { name = piece.name, group = getText(batch.name), share = progress, text = batch.progressText,
         colour = batch.slow and Info.SLOW_COLOUR or Info.GOOD_COLOUR, weather = batch.weather,
-        popup = function(tooltip) drawPopup(tooltip, piece, ledger) end }
+        note = F.inShed(piece.state) and RackUI.smokeNote(piece, now) or nil,
+        popup = function(tooltip) drawPopup(tooltip, piece, ledger, now) end }
     if rotten then
         row.text, row.colour = getText(KEY .. "OutcomeRotten"), ROTTEN_COLOUR
     elseif F.pieceDone(piece) then
@@ -81,8 +128,8 @@ function RackUI.pieceRow(piece, ledger, now)
 end
 
 -- Everything Rack Info shows: { rows (label key, value), pieces (list rows), notes }. hanger is the rack's
--- (F.hangerOf), place where it stands.
-function RackUI.view(rack, hanger, place, ledger, now)
+-- (F.hangerOf), place where it stands; fire the Smokehouse's (Info.fireWord), nil for a rack.
+function RackUI.view(rack, hanger, place, ledger, now, fire)
     local limits = F.RACK_LIMITS[hanger.name]
     local holds = UI.say(KEY .. "RackHolds", tostring(F.rackCount(rack)), tostring(limits.pieces),
         string.format("%.1f", F.rackWeight(rack)), tostring(limits.total), tostring(limits.heaviest))
@@ -97,7 +144,7 @@ function RackUI.view(rack, hanger, place, ledger, now)
     if done > 0 then table.insert(notes, UI.say(KEY .. "RackDoneNote", tostring(done))) end
     if weather then table.insert(notes, getText(KEY .. "InfoWeather")) end
     if #pieces == 0 then table.insert(notes, getText(KEY .. "InfoEmpty")) end
-    return { rows = Info.placeRows(place, ledger, holds), pieces = pieces, notes = notes,
+    return { rows = Info.placeRows(place, ledger, holds, fire), pieces = pieces, notes = notes,
         doneIds = F.pieceIds(rack, true), allIds = F.pieceIds(rack), waitText = RackUI.waitText(rack, ledger) }
 end
 
@@ -108,10 +155,15 @@ function RackUI.waitText(rack, ledger)
     return soonest and UI.say(KEY .. "RackNoneFinished", UI.durationText(soonest)) or getText(KEY .. "RackNoneFinishedStopped")
 end
 
+-- The Smokehouse's fire word (Info.fireWord), nil for a rack.
+local function fireOf(station)
+    return Smokehouse.isChamber(station) and Info.fireWord(station) or nil
+end
+
 -- The rack brought up to now at its place, and what the window shows.
 local function viewOf(station)
     local rack, place = F.rackNow(station)
-    return RackUI.view(rack, F.hangerOf(station), place, F.getLedger(), getGameTime():getWorldAgeHours())
+    return RackUI.view(rack, F.hangerOf(station), place, F.getLedger(), getGameTime():getWorldAgeHours(), fireOf(station))
 end
 
 local RackWindow = InfoWindow:derive("TraditionalPreservationFishMeatRackWindow")
@@ -142,19 +194,24 @@ function RackWindow:render()
         { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeAllCount", tostring(#all)), enabled = #all > 0,
           tooltip = #all > #done and getText(KEY .. "RackTakeAllHelp") or nil, onClick = function() RackUI.take(playerObj, station, all) end },
     })
-    y = self:dropZone(y, getText(KEY .. "RackDropIdle"), function(items)
+    y = self:dropZone(y, getText(KEY .. (Smokehouse.isChamber(station) and "RackDropIdleChamber" or "RackDropIdle")), function(items)
         local rack, place = F.rackNow(station)
         return RackUI.dropJudge(rack, F.hangerOf(station), place, items)
     end, function(take) RackUI.hang(playerObj, station, take) end)
     self:drawNotes(y, rackView.notes)
 end
 
--- Opens Rack Info on a Drying Frame, Hanging Beam or Gantry.
+-- Opens Rack Info on a Drying Frame, Hanging Beam or Gantry, or Smokehouse Info on any tile of the Smokehouse.
 function RackUI.open(playerObj, station)
     InfoWindow.open(RackWindow, playerObj, station)
 end
 
 RackUI.isRack = F.isRack
+
+-- What this menu and window serve: the three racks and the Smokehouse.
+function RackUI.isHanger(isoObject)
+    return F.isRack(isoObject) or Smokehouse.isChamber(isoObject)
+end
 
 -- The menu
 
@@ -162,6 +219,9 @@ RackUI.isRack = F.isRack
 function RackUI.refusalText(refusal, hanger, item)
     if refusal ~= F.REFUSALS.tooHeavy then return getText(refusal) end
     local limits = F.RACK_LIMITS
+    if hanger.closed then
+        return UI.say(KEY .. "RackTooHeavyChamber", string.format("%.1f", item:getActualWeight()), tostring(limits.chamber.heaviest))
+    end
     return UI.say(KEY .. "RackTooHeavy", getText(KEY .. "RackWord_" .. hanger.name), string.format("%.1f", item:getActualWeight()),
         tostring(limits.frame.heaviest), tostring(limits.medium.heaviest), tostring(limits.large.heaviest))
 end
@@ -247,11 +307,12 @@ function RackUI.hangGroups(rack, hanger, place, items)
     return groups
 end
 
--- The soonest hours left of any piece still hanging, or nil (none, or every one stopped).
+-- The soonest hours left of any piece still hanging, or nil (none, or every one stopped). A link's smoke has no
+-- hours left to tell: it waits on the fire.
 function RackUI.soonestHours(rack, ledger)
     local soonest
     for _, piece in ipairs(rack.pieces or {}) do
-        if not F.pieceDone(piece) then
+        if not F.pieceDone(piece) and not F.RACK_METHODS[piece.method].sausage then
             local status = piece.method == "meat" and F.charqueStatus(piece.state, ledger)
                 or F.stackStatus(piece.method == "cold", piece.state, ledger)
             if status.hoursLeft and (not soonest or status.hoursLeft < soonest) then soonest = status.hoursLeft end
@@ -304,7 +365,7 @@ local onHang = RackUI.hang
 
 -- Each rack's own icon, by its hanger's name; a script item's icon by its full type.
 local RACK_ICONS = { frame = "media/textures/Item_DryingFrame.png", medium = "media/textures/Item_DryingBeamMedium.png",
-    large = "media/textures/Item_DryingBeamLarge.png" }
+    large = "media/textures/Item_DryingBeamLarge.png", chamber = "media/textures/Item_SmokehouseChamber.png" }
 
 local function iconOfType(fullType)
     local script = ScriptManager.instance:getItem(fullType)
@@ -339,7 +400,9 @@ local function addRackMenu(context, playerObj, station)
         string.format("%.1f", F.rackWeight(rack)), tostring(limits.total)))
     status.isDisabled = true
     status.iconTexture = rackIcon
-    UI.tooltip(status, UI.placeName(place))
+    local fire = fireOf(station)
+    UI.tooltip(status, fire and UI.placeName(place) .. " <LINE> " .. getText(KEY .. "InfoFire") .. ": "
+        .. getText(KEY .. "InfoFire" .. string.upper(string.sub(fire, 1, 1)) .. string.sub(fire, 2)) or UI.placeName(place))
     local info = menu:addOption(getText(KEY .. "RackInfo_" .. hanger.name), playerObj, RackUI.open, station)
     info.iconTexture = rackIcon
     UI.topInfo(context, getText(KEY .. "RackInfo_" .. hanger.name), rackIcon, playerObj, RackUI.open, station)
@@ -363,9 +426,9 @@ local function addRackMenu(context, playerObj, station)
     local done, all = F.pieceIds(rack, true), F.pieceIds(rack)
     local finished = menu:addOption(UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeDone", tostring(#done)),
         playerObj, onTake, station, done)
-    -- What the first finished piece comes off as (Salt Dried, Stockfish, Charque); greyed, the rack's own.
+    -- What the first finished piece comes off as (Salt Dried, Stockfish, Charque, Hot Smoked ...); greyed, the rack's own.
     local firstDone = firstPiece(rack, true)
-    finished.iconTexture = firstDone and iconOfType(F.RACK_METHODS[firstDone.method].output) or rackIcon
+    finished.iconTexture = firstDone and iconOfType(F.pieceOutputType(firstDone)) or rackIcon
     if #done == 0 then UI.disable(finished, RackUI.waitText(rack, F.getLedger())) end
     if #all > #done then
         local takeAll = menu:addOption(getText("ContextMenu_TraditionalPreservationFishMeat_RackTakeAll"), playerObj, onTake, station, all)
@@ -374,12 +437,14 @@ local function addRackMenu(context, playerObj, station)
     end
 end
 
+-- One menu a rack, and one for the Smokehouse whichever of its tiles were clicked (counted by its record tile).
 local function onFillContextMenu(playerNum, context, worldobjects, test)
     local seen = {}
     for _, isoObject in ipairs(worldobjects) do
-        if RackUI.isRack(isoObject) and not seen[isoObject] then
+        local key = Smokehouse.isChamber(isoObject) and Smokehouse.recordTile(isoObject) or isoObject
+        if RackUI.isHanger(isoObject) and not seen[key] then
             if test then return ISWorldObjectContextMenu.setTest() end
-            seen[isoObject] = true
+            seen[key] = true
             addRackMenu(context, getSpecificPlayer(playerNum), isoObject)
         end
     end
@@ -387,9 +452,12 @@ end
 
 Events.OnFillWorldObjectContextMenu.Add(onFillContextMenu)
 
--- A rack with anything on it stays where it is (no station moves mid-process).
+-- A rack or a Smokehouse with anything on it stays where it is (no station moves mid-process); the Smokehouse's
+-- record is on one of its tiles.
 UI.keepInPlace(function(isoObject)
-    if not RackUI.isRack(isoObject) or not isoObject:hasModData() then return nil end
+    if not RackUI.isHanger(isoObject) then return nil end
+    if Smokehouse.isChamber(isoObject) then isoObject = Smokehouse.recordTile(isoObject) end
+    if not isoObject:hasModData() then return nil end
     local modData = isoObject:getModData().movableData
     local rack = modData and modData[F.RACK_KEY]
     return (rack ~= nil and F.rackCount(rack) > 0) or nil

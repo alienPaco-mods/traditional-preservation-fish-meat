@@ -1,4 +1,5 @@
--- Traditional Preservation (Fish & Meat): the hand jobs at a Drying Frame, a Hanging Beam or a Gantry. "hang" hangs
+-- Traditional Preservation (Fish & Meat): the hand jobs at a Drying Frame, a Hanging Beam, a Gantry or in the
+-- Smokehouse (any of its tiles: the record is on one, F.rackOf). "hang" hangs
 -- one carried piece (if the rack still takes it when the hands are done), "take" takes one piece off by its id: what
 -- it has become if done, as it was hung if not (F.rackOutput). One piece an action, so a queue of them shows its
 -- progress and stops where the player stops it.
@@ -9,7 +10,7 @@ TPFMRack = ISBaseTimedAction:derive("TPFMRack")
 
 local F = TraditionalPreservationFishMeat
 local Action = require "TraditionalPreservationCore/Action"
-local Weather = require "TraditionalPreservationCore/Weather"
+local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 local DURATIONS = { hang = 40, take = 30 }
 
 local function carried(self)
@@ -32,7 +33,7 @@ function TPFMRack:isValid()
     if not self.station:getSquare() then return false end
     local rack = F.rackOf(self.station)
     if self.mode == "hang" then
-        return carried(self) and TPFMRack.hangRefusal(self.station, rack, Weather.placeOf(self.station), self.item) == nil
+        return carried(self) and TPFMRack.hangRefusal(self.station, rack, F.rackPlace(self.station), self.item) == nil
     end
     return holds(rack, self.id)
 end
@@ -60,7 +61,11 @@ function TPFMRack:complete()
         local piece = F.takePiece(rack, self.id)
         if piece then Actions.addOrDropItem(self.character, F.rackOutput(piece, now)) end
     end
-    if TraditionalPreservationFishMeatWorld then TraditionalPreservationFishMeatWorld.refresh(self.station) end
+    if Smokehouse.isChamber(self.station) then
+        Smokehouse.redraw(self.station)
+    elseif TraditionalPreservationFishMeatWorld then
+        TraditionalPreservationFishMeatWorld.refresh(self.station)
+    end
     return true
 end
 

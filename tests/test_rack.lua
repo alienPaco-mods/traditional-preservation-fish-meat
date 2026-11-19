@@ -264,6 +264,12 @@ check("dried with its smoke: Beef (Cold Smoked), not Charque", T.pieceDone(cured
 local airDried = T.hangPiece({}, beef, SHED, ledger, hours)
 airDried.state.dried, airDried.doneHour = airDried.state.cureNeed, hours
 check("short of its smoke it comes off air dried", T.rackOutput(airDried, hours):getModData().airDried == true)
-check("the Smokehouse is no rack for the menu yet", T.CHAMBER_HANGER.closed and T.RACK_LIMITS.chamber ~= nil)
+check("the Take Done icon's kind: Hot Smoked, Smoked Blood Sausage, Dry Cured; Salt Dried on a frame",
+    T.pieceOutputType(hot) == T.HOT_FISH and T.pieceOutputType(sausage) == T.SMOKED_BLOOD_SAUSAGE
+    and T.pieceOutputType(cured) == T.DRY_CURED and T.pieceOutputType(T.hangPiece({}, fish(PRESSED, 1), "Open", ledger, hours)) == T.SALT_DRIED)
+local stale = T.hangPiece({}, link, SHED, ledger, hours)
+stale.state.staleAt = hours
+check("a link gone stale before its smoke shows as itself", T.pieceOutputType(stale) == T.BLOOD_SAUSAGE)
+check("the Smokehouse is no rack for the World yet (S4)", T.CHAMBER_HANGER.closed and T.RACK_LIMITS.chamber ~= nil)
 
 H.done()
