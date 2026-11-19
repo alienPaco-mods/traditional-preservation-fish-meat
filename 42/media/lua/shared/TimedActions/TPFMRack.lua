@@ -60,6 +60,7 @@ function TPFMRack:complete()
         local piece = F.takePiece(rack, self.id)
         if piece then Actions.addOrDropItem(self.character, F.rackOutput(piece, now)) end
     end
+    if TraditionalPreservationFishMeatWorld then TraditionalPreservationFishMeatWorld.refresh(self.station) end
     return true
 end
 

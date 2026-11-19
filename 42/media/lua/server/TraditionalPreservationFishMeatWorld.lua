@@ -1,5 +1,5 @@
--- Traditional Preservation (Fish & Meat): keeps the weather totals, brings each Salting Tub's batch up to now, and
--- shows what is in each tub and frame. SpriteOverlayConfig can't show one sprite per fish, so this reads each station
+-- Traditional Preservation (Fish & Meat): keeps the weather totals, brings each Salting Tub's batch and each rack's
+-- pieces (Drying Frame, Hanging Beam, Gantry) up to now, and shows what is in each tub and rack. SpriteOverlayConfig can't show one sprite per fish, so this reads each station
 -- and layers sprites itself.
 if isClient() then return end
 
@@ -15,7 +15,6 @@ local FACE_COUNT = Tiles.FACE_COUNT
 
 local TUB_FILLED_SPRITE, TUB_WEIGHTED_SPRITE, TUB_MEAT_SPRITES = Tiles.TUB_FILLED, Tiles.TUB_WEIGHTED, Tiles.TUB_MEAT
 local FRAME_SPRITE = Tiles.FRAME
-local STAGE_FRESH = 0
 
 -- Furthest along first; two stacks as far along go by when they were hung, so the order (and the sprites) never
 -- depends on the order the engine lists them in (rule 9).
@@ -46,27 +45,6 @@ local function countItems(resources, group, io, hangingSince)
         end
     end
     return count, stacks, styles, all, rotten
-end
-
--- One sprite per stack. Driest first: finished stacks, then running ones by progress, then the
--- stack waiting to start. Each style has its own run of stages. A rotted stack shows its rotten look
--- (F.FIRST_ROTTEN_LOOK on): a running one when it is lost as a whole, a finished one when any piece in it rotted.
-function TraditionalPreservationFishMeatWorld.stackLooks(waitingStyle, batches, finishedStyles, finishedRotten)
-    local stages = F.DRYING_STAGES
-    local looks = {}
-    for n, style in ipairs(finishedStyles) do
-        local rotten = finishedRotten and finishedRotten[n]
-        table.insert(looks, rotten and F.FIRST_ROTTEN_LOOK + F.rottenLook(style) or style * stages + stages - 1)
-    end
-
-    table.sort(batches, furthestFirst)
-    for _, batch in ipairs(batches) do
-        table.insert(looks, batch.rotten and F.FIRST_ROTTEN_LOOK + F.rottenLook(batch.style)
-            or batch.style * stages + F.dryingStage(batch.progress))
-    end
-
-    if waitingStyle then table.insert(looks, waitingStyle * stages + STAGE_FRESH) end
-    return looks
 end
 
 -- What shows in an uncovered tub: fish (nil), or the meat on top, the last put in (a tub holds fish or meat, and
@@ -158,17 +136,22 @@ function TraditionalPreservationFishMeatWorld.hangingSprite(hanger, look, slot, 
     return first + (look * hanger.stacks + slot - 1) * FACE_COUNT + faceIndex
 end
 
-local function refreshFrame(frame, sessionState, faceIndex, _, waitingStyle, batches, finishedStyles, _, finishedRotten)
-    local looks = TraditionalPreservationFishMeatWorld.stackLooks(waitingStyle, batches, finishedStyles, finishedRotten)
-    local sprites = {}
-    for slot, look in ipairs(looks) do
-        table.insert(sprites, TraditionalPreservationFishMeatWorld.hangingSprite(sessionState.hanger, look, slot, faceIndex))
+-- A rack: its pieces brought up to now at its place, each spot drawn by F.rackSpots (empty spots draw nothing).
+local function refreshRack(station, sessionState)
+    local hanger = sessionState.hanger
+    local looks = F.rackSpots(F.rackNow(station), hanger)
+    local sprites, signature = {}, {}
+    for slot = 1, hanger.stacks do
+        local look = looks[slot]
+        signature[slot] = tostring(look)
+        if look then table.insert(sprites, TraditionalPreservationFishMeatWorld.hangingSprite(hanger, look, slot, sessionState.faceIndex)) end
     end
-    showSprites(frame, sessionState, table.concat(looks, ","), sprites)
+    showSprites(station, sessionState, table.concat(signature, ","), sprites)
 end
 
 local function refresh(station, sessionState)
     if sessionState.tub then return refreshTub(station, sessionState) end
+    if sessionState.rack then return refreshRack(station, sessionState) end
     local resources = station:getComponent(ComponentType.Resources)
     local logic = station:getComponent(sessionState.logicType)
     local sprite = station:getSprite()
@@ -195,12 +178,7 @@ local function newSessionState(station)
     if not index then return nil end
 
     if index < FRAME_SPRITE then return { tub = true, faceIndex = index % FACE_COUNT } end
-    return {
-        hanger = F.hangerFor(index),
-        faceIndex = index % FACE_COUNT,
-        logicType = ComponentType.DryingCraftLogic,
-        show = refreshFrame,
-    }
+    return { rack = true, hanger = F.hangerFor(index), faceIndex = index % FACE_COUNT }
 end
 
 local sprites = {}
@@ -211,10 +189,10 @@ local tracker = Station.tracker({ sprites = sprites, newSessionState = newSessio
 
 TraditionalPreservationFishMeatWorld.track = tracker.track
 
--- Redraws a tracked station now, without waiting for the next tick, e.g. after a player adds fish. A tub is tracked
--- from here on: one built this session hasn't been through the map loader.
+-- Redraws a tracked station now, without waiting for the next tick, e.g. after a player adds fish. A tub or a rack is
+-- tracked from here on: one built this session hasn't been through the map loader.
 function TraditionalPreservationFishMeatWorld.refresh(station)
-    local sessionState = F.isTub(station) and tracker.track(station) or tracker.sessionStateOf(station)
+    local sessionState = (F.isTub(station) or F.isRack(station)) and tracker.track(station) or tracker.sessionStateOf(station)
     if sessionState then refresh(station, sessionState) end
 end
 
@@ -231,7 +209,7 @@ end
 function TraditionalPreservationFishMeatWorld.inspect(station)
     if Smokehouse.isChamber(station) then station = Smokehouse.slotTile(station) end
     local sessionState = tracker.track(station)
-    if not sessionState or sessionState.tub then return nil end
+    if not sessionState or sessionState.tub or sessionState.rack then return nil end
     local resources = station:getComponent(ComponentType.Resources)
     local logic = station:getComponent(sessionState.logicType)
     local uiLogic = resources and logic and Station.uiLogic(station, sessionState, logic)

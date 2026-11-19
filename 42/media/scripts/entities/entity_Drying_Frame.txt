@@ -2,32 +2,14 @@ module TraditionalPreservationFishMeat
 {
     entity Drying_Frame
     {
+        /* No window: what hangs is in the frame's movableData, a piece at a time; hang and take from its right-click menu
+           or Rack Info's drop square, and Rack Info shows how each piece is doing (TraditionalPreservationFishMeatRack.lua,
+           ...RackUI.lua). */
         component UiConfig
         {
             xuiSkin = default,
             entityStyle = ES_DryingFrame,
-            uiEnabled = true,
-        }
-        component Resources
-        {
-            group craft_inputs
-            {
-                Item@Input@25,
-            }
-            group craft_outputs
-            {
-                Item@Output@200@StackAny,
-            }
-        }
-        /* DryingCraftLogic for its temperature, wetness and drying rate readouts. The recipe's
-           OnUpdate replaces its progress, because it stops when the area unloads. */
-        component DryingCraftLogic
-        {
-            Recipes = DryingFrame,
-            StartMode = Manual,
-            inputGroup = craft_inputs,
-            outputGroup = craft_outputs,
-            actionAnim = Untie_High,
+            uiEnabled = false,
         }
         component SpriteConfig
         {

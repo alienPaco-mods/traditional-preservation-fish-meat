@@ -132,9 +132,16 @@ function F.takePiece(rack, id)
     end
 end
 
--- A done piece ages on the rack at vanilla's pace from the hour it finished.
+-- A done piece ages on the rack at vanilla's pace from the hour it finished; dry cured meat left hanging where it
+-- dried also ages on faster, as a finished stack did (F.ageHanging: its stamp moved back by the extra days).
 local function addWaited(item, piece, now)
-    item:setAge(item:getAge() + math.max((now or piece.doneHour) - piece.doneHour, 0) / 24 * FluidAgeing.foodRotSpeed())
+    local days = math.max((now or piece.doneHour) - piece.doneHour, 0) / 24
+    item:setAge(item:getAge() + days * FluidAgeing.foodRotSpeed())
+    if days > 0 and F.ageDays(item) then
+        local modData = item:getModData()
+        modData.agedFrom = (modData.agedFrom or 0) - days * (1 / F.HANG_AGE_SHARE - 1)
+        F.rename(item)
+    end
 end
 
 -- What a piece taken off gives, as the stack's OnCreate did (F.onCreateDried): rotten, what was hung, rotten; dry
@@ -167,7 +174,46 @@ function F.rackOutput(piece, now)
     return item
 end
 
+-- What shows on the rack (ROADMAP section 12, item 7): its spots fill by weight, one spot a total / spots kg, the
+-- pieces in hang order; a piece takes every spot its weight reaches into. A spot shows its pieces' look at the least
+-- dry piece's stage, its first piece's style, rotten if any piece in it rotted. Returns a look a spot (the World's
+-- looks: style x DRYING_STAGES + stage, or F.FIRST_ROTTEN_LOOK on), nil for an empty spot.
+function F.rackSpots(rack, hanger)
+    local spots, spotWeight = hanger.stacks, F.RACK_LIMITS[hanger.name].total / hanger.stacks
+    local bySpot, from = {}, 0
+    for _, piece in ipairs(rack.pieces or {}) do
+        local to = from + piece.weight
+        local first = math.min(math.floor(from / spotWeight) + 1, spots)
+        local last = math.min(math.max(math.ceil(to / spotWeight - F.WEIGHT_SLACK), first), spots)
+        for spot = first, last do
+            bySpot[spot] = bySpot[spot] or {}
+            table.insert(bySpot[spot], piece)
+        end
+        from = to
+    end
+    local stages, looks = F.DRYING_STAGES, {}
+    for spot = 1, spots do
+        local pieces = bySpot[spot]
+        if pieces then
+            local style, stage, rotten = pieces[1].state.style or F.STYLE_SALT, stages - 1, false
+            for _, piece in ipairs(pieces) do
+                local progress, lost = F.pieceProgress(piece)
+                rotten = rotten or lost
+                if not F.pieceDone(piece) then stage = math.min(stage, F.dryingStage(progress)) end
+            end
+            looks[spot] = rotten and F.FIRST_ROTTEN_LOOK + F.rottenLook(style) or style * stages + stage
+        end
+    end
+    return looks
+end
+
 -- Engine side
+
+-- Whether an object is one of the three racks (not the tub, not the Smokehouse).
+function F.isRack(isoObject)
+    local hanger = F.hangerOf(isoObject)
+    return hanger ~= nil and F.RACK_LIMITS[hanger.name] ~= nil
+end
 
 function F.rackOf(station)
     local modData = Station.movableData(station)

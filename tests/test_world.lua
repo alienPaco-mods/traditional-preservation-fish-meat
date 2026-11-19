@@ -1,4 +1,4 @@
--- Checks the tubs' and frames' sprites and the weather record with stand-ins for the engine. Run from the mod
+-- Checks the tubs' and racks' sprites and the weather record with stand-ins for the engine. Run from the mod
 -- folder: luajit tests/test_world.lua
 local H = dofile((os.getenv("TPCORE") or "../TraditionalPreservationCore") .. "/tests/harness.lua")
 local check, near, list = H.check, H.near, H.list
@@ -115,41 +115,59 @@ local shedTilesLoaded = true
 for _, name in ipairs(require("TraditionalPreservationCore/Tiles").CHAMBERS) do shedTilesLoaded = shedTilesLoaded and loaders[name] ~= nil end
 check("and all four tiles of TP Core's Smokehouse, either way round, for this mod's stacks in it", shedTilesLoaded)
 
--- Frames: a finished salt stack, a gutted stack halfway, and pressed fish waiting.
-local running = recipeData(0.5, T.STYLE_GUTTED)
-local shed = station("traditionalpreservationfishmeat_01_6", 1, false, { fish(PRESSED) }, { running },
-    { fish("TraditionalPreservationFishMeat.SaltDriedFish", { stackId = 5, style = T.STYLE_SALT }) })
+-- Racks (ROADMAP section 12, R4): what hangs is the rack's piece record, drawn a spot each 2.5 kg of a frame's 20, in
+-- hang order: a finished salt fish, a gutted fish halfway, a fresh salt fish.
+ItemTag = ItemTag or { UNCUT_FISH = "uncut", SALT = "salt", FISH_MEAT = "fishmeat" }
+local newFood = dofile("tests/standins/food.lua")
+function ZombRand() return 0 end
+local rackLedger = T.getLedger()
+local function hang(rackStation, fullType, weight, style, share, done)
+    local piece = T.hangPiece(T.rackOf(rackStation), newFood(fullType, { ActualWeight = weight }), "Sheltered", rackLedger, 100)
+    piece.state.style = style
+    piece.state.dried = share * (fullType == GUTTED and T.COLD_DRY_HOURS or T.DRY_HOURS)
+    if done then piece.doneHour = 100 end
+    return piece
+end
+local shed = station("traditionalpreservationfishmeat_01_6", 1, false, {}, {}, {})
+local first = hang(shed, PRESSED, 2.5, T.STYLE_SALT, 1, true)
+hang(shed, GUTTED, 2.5, T.STYLE_GUTTED, 0.5)
+hang(shed, PRESSED, 0.4, T.STYLE_SALT, 0)
 loaders.traditionalpreservationfishmeat_01_6(shed)
 tick(30)
--- States 4 (salt, done), 7 (gutted, stage 2), 0 (salt, fresh) in slots 0-2 of face 0.
-check("each stack gets its sprite, driest first", table.concat(shed.sprites, " ") ==
+-- Looks 4 (salt, done), 7 (gutted, stage 2), 0 (salt, fresh) in spots 1-3 of face 0.
+check("each spot gets its sprite, in hang order", table.concat(shed.sprites, " ") ==
     "traditionalpreservationfishmeat_01_72 traditionalpreservationfishmeat_01_122 traditionalpreservationfishmeat_01_12")
-check("running stacks learn they are indoors", running.modData.place == "Sheltered")
-check("the frame counts its busy stacks", W.busyStacks(shed) == 2)
+check("its pieces learn they are indoors", first.state.place == "Sheltered")
 tick(30)
-check("an unchanged frame is left alone", shed.clears == 1)
+check("an unchanged rack is left alone", shed.clears == 1)
 
-local outdoors = recipeData(0.1, T.STYLE_SALT)
-local yard = station("traditionalpreservationfishmeat_01_7", 2, true, {}, { outdoors }, {})
+local yard = station("traditionalpreservationfishmeat_01_7", 2, true, {}, {}, {})
+local outdoors = hang(yard, PRESSED, 0.5, T.STYLE_SALT, 0.1)
 W.track(yard)
 tick(30)
-check("an open frame is open", outdoors.modData.place == "Open" and yard.sprites[1] == "traditionalpreservationfishmeat_01_9")
+check("an open frame is open", outdoors.state.place == "Open" and yard.sprites[1] == "traditionalpreservationfishmeat_01_9")
 
-local porched = recipeData(0.1, T.STYLE_SALT)
-local porch = station("traditionalpreservationfishmeat_01_7", 4, false, {}, { porched }, {})
+local porch = station("traditionalpreservationfishmeat_01_7", 4, false, {}, {}, {})
 porch.porch = true
-W.track(porch)
+local porched = hang(porch, PRESSED, 0.5, T.STYLE_SALT, 0.1)
 W.refresh(porch)
-check("a frame under an open roof is covered", porched.modData.place == "Covered")
+check("a frame under an open roof is covered, and a refresh tracks it", porched.state.place == "Covered" and #porch.sprites == 1)
 
--- Charque: a meat stack halfway and Salt Cured meat waiting, from the meat's own tiles at the end of sheet 2.
-local charque = recipeData(0.5, T.STYLE_MEAT)
-local rack = station("traditionalpreservationfishmeat_01_6", 5, true, { fish(T.CURED_MEAT) }, { charque }, {})
-W.track(rack)
-W.refresh(rack)
--- Meat stage 2 in slot 0 (716 + 32 = 748), fresh in slot 1 (718).
-check("charque hangs from the meat tiles", table.concat(rack.sprites, " ") ==
-    "traditionalpreservationfishmeat_02_340 traditionalpreservationfishmeat_02_310")
+-- Charque from the meat's own tiles at the end of sheet 2: meat stage 2 in spot 1 (716 + 32 = 748).
+local meatRack = station("traditionalpreservationfishmeat_01_6", 5, true, {}, {}, {})
+hang(meatRack, T.CURED_MEAT, 0.5, T.STYLE_MEAT, 0)
+meatRack.pieces = T.rackOf(meatRack).pieces
+meatRack.pieces[1].state.dried = T.CHARQUE_HOURS * 0.5
+W.refresh(meatRack)
+check("charque hangs from the meat tiles", table.concat(meatRack.sprites, " ") == "traditionalpreservationfishmeat_02_340")
+
+-- A piece reaching past its spot's share draws in both; a rotted piece shows its kind's rotten look.
+local spots = T.rackSpots({ pieces = { { weight = 2, method = "salt", state = { dried = 0, style = T.STYLE_SALT } },
+    { weight = 2, method = "salt", state = { dried = 0, style = T.STYLE_SALT } } } }, T.HANGERS[6])
+check("a piece over a spot's edge fills both spots", spots[1] == 0 and spots[2] == 0 and spots[3] == nil)
+local gantrySpots = T.rackSpots({ pieces = { { weight = 12, method = "salt", state = { dried = 0, spoiled = 1, style = T.STYLE_SALT } } } }, T.HANGERS[410])
+check("a Gantry's spot is 50 kg, and a rotted piece's spot is rotten", gantrySpots[1] == T.FIRST_ROTTEN_LOOK + T.ROTTEN_LOOKS.SALT
+    and gantrySpots[2] == nil)
 check("a beam's charque is its own run too", W.hangingSprite(T.HANGERS[408], T.STYLE_MEAT * T.DRYING_STAGES, 1, 1) == 797
     and W.hangingSprite(T.HANGERS[410], T.STYLE_MEAT * T.DRYING_STAGES + 4, 2, 0) == 836 + (4 * 2 + 1) * 2)
 check("fish keep theirs", W.hangingSprite(T.HANGERS[6], 4, 1, 0) == 8 + 4 * 8 * 2)
@@ -164,17 +182,6 @@ check("the first two sheets keep their names", T.spriteName(407) == "traditional
     and T.spriteIndex("traditionalpreservationfishmeat_04_0") == nil)
 check("a style's rotten kind", T.rottenLook(T.STYLE_SALT_HALF) == T.ROTTEN_LOOKS.SALT and T.rottenLook(T.STYLE_HALF) == T.ROTTEN_LOOKS.COLD
     and T.rottenLook(T.STYLE_MEAT) == T.ROTTEN_LOOKS.MEAT)
-local lost = recipeData(0.4, T.STYLE_GUTTED)
-lost.modData.spoiled = 1
-local spoiledFrame = station("traditionalpreservationfishmeat_01_6", 7, true, {},
-    { lost }, { fish(T.CURED_MEAT, { stackId = 3, style = T.STYLE_MEAT }), fish(T.CURED_MEAT, { stackId = 3, style = T.STYLE_MEAT }, true),
-        fish("TraditionalPreservationFishMeat.SaltDriedFish", { stackId = 4, style = T.STYLE_SALT }) })
-W.track(spoiledFrame)
-W.refresh(spoiledFrame)
--- Slot 1: the finished meat stack with a rotten piece, meat kind (880 + (2 * 8) * 2); slot 2: the dried fish, done;
--- slot 3: the running cold stack that rotted, cold kind (880 + (1 * 8 + 2) * 2).
-check("a rotted stack shows its kind, a finished one with any rotten piece", table.concat(spoiledFrame.sprites, " ") ==
-    "traditionalpreservationfishmeat_03_32 traditionalpreservationfishmeat_01_74 traditionalpreservationfishmeat_03_20")
 local mixed = recipeData(0.5, T.STYLE_MEAT)
 mixed.modData.underSpoiled, mixed.modData.spoiled = 1.5, 0
 check("a mixed stack whose Corned share rotted keeps drying, and its look", not T.stackRotten(mixed.modData))
@@ -197,13 +204,9 @@ check("a Smokehouse in the open is out of the rain inside, and marked as the she
 check("another mod's stack in it is left alone", cheese.modData.place == nil)
 check("and the look is Core's to draw", smokehouse.sprites[1] == "core's" and smokehouse.clears == 0)
 check("it counts every busy stack, another mod's too", W.busyStacks(smokehouse) == 2)
-check("a frame keeps the frame's", rack:getComponent("DryingCraftLogic").tag == "DryingFrame")
 
 -- What the Info window is told about a station.
-local seen = W.inspect(shed)
-check("a look at the frame: its hanger, place and contents", seen.hanger == T.HANGERS[6] and seen.place == "Sheltered"
-    and #seen.waiting == 1 and seen.finished == 1 and seen.finishedStacks == 1)
-check("and its running batch with its progress", #seen.batches == 1 and seen.batches[1].craftRecipeData == running and seen.batches[1].progress == 0.5)
+check("a rack has no crafting slots to look at: its Info is Rack Info", W.inspect(shed) == nil)
 check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place == "Smokehouse" and W.inspect(smokehouse).hanger.closed)
 check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].craftRecipeData == smoked)
 check("another mod's object gives nothing", W.inspect(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
@@ -265,12 +268,5 @@ local open = ledger.open
 H.setHours(101)
 H.fire("EveryTenMinutes")
 check("the world file records the weather", ledger.temperature == 20 and ledger.wind == 0.3 and ledger.lastHour == 101 and near(ledger.open - open, 1))
-
--- B5 (2026-11-14): two stacks as far along keep one order, by when they were hung, whatever order they come in.
-local early, late = { progress = 0.5, style = 0, stackId = 10 }, { progress = 0.5, style = 1, stackId = 20 }
-local one = W.stackLooks(nil, { early, late }, {})
-local other = W.stackLooks(nil, { late, early }, {})
-check("stacks as far along draw the same either way, the earlier hung first",
-    table.concat(one, ",") == table.concat(other, ",") and one[1] == 0 * T.DRYING_STAGES + T.dryingStage(0.5))
 
 H.done()

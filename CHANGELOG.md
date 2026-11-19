@@ -1,5 +1,17 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.74
+- **The Drying Frame, Hanging Beam and Gantry are off CraftLogic** (ROADMAP section 12, R4): their entity scripts keep
+  the build and the look (no window, `uiEnabled = false`, as the Salting Tub); vanilla's second menu entry and the
+  crafting window are gone. The World tracks each rack: its pieces come up to now at its place on every look, and its
+  spots draw from the piece record (`F.rackSpots`: a spot each total / spots kg, in hang order, at the least dry
+  piece's stage, rotten if any piece rotted), from today's tiles until the new ones (R5). Dry cured meat left
+  hanging when done ages faster, as a finished stack did. The old frame drawing (`stackLooks`) is gone; the
+  Smokehouse keeps its crafting window until its own move. Old stacks are not carried over.
+- **Icons on every row of a rack's menu**: the rack's own on its entry, status and Info rows (and the main menu's
+  Info), what the first finished piece becomes on Take Done, the first piece hung on Take Everything Off; the Hang rows
+  carry their item's. `test_rack_menu` checks every row has one.
+
 ## 0.4.73
 - **Hanging and taking down use vanilla's take-down-curtain animation** (`RemoveCurtain`, hands empty), not the loot one (user, session 53).
 - **Rack Info's drop square** (TP Core's DropZone): drag a selection from the inventory or a loot window onto it to

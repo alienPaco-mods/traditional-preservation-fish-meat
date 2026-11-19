@@ -169,7 +169,15 @@ end)())
 for i = 1, 3 do table.insert(ui.carried, cured(0.5, "Bluegill (Salt Cured)", i)) end
 table.insert(ui.carried, cured(3.1, "Walleye (Salt Cured)"))
 local top, menu = menuFor()
-check("the rack's own entry, by its name", top.name == "Drying Frame")
+check("the rack's own entry, by its name, with its icon", top.name == "Drying Frame"
+    and top.iconTexture == "media/textures/Item_DryingFrame.png")
+local function allIconed(menu)
+    for _, option in ipairs(menu.options) do
+        if not option.iconTexture then return false, option.name end
+        if option.subOption and not allIconed(option.subOption) then return false, option.name end
+    end
+    return true
+end
 check("the status row first, greyed: what it holds", menu.options[1].name == "Holds 0 pieces, 0.0 of 20 kg"
     and menu.options[1].isDisabled == true)
 check("then its Info", menu.options[2].name == "Drying Frame Info")
@@ -202,6 +210,7 @@ finished = named(menu, "Take Done (0)")
 check("with pieces drying, Take Done (0) is greyed and says when the next is", finished.isDisabled == true
     and finished.toolTip.description:find("Nothing finished yet", 1, true) ~= nil)
 check("and Take Everything Off is there", named(menu, "Take Everything Off") ~= nil)
+check("every row of the rack's menu has an icon, its submenus' rows too", allIconed(menu))
 
 -- One done: Take Done (1) takes it as Salt Dried.
 rack.pieces[1].doneHour, rack.pieces[1].state.dried = 1000, F.DRY_HOURS

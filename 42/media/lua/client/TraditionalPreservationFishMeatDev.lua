@@ -49,7 +49,7 @@ function TPFM.help()
     say("TPFM.bank(hours)           add banked hours (default 6) to those joined Stone Hearths: smoke, but only on a day of 15 C or less")
     say("TPFM.addSmoke(hours)       add hours of smoke (default 60) straight to the stacks in those Smokehouses, whatever the weather")
     say("TPFM.tubCure(hours)        add this many hours of full-speed cure (default 24) to every running Salting Tub, wherever it stands")
-    say("TPFM.rackHang()            hang what you carry that the nearest Drying Frame, Hanging Beam or Gantry (3 tiles) takes on its new piece record (racks section 12, before the menu); prints each refusal")
+    say("TPFM.rackHang()            hang what you carry that the nearest Drying Frame, Hanging Beam or Gantry (3 tiles) takes, at once (no walking, no action); prints each refusal")
     say("TPFM.rackInfo()            open Rack Info on that rack (brings it up to now)")
     say("The Salting Tub cures on its own totals, so TPFM.age doesn't speed it up: TPFM.tubCure does.")
 end
@@ -776,7 +776,7 @@ function TPFM.addSmoke(hours)
     if stacks == 0 then say("No stack hanging in a Smokehouse within 3 tiles.") end
 end
 
--- The racks' piece records (ROADMAP section 12): until the menu (R3) and the World (R4), these hang and show them.
+-- The racks' piece records: hang what you carry at once, and open Rack Info, for quick checks.
 local RACK_RADIUS = 3
 
 local function nearestRack()

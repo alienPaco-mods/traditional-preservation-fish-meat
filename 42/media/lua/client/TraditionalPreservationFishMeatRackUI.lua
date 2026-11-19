@@ -138,11 +138,7 @@ function RackUI.open(playerObj, station)
     InfoWindow.open(RackWindow, playerObj, station)
 end
 
--- Whether an object is one of the three racks (not the tub, not the Smokehouse).
-function RackUI.isRack(isoObject)
-    local hanger = F.hangerOf(isoObject)
-    return hanger ~= nil and F.RACK_LIMITS[hanger.name] ~= nil
-end
+RackUI.isRack = F.isRack
 
 -- The menu
 
@@ -290,6 +286,22 @@ function RackUI.hang(playerObj, station, items)
 end
 local onHang = RackUI.hang
 
+-- Each rack's own icon, by its hanger's name; a script item's icon by its full type.
+local RACK_ICONS = { frame = "media/textures/Item_DryingFrame.png", medium = "media/textures/Item_DryingBeamMedium.png",
+    large = "media/textures/Item_DryingBeamLarge.png" }
+
+local function iconOfType(fullType)
+    local script = ScriptManager.instance:getItem(fullType)
+    return script and script:getNormalTexture()
+end
+
+-- The piece first in hang order that is done (doneOnly) or any, or nil.
+local function firstPiece(rack, doneOnly)
+    for _, piece in ipairs(rack.pieces or {}) do
+        if not doneOnly or F.pieceDone(piece) then return piece end
+    end
+end
+
 local function onTake(playerObj, station, ids)
     if not ISEntityUI.WalkToEntity(playerObj, station) then return end
     for _, id in ipairs(ids) do ISTimedActionQueue.add(TPFMRack:new(playerObj, station, "take", nil, id)) end
@@ -299,16 +311,20 @@ local function addRackMenu(context, playerObj, station)
     local rack, place = F.rackNow(station)
     local hanger = F.hangerOf(station)
     local limits = F.RACK_LIMITS[hanger.name]
+    local rackIcon = getTexture(RACK_ICONS[hanger.name])
     local option = context:addOption(getText(KEY .. "RackName_" .. hanger.name))
+    option.iconTexture = rackIcon
     local menu = context:getNew(context)
     context:addSubMenu(option, menu)
 
     local status = menu:addOption(UI.say(KEY .. "RackMenuHolds", tostring(F.rackCount(rack)),
         string.format("%.1f", F.rackWeight(rack)), tostring(limits.total)))
     status.isDisabled = true
+    status.iconTexture = rackIcon
     UI.tooltip(status, UI.placeName(place))
-    menu:addOption(getText(KEY .. "RackInfo_" .. hanger.name), playerObj, RackUI.open, station)
-    UI.topInfo(context, getText(KEY .. "RackInfo_" .. hanger.name), nil, playerObj, RackUI.open, station)
+    local info = menu:addOption(getText(KEY .. "RackInfo_" .. hanger.name), playerObj, RackUI.open, station)
+    info.iconTexture = rackIcon
+    UI.topInfo(context, getText(KEY .. "RackInfo_" .. hanger.name), rackIcon, playerObj, RackUI.open, station)
 
     for _, group in ipairs(RackUI.hangGroups(rack, hanger, place, UI.findItems(playerObj, hangable))) do
         local groupOption = menu:addOption(group.label)
@@ -329,6 +345,9 @@ local function addRackMenu(context, playerObj, station)
     local done, all = F.pieceIds(rack, true), F.pieceIds(rack)
     local finished = menu:addOption(UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeDone", tostring(#done)),
         playerObj, onTake, station, done)
+    -- What the first finished piece comes off as (Salt Dried, Stockfish, Charque); greyed, the rack's own.
+    local firstDone = firstPiece(rack, true)
+    finished.iconTexture = firstDone and iconOfType(F.RACK_METHODS[firstDone.method].output) or rackIcon
     if #done == 0 then
         local soonest = #all > 0 and RackUI.soonestHours(rack, F.getLedger())
         UI.disable(finished, #all == 0 and getText(KEY .. "RackNothingHanging")
@@ -337,6 +356,7 @@ local function addRackMenu(context, playerObj, station)
     end
     if #all > #done then
         local takeAll = menu:addOption(getText("ContextMenu_TraditionalPreservationFishMeat_RackTakeAll"), playerObj, onTake, station, all)
+        takeAll.iconTexture = iconOfType(firstPiece(rack).fullType)
         UI.tooltip(takeAll, getText(KEY .. "RackTakeAllHelp"))
     end
 end
