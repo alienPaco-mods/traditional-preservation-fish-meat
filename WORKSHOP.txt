@@ -35,7 +35,7 @@ Preserve your catch and your kill the old way, with salt, wood, fat, smoke and t
 
 [h2]Salting (fish and meat)[/h2]
 [list]
-[*][b]Salting Tub:[/b] Carpentry 2. 4 planks, 6 nails, 2 twine, hammer and saw kept. Holds 50 weight or 35 pieces, fish or meat, never both at once. Worked from its right-click menu, with a Tub Info window.
+[*][b]Salting Tub:[/b] Carpentry 2. 4 planks, 6 nails, 2 twine, hammer and saw kept. Holds 50 weight or 35 pieces, fish or meat, never both at once. Worked from its right-click menu, with a Salting Tub window.
 [*][b]Put in the Tub:[/b] raw fish whole up to 0.6 weight (small fish keep their guts, as vobla do), gutted fish, halves and fillets; a bigger fish is gutted first, one over 4.5 weight split too. Meat as the butcher gives it: Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop, a whole Leg of Pork. Pork never hangs in the open: its fat goes rancid in sun and wind. Unpack gives it all back before the salt goes on.
 [*][b]Salt at the start:[/b] 2 salt for each quarter weight of each piece, about 15%, as on the Volga: a small panfish takes 2, a Beef 4, a gutted 4 weight walleye 26; a Leg of Pork half that, 10. A plank and a flat stone press it, and come back with the last piece out.
 [*][b]Leg of Pork:[/b] a grown pig gives some of its Pork as whole legs for country ham, one or two on a Butchering Hook. Five Pork make a leg, so the pig's meat stays the same.

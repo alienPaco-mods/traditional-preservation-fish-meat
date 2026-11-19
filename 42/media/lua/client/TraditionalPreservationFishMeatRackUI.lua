@@ -178,7 +178,7 @@ local RackWindow = InfoWindow:derive("TraditionalPreservationFishMeatRackWindow"
 
 function RackWindow:new(playerObj, station)
     local o = InfoWindow.new(self, playerObj, station)
-    o.title = getText(KEY .. "RackInfo_" .. F.hangerOf(station).name)
+    o.title = getText(KEY .. "RackTitle_" .. F.hangerOf(station).name)
     return o
 end
 

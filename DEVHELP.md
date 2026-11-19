@@ -15,7 +15,7 @@ These console commands load only when the game runs in **debug mode** (launch op
 | `TPFM.heat(hours)` | Adds hours of hot sun (above 25 C). An open salt fish under half dried loses 5% of its keeping per 24 hours, times how wet it still is, at most a quarter. |
 | `TPFM.tubCure(hours)` | Adds hours of full-speed cure (default 24) to every place's `tubCure` total: every running Salting Tub moves on that much when next looked at. A fish batch takes 24 to 48, Corn 24 to 48, Country Cure 240 or 504 |
 | `TPFM.rackHang()` | Hangs what you carry that the nearest Drying Frame, Hanging Beam or Gantry (3 tiles, your floor) takes, at once (no walking, no action), and prints why each fish or meat it refuses is refused: too heavy, full, the place. |
-| `TPFM.rackInfo()` | Opens Rack Info on that rack, brought up to now: the place rows, what it holds, a row a piece in the scrolling list (sort by process, hover for the popup). `TPFM.age(hours)` moves its pieces on too. |
+| `TPFM.rackInfo()` | Opens the rack's window on that rack, brought up to now: the place rows, what it holds, a row a piece in the scrolling list (sort by process, hover for the popup). `TPFM.age(hours)` moves its pieces on too. |
 | `TPFM.warmCure(hours)` | Adds hours of a warm cure at 25 C (1.5 x hours to `warmCure` and `warmCureRoom`). A batch in a tub above ground or in a room loses about 0.8% of its keeping per hour; a tub in a basement goes by its own totals and takes none. |
 | `TPFM.longCure(hours)` | Adds hours of a 15 C season (default 168) to a running Country Cure, which wants 10 C or less: a leg's cure rots after 504. |
 | `TPFM.dry()` | Clears the wetness, so open and cold frames start drying again at once after rain. |
@@ -62,6 +62,6 @@ The Salting Tub cures by its place's temperature (full speed from 2 C) on its ow
 
 **Typical check of the cauldron:** `TPFM.give("fat", 6)`, a lit Stone Hearth with the Forged Cauldron (`TPC.kit()`, Fit Cauldron), Put Fat in the Cauldron (Pork Fat), wait for it to steam and an hour more, Fill from the Cauldron into a pot, Strain Lard three times.
 
-**Typical check of hot smoking:** a Smokehouse with a Stone Hearth joined (`TPC.kit("smokehouse")`, `TPC.kit("stone")`, `TPC.kit("flue")`), `TPFM.meat("all", 2, "corned")` and `TPFM.fish("Walleye", 3, "cured")`, hang one of each, light the Stone Hearth, `TPFM.smoke()` (a session, hot 0 of 6-8 and 4), `TPFM.stoke(8)`: within a few seconds both are Done in Smokehouse Info (Hot Smoked) and a ham hangs by the door. For a broken run: stoke 2 h, bank it and wait over an hour: hot back to 0, Smoke 2.0 h.
+**Typical check of hot smoking:** a Smokehouse with a Stone Hearth joined (`TPC.kit("smokehouse")`, `TPC.kit("stone")`, `TPC.kit("flue")`), `TPFM.meat("all", 2, "corned")` and `TPFM.fish("Walleye", 3, "cured")`, hang one of each, light the Stone Hearth, `TPFM.smoke()` (a session, hot 0 of 6-8 and 4), `TPFM.stoke(8)`: within a few seconds both are Done in the Smokehouse window (Hot Smoked) and a ham hangs by the door. For a broken run: stoke 2 h, bank it and wait over an hour: hot back to 0, Smoke 2.0 h.
 
 **Typical check of heads:** `TPFM.fish("Walleye", 1, 4)` and `TPFM.fish("Bluegill", 1, 0.9)`, then Gut Fish on both. Only the walleye gives a head.

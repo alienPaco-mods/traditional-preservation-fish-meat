@@ -180,7 +180,7 @@ local function allIconed(menu)
 end
 check("the status row first, greyed: what it holds", menu.options[1].name == "Holds 0 pieces, 0.0 of 20 kg"
     and menu.options[1].isDisabled == true)
-check("then its Info", menu.options[2].name == "Drying Frame Info")
+check("then its Info row, the station's full name", menu.options[2].name == "Drying Frame Info")
 local salt = named(menu, "Hang Salt Fish")
 check("one Hang Salt Fish submenu, its kinds inside", salt and salt.subOption and #salt.subOption.options == 2
     and named(menu, "Hang Bluegill") == nil)

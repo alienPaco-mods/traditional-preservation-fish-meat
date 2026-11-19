@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.86
+- The window rows read the station's full name and Info (Salting Tub Info, Drying Frame Info, Hanging Beam Info, Gantry Info, Smokehouse Info), as vanilla's Fireplace Info and
+  Generator Info; the window's title is the bare name. The short "Vessel Info", "Tub Info" and the like are gone.
+
 ## 0.4.85
 - **Hand recipes work from the floor** (series recipe audit, 2026-11-19): every hand recipe but Packing has
   `CanBeDoneFromFloor`, so its inputs aren't carried into the inventory first (vanilla moves them otherwise): Rinse Salted Fish, Soak Salt Fish, Soak Cold Fish, Soak Charque.
