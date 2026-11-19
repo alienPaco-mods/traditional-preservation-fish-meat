@@ -965,7 +965,7 @@ module TraditionalPreservationFishMeat
     {
         timedAction = Making,
         time = 60,
-        Tags = InHandCraft;Cooking;CanBeDoneInDark,
+        Tags = InHandCraft;CanBeDoneFromFloor;Cooking;CanBeDoneInDark,
         category = Cooking,
         Tooltip = Tooltip_craft_rinseSaltedFish,
         OnTest = TraditionalPreservationFishMeat.canRinseInput,
@@ -993,7 +993,7 @@ module TraditionalPreservationFishMeat
     {
         timedAction = Making,
         time = 100,
-        Tags = InHandCraft;Cooking,
+        Tags = InHandCraft;CanBeDoneFromFloor;Cooking,
         category = Cooking,
         OnCreate = TraditionalPreservationFishMeat.onCreateCured,
         inputs
@@ -1012,7 +1012,7 @@ module TraditionalPreservationFishMeat
     {
         timedAction = Making,
         time = 100,
-        Tags = InHandCraft;Cooking,
+        Tags = InHandCraft;CanBeDoneFromFloor;Cooking,
         category = Cooking,
         OnCreate = TraditionalPreservationFishMeat.onCreateSoaked,
         inputs

@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.85
+- **Hand recipes work from the floor** (series recipe audit, 2026-11-19): every hand recipe but Packing has
+  `CanBeDoneFromFloor`, so its inputs aren't carried into the inventory first (vanilla moves them otherwise): Rinse Salted Fish, Soak Salt Fish, Soak Cold Fish, Soak Charque.
+- **The game's names**: Ceramic Jar, Glazed Ceramic Jar and Ceramic Pot (was "Clay Jar", "Clay Pot") for Pack Potted
+  Meat in the README, Workshop text, guide, DEVHELP and the Pot of Meat in Fat tooltip.
+
 ## 0.4.84
 - **Smokehouse step S5: docs and checks** (ROADMAP section 12). README, DEVHELP, Workshop text and the guide describe
   the racks and the Smokehouse as they are now (pieces, Info, tabs; no crafting window). The racks' build tooltips

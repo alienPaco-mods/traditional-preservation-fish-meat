@@ -512,7 +512,7 @@ end
 
 local KITS = {
     rack = { about = "salt Walleye at every rack's size (0.5 x3, 2 x2, 3, 6, 13 kg), a gutted Walleye, 2 Corned Steaks, a Country Cured Beef and a Corned Pork Chop, for the racks' menu and refusals", give = giveRackKit },
-    potted = { about = "2 Pots, 2 Lard, Salt, a Steak, Beef, Pork Chop and Pork, a Chicken leg, Turkey Legs, Turkey Wings and Rabbit Meat, and a Clay Jar, Glazed Clay Jar and Clay Pot, for Potted Meat",
+    potted = { about = "2 Pots, 2 Lard, Salt, a Steak, Beef, Pork Chop and Pork, a Chicken leg, Turkey Legs, Turkey Wings and Rabbit Meat, and a Ceramic Jar, Glazed Ceramic Jar and Ceramic Pot, for Potted Meat",
         "Base.Pot", "Base.Pot", "Base.Lard", "Base.Lard", "Base.Salt", "Base.Steak", "Base.Beef", "Base.PorkChop",
         "Base.Pork", "Base.Chicken", "Base.TurkeyLegs", "Base.TurkeyWings", "Base.Rabbitmeat", "Base.ClayJar",
         "Base.ClayJarGlazed", "Base.ClayPot" },

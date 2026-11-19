@@ -891,7 +891,7 @@ module TraditionalPreservationFishMeat
     {
         timedAction = Making,
         time = 100,
-        Tags = InHandCraft;Cooking,
+        Tags = InHandCraft;CanBeDoneFromFloor;Cooking,
         category = Cooking,
         OnCreate = TraditionalPreservationFishMeat.onCreateCured,
         inputs
@@ -962,7 +962,7 @@ module TraditionalPreservationFishMeat
         Tooltip = Tooltip_TraditionalPreservationFishMeat_PotOfMeatInFat,
     }
 
-    /* A crock of Potted Meat: a vanilla Clay Jar, Glazed Clay Jar or Clay Pot (in ModData tpfmVessel, given back
+    /* A crock of Potted Meat: a vanilla Ceramic Jar, Glazed Ceramic Jar or Ceramic Pot (in ModData tpfmVessel, given back
        with the last bite). Its food values are its portions, a cut each with its share of the fat; eaten from with
        vanilla's Eat, it keeps its plain name and weighs less. Keeping is the basement's for now (phase 4c keeps it
        by place). IconsForTexture and WorldStaticModelsByIndex are POTTED_VESSELS' indices: clay, glazed. */

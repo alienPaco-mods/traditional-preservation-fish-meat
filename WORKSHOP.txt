@@ -1,6 +1,6 @@
 [h1]Traditional Preservation (Fish & Meat)[/h1]
 
-Preserve your catch and your kill the old way, with salt, wood, fat, smoke and the weather. One workshop for both: the same Salting Tub cures fish and meat, the same drying stations hang both, a Smokehouse smokes both, and butchering gives the fat that seals meat away in a clay jar. It all keeps for weeks, months or even years, with no fridge and no power.
+Preserve your catch and your kill the old way, with salt, wood, fat, smoke and the weather. One workshop for both: the same Salting Tub cures fish and meat, the same drying stations hang both, a Smokehouse smokes both, and butchering gives the fat that seals meat away in a ceramic jar. It all keeps for weeks, months or even years, with no fridge and no power.
 
 [b]Build 42 only (42.22 or newer). This is an early release, so back up your save before enabling it. Singleplayer only: multiplayer is not supported.[/b]
 
@@ -27,7 +27,7 @@ Preserve your catch and your kill the old way, with salt, wood, fat, smoke and t
 [*]Fish keep their species and size, and meat its cut, through every stage, with their own icons
 [*]Stockfish matures in storage, faster on a pallet in a room with a window open, and travels in bales
 [*]Butchered pigs, cattle and sheep give fat: render it in a pot on any fire, or a whole pig's worth in TP Core's Forged Cauldron on a Stone Hearth, for Lard, Tallow and Cracklings
-[*]Potted Meat: red meat, chicken, turkey or rabbit cooked in Lard or Tallow and packed into a clay jar, keeping by where you store it
+[*]Potted Meat: red meat, chicken, turkey or rabbit cooked in Lard or Tallow and packed into a ceramic jar, keeping by where you store it
 [*]A Smokehouse with a Stone Hearth joined to it: keep the fire stoked and salt fish or meat comes out Hot Smoked, or bank it to a smoulder in the cool months for Cold Smoked fish and Dry Cured meat, with a ham hung by the door to tell you
 [*]Gutting gives Fish Guts for chum and a Fish Head for a proper stock
 [*]Blood that goes off, cured with salt or vinegar, made into Black Pudding and Blood Sausage; real blood amounts by the animal's weight, and casings from butchering
@@ -83,7 +83,7 @@ Put Pork Fat (or Suet) in a Pot, cook it an hour on any fire, Pour Off the melte
 [*][b]Put Meat in Lard or Tallow:[/b] an empty pot, a block of Lard or Tallow, a cut and 1 salt. Or [b]Put Meat in the Melted Fat[/b] straight from rendering.
 [*][b]Add Meat to the Pot:[/b] up to four cuts. Beef, Steak, Mutton Chop, Venison, Pork and Pork Chop, or chicken, turkey and rabbit, in any mix.
 [*]Cook it two hours on any fire. It can burn.
-[*][b]Pack Potted Meat[/b] into a Clay Jar, Glazed Clay Jar or Clay Pot: a Crock of Potted Meat, one portion a cut. Eat it like any food; the jar comes back with the last bite. About 4 months in a fridge or the winter cold, 2 to 4 in a basement, 2 weeks in a summer pantry, and the first portion taken costs a third of what's left.
+[*][b]Pack Potted Meat[/b] into a Ceramic Jar, Glazed Ceramic Jar or Ceramic Pot: a Crock of Potted Meat, one portion a cut. Eat it like any food; the jar comes back with the last bite. About 4 months in a fridge or the winter cold, 2 to 4 in a basement, 2 weeks in a summer pantry, and the first portion taken costs a third of what's left.
 [/list]
 
 [h2]Fish Guts, heads and stock[/h2]

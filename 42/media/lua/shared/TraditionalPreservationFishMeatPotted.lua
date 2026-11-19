@@ -43,7 +43,7 @@ F.FAT_BLOCK_WEIGHT = 0.3
 -- Meat loses about a third of its weight in the pot; its food stays.
 F.POTTED_WEIGHT = 0.67
 -- The vessels, with the icon and model index each gives the crock (IconsForTexture, WorldStaticModelsByIndex).
--- A Clay Pot shares vanilla's unglazed jar icon, so it looks like one.
+-- A Ceramic Pot shares vanilla's unglazed jar icon, so it looks like one.
 F.POTTED_VESSELS = { ["Base.ClayJar"] = 0, ["Base.ClayJarGlazed"] = 1, ["Base.ClayPot"] = 0 }
 F.POTTED_XP = 3                 -- Cooking, per cut packed
 -- Under this many portions a crock counts as eaten out (the engine keeps hunger as a 32-bit float).
@@ -180,7 +180,7 @@ function F.onPackPotted(craftRecipeData, character)
 end
 
 -- A crock with no batch of its own (the debug Item List, loot, another mod) holds what its script gives: one
--- portion, in a plain Clay Jar. That is written down the first time it is eaten, so it eats and labels as a packed
+-- portion, in a plain Ceramic Jar. That is written down the first time it is eaten, so it eats and labels as a packed
 -- one; without it the portions left read 0 and the first bite threw the rest away.
 function F.adoptCrock(crock)
     local crockModData = crock:getModData()

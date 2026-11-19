@@ -2,7 +2,7 @@
 
 **Status: experimental.** The stations build, open and hang fish and meat in the game, but a full year hasn't been played. Back up your save before enabling.
 
-Preserves fish and meat the old way, with no power: salt, wood, fat, smoke and the weather. One workshop serves both: the same Salting Tub cures fish and meat, the same drying stations hang both, the Smokehouse smokes both, and butchering gives the fat that seals meat in a clay jar. The player guide is `1_FishMeat_Guide.md` in this folder.
+Preserves fish and meat the old way, with no power: salt, wood, fat, smoke and the weather. One workshop serves both: the same Salting Tub cures fish and meat, the same drying stations hang both, the Smokehouse smokes both, and butchering gives the fat that seals meat in a ceramic jar. The player guide is `1_FishMeat_Guide.md` in this folder.
 
 | Road | Fish | Meat | Season | Keeps |
 |---|---|---|---|---|
@@ -141,7 +141,7 @@ A plank shed on four tiles, two by two, its pair of doors under the gable. The s
 1. **Put Meat in Lard or Tallow** (an empty Pot or Forged Pot, a block of Lard or Tallow, one cut, 1 Salt) or **Put Meat in the Melted Fat** (a pot holding 0.5 L of Lard (Melted) or Tallow, one block's worth): a **Pot of Meat in Fat**.
 2. **Add Meat to the Pot**: up to four cuts in all (Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop, and vanilla's chicken and turkey legs, wings and fillets and Rabbit Meat, in any mix), uncooked only. Poultry and rabbit otherwise only hot smoke (below): no charque, dry curing or cold smoke.
 3. Cook it on any stove or fire: 120 minutes, burns at 240.
-4. **Pack Potted Meat** into an empty Clay Jar, Glazed Clay Jar or Clay Pot: the pot back and a **Crock of Potted Meat**, one portion a cut (its food plus a quarter block of fat, about 1,000 calories), eaten like any food (its name stays plain; it weighs less as it empties), the vessel back with the last bite. Cooking XP 3 a cut.
+4. **Pack Potted Meat** into an empty Ceramic Jar, Glazed Ceramic Jar or Ceramic Pot: the pot back and a **Crock of Potted Meat**, one portion a cut (its food plus a quarter block of fat, about 1,000 calories), eaten like any food (its name stays plain; it weighs less as it empties), the vessel back with the last bite. Cooking XP 3 a cut.
 
 The crock **keeps by place**: about 120 / 180 days in a powered fridge or at 4 C, longer as it gets colder and stopped once frozen (−2 C and below: `F.POTTED_AGE_CURVE`), about 110 / 165 in a winter basement and 64 / 96 in a summer one (5 to 13 C, a month behind the season), in a room by its temperature (TP Core's: a shut pantry follows the last three days and is stuffy in July, about 17 / 25 at 23 C, 14 / 21 at 25 C and over; 18 / 27 at 22 C while the grid is on), stopped in a powered freezer. The first portion taken costs a third of the days it had left, once. A part-used Lard gives only what is left of it.
 

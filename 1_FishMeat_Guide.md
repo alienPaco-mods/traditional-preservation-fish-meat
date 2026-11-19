@@ -37,7 +37,7 @@
 
 A good catch or a good kill gives you more than you can eat in a week. This mod turns the surplus into food that keeps for **months or years**, with no power and no fridge: salt, wood, fat, smoke and the weather do the work.
 
-Fish and meat share one workshop. The same **Salting Tub** cures both, the same **drying stations** hang both, the **Smokehouse** smokes both, and butchering gives the **fat** that seals meat away in a clay jar. Which road you take depends on the season and on what's on the table.
+Fish and meat share one workshop. The same **Salting Tub** cures both, the same **drying stations** hang both, the **Smokehouse** smokes both, and butchering gives the **fat** that seals meat away in a ceramic jar. Which road you take depends on the season and on what's on the table.
 
 | Road | Fish | Meat | Season | Keeps |
 |---|---|---|---|---|
@@ -58,7 +58,7 @@ Fish and meat share one workshop. The same **Salting Tub** cures both, the same 
 - **Summer catch?** Gut the big ones → salt it in a **Salting Tub** → hang it on a **Drying Frame**.
 - **Winter catch?** Gut it → hang it on the frame. No salt needed.
 - **Summer beef?** Salt it in the same tub → the same frame, in the hot sun: **charque**.
-- **Butchered a pig?** Render the fat → cook the meat in it → seal it in a clay jar: **Potted Meat**.
+- **Butchered a pig?** Render the fat → cook the meat in it → seal it in a ceramic jar: **Potted Meat**.
 - **Bled it into a bucket?** Cure the blood with salt or vinegar → mix it with oats or grain and fat → bake it in a pan, or stuff it into salted casings and boil it: **Black Pudding** and **Blood Sausage**.
 - **Want it ready to eat?** Hang salt-cured fish or meat in a **Smokehouse** joined to a **Stone Hearth** and keep the fire stoked for an afternoon: **Hot Smoked**.
 - **Want it ready to eat and to keep?** In the cool months, bank the same Stone Hearth to a smoulder for a few hours a day: **Cold Smoked** fish after a day or two of smoke, and smoked dry cured meat such as **Beef (Cold Smoked)** after a week or two of daily fires.
@@ -98,7 +98,7 @@ Every road on one page. *Start* is when to begin it in Kentucky's weather; *Yiel
 | **Hot Smoked chicken, turkey, rabbit** | Any month | Corned (a brine), 1 to 2 days | Smokehouse, Stone Hearth stoked, and nowhere else | About 6 hours of fire; a whole bird 7 or 8 | 70% weight, all the food | 7 / 14 (Corned 3 / 6) | As it is |
 | **Dry cured cuts**: Beef (Dry Cured), Beef (Cold Smoked) and their kin | **October to April** | Country Cured, 10 days | Smokehouse, any station under a roof or in a room with a window open, or in a basement | 3 to 12 weeks | 50% weight, 90% food | 120 / 180 | As it is |
 | **Country Ham** (a Leg of Pork) | **October to March** | Country Cured, 21 days | The same | 6 weeks to 5 months | 50% weight, 90% food | **180 / 365** | As it is |
-| **Potted Meat** (any cut, pork, poultry and rabbit too) | Any month; whenever you butcher | None | A pot, a fire, a clay jar | 2 hours | The meat and its fat | 17 to 120, by where it's kept | As it is |
+| **Potted Meat** (any cut, pork, poultry and rabbit too) | Any month; whenever you butcher | None | A pot, a fire, a ceramic jar | 2 hours | The meat and its fat | 17 to 120, by where it's kept | As it is |
 | **Lard, Tallow** | Whenever you butcher | None | A pot, or a Stone Hearth's Forged Cauldron | 1 hour | 2 pieces of fat a block | Don't spoil | For cooking and potting |
 | **Black Pudding, Blood Sausage** | The day you butcher (cured blood: within 3 days) | None | A pan in the oven; casings and a pot of water | 1 hour baking; half an hour boiling (smoked: 24 hours of cool-day smoke more) | 1 L of blood, filler and fat: 6 slices or 6 links | 5 / 10 (boiled links 7 / 14, smoked 21 / 40) | As it is, fried, or in a dish |
 
@@ -110,7 +110,7 @@ Every road on one page. *Start* is when to begin it in Kentucky's weather; *Yiel
 | Stockfish | **None** | None | A drying station |
 | Charque, dry cured meat | **4 a Beef, Venison or Pork, 2 a Steak or chop**, 10 a leg: 150 for a cow | None; a little wood for smoke | Tub, a drying station, or the Smokehouse |
 | Hot and cold smoking | As above | Wood, hours of it | Smokehouse (Carpentry 5) and Stone Hearth (Masonry 2) |
-| Potted Meat | **1 a pot** | A cooking fire | A pot and a clay jar |
+| Potted Meat | **1 a pot** | A cooking fire | A pot and a ceramic jar |
 | Black Pudding, Blood Sausage | **1 a litre of blood**, a use per 2 L to cure it, 1 for each casing | An hour's baking or half an hour's boil | A pan or a pot |
 
 **Rule of thumb:** salt fish in summer, stockfish in winter, charque in the hot months, dry cured meat and ham from the autumn slaughter, Potted Meat and blood pudding whenever you butcher, and hot smoke when you want something good to eat this week.
@@ -680,13 +680,13 @@ Raw fat left in a cold cauldron goes **rancid** when its oldest piece would have
 
 ## 13. Potted Meat
 
-Potted Meat is the road for any season and any red meat, pork too, and the long-keeping road for chicken, turkey and rabbit (they also hot smoke, chapter 10): cuts cooked slowly in Lard or Tallow (or Clarified Butter, with Dairy) with salt, then packed into a clay jar under their own fat. No station: a pot, a fire and a jar.
+Potted Meat is the road for any season and any red meat, pork too, and the long-keeping road for chicken, turkey and rabbit (they also hot smoke, chapter 10): cuts cooked slowly in Lard or Tallow (or Clarified Butter, with Dairy) with salt, then packed into a ceramic jar under their own fat. No station: a pot, a fire and a jar.
 
 1. **Put Meat in Fat** (right-click the meat or the fat): an empty **Pot** or Forged Pot, a block of **Lard** or **Tallow** (with Dairy on, a **Clarified Butter** does as well), one cut and **1 Salt**. You get a **Pot of Meat in Fat**.
    Or, straight from rendering: **Put Meat in the Melted Fat** takes the pot of half a litre of **Lard (Melted)** or **Tallow (Melted)** that Pour Off leaves, one cut and Salt. Half a litre is one block.
 2. **Add Meat to the Pot**, up to **four cuts** in all: a block of fat covers four. **Beef**, **Steak**, **Mutton Chop**, **Venison**, **Pork** and **Pork Chop** all go in. So do **chicken** (legs, wings, fillets), **turkey** (legs, wings, fillets) and **Rabbit Meat**, in any mix. Cut a whole bird first (the game's Cut Chicken or Cut Turkey).
 3. Cook it on any stove or fire for about **two hours**. It burns if you leave it four, and then only **Scrape Out Burnt Fat** gets the pot back. Once it's cooked, no more meat goes in.
-4. **Pack Potted Meat** into an empty **Clay Jar**, **Glazed Clay Jar** or **Clay Pot**: the pot comes back, and you have a **Crock of Potted Meat**, one portion for each cut.
+4. **Pack Potted Meat** into an empty **Ceramic Jar**, **Glazed Ceramic Jar** or **Ceramic Pot**: the pot comes back, and you have a **Crock of Potted Meat**, one portion for each cut.
 5. Eat from it like any food: Eat Quarter, Half or All, and it gets lighter as it empties. The **jar or pot comes back** with the last bite.
 
 | | Pot of Meat in Fat | Crock of Potted Meat |
@@ -873,7 +873,7 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 | the **dry cured meats** | Yes | - | As Hot Smoked meat | Slice Dry Cured Meat |
 | **Country Ham**, **Smoked Country Ham** | Yes | - | Not whole | **Carve Country Ham** (5 slices at a time) |
 | Slices: dry cured, Country Ham, Hot Smoked | Yes | - | Soup, stew, pizza, omelette, sandwich, burger, salad, rice, pasta | - |
-| Pot of Meat in Fat | No | 2 hours (burns at 4) | - | **Pack Potted Meat** into a clay jar |
+| Pot of Meat in Fat | No | 2 hours (burns at 4) | - | **Pack Potted Meat** into a ceramic jar |
 | **Crock of Potted Meat** | Yes, a portion at a time | - | - | - |
 | Blood, fresh or cured | No | - | - | **Mix Black Pudding**, **Stuff Blood Sausages** (1 L) |
 | Pan of Black Pudding | No | 60 min, silent (burns at 120) | - | **Turn Out Black Pudding** |
@@ -1183,7 +1183,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | **Air dry curing**: Beef, Mutton, Venison, Pork (Dry Cured), Country Ham (Country Cured) | All year | May (under a roof); June to October (a basement) | December, January, February: 12 weeks in frost | None | Under a roof in May; the Smokehouse with the fire out; a basement in summer | Cuts about 3 weeks, a leg about 6; a basement 4½ to 5 and 9 to 11 |
 | **Cold smoking**: Cold Smoked Fish (cured) | October to April | October, April | November to March (17 to 27 days banked all day) | May to September: over 15 C the smoke doesn't count | Smokehouse, Stone Hearth banked | About 12 days from 5 C; 21 at 0 C |
 | **Hot smoking**: Hot Smoked Fish; Beef, Mutton, Venison (Hot Smoked); pork becomes Ham; chicken, turkey and rabbit (Corned, brined a day or two) | All year | Any | None | None | Smokehouse, Stone Hearth stoked; never a leg | Fish 4 to 6 hours in a row, Steaks, chops and poultry cuts 6, a Beef or Venison 7½, a whole chicken 7, a turkey 8 |
-| **Potting and rendering**: Potted Meat, Lard, Tallow | All year | Whenever you butcher | None | None | A pot and a fire (Potted Meat then a clay jar, kept in a cellar) | 2 hours; rendering 1 |
+| **Potting and rendering**: Potted Meat, Lard, Tallow | All year | Whenever you butcher | None | None | A pot and a fire (Potted Meat then a ceramic jar, kept in a cellar) | 2 hours; rendering 1 |
 | **Blood**: Black Pudding, Blood Sausage (blood cured with salt or vinegar) | All year | Whenever you butcher | None | None | A pan in an oven; a pot of water at the boil | Baking 1 hour; boiling half an hour |
 | **Smoked Sausage** (raw links, kielbasa style) | All year | Any | None | None | Smokehouse, Stone Hearth stoked | 6 hours in a row, the day you stuff them |
 | **Smoked Blood Sausage** (boiled links) | October to April | November to March | October, April | May to September: over 15 C the smoke doesn't count, and the links go stale in their week | Smokehouse, Stone Hearth banked or stoked | 24 hours of smoke: a day banked |
@@ -1235,7 +1235,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 |---|---|
 | `TPFM.fish(name, n, weight, stage)` | Spawns `n` fish, at that weight if given (food scaled to match), e.g. `TPFM.fish("Walleye", 2, 4)`. A stage gives it further along: `"cured"` (Salt Cured, ready to hang), `"dried"` (Salt Dried), `"hotSmoked"`, `"coldSmoked"` (each as its station gives a cured fish, nothing spoiled) or `"stockfish"` (young, fresh off the frame), and may take the weight's place: `TPFM.fish("Walleye", 3, "cured")`. `TPFM.fish()` lists the names; `"all"` gives one of each |
 | `TPFM.meat(name, n, stage)` | Spawns `n` of a cut, e.g. `TPFM.meat("Steak", 2)`; `"all"` gives each of Beef, Steak, Mutton Chop, Venison, Pork, Pork Chop and Leg of Pork, then Chicken, ChickenWings, ChickenFillet, ChickenWhole, TurkeyLegs, TurkeyWings, TurkeyFillet, TurkeyWhole and Rabbitmeat (poultry and rabbit: `"corned"` and `"hotSmoked"` only; other stages skip them). A stage gives it further along: `"corned"` (*Steak (Corned)*; no leg), `"country"` (Country Cured), `"charque"` (a Corned cut dried on a frame; no pork), `"hotSmoked"` (a Corned cut from a stoked Smokehouse; pork comes out as the game's Ham, no leg) or `"dryCured"` (dry cured, smoked and young, to age and slice). `TPFM.meat()` lists the names |
-| `TPFM.give(name, n, option)` | Spawns `n` of: `"head"` (Fish Head), `"stock"` (Pot of Fish Head Stock), `"boneBroth"`, `"chickenStock"`, `"soups"` (one of each stock's soup and stew), `"salt"` (vanilla shaker), `"fat"` (one each of Pork Fat, Beef Suet and Mutton Fat), `"fatPot"` (a Pot of Pork Fat, cooked; option `"burnt"` or `"raw"`), `"crock"` (a full Crock of Potted Meat: four Steaks in Lard in a Glazed Clay Jar), `"blood"` (a Bucket of 4 L of blood; option `"cured"` or `"spoiled"`), `"casings"`, `"saltedCasings"`, `"blackPudding"`, `"bloodSausage"` (boiled, cooked; option `"stale"`: 0.1 days short of its week), `"smokedBloodSausage"`, `"freshSausage"` (raw; option `"seasoned"`: garlic, pepper, oregano, or `"stale"`), `"smokedSausage"` (option `"seasoned"`). Default food values. `TPFM.give()` lists them |
+| `TPFM.give(name, n, option)` | Spawns `n` of: `"head"` (Fish Head), `"stock"` (Pot of Fish Head Stock), `"boneBroth"`, `"chickenStock"`, `"soups"` (one of each stock's soup and stew), `"salt"` (vanilla shaker), `"fat"` (one each of Pork Fat, Beef Suet and Mutton Fat), `"fatPot"` (a Pot of Pork Fat, cooked; option `"burnt"` or `"raw"`), `"crock"` (a full Crock of Potted Meat: four Steaks in Lard in a Glazed Ceramic Jar), `"blood"` (a Bucket of 4 L of blood; option `"cured"` or `"spoiled"`), `"casings"`, `"saltedCasings"`, `"blackPudding"`, `"bloodSausage"` (boiled, cooked; option `"stale"`: 0.1 days short of its week), `"smokedBloodSausage"`, `"freshSausage"` (raw; option `"seasoned"`: garlic, pepper, oregano, or `"stale"`), `"smokedSausage"` (option `"seasoned"`). Default food values. `TPFM.give()` lists them |
 | `TPFM.kit("blood")` | Spawns what black pudding and blood sausage take: a Bucket of 4 L of fresh blood, an Empty Jar, a Baking Pan, a Pot, every filler (Oats, Rice, 12 grains each of Barley, Rye and Wheat), Lard, Pork Fat, 4 Salt, Vinegar, Raw Casings, Salted Casings and a Kitchen Knife; 6 boiled Blood Sausages for the Smokehouse and a Smoked Blood Sausage |
 | `TPFM.kit("sausage")` | Spawns what Smoked Sausage takes: 2 Pork, a Pork Chop, Beef, Venison, Pork Fat, Lard, 2 Salt, Garlic, Onion, Pepper, Oregano, Thyme, Sage, 2 Salted Casings, a Pot and a Kitchen Knife; 6 raw Fresh Sausages for the Smokehouse and a seasoned Smoked Sausage |
 | `TPFM.kit("poultry")` | Spawns what hot smoked poultry takes: a whole Chicken and Turkey, every chicken and turkey cut, Rabbit Meat, a Steak, 2 Salt and a Kitchen Knife |
@@ -1263,7 +1263,7 @@ The Salting Tub cures by its place's temperature on its own totals: `TPFM.age` d
 **Typical checks**
 - **Salt fish:** `TPFM.fish("Walleye", 3, 4)` and `TPFM.give("salt", 10)`, gut them, put them in the tub (each gutted 4 weight walleye takes 26 salt) and Cure Fish, `TPFM.tubCure(48)`, Take Out, then hang the fish and `TPFM.age(288)`.
 - **Charque:** `TPFM.meat("all", 2, "corned")`, hang the beef, mutton and venison on a frame (it refuses the pork), `TPFM.age(120)`, take them down and rehydrate one.
-- **Potted Meat:** `TPFM.kit("potted")`, Put Meat in Fat with the Steak, Add Meat to the Pot three times, cook it two hours, Pack Potted Meat into the Glazed Clay Jar, then eat a quarter.
+- **Potted Meat:** `TPFM.kit("potted")`, Put Meat in Fat with the Steak, Add Meat to the Pot three times, cook it two hours, Pack Potted Meat into the Glazed Ceramic Jar, then eat a quarter.
 - **Hot smoking:** build a Smokehouse (`TPC.kit("smokehouse")`), `TPC.kit("stone")` and `TPC.kit("flue")`, build a Stone Hearth by a long side with its door turned away, Connect the Stone Hearth, hang `TPFM.meat("all", 2, "corned")` inside, light the Stone Hearth, then `TPFM.stoke(8)`: Hot Smoked meat, and a ham by the door.
 - **Cold smoking:** in a cool month, the same Smokehouse and Stone Hearth, hang `TPFM.fish("Walleye", 3, "cured")`, bank the Stone Hearth, `TPFM.bank(50)`, then `TPFM.age(288)`: Cold Smoked Fish.
 - **Dry curing:** hang `TPFM.meat("all", 1, "country")` (Country Cured, with a leg) in the Smokehouse. `TPFM.age(1008)` with no fire: Beef, Mutton, Venison and Pork (Dry Cured) and a Country Ham. With `TPFM.addSmoke(130)` first (or `TPFM.bank(130)` on a day of 15 C or less): Beef, Mutton, Venison and Pork (Cold Smoked) and a Smoked Country Ham. Hang `TPFM.meat("all", 1, "corned")` (Corned) and `TPFM.age(520)`: it comes down Corned and rotten, as it would after three weeks in a 12 C shed (`TPFM.underSalt(hours)` adds the spoiling alone). `TPFM.smoke()` lists each piece's hours.
