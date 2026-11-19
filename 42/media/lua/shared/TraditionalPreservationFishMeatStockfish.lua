@@ -4,11 +4,10 @@ TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Action = require "TraditionalPreservationCore/Action"
 
--- How much faster a pallet ripens stockfish than a shelf: place is Weather.placeOf's (a Loft is TP Core's, a room
--- above the ground floor).
+-- How much faster a pallet ripens stockfish than a shelf: place is Weather.placeOf's.
 function F.palletSpeed(place)
-    if place == "Loft" then return F.PALLET_LOFT end
-    if place == "Sheltered" then return F.PALLET_GROUND end
+    if place == "AiredRoom" then return F.PALLET_AIRED end
+    if place == "Sheltered" then return F.PALLET_ROOM end
     return 1
 end
 

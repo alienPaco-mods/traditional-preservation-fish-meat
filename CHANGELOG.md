@@ -1,5 +1,30 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.70
+- **Shut rooms, aired rooms, moving air** (2026-11-19, TP Core 0.1.15). Needs TP Core 0.1.15.
+  - **A shut room stands still:** salt fish, charque, dry curing and cold drying wait for a window (*Stopped (Shut
+    room: open a window)*). A tub, Corned meat's spoiling and unsalted fish's rot still go by the room's temperature.
+  - **An aired room dries as an open roof** (salt fish, charque with the wind, dry curing), by its own temperature;
+    stockfish there at 0.6 of the wind (`AIRED_COLD_RATE`; a roof 0.75). Gutted fish may hang in any room (a shut one
+    waits), never in a basement or the Smokehouse. **The Gantry may stand in a room** (`Tiles.OUTDOOR` and
+    `F.notInRoom` are gone; the Large beam's build checks only the doors).
+  - **Under a roof by the hour's air** (Core's Covered): drying, the tub's cures and spoiling, Corned meat.
+  - **Muggy spoiling needs still air:** salt fish and charque in a muggy season spoil only in the Smokehouse (by the
+    season's mean), a shut room and a basement; the open air, a roof and an aired room keep the skin dry
+    (`F.muggy`, `F.TOTALS.saltSpoil`).
+  - **Unsalted fish rots by its place's temperature** (was the season's mean everywhere but the open air): the open,
+    a roof and the Smokehouse the hour's (`rawSpoil`), a shut room, an aired room and a basement their own. Stockfish
+    under a roof or by an open window is now a January job, February a gamble, as in the open (real stockfish hung
+    on open racks): roof rot Feb 28%, Oct all; aired Feb 67%.
+  - The Stockfish Pallet: x2 in an aired room (`PALLET_AIRED`), x1.5 in a shut room (`PALLET_ROOM`).
+  - **The Smokehouse with the fire out goes by its own air** (TP Core's: an aired room's, the day's mean, never the
+    grid's 22 C), not the roof's hour: drying, dry curing and the waiting Corned meat, poultry and rabbit keep
+    0.4.69's damped afternoons. Its muggy spoiling still reads the season's mean.
+  - `tools/season_report.lua` runs the year round, so November and December stacks finish: stockfish from November to
+    January, 50 to 56 days in the open, none rotted.
+  - Basement keeps its still-air rates. Loft totals and words are gone. `tools/season_report.lua`: shut room and aired
+    room columns, rot under a roof and by an open window.
+
 ## 0.4.69
 - **The Smokehouse goes by an open roof's temperature** (2026-11-19, TP Core 0.1.14): with the fire out, a stack
   inside dries, dry cures and spoils (Corned meat, poultry and rabbit waiting for their cook) by the season's mean, as

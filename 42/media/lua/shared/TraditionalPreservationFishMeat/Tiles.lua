@@ -18,10 +18,6 @@ return {
     FIRST_SHEET_SIZE = 408,
     FACE_COUNT = 2,
     STATIONS = { "traditionalpreservationfishmeat_01_0", "traditionalpreservationfishmeat_01_1", "traditionalpreservationfishmeat_01_6", "traditionalpreservationfishmeat_01_7", "traditionalpreservationfishmeat_02_0", "traditionalpreservationfishmeat_02_1", "traditionalpreservationfishmeat_02_2", "traditionalpreservationfishmeat_02_3" },
-    OUTDOOR = {
-        traditionalpreservationfishmeat_02_2 = true,
-        traditionalpreservationfishmeat_02_3 = true,
-    },
     DOOR_KEPT = {
         traditionalpreservationfishmeat_02_0 = true,
         traditionalpreservationfishmeat_02_1 = true,

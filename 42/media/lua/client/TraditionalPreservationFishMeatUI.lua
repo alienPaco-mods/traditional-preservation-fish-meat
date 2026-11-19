@@ -96,8 +96,8 @@ local function drawStackTooltip(slot, tooltip, method)
         local modData = slot.craftRecipeData:getModData()
         local place = F.placeWord(modData)
         UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Place", UI.placeName(place))
-        -- A basement, loft, room, roofed or Smokehouse stack dries by that place's temperature (Core's); the open
-        -- air goes by the day's.
+        -- A basement, room, roofed or Smokehouse stack dries by that place's temperature (Core's); the open air goes
+        -- by the hour's.
         local own = place ~= "Open"
         local celsius = own and F.ownTemperature(ledger, place) or ledger.temperature or 0
         local word = F.temperatureWord(isCold, celsius, place == "Open")
@@ -221,9 +221,7 @@ UI.onProgressSlot(function(slot, name)
     end
 end)
 
--- The Gantry stands in the open or under an open roof, not in a room (TP Core's Smokehouse keeps its own rules); it
--- and the Hanging Beam keep out of a door's front.
-UI.notInRooms(Tiles.OUTDOOR)
+-- The Gantry and the Hanging Beam keep out of a door's front, indoors or out (TP Core's Smokehouse keeps its own rules).
 UI.keepDoorsFree(Tiles.DOOR_KEPT)
 -- Nor the frame, the tub or the pallet, at any fill.
 UI.keepDoorsFree(Tiles.STATIONS)
@@ -335,7 +333,7 @@ end
 Events.OnFillInventoryObjectContextMenu.Add(onFillBaleMenu)
 
 -- The Stockfish Pallet has no window: its right-click menu says what it does where it stands.
-local PALLET_PLACES = { [F.PALLET_LOFT] = "IGUI_TraditionalPreservationFishMeat_PalletLoft", [F.PALLET_GROUND] = "IGUI_TraditionalPreservationFishMeat_PalletGround" }
+local PALLET_PLACES = { [F.PALLET_AIRED] = "IGUI_TraditionalPreservationFishMeat_PalletAired", [F.PALLET_ROOM] = "IGUI_TraditionalPreservationFishMeat_PalletRoom" }
 
 local function onFillPalletMenu(playerNum, context, worldobjects, test)
     for _, isoObject in ipairs(worldobjects) do

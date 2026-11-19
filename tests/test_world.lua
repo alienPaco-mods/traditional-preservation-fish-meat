@@ -49,6 +49,7 @@ local function square(x, z)
     function s:getZ() return z end
     -- Nothing else stands on it: no Stone Hearth beside a Smokehouse.
     function s:getObjects() return { size = function() return 0 end } end
+    H.shutRoom(s)
     cellSquares[x .. ",0," .. z] = s
     return s
 end

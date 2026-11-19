@@ -137,12 +137,11 @@ local function addTakeRow(menu, playerObj, station, tub)
     sub:addOption(getText(MENU .. "TubOne"), playerObj, queue, station, "take", { false })
 end
 
--- The temperature the tub's cure goes by at its place (the ledger's tubCure totals): the day's in the open, the
--- season's under a roof or in the Smokehouse, Core's figure in a room, a loft or a basement.
+-- The temperature the tub's cure goes by at its place (the ledger's tubCure totals): the hour's in the open, under a
+-- roof or in the Smokehouse, Core's figure in a room or a basement.
 local function tubTemperature(ledger, place)
-    if place == "Open" then return ledger.temperature or 0 end
-    if place == "Sheltered" or place == "Loft" or place == "Basement" then return F.ownTemperature(ledger, place) end
-    return ledger.seasonTemperature or ledger.temperature or 0
+    if place == "Sheltered" or place == "AiredRoom" or place == "Basement" then return F.ownTemperature(ledger, place) end
+    return ledger.temperature or 0
 end
 
 local function stageText(tub)

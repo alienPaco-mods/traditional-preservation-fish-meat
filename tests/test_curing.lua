@@ -256,9 +256,11 @@ check("a full frame is 20 weight", T.STACK_WEIGHT * T.MAX_STACKS == 20)
 check("every station finds its hanger, either way round", T.hangerFor(7) == T.HANGERS[6] and T.hangerFor(409) == T.HANGERS[408] and T.hangerFor(410) == T.HANGERS[410])
 check("a tub has none", T.hangerFor(0) == nil and T.hangerFor(5) == nil)
 check("the Smokehouse (TP Core's) has its own hanger, closed", T.CHAMBER_HANGER.closed and T.hangerFor(856) == nil)
-check("gutted fish hang in the open or under an open roof", T.coldRefusal("Open") == nil and T.coldRefusal("Covered") == nil)
-check("not in a room, a basement or the Smokehouse", T.coldRefusal("Sheltered") == "IGUI_TraditionalPreservationFishMeat_NoColdIndoors"
-    and T.coldRefusal("Basement") == "IGUI_TraditionalPreservationFishMeat_NoColdIndoors")
+check("gutted fish hang in the open, under an open roof or in a room (a shut one waits for a window)",
+    T.coldRefusal("Open") == nil and T.coldRefusal("Covered") == nil and T.coldRefusal("AiredRoom") == nil
+    and T.coldRefusal("Sheltered") == nil)
+check("not in a basement or the Smokehouse", T.coldRefusal("Basement") == "IGUI_TraditionalPreservationFishMeat_NoColdIndoors"
+    and T.coldRefusal("Smokehouse") == "IGUI_TraditionalPreservationFishMeat_NoColdIndoors")
 check("the Smokehouse takes 6 stacks of 15", T.frameRefusal(T.CHAMBER_HANGER, 5, 0, 15) == nil
     and T.frameRefusal(T.CHAMBER_HANGER, 0, 0, 15.1) == "IGUI_TraditionalPreservationFishMeat_TooHeavy"
     and T.frameRefusal(T.CHAMBER_HANGER, 6, 0, 1) == "IGUI_TraditionalPreservationFishMeat_FrameFull")
@@ -271,6 +273,7 @@ local function gridSquare(x, y, sprites)
     function s:getY() return self.y end
     function s:getZ() return 0 end
     function s:isInARoom() return self.inRoom end
+    H.shutRoom(s)
     function s:getProperties() return { has = function() return false end } end
     function s:getObjects()
         local objects = {}
@@ -289,26 +292,22 @@ local function building(square, spriteName)
 end
 local outside, inside = gridSquare(0, 0), gridSquare(10, 10)
 inside.inRoom = true
-check("the big beams go up outdoors or under an open roof", T.notInRoom(building(outside)))
-check("not in a room", not T.notInRoom(building(inside)))
 -- TP Core's Smokehouse facing S, its door's tile at 20,20: nothing goes up on 20,21, and its door needs that tile free.
 local CHAMBER_DOOR = require("TraditionalPreservationCore/Tiles").CHAMBERS[2]
 gridSquare(20, 20, { CHAMBER_DOOR })
-check("nothing is built in front of the Smokehouse's door", not T.notInRoom(building(gridSquare(20, 21))))
-check("beside it is fine", T.notInRoom(building(gridSquare(21, 20))))
+check("the beams go up in a room or out of one, but not in front of a door", T.doorFree(building(inside))
+    and T.doorFree(building(outside)) and not T.doorFree(building(gridSquare(20, 21))) and T.doorFree(building(gridSquare(21, 20))))
 gridSquare(30, 31, { "a crate" })
-check("the Smokehouse's door needs its front free", not T.notInRoom(building(gridSquare(30, 30), CHAMBER_DOOR))
-    and T.notInRoom(building(gridSquare(31, 30), CHAMBER_DOOR)))
-check("the Hanging Beam goes up in a room too, but not in front of a door", T.doorFree(building(inside)) and T.doorFree(building(outside))
-    and not T.doorFree(building(gridSquare(20, 21))))
-for name, rule in pairs({ Medium = "doorFree", Large = "notInRoom" }) do
+check("the Smokehouse's door needs its front free", not T.doorFree(building(gridSquare(30, 30), CHAMBER_DOOR))
+    and T.doorFree(building(gridSquare(31, 30), CHAMBER_DOOR)))
+for name, rule in pairs({ Medium = "doorFree", Large = "doorFree" }) do
     local entity = io.open("42/media/scripts/entities/entity_Drying_Beam_" .. name .. ".txt"):read("*a")
     check(name .. " beam: " .. rule, entity:find("OnIsValid = TraditionalPreservationFishMeat." .. rule .. ",", 1, true) ~= nil)
 end
 do
     local Tiles = require "TraditionalPreservationFishMeat/Tiles"
     local medium, large = T.spriteName(408), T.spriteName(410)
-    check("only the Gantry is kept out of rooms (the Smokehouse is TP Core's)", not Tiles.OUTDOOR[medium] and Tiles.OUTDOOR[large]
+    check("no beam is kept out of rooms (the Smokehouse is TP Core's); both keep doors free", Tiles.OUTDOOR == nil
         and Tiles.DOOR_KEPT[medium] and Tiles.DOOR_KEPT[large])
 end
 for _, file in ipairs({ "Drying_Frame", "Salting_Tub", "Stockfish_Pallet" }) do
@@ -360,7 +359,7 @@ hours = hours + 1
 T.advance(shared, hours, MILD)
 local afterRoof = dry.modData.dried
 T.onDryUpdate(dry)
-check("a roofed frame gets the sheltered rate", near(dry.modData.dried - afterRoof, T.SHELTERED_RATE))
+check("a frame in a shut room dries nothing", near(dry.modData.dried - afterRoof, 0))
 
 dry.modData.place = "Covered"
 hours = hours + 1
@@ -428,7 +427,12 @@ local coldNow = T.stackStatus(true, { dried = 192 }, readings)
 check("cold fish dries at full rate in the cold", coldNow.rate == 1 and near(coldNow.hoursLeft, 576) and near(coldNow.progress, 0.25))
 local saltNow = T.stackStatus(false, { dried = 144 }, readings)
 check("salt fish goes by its own rate", near(saltNow.rate, T.MIN_DRY_RATE) and near(saltNow.hoursLeft, 144 / T.MIN_DRY_RATE))
-check("indoors stops cold drying but not salt", T.stackStatus(true, { place = "Sheltered" }, readings).reason == "Roof" and T.stackStatus(false, { place = "Sheltered" }, readings).reason == nil)
+check("a shut room stops both until a window opens", T.stackStatus(true, { place = "Sheltered" }, readings).reason == "Shut"
+    and T.stackStatus(false, { place = "Sheltered" }, readings).reason == "Shut")
+check("still air below ground stops cold drying but not salt", T.stackStatus(true, { place = "Basement" }, readings).reason == "Roof"
+    and T.stackStatus(false, { place = "Basement" }, readings).reason == nil)
+check("an aired room dries both", T.stackStatus(true, { place = "AiredRoom" }, readings).reason == nil
+    and T.stackStatus(false, { place = "AiredRoom" }, readings).reason == nil)
 local rained = T.newLedger(0)
 T.advance(rained, 1, { temperature = 3, humidity = 0.3, precipitation = 1 })
 check("rain pauses both", T.stackStatus(true, {}, rained).reason == "Rain" and T.stackStatus(false, {}, rained).reason == "Rain" and T.stackStatus(true, {}, rained).hoursLeft == nil)
@@ -439,12 +443,13 @@ local hot = T.newLedger(0)
 hot.seasonTemperature, hot.seasonHumidity = 25, 0.6
 T.advance(hot, 1, { temperature = 25, humidity = 0.6, precipitation = 0 })
 check("a warm season stops cold drying and warns", T.stackStatus(true, {}, hot).reason == "TooWarm" and T.stackStatus(true, {}, hot).spoiling)
-check("a muggy one warns for salt fish", T.stackStatus(false, {}, hot).spoiling)
--- Unsalted fish indoors spoils by the season (its step), so its popup warns by the season too (2026-11-14; it read
--- the day's).
-local coolDay = { rawSpoilOn = true, rawSpoilOpenOn = false, temperature = 5 }
-check("an indoor cold stack warns by the season, an open one by the day", T.stackStatus(true, { place = "Sheltered" }, coolDay).spoiling
-    and not T.stackStatus(true, {}, coolDay).spoiling)
+check("a muggy one warns for salt fish in still air (the Smokehouse), not in moving air",
+    T.stackStatus(false, { place = "Smokehouse" }, hot).spoiling and not T.stackStatus(false, {}, hot).spoiling
+    and not T.stackStatus(false, { place = "Covered" }, hot).spoiling and not T.stackStatus(false, { place = "AiredRoom" }, hot).spoiling)
+-- Unsalted fish spoils by its place's temperature (its step), so its popup warns by the same.
+local coolDay = { rawSpoilOn = false, rawSpoilRoomOn = true, temperature = 5 }
+check("a cold stack warns by its place: a stuffy shut room by the room's, the open air by the hour's",
+    T.stackStatus(true, { place = "Sheltered" }, coolDay).spoiling and not T.stackStatus(true, {}, coolDay).spoiling)
 check("a fresh ledger is safe to read", T.stackStatus(false, {}, T.newLedger(0)).rate == 0)
 local heatWave = T.newLedger(0)
 T.advance(heatWave, 1, { temperature = 30, humidity = 0.3, precipitation = 0 })
@@ -512,14 +517,14 @@ T.onColdDryUpdate(winterStack)
 check("half the time in winter is half dry", near(winterStack.elapsed, T.COLD_DRY_HOURS * 3600 / 2) and winterStack.modData.spoiled == 0)
 
 local mildStack, mild = coldStack()
-mild.seasonTemperature = 0
+mild.seasonTemperature, mild.threeDayTemperature = 0, 0
 for hour = 1, 12 do
     hours = hour
     T.advance(mild, hours, { temperature = 15, humidity = 0.2, precipitation = 0 })
 end
 T.onColdDryUpdate(mildStack)
-check("twelve warm hours in winter spoil an open stack, by the day's (step I), not the season's", mildStack.modData.spoiled > 0
-    and mild.rawSpoil == 0)
+check("twelve warm hours in winter spoil an open stack and a roofed one (the hour's air), not one in a shut room (its mean)",
+    mildStack.modData.spoiled > 0 and mild.rawSpoil > 0 and mild.rawSpoilRoom == 0)
 
 local warmStack, warm = coldStack()
 warm.seasonTemperature = 20
@@ -547,7 +552,7 @@ check("an open shed dries cold fish at three quarters", near(shedStack.modData.d
 -- Early frost and wet add to the spoilage, the more the wetter the fish
 local function coldStep(dried, totals, sheltered, covered)
     local ledger = T.newLedger(0)
-    local modData = { dried = dried, spoiled = 0, lastCold = 0, lastRawSpoil = 0, lastRawSpoilOpen = 0, lastHardFrost = 0, lastColdWet = 0,
+    local modData = { dried = dried, spoiled = 0, lastCold = 0, lastRawSpoil = 0, lastRawSpoilRoom = 0, lastHardFrost = 0, lastColdWet = 0,
         place = covered and "Covered" or sheltered and "Sheltered" or nil }
     for key, total in pairs(totals) do ledger[key] = total end
     T.coldStep(modData, ledger)
@@ -562,23 +567,24 @@ check("but not once it has a dry skin", coldStep(T.COLD_DRY_HOURS * 0.3, { coldW
 check("a roof keeps the rain off", coldStep(0, { coldWet = 48 }, true).spoiled == 0 and coldStep(0, { coldWet = 48 }, nil, true).spoiled == 0)
 check("frost and wet together stop at the cap", coldStep(0, { hardFrost = 150, coldWet = 150 }).spoiled == T.DAMAGE_CAP)
 check("rot weighs by how wet it still is, squared (the skin, step I)", near(coldStep(T.COLD_DRY_HOURS * 0.5,
-    { rawSpoilOpen = T.RAW_SPOIL_HOURS }).spoiled, 0.25) and near(coldStep(T.COLD_DRY_HOURS * 0.9, { rawSpoil = T.RAW_SPOIL_HOURS },
+    { rawSpoil = T.RAW_SPOIL_HOURS }).spoiled, 0.25) and near(coldStep(T.COLD_DRY_HOURS * 0.9, { rawSpoil = T.RAW_SPOIL_HOURS },
     nil, true).spoiled, 0.01))
-check("and still rots a fresh stack, in the open by the day's", near(coldStep(0, { rawSpoilOpen = T.RAW_SPOIL_HOURS }).spoiled, 1)
-    and coldStep(0, { rawSpoil = T.RAW_SPOIL_HOURS }).spoiled == 0)
+check("and still rots a fresh stack, each place by its own total", near(coldStep(0, { rawSpoil = T.RAW_SPOIL_HOURS }).spoiled, 1)
+    and coldStep(0, { rawSpoilRoom = T.RAW_SPOIL_HOURS }).spoiled == 0
+    and near(coldStep(0, { rawSpoilRoom = T.RAW_SPOIL_HOURS }, true).spoiled, 1))
 local older = { dried = 0, spoiled = 0, lastCold = 0, lastRawSpoil = 0 }
 local olderLedger = T.newLedger(0)
 olderLedger.hardFrost, olderLedger.coldWet = 500, 500
 T.coldStep(older, olderLedger)
 check("a cold stack from an older version starts counting frost and wet now", older.spoiled == 0 and older.lastHardFrost == 500)
 
--- Salt fish in summer, in the shade (hot sun has its own checks below)
-local function saltStack(season, humidity)
+-- Salt fish in summer, in the still air of the Smokehouse with the fire out (hot sun has its own checks below)
+local function saltStack(season, humidity, place)
     ModData.tables = {}
     hours = 0
     local stack = newRecipeData(T.DRY_HOURS * 3600)
     T.onDryStart(stack)
-    stack.modData.place = "Covered"
+    stack.modData.place = place or "Smokehouse"
     local ledger = T.getLedger()
     ledger.seasonTemperature, ledger.seasonHumidity = season, humidity
     hours = T.SALT_SPOIL_HOURS / 2
@@ -589,6 +595,8 @@ end
 check("a cool season leaves salt fish alone", saltStack(15, 0.6).modData.spoiled == 0)
 check("so does a hot dry one", saltStack(28, 0.2).modData.spoiled == 0)
 check("a hot muggy one takes half its keeping", near(saltStack(28, 0.6).modData.spoiled, 0.5))
+check("but not in moving air: under a roof or in an aired room", saltStack(28, 0.6, "Covered").modData.spoiled == 0
+    and saltStack(28, 0.6, "AiredRoom").modData.spoiled == 0)
 
 -- Hot sun on fresh salt fish
 local function saltStep(dried, heat, place)
@@ -1505,7 +1513,7 @@ end)()
     check("not under a roof", covered.modData.dried == 60)
     shared.saltSpoil = shared.saltSpoil + T.SALT_SPOIL_HOURS / 4
     T.onCharqueUpdate(covered)
-    check("a muggy season spoils it as salt fish", near(covered.modData.spoiled, 0.25))
+    check("a muggy season doesn't spoil it under a roof (moving air)", covered.modData.spoiled == 0)
     shared.charqueCovered = shared.charqueCovered + 100
     T.onCharqueUpdate(covered)
     check("done stops at the end", covered.elapsed == T.CHARQUE_HOURS * 3600)

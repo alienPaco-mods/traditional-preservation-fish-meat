@@ -27,8 +27,8 @@ function ZombRandFloat(low, high) return (low + high) / 2 end
 ComponentType = { Resources = "Resources", CraftLogic = "CraftLogic", DryingCraftLogic = "DryingCraftLogic" }
 MapObjects = { OnLoadWithSprite = function() end }
 CharacterActionAnims = { Craft = "Craft" }
-local square = { getX = function() return 5 end, getY = function() return 4 end, getZ = function() return 0 end,
-    getObjects = function() return H.list({}) end, isOutside = function() return false end, isInARoom = function() return true end }
+local square = H.shutRoom({ getX = function() return 5 end, getY = function() return 4 end, getZ = function() return 0 end,
+    getObjects = function() return H.list({}) end, isOutside = function() return false end, isInARoom = function() return true end })
 function getCell()
     return { getGridSquare = function(_, x, y, z) if x == 5 and y == 4 and (z or 0) == 0 then return square end end }
 end

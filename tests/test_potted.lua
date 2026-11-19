@@ -220,7 +220,7 @@ F.keepCrock(freezer, 0, "Freezer", ledger)
 F.keepCrock(warm, 0, "Sheltered", ledger)
 -- A cold snap in a hot season: 0 C outdoors, a room at the season's mean, 25 C.
 for hour = 1, 240 do
-    ledger.seasonTemperature = 25
+    ledger.seasonTemperature, ledger.threeDayTemperature = 25, 25
     F.recordPotted(hour, 0)
 end
 for _, item in ipairs({ cellar, cold, fridge, freezer, warm }) do F.keepCrock(item, 240, nil, ledger) end
@@ -236,11 +236,11 @@ ledger.seasonTemperature, ledger.groundTemperature = 25, 23.125
 check("so a summer basement (15 C) keeps it about 55 days, the cold 120, a warm room 14",
     near(F.pottedRate("Basement", ledger), 1.08, 0.01) and near(F.pottedRate("Fridge", ledger), 0.5)
     and near(60 / F.pottedRate("Sheltered", ledger), 14, 1e-6))
-ledger.seasonTemperature = 14
+ledger.seasonTemperature, ledger.threeDayTemperature = 14, 14
 check("a room in a 14 C season (15 C inside) keeps it as a basement does, not as Weather's 25 C room", near(F.pottedRate("Sheltered", ledger), 1))
-ledger.seasonTemperature = 2
+ledger.seasonTemperature, ledger.threeDayTemperature = 2, 2
 check("and in a 2 C winter season (4 C inside) as a fridge", near(F.pottedRate("Sheltered", ledger), 0.5))
-ledger.seasonTemperature = -4
+ledger.seasonTemperature, ledger.threeDayTemperature = -4, -4
 check("in a frozen room it keeps as in a freezer", F.pottedRate("Sheltered", ledger) == 0)
 check("an unseen crock keeps counting where it was last seen", cellar.modData.tpfmKeep.fluidAge.place == "Basement")
 

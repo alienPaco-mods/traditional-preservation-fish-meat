@@ -15,7 +15,7 @@ local Info = TraditionalPreservationFishMeatInfo
 
 local KEY = "IGUI_TraditionalPreservationFishMeat_"
 -- Places with a word of their own (TP Core's); anything else under a roof reads as indoors.
-local PLACES = { Open = true, Covered = true, Sheltered = true, Loft = true, Basement = true, [Smokehouse.PLACE] = true }
+local PLACES = { Open = true, Covered = true, Sheltered = true, AiredRoom = true, Basement = true, [Smokehouse.PLACE] = true }
 -- A running batch's method, by its recipe's short name.
 local RECIPE_METHODS = { HangFishToDry = "salt", HangFishToColdDry = "cold", HangMeatToDry = "meat",
     HangSausageToSmoke = "sausage" }
@@ -86,16 +86,16 @@ function Info.rows(found, ledger, now, fire)
     table.insert(rows, { KEY .. "InfoHolds", UI.say(KEY .. "InfoStacks", tostring(found.finishedStacks + #found.batches),
         tostring(hanger.stacks), tostring(hanger.stackWeight)) })
     local temperature = ledger.temperature or 0
-    -- Below ground, in a loft, in a room and in the Smokehouse the stacks go by the place's own temperature, not the
-    -- day's (the Smokehouse's is an open roof's).
-    if found.place == "Basement" or found.place == "Loft" or found.place == "Sheltered" or found.place == Smokehouse.PLACE then
+    -- Below ground, in a room and in the Smokehouse the stacks go by the place's own temperature (the Smokehouse's is
+    -- an open roof's, the hour's).
+    if found.place == "Basement" or found.place == "AiredRoom" or found.place == "Sheltered" or found.place == Smokehouse.PLACE then
         table.insert(rows, { KEY .. "InfoAir", UI.placeText(found.place, F.ownTemperature(ledger, found.place)) })
     else
         table.insert(rows, { KEY .. "InfoAir", UI.say(KEY .. "InfoAirValue", UI.degrees(temperature),
             UI.degrees(ledger.seasonTemperature or temperature)) })
     end
-    -- Wind and rain reach a hanger in the open or under an open roof.
-    if found.place == "Open" or found.place == "Covered" then
+    -- Wind reaches a hanger in the open, under an open roof and through an open window.
+    if found.place == "Open" or found.place == "Covered" or found.place == "AiredRoom" then
         table.insert(rows, { KEY .. "Wind", getText(F.windWord(ledger.wind)) })
     end
     if found.place == "Open" then

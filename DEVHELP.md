@@ -6,8 +6,8 @@ These console commands load only when the game runs in **debug mode** (launch op
 
 | Command | What it does |
 |---|---|
-| `TPFM.weather()` | The drying weather now: temperature, the 10-day season average, the basement's, the loft's, a room's and a roof's temperatures and their drying and tub rates, humidity, wetness (open and cold frames), wind, the drying speed open, under a roof and cold, whether unsalted and salted fish are spoiling, and the running totals (with hours of hard frost and of cold fish lying wet). |
-| `TPFM.here()` | Which place you're standing in, as a station there would read it: Open, Covered (a roof, no room), Sheltered (a room), Loft or Basement. |
+| `TPFM.weather()` | The drying weather now: temperature, the 10-day season average, the basement's, an aired room's, a shut room's and a roof's temperatures and their drying and tub rates, humidity, wetness (open and cold frames), wind, the drying speed open, under a roof and cold, whether unsalted and salted fish are spoiling, and the running totals (with hours of hard frost and of cold fish lying wet). |
+| `TPFM.here()` | Which place you're standing in, as a station there would read it: Open, Covered (a roof, no room), Sheltered (a shut room), AiredRoom (a window open, smashed or empty) or Basement. |
 | `TPFM.wind()` | Starts a log of the live wind (0-1) every 10 game minutes; run it again to print the mean, min and max on dry and on rainy or snowy spells, beside the forecast's mean wind for the same days, and stop. For setting the cold-drying wind curve. |
 | `TPFM.age(hours)` | Gives every hanging stack this many hours of perfect drying weather. `TPFM.age(288)` finishes a salt stack, `TPFM.age(768)` a cold one, `TPFM.age(120)` a charque one, `TPFM.age(520)` a Country Cured cut in the Smokehouse (1010 with a leg). Corned meat hanging in a Smokehouse, a room, a loft, a basement or under a roof spoils with it as a 12 C shed would, so `TPFM.age(520)` rots it; poultry and rabbit waiting for their cook by their own faster rate. |
 | `TPFM.spoil(hours)` | Adds spoiling weather, to test rotting. A fresh cold stack rots after 48; a part-dried one takes longer. |

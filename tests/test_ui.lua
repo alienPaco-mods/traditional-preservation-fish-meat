@@ -76,8 +76,8 @@ local function station(sprite, stored, running, indoors)
         getSprite = function() return { getName = function() return sprite end } end,
         getComponent = function() return logic end,
         getSquare = function()
-            return { getZ = function() return 0 end, isOutside = function() return not indoors end,
-                isInARoom = function() return indoors or false end }
+            return H.shutRoom({ getZ = function() return 0 end, isOutside = function() return not indoors end,
+                isInARoom = function() return indoors or false end })
         end,
     }
     local resource = {
@@ -103,7 +103,7 @@ check("a frame is green for gutted fish", green(station(FRAME), fish(GUTTED, 0.5
 check("and for halves", green(station(FRAME), fish(HALF, 0.5)))
 check("not for raw fish", not green(station(FRAME), fish("Base.Walleye", 0.5)))
 check("not for a fillet", not green(station(FRAME), fish("Base.FishFillet", 0.5)))
-check("a frame in a room isn't, for gutted fish", not green(station(FRAME, nil, false, true), fish(GUTTED, 0.5)))
+check("a frame in a room is too, for gutted fish (shut, it waits for a window)", green(station(FRAME, nil, false, true), fish(GUTTED, 0.5)))
 check("but is for salted fish", green(station(FRAME, nil, false, true), fish(PRESSED, 0.5)))
 check("nor is the Smokehouse, even in the open", not green(station(SHED), fish(GUTTED, 0.5))
     and green(station(SHED), fish(PRESSED, 0.5)))
@@ -276,8 +276,8 @@ local function placing(spriteName, inRoom)
     getCell = realCell
     return fits
 end
-check("a Gantry can't be put down in a room, a Hanging Beam can (0.4.15)", not placing("traditionalpreservationfishmeat_02_3", true)
-    and not placing("traditionalpreservationfishmeat_02_2", true) and placing("traditionalpreservationfishmeat_02_0", true))
+check("a Gantry and a Hanging Beam can be put down in a room", placing("traditionalpreservationfishmeat_02_3", true)
+    and placing("traditionalpreservationfishmeat_02_2", true) and placing("traditionalpreservationfishmeat_02_0", true))
 check("but can outdoors or under an open roof", placing("traditionalpreservationfishmeat_02_2", false))
 check("and the frame can go anywhere", placing("traditionalpreservationfishmeat_01_0", true))
 

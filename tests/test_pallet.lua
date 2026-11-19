@@ -47,8 +47,8 @@ local function bale(items)
 end
 
 -- Where it ripens faster
-check("a loft ripens twice as fast", F.palletSpeed("Loft") == 2)
-check("a ground-floor room half as fast again", F.palletSpeed("Sheltered") == 1.5)
+check("an aired room ripens twice as fast", F.palletSpeed("AiredRoom") == 2)
+check("a shut room half as fast again", F.palletSpeed("Sheltered") == 1.5)
 check("covered, outdoors and a basement no faster than a shelf", F.palletSpeed("Covered") == 1 and F.palletSpeed("Open") == 1
     and F.palletSpeed("Basement") == 1)
 
@@ -163,7 +163,7 @@ check("and given back whole", inv:getFirstEvalRecurse(function(item) return item
 Events = Events or {}
 function isClient() return false end
 MapObjects = { OnLoadWithSprite = function() end }
-local placeOf = "Loft"
+local placeOf = "AiredRoom"
 package.loaded["TraditionalPreservationCore/Weather"].placeOf = function() return placeOf end
 local hours = 100
 function getGameTime() return { getWorldAgeHours = function() return hours end } end
@@ -186,10 +186,10 @@ refresh(pallet, sessionState)
 check("less than an hour waits", pallet.modData.palletHour == 100 and onIt:getModData().matureAge == 0)
 hours = 124
 refresh(pallet, sessionState)
-check("a day in a loft gives a day more", pallet.modData.palletHour == 124 and near(onIt:getModData().matureAge, -1))
+check("a day in an aired room gives a day more", pallet.modData.palletHour == 124 and near(onIt:getModData().matureAge, -1))
 placeOf, hours = "Sheltered", 148
 refresh(pallet, sessionState)
-check("a day in a ground-floor room half a day more", near(onIt:getModData().matureAge, -1.5))
+check("a day in a shut room half a day more", near(onIt:getModData().matureAge, -1.5))
 placeOf, hours = "Basement", 172
 refresh(pallet, sessionState)
 check("a day in a basement nothing more", near(onIt:getModData().matureAge, -1.5) and pallet.modData.palletHour == 172)

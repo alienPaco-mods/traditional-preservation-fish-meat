@@ -91,8 +91,8 @@ local smoking = Info.rows({ hanger = shed, place = "Smokehouse", waiting = {}, f
         underCured = true, burning = Fire.STOKED, hotSmokeHours = 3, hotSmokeHoursNeeded = 8, coldSmokeHours = 12, smokeNeed = 60, smokeFrom = 7, smokeMeat = true }, 0.2) } },
     cool, 1000, "stoked")
 check("the Smokehouse's fire", valueOf(smoking, "InfoFire") == "Stoked (hot)" and valueOf(smoking, "Wind") == nil)
-check("the Smokehouse is its own word, by an open roof's air (the season's)", valueOf(smoking, "Place") == "In the Smokehouse"
-    and valueOf(smoking, "InfoAir") == "6 C (In the Smokehouse)")
+check("the Smokehouse is its own word, by an aired room's air (the hour's with no day mean yet, 1 C over in the cold)",
+    valueOf(smoking, "Place") == "In the Smokehouse" and valueOf(smoking, "InfoAir") == "9 C (In the Smokehouse)")
 check("meat in the shed dry cures", smoking.bars[1].text == "1. Dry cure")
 check("the cook is called out", hasNote(smoking, "Stack 1: Hot smoking, 3.0 of 8 h stoked in a row: it comes out Hot Smoked"))
 check("and the smoke so far", hasNote(smoking, "Stack 1: 12.0 of 60 h of smoke"))

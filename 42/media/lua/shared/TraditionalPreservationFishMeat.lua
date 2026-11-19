@@ -187,8 +187,10 @@ F.HARD_FROST_RATE = 0.6
 F.WIND_GOOD = 0.25
 F.CALM_RATE = 0.5
 F.WINDY_RATE = 1.2
--- An open shed's roof breaks some of the wind, so cold drying there runs at this share, rain or not.
+-- An open shed's roof breaks some of the wind, so cold drying there runs at this share, rain or not; through an
+-- aired room's open window less of it still.
 F.COVERED_COLD_RATE = 0.75
+F.AIRED_COLD_RATE = 0.6
 -- Fresh fish suffers most. Until it is FRESH_UNTIL dried and has formed a dry skin, hard frost breaks
 -- the flesh and lying wet above freezing starts it going off. Each adds a little to its spoilage,
 -- scaled by how wet the fish still is: FREEZE_DAMAGE_HOURS of hard frost on a fresh stack add
@@ -259,11 +261,11 @@ F.RINSED_KEEPING = 0.9
 F.RINSE_REACH = 3
 F.RINSE_TICKS = 60
 
--- The Stockfish Pallet: stockfish on it ripens faster where the warehouses kept it, dry and airy. A loft (TP Core's:
--- the top storey) PALLET_LOFT times the food clock, any other room above ground PALLET_GROUND; covered, outdoors or a basement
+-- The Stockfish Pallet: stockfish on it ripens faster where the warehouses kept it, dry and airy. An aired room (TP
+-- Core's: a window open) PALLET_AIRED times the food clock, a shut room PALLET_ROOM; covered, outdoors or a basement
 -- ("too damp") no faster than a shelf. Its stack shows a third, two thirds or full by the weight on it.
-F.PALLET_LOFT = 2
-F.PALLET_GROUND = 1.5
+F.PALLET_AIRED = 2
+F.PALLET_ROOM = 1.5
 F.PALLET_CAPACITY = 20
 F.PALLET_LEVELS = 3
 -- A Stockfish Bale: stockfish tied up for carrying and storing, as it was shipped from the Lofoten. It holds
@@ -543,17 +545,11 @@ function F.stationIndex(isoObject)
     return name and STATION_INDEX[name]
 end
 
--- The Gantry stands in the open or under an open roof, not in a room, unlike the frame and (since 0.4.15) the Hanging
--- Beam, as TP Core's Smokehouse does; and not in front of a door (TP Core's Doors: the Stone Hearth's mouth, the Stone Hearth's
--- door, the Smokehouse's). The Hanging Beam only minds the doors (F.doorFree).
+-- The Hanging Beam and the Gantry go up anywhere but in front of a door (TP Core's Doors: the Stone Hearth's mouth,
+-- the Stone Hearth's door, the Smokehouse's). In a shut room what hangs on them waits for a window.
 function F.doorFree(params)
     local name = params.tileInfo and params.tileInfo:getSpriteName()
     return Doors.fits(params.square, name)
-end
-
-function F.notInRoom(params)
-    local name = params.tileInfo and params.tileInfo:getSpriteName()
-    return not params.square:isInARoom() and Doors.fits(params.square, name)
 end
 
 -- The hanger a station's sprite belongs to, whichever way it faces, or nil for a tub.
@@ -597,10 +593,13 @@ function F.frameRefusal(hanger, busyStacks, waitingWeight, weight, waitingPieces
     return nil
 end
 
--- Cold drying needs moving air: a room, a basement or the Smokehouse (Smokehouse.PLACE; else place is Weather.placeOf's)
--- refuses gutted fish. The Smokehouse doesn't list the recipe either.
+-- Cold drying needs moving air: a basement or the Smokehouse (Smokehouse.PLACE; else place is Weather.placeOf's)
+-- refuses gutted fish. A room takes them: aired it dries them, shut it waits for a window. The Smokehouse doesn't
+-- list the recipe either.
+local COLD_PLACES = { Open = true, Covered = true, AiredRoom = true, Sheltered = true }
+
 function F.coldRefusal(place)
-    if place ~= "Open" and place ~= "Covered" then return F.REFUSALS.noColdIndoors end
+    if not COLD_PLACES[place] then return F.REFUSALS.noColdIndoors end
     return nil
 end
 

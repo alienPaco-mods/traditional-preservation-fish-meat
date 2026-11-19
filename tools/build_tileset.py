@@ -1260,14 +1260,11 @@ def build_tiles(game=GAME):
 def lua_tiles():
     stations = [tile_name(base + face) for base in (TUB, FRAME, MEDIUM_BEAM, LARGE_BEAM) for face in range(len(FACES))]
     beams = [tile_name(base + face) for base in (MEDIUM_BEAM, LARGE_BEAM) for face in range(len(FACES))]
-    # The Gantry stays out of rooms (the Smokehouse is TP Core's); the Hanging Beam may go indoors since 0.4.15 (a cellar's beam).
-    outdoor = [tile_name(LARGE_BEAM + face) for face in range(len(FACES))]
     return {
         "SHEETS": [{"prefix": tileset + "_", "tiles": COLUMNS * rows} for tileset, rows in zip(TILESETS, SHEET_ROWS)],
         "FIRST_SHEET_SIZE": FIRST_SHEET_SIZE,
         "FACE_COUNT": len(FACES),
         "STATIONS": stations,
-        "OUTDOOR": {name: True for name in outdoor},
         # Stations kept out of the tile in front of a door (TP Core's Doors), indoors or out.
         "DOOR_KEPT": {name: True for name in beams},
         "TUB": TUB,

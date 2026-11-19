@@ -221,9 +221,11 @@ check("under-salted meat rots in four weeks at 10 C, five times slower at 0 C, f
     and F.underCureRate(40) == F.underCureRate(30))
 local cureLedger = F.newLedger(0)
 F.advance(cureLedger, 10, { temperature = 6, humidity = 0.3, precipitation = 0, wind = 0 })
-check("the ledger keeps dry curing's totals, the fire's above the shed's", near(cureLedger.dryCure, 5)
-    and near(cureLedger.dryCureBanked, 10) and near(cureLedger.dryCureStoked, 10) and near(cureLedger.dryCureRate, 0.5))
-check("and the under-salted's, warmer by the fire", near(cureLedger.underCure, 10 * F.underCureRate(6))
+local shedC = Weather.placeTemperature(cureLedger, "Smokehouse")
+check("the ledger keeps dry curing's totals, the fire's above the shed's (an aired room's air, 1 C over a cold day)",
+    shedC == 7 and near(cureLedger.dryCure, 10 * F.dryCureRate(7)) and near(cureLedger.dryCureBanked, 10)
+    and near(cureLedger.dryCureStoked, 10) and near(cureLedger.dryCureRate, F.dryCureRate(7)))
+check("and the under-salted's, warmer by the fire", near(cureLedger.underCure, 10 * F.underCureRate(shedC))
     and near(cureLedger.underCureBanked, 10 * F.underCureRate(21)) and near(cureLedger.underCureStoked, 10 * F.underCureRate(26)))
 
 local ham = {}
@@ -252,14 +254,14 @@ F.advance(shed, 24, { temperature = 0, humidity = 0.3, precipitation = 0, wind =
 F.charqueStep(corned, shed)
 F.smokeStep(corned, shedFire, shed)
 check("with the fire out it dries at the frost rate", near(corned.dried, 24 * 0.25))
-check("and spoils as at 0 C", near(corned.underSpoiled, 24 * F.underCureRate(0)))
+check("and spoils as the shed's air (an aired room's: 1 C over a 0 C day)", near(corned.underSpoiled, 24 * F.underCureRate(1)))
 Fire.logFire(shedFire, 501, Fire.BANKED, 600)
 Fire.logFire(shedFire, 525, Fire.BANKED, 600)
 F.advance(shed, 48, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
 F.charqueStep(corned, shed)
 F.smokeStep(corned, shedFire, shed)
 check("banked, the shed is 15 C: full rate", near(corned.dried, 24 * 0.25 + 24 * 1))
-check("and the under-salted spoils as at 15 C", near(corned.underSpoiled, 24 * F.underCureRate(0) + 24 * F.underCureRate(15)))
+check("and the under-salted spoils as at 15 C", near(corned.underSpoiled, 24 * F.underCureRate(1) + 24 * F.underCureRate(15)))
 check("all its banked hours were smoke", near(corned.coldSmokeHours, 24))
 local status = F.charqueStatus(corned, shed)
 check("its popup reads dry curing, under-salted, the shed at 15 C", status.dryCuring and status.underSalted and status.shedTemperature == 15
@@ -337,43 +339,41 @@ check("a tub in a basement has no warm cure in a 30 C season, only the long cure
     and near(F.cureSpoiled(cellarTub, hot), hot.longCureBasement) and hot.longCureBasement > 0
     and F.tubSpoiling(cellarTub, hot) and F.tubSpoiling(upstairsTub, hot))
 
--- Sweep step H: a loft the same, by TP Core's loft temperature (the season's mean and the roof's summer warmth).
-local loftC = Weather.placeTemperature(hot, "Loft")
-check("the loft reads Core's figure, warmer than the room in a 30 C season", loftC > Weather.placeTemperature(hot, "Sheltered"))
-local loftFish = { place = "Loft", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
-    lastCovered = hot.covered, lastSaltSpoil = hot.saltSpoil, lastHeat = hot.heat, lastLoftSheltered = hot.loftSheltered }
-local loftMeat = { place = "Loft", dried = 0, spoiled = 0, lastSaltSpoil = hot.saltSpoil,
-    lastCharqueRain = hot.charqueRain, lastCharqueLoft = hot.charqueLoft }
-local loftCure = { place = "Loft", cureNeed = 504, longStack = true, underCured = true, dried = 0, spoiled = 0,
-    lastDryCure = hot.dryCure, lastUnderCure = hot.underCure, lastDryCureLoft = hot.dryCureLoft, lastUnderCureLoft = hot.underCureLoft,
-    lastSaltSpoil = hot.saltSpoil, lastCharqueRain = hot.charqueRain }
+-- An aired room (a window open): Core's aired temperature, and a roof's moving air: salt fish, charque and dry curing
+-- at a roof's rates there.
+local airedFish = { place = "AiredRoom", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
+    lastCovered = hot.covered, lastSaltSpoil = hot.saltSpoil, lastHeat = hot.heat, lastAired = hot.aired }
+local airedMeat = { place = "AiredRoom", dried = 0, spoiled = 0, lastSaltSpoil = hot.saltSpoil,
+    lastCharqueRain = hot.charqueRain, lastCharqueAired = hot.charqueAired }
+local airedCure = { place = "AiredRoom", cureNeed = 504, longStack = true, underCured = true, dried = 0, spoiled = 0,
+    lastDryCure = hot.dryCure, lastUnderCure = hot.underCure, lastDryCureAired = hot.dryCureAired,
+    lastUnderCureAired = hot.underCureAired, lastSaltSpoil = hot.saltSpoil, lastCharqueRain = hot.charqueRain }
 F.advance(hot, 72, summer)
-loftC = Weather.placeTemperature(hot, "Loft")
-F.saltStep(loftFish, hot)
-F.charqueStep(loftMeat, hot)
-F.charqueStep(loftCure, hot)
-check("salt fish in a loft dries indoors by the loft's temperature", near(hot.loftShelteredRate,
-    math.max(F.temperatureRate(loftC) * F.airRate(0.3) * F.SHELTERED_RATE, F.MIN_DRY_RATE))
-    and near(loftFish.dried, 24 * hot.loftShelteredRate) and F.stackStatus(false, loftFish, hot).rate == hot.loftShelteredRate)
-check("so does charque", near(loftMeat.dried, 24 * F.charqueWarmRate(loftC) * F.airRate(0.3) * F.CHARQUE_INDOORS_RATE)
-    and near(F.charqueStatus(loftMeat, hot).rate, hot.charqueLoftRate))
-check("dry curing there goes by the loft with a room's air, and Corned meat spoils by it", F.curePlace(loftCure) == "Loft"
-    and near(loftCure.dried, 24 * F.dryCureRate(loftC)) and near(loftCure.underSpoiled, 24 * F.underCureRate(loftC))
-    and F.charqueStatus(loftCure, hot).shedTemperature == loftC)
--- B1 (2026-11-14): a loft's damp slows dry curing as a room's does (it went without the air's rate before).
-local dampLoft = F.newLedger(0)
-F.advance(dampLoft, 24, { temperature = 15, humidity = 0.9, precipitation = 0, wind = 0 })
-check("damp air slows dry curing in a loft as in a room", F.airRate(0.9) < 1
-    and near(dampLoft.dryCureLoftRate, F.dryCureRate(Weather.placeTemperature(dampLoft, "Loft")) * F.airRate(0.9))
-    and near(dampLoft.dryCureRoomRate, F.dryCureRate(Weather.placeTemperature(dampLoft, "Sheltered")) * F.airRate(0.9)))
-local loftTub = { place = "Loft", lastWarmCure = 0, lastWarmCureLoft = 0, countryCure = true, lastLongCureSpoil = 0, lastLongCureLoft = 0 }
-check("a tub in a loft minds the loft: more warm cure than downstairs in a 30 C season",
-    F.cureSpoiled(loftTub, hot) >= F.cureSpoiled(upstairsTub, hot) and hot.warmCureLoft > hot.warmCure and F.tubSpoiling(loftTub, hot))
+local airedC = Weather.placeTemperature(hot, "AiredRoom")
+F.saltStep(airedFish, hot)
+F.charqueStep(airedMeat, hot)
+F.charqueStep(airedCure, hot)
+check("salt fish in an aired room dries as under a roof, by the room's temperature", near(hot.airedRate,
+    math.max(F.temperatureRate(airedC) * F.airRate(0.3), F.MIN_DRY_RATE))
+    and near(airedFish.dried, 24 * hot.airedRate) and F.stackStatus(false, airedFish, hot).rate == hot.airedRate)
+check("so does charque, with the wind", near(airedMeat.dried, 24 * F.charqueWarmRate(airedC) * F.airRate(0.3)
+    * F.charqueWindRate(summer.wind)) and near(F.charqueStatus(airedMeat, hot).rate, hot.charqueAiredRate))
+check("dry curing there goes by the aired room, in the shade, and Corned meat spoils by it", F.curePlace(airedCure) == "Shade"
+    and near(airedCure.dried, 24 * F.dryCureRate(airedC) * F.airRate(0.3)) and near(airedCure.underSpoiled, 24 * F.underCureRate(airedC))
+    and F.charqueStatus(airedCure, hot).shedTemperature == airedC)
+local dampAired = F.newLedger(0)
+F.advance(dampAired, 24, { temperature = 15, humidity = 0.9, precipitation = 0, wind = 0 })
+check("damp air slows dry curing in an aired room; a shut room dries nothing", F.airRate(0.9) < 1
+    and near(dampAired.dryCureAiredRate, F.dryCureRate(Weather.placeTemperature(dampAired, "AiredRoom")) * F.airRate(0.9))
+    and dampAired.dryCureRoomRate == 0 and dampAired.roomShelteredRate == 0 and dampAired.charqueRoomRate == 0)
+local airedTub = { place = "AiredRoom", lastWarmCure = 0, lastWarmCureAired = 0, countryCure = true, lastLongCureSpoil = 0, lastLongCureAired = 0 }
+check("a tub in an aired room minds the room", F.cureSpoiled(airedTub, hot) > 0 and hot.warmCureAired > 0 and F.tubSpoiling(airedTub, hot))
 hot.gridOn = true
-check("while the grid is on the loft is the grid's 22 C here too", Weather.placeTemperature(hot, "Loft") == Weather.GRID_ROOM_C)
+check("while the grid is on an aired room is the grid's 22 C here too", Weather.placeTemperature(hot, "AiredRoom") == Weather.GRID_ROOM_C)
 hot.gridOn = nil
 
--- Sweep step I: a room and a roof by Core's place temperature; the Smokehouse by a roof's, its air still.
+-- Sweep step I: a room and a roof by Core's place temperature; the Smokehouse by a roof's, its air still. A shut room
+-- dries nothing by air.
 local roomFish = { place = "Sheltered", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
     lastCovered = hot.covered, lastSaltSpoil = hot.saltSpoil, lastHeat = hot.heat, lastRoomSheltered = hot.roomSheltered }
 local shedFish = { place = "Smokehouse", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
@@ -387,23 +387,24 @@ local roofCure = { place = "Covered", cureNeed = 504, longStack = true, underCur
 local cool = { temperature = 4, humidity = 0.3, precipitation = 0, wind = 0 }
 F.advance(hot, 96, cool)
 local roomC, roofC = Weather.placeTemperature(hot, "Sheltered"), Weather.placeTemperature(hot, "Covered")
+local shedC = Weather.placeTemperature(hot, "Smokehouse")
 F.saltStep(roomFish, hot)
 F.saltStep(shedFish, hot)
 F.charqueStep(roomCure, hot)
 F.charqueStep(roofCure, hot)
-check("a room reads the season's mean, not a cold day's", roomC > cool.temperature and roomC == roofC)
-check("salt fish in a room dries by it", near(hot.roomShelteredRate, math.max(F.temperatureRate(roomC) * F.airRate(0.3) * F.SHELTERED_RATE,
-    F.MIN_DRY_RATE)) and near(roomFish.dried, 24 * hot.roomShelteredRate) and F.stackStatus(false, roomFish, hot).rate == hot.roomShelteredRate)
-check("in the Smokehouse by an open roof's, still as a room's", near(hot.shelteredRate, math.max(F.temperatureRate(roofC)
+check("a shut room reads its three-day mean, a roof the hour's", roomC > cool.temperature and roofC == cool.temperature)
+check("salt fish in a shut room waits for a window", hot.roomShelteredRate == 0 and roomFish.dried == 0
+    and F.stackStatus(false, roomFish, hot).rate == 0 and F.stackStatus(false, roomFish, hot).reason == "Shut")
+check("in the Smokehouse by its own (an aired room's air), still", shedC ~= roofC and near(hot.shelteredRate, math.max(F.temperatureRate(shedC)
     * F.airRate(0.3) * F.SHELTERED_RATE, F.MIN_DRY_RATE)) and near(shedFish.dried, 24 * hot.shelteredRate)
     and F.stackStatus(false, shedFish, hot).rate == hot.shelteredRate)
-check("Corned meat spoils in the open by the day's, in the Smokehouse by an open roof's",
-    near(hot.underCureOpenRate, F.underCureRate(cool.temperature)) and near(hot.underCureRate, F.underCureRate(roofC))
-    and near(hot.hotOnlyUnderRate, F.hotOnlyUnderRate(roofC)) and near(hot.dryCureRate, hot.dryCureCoveredRate))
-check("under a roof by the season's mean too", near(hot.coveredRate, math.max(F.temperatureRate(roofC) * F.airRate(0.3), F.MIN_DRY_RATE))
+check("Corned meat spoils in the open by the hour's, in the Smokehouse by its own",
+    near(hot.underCureOpenRate, F.underCureRate(cool.temperature)) and near(hot.underCureRate, F.underCureRate(shedC))
+    and near(hot.hotOnlyUnderRate, F.hotOnlyUnderRate(shedC)) and near(hot.dryCureRate, F.dryCureRate(shedC) * F.airRate(0.3)))
+check("under a roof by the hour's too", near(hot.coveredRate, math.max(F.temperatureRate(roofC) * F.airRate(0.3), F.MIN_DRY_RATE))
     and near(hot.charqueCoveredRate, F.charqueWarmRate(roofC) * F.airRate(0.3) * F.charqueWindRate(0)))
-check("dry curing in a room and under a roof go by their own, and Corned meat spoils by it",
-    near(roomCure.dried, 24 * F.dryCureRate(roomC) * F.airRate(0.3)) and near(roomCure.underSpoiled, 24 * F.underCureRate(roomC))
+check("dry curing stands still in a shut room and goes by the roof's under it, and Corned meat spoils by each",
+    roomCure.dried == 0 and near(roomCure.underSpoiled, 24 * F.underCureRate(roomC)) and F.charqueStatus(roomCure, hot).reason == "Shut"
     and near(roofCure.dried, 24 * F.dryCureRate(roofC) * F.airRate(0.3)) and F.charqueStatus(roomCure, hot).shedTemperature == roomC
     and near(F.charqueStatus(roofCure, hot).rate, hot.dryCureCoveredRate))
 local spring = F.newLedger(0)
@@ -414,48 +415,54 @@ local shedTub = { place = "Covered", lastWarmCure = spring.warmCure, countryCure
 Weather.useWeatherModData({ gridOn = true })
 F.advance(spring, 324, { temperature = 8, humidity = 0.3, precipitation = 0, wind = 0 })
 Weather.useWeatherModData(nil)
-check("while the grid is on a room is 22 C: salt fish dries faster", near(spring.roomShelteredRate,
-    F.temperatureRate(Weather.GRID_ROOM_C) * F.airRate(0.3) * F.SHELTERED_RATE) and spring.roomShelteredRate > spring.coveredRate)
-check("and a tub in a room warm cures, one under a roof in an 8 C spring does not", F.cureSpoiled(roomTub, spring) > 0
+check("while the grid is on a shut room is 22 C, and still dries nothing", Weather.placeTemperature({ gridOn = true },
+    "Sheltered") == Weather.GRID_ROOM_C and spring.roomShelteredRate == 0)
+check("a tub in a room on the grid warm cures, one under a roof in an 8 C spring does not", F.cureSpoiled(roomTub, spring) > 0
     and F.tubSpoiling(roomTub, spring) and F.cureSpoiled(shedTub, spring) == 0 and not F.tubSpoiling(shedTub, spring))
 
--- Step I, 5 and 6: stockfish under a roof by the season's mean; a tub in the open air by the day's.
+-- Step I, 5 and 6: stockfish and a tub under a roof by the hour's air, as in the open; in an aired room by the day's mean.
 local autumn = F.newLedger(0)
 F.advance(autumn, 300, { temperature = 3, humidity = 0.3, precipitation = 0, wind = F.WIND_GOOD })
 local openTub = { lastWarmCure = autumn.warmCure, lastWarmCureOpen = autumn.warmCureOpen, countryCure = true, lastLongCureSpoil = autumn.longCureSpoil,
     lastLongCureOpen = autumn.longCureOpen }
 local roofTub = { place = "Covered", lastWarmCure = autumn.warmCure, lastWarmCureOpen = autumn.warmCureOpen,
     countryCure = true, lastLongCureSpoil = autumn.longCureSpoil, lastLongCureOpen = autumn.longCureOpen }
-local roofCold = { place = "Covered" }
-F.advance(autumn, 306, { temperature = 24, humidity = 0.3, precipitation = 0, wind = F.WIND_GOOD })
-check("a warm afternoon stops cold drying in the open, not under a roof (the season's mean)", autumn.coldRate == 0
-    and near(autumn.coldCoveredRate, F.coldRate(autumn.seasonTemperature) * F.windRate(F.WIND_GOOD) * F.COVERED_COLD_RATE)
-    and F.stackStatus(true, roofCold, autumn).reason == nil and F.stackStatus(true, {}, autumn).reason == "TooWarm")
-check("and warm cures a tub in the open air, not one under a roof", F.cureSpoiled(openTub, autumn) > 0
-    and F.tubSpoiling(openTub, autumn) and F.cureSpoiled(roofTub, autumn) == 0 and not F.tubSpoiling(roofTub, autumn))
+local roofCold, airedCold = { place = "Covered" }, { place = "AiredRoom" }
+F.advance(autumn, 306, { temperature = 22, humidity = 0.3, precipitation = 0, wind = F.WIND_GOOD })
+local airedNow = Weather.placeTemperature(autumn, "AiredRoom")
+check("a warm afternoon stops cold drying in the open and under a roof; an aired room's day mean keeps it going",
+    autumn.coldRate == 0 and autumn.coldCoveredRate == 0 and F.stackStatus(true, roofCold, autumn).reason == "TooWarm"
+    and F.stackStatus(true, {}, autumn).reason == "TooWarm" and airedNow < F.COLD_LIMIT
+    and near(autumn.coldAiredRate, F.coldRate(airedNow) * F.windRate(F.WIND_GOOD) * F.AIRED_COLD_RATE)
+    and F.stackStatus(true, airedCold, autumn).reason == nil and autumn.coldAiredRate > 0)
+check("and warm cures a tub in the open air and under a roof alike", F.cureSpoiled(openTub, autumn) > 0
+    and F.tubSpoiling(openTub, autumn) and F.cureSpoiled(roofTub, autumn) > 0 and F.tubSpoiling(roofTub, autumn))
 
--- Step I, 9: a muggy season spoils salt fish and charque by the place's temperature; dry curing is spared.
+-- Step I, 9: a muggy season spoils salt fish and charque in still air by the place's temperature; moving air (a roof,
+-- an aired room) keeps them; dry curing is spared.
 local july = F.newLedger(0)
 F.advance(july, 400, { temperature = 21, humidity = 0.6, precipitation = 0, wind = 0 })
 local function saltStack(extra)
     local stack = { dried = 0, spoiled = 0, lastOpen = july.open, lastSheltered = july.sheltered, lastCovered = july.covered,
-        lastHeat = july.heat, lastBasementSheltered = july.basementSheltered, lastLoftSheltered = july.loftSheltered,
+        lastHeat = july.heat, lastBasementSheltered = july.basementSheltered, lastAired = july.aired,
         lastRoomSheltered = july.roomSheltered, lastSaltSpoil = july.saltSpoil, lastSaltSpoilRoom = july.saltSpoilRoom,
-        lastSaltSpoilLoft = july.saltSpoilLoft, lastSaltSpoilBasement = july.saltSpoilBasement }
+        lastSaltSpoilBasement = july.saltSpoilBasement }
     for key, field in pairs(extra) do stack[key] = field end
     return stack
 end
-local loftSalt, cellarSalt, porchSalt = saltStack({ place = "Loft" }), saltStack({ place = "Basement" }),
-    saltStack({ place = "Covered" })
-local loftHam = saltStack({ place = "Loft", cureNeed = 504, longStack = true, lastDryCureLoft = july.dryCureLoft,
-    lastUnderCureLoft = july.underCureLoft, lastCharqueRain = july.charqueRain })
+local roomSalt, cellarSalt, porchSalt, airedSalt = saltStack({ place = "Sheltered" }), saltStack({ place = "Basement" }),
+    saltStack({ place = "Covered" }), saltStack({ place = "AiredRoom" })
+local roomHam = saltStack({ place = "Sheltered", cureNeed = 504, longStack = true, lastDryCureRoom = july.dryCureRoom,
+    lastUnderCureRoom = july.underCureRoom, lastCharqueRain = july.charqueRain })
 F.advance(july, 448, { temperature = 21, humidity = 0.6, precipitation = 0, wind = 0 })
-for _, stack in ipairs({ loftSalt, cellarSalt, porchSalt }) do F.saltStep(stack, july) end
-F.charqueStep(loftHam, july)
-check("a muggy July loft (over 22 C) spoils salt fish, a cellar and a 21 C porch don't", Weather.placeTemperature(july, "Loft") > 22
-    and near(loftSalt.spoiled, 48 / F.SALT_SPOIL_HOURS) and cellarSalt.spoiled == 0 and porchSalt.spoiled == 0
-    and F.stackStatus(false, loftSalt, july).spoiling and not F.stackStatus(false, cellarSalt, july).spoiling)
-check("dry curing in the same loft is spared", loftHam.spoiled == 0 and not F.charqueStatus(loftHam, july).spoiling)
+for _, stack in ipairs({ roomSalt, cellarSalt, porchSalt, airedSalt }) do F.saltStep(stack, july) end
+F.charqueStep(roomHam, july)
+check("a muggy July shut room (stuffy, over 22 C) spoils salt fish; a cellar, a porch and an aired room don't",
+    Weather.placeTemperature(july, "Sheltered") > 22 and near(roomSalt.spoiled, 48 / F.SALT_SPOIL_HOURS)
+    and cellarSalt.spoiled == 0 and porchSalt.spoiled == 0 and airedSalt.spoiled == 0
+    and F.stackStatus(false, roomSalt, july).spoiling and not F.stackStatus(false, cellarSalt, july).spoiling
+    and not F.stackStatus(false, airedSalt, july).spoiling)
+check("dry curing in the same room is spared", roomHam.spoiled == 0 and not F.charqueStatus(roomHam, july).spoiling)
 
 -- Poultry and rabbit (0.4.34): hot smoke only. A whole bird counts as its timing weight; a stack never dries, its run
 -- starts again when broken, and it spoils as under-salted meat HOT_ONLY_UNDER_RATE times as fast.
@@ -494,11 +501,12 @@ bird.lastHotOnlyUnder = 0
 local birdFire = {}
 Fire.logFire(birdFire, 800, nil, nil)
 F.smokeStep(bird, birdFire, birdShed)
-F.advance(birdShed, 24, { temperature = 0, humidity = 0.3, precipitation = 0, wind = 0 })
+F.advance(birdShed, 24, { temperature = -3, humidity = 0.3, precipitation = 0, wind = 0 })
 F.charqueStep(bird, birdShed)
 F.smokeStep(bird, birdFire, birdShed)
 check("a bird's stack never dries", bird.dried == 0)
-check("and spoils faster than red meat, slowly while frozen (0 C is not thawed)", near(bird.underSpoiled, 24 * F.hotOnlyUnderRate(0))
+check("and spoils faster than red meat, slowly while frozen (the shed's air -2 C on a -3 C day; 0 C is not thawed)",
+    near(bird.underSpoiled, 24 * F.hotOnlyUnderRate(-2))
     and near(F.hotOnlyUnderRate(0), F.underCureRate(0) * F.HOT_ONLY_UNDER_RATE))
 check("above freezing poultry rots within 14 days, red meat within 6 weeks, however cool", near(F.hotOnlyUnderRate(1), 1 / (14 * 24))
     and near(F.underCureRate(1), 1 / (42 * 24)) and F.underCureRate(-5) < 1 / (42 * 24) * 0.2)
