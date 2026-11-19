@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.71
+- **A Salting Tub with anything in it can't be picked up** (2026-11-19): pieces waiting, curing or cured keep it
+  where it is, and its time goes by its place; empty, it picks up as before.
+
 ## 0.4.70
 - **Shut rooms, aired rooms, moving air** (2026-11-19, TP Core 0.1.15). Needs TP Core 0.1.15.
   - **A shut room stands still:** salt fish, charque, dry curing and cold drying wait for a window (*Stopped (Shut

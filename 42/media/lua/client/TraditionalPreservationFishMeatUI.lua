@@ -221,6 +221,15 @@ UI.onProgressSlot(function(slot, name)
     end
 end)
 
+-- A tub with anything in it stays where it is: pieces waiting, curing or cured, its time goes by its place (user,
+-- 2026-11-19: no station is moved mid-process). Empty, it picks up as any moveable.
+UI.keepInPlace(function(isoObject)
+    if not F.isTub(isoObject) or not isoObject:hasModData() then return nil end
+    local movableData = isoObject:getModData().movableData
+    local tub = movableData and movableData[F.TUB_KEY]
+    return (tub ~= nil and (F.tubStage(tub) ~= "Empty" or F.tubCount(tub) > 0)) or nil
+end)
+
 -- The Gantry and the Hanging Beam keep out of a door's front, indoors or out (TP Core's Smokehouse keeps its own rules).
 UI.keepDoorsFree(Tiles.DOOR_KEPT)
 -- Nor the frame, the tub or the pallet, at any fill.

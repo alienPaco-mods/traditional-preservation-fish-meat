@@ -48,6 +48,8 @@ ResourceType = { Item = "item" }
 ArrayList = { new = function() return H.list({}) end }
 ISMoveableSpriteProps = {}
 function ISMoveableSpriteProps:canPlaceMoveable() return true end
+function ISMoveableSpriteProps:canPickUpMoveable() return true end
+function ISMoveableSpriteProps:getInfoPanelFlagsPerTile() end
 dofile("42/media/lua/client/TraditionalPreservationFishMeatUI.lua")
 
 
@@ -315,6 +317,18 @@ handlers.OnRefreshInventoryWindowContainers({ backpacks = { { inventory = contai
 check("one look finds the crocks too, kept and not renamed", #kept == 1 and kept[1] == crock and #renamed == 1)
 F.keepCrock = realKeep
 F.rename = realRename
+
+-- Picking a tub up: only empty (user, 2026-11-19: no station is moved mid-process)
+local function tubObject(tub)
+    local modData = { movableData = { [F.TUB_KEY] = tub } }
+    return { getSprite = function() return { getName = function() return TUB end } end,
+        hasModData = function() return true end, getModData = function() return modData end }
+end
+local pickUp = function(isoObject) return ISMoveableSpriteProps.canPickUpMoveable({}, nil, nil, isoObject) end
+check("an empty tub picks up", pickUp(tubObject({})) == true)
+check("not with pieces waiting", pickUp(tubObject({ pieces = { {} } })) == false)
+check("nor curing or cured", pickUp(tubObject({ stage = "Curing", pieces = {} })) == false
+    and pickUp(tubObject({ stage = "Done", pieces = { {} } })) == false)
 
 -- Rinse at Sink
 local ui = H.installMenus()
