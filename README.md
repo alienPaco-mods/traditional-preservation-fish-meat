@@ -62,8 +62,8 @@ a **Hang** submenu for each kind you carry (*Hang Salt Fish*, *Hang Gutted Fish*
 Cured Meat*), each kind with **One** or **All** (lightest first, so the most fit; a kind the rack won't take is red,
 its hover saying why: too heavy with every rack's limit, full, or the place), **Take Done (n)** (greyed until a piece
 is done, its hover saying when the next one will be) and **Take Everything Off** (pieces not done come off as they
-were hung, less the keeping the hanging spoiled: warmth, frost, wet, a muggy season, under-salting; the hours on the
-rack don't age them by the clock). **Info** is also at the bottom of the main menu. Hanging and taking down use the take-down-curtain
+were hung, less the keeping the hanging spoiled: warmth, frost, wet, a muggy season, under-salting; hours it spent
+drying don't age it, hours it hung without drying (a shut room, the wrong place) do, at the normal pace). **Info** is also at the bottom of the main menu. Hanging and taking down use the take-down-curtain
 movement, one piece an action. A rack with anything on it can't be picked up.
 
 **Rack Info** lists the place, the air, wind and wetness, what it holds, and a row a piece (its bar with the share

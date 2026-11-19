@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.78
+- **A rack is no cold store** (user, session 53): a piece counts the hours it hangs without drying at all (a shut room,
+  the wrong place, frost, rain; `piece.stalled`, each look), and taken off early it is aged by them at vanilla's pace,
+  on top of what the hanging spoiled. Hours spent drying still don't age it.
+
 ## 0.4.77
 - **Split Fish takes a gutted fish at its later stages too** (user, session 53): a Salt Cured one over 2.5 kg (so it
   hangs on a frame), a Salt Dried one or a Stockfish over 0.6 kg, each split into two halves of its stage (the

@@ -137,6 +137,25 @@ check("but not what the tub had already taken", near(T.rackOutput(saltPiece, hou
 saltPiece.state.spoiled, saltPiece.data.cureSpoiled = 1.2, nil
 check("all its keeping gone, it comes off rotten", T.rackOutput(saltPiece, hours + 24):getAge() == 180)
 saltPiece.state.spoiled = 0
+-- Stalled hours age it: a rack is no cold store (user, session 53).
+local shutRack = {}
+local shut = T.hangPiece(shutRack, fish(PRESSED, 1), "Sheltered", ledger, hours)
+local drying = T.hangPiece(shutRack, fish(PRESSED, 1), "Sheltered", ledger, hours)
+hours = hours + 48
+T.advance(ledger, hours, MILD)
+T.updateRack(shutRack, "Sheltered", ledger, hours)
+check("in a shut room a piece doesn't dry, and counts the hours as stalled", shut.state.dried == 0 and shut.stalled == 48)
+check("taken off, it has aged those days at the normal pace", near(T.rackOutput(shut, hours):getAge(), 2))
+check("and asking twice ages it once", near(T.rackOutput(shut, hours):getAge(), 2))
+local openRack = {}
+local dryingPiece = T.hangPiece(openRack, fish(PRESSED, 1), "Open", ledger, hours)
+hours = hours + 48
+T.advance(ledger, hours, MILD)
+T.updateRack(openRack, "Open", ledger, hours)
+check("one drying in the open counts nothing stalled, and comes off unaged", dryingPiece.state.dried > 0
+    and (dryingPiece.stalled or 0) == 0 and T.rackOutput(dryingPiece, hours):getAge() == 0)
+T.updateRack(openRack, "Open", ledger, hours)
+check("a second look at the same hour adds nothing", (dryingPiece.stalled or 0) == 0)
 local cornedPiece = T.hangPiece({}, newFood(MEAT, { ActualWeight = 0.4 }, 1), "Sheltered", ledger, hours)
 cornedPiece.state.underSpoiled = 0.5
 check("a Corned piece's under-salting counts too", near(T.rackOutput(cornedPiece, hours):getAge(), 120 * 0.5))

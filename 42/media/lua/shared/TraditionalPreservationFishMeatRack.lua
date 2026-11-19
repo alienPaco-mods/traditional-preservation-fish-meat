@@ -78,6 +78,7 @@ function F.hangPiece(rack, item, place, ledger, now)
     rack.nextId = (rack.nextId or 0) + 1
     piece.id = rack.nextId
     piece.method = F.hangMethod(piece.fullType)
+    piece.lastLook = now
     local method = METHODS[piece.method]
     local state = { dried = 0, spoiled = piece.data.cureSpoiled or 0, stackId = now, place = place }
     F.markStack(state, ledger)
@@ -101,7 +102,9 @@ function F.pieceDone(piece)
 end
 
 -- Brings every hanging piece up to now at place, the rack's place at this look. A piece that is done (or rotted)
--- stops there, its hour kept: from then it ages as food does. A piece hung before pieces had ids gets one here.
+-- stops there, its hour kept: from then it ages as food does. A piece that didn't dry at all since the last look
+-- (a shut room, the wrong place, frost, rain) counts those hours as stalled: drying keeps food, standing still doesn't
+-- (F.earlyOutput ages a piece taken off early by them). A piece hung before pieces had ids gets one here.
 function F.updateRack(rack, place, ledger, now)
     for _, piece in ipairs(rack.pieces or {}) do
         if not piece.id then
@@ -109,8 +112,12 @@ function F.updateRack(rack, place, ledger, now)
             piece.id = rack.nextId
         end
         if not F.pieceDone(piece) then
-            piece.state.place = place
-            METHODS[piece.method].step(piece.state, ledger)
+            local state, before = piece.state, piece.state.dried
+            state.place = place
+            METHODS[piece.method].step(state, ledger)
+            local elapsed = now - (piece.lastLook or piece.hour or now)
+            if elapsed > 0 and state.dried <= before then piece.stalled = (piece.stalled or 0) + elapsed end
+            piece.lastLook = now
             if F.pieceProgress(piece) >= 1 then piece.doneHour = now end
         end
     end
@@ -132,12 +139,14 @@ function F.takePiece(rack, id)
     end
 end
 
--- A piece taken off before it is done (user, session 53): as it was hung, its age as it went up, less the keeping the
--- hanging spoiled (its spoiling since it went up, and a Corned piece's under-salting), as a finished piece's spoilage
--- is taken off; all of it gone, it comes off rotten. The hours on the rack don't age it by the clock.
+-- A piece taken off before it is done (user, session 53): as it was hung, aged by the hours it hung without drying
+-- (piece.stalled, at vanilla's pace: a rack is no cold store), less the keeping the hanging spoiled (its spoiling
+-- since it went up, and a Corned piece's under-salting), as a finished piece's spoilage is taken off; all of it gone,
+-- it comes off rotten. Hours spent drying don't age it by the clock.
 function F.earlyOutput(piece)
     local state = piece.state
     local item = F.itemFromKept(piece)
+    item:setAge(item:getAge() + (piece.stalled or 0) / 24 * FluidAgeing.foodRotSpeed())
     local lost = math.max((state.spoiled or 0) - (piece.data.cureSpoiled or 0), 0)
     if piece.method == "meat" then lost = lost + F.underLoss(F.keptItem(piece), state) end
     if lost >= 1 then

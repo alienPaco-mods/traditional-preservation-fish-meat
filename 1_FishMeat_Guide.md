@@ -263,7 +263,8 @@ rack:
   you carry, each kind with **One** or **All**. A red row says why it won't hang (too heavy, full, the wrong place),
 - **Take Done (n)**: the finished pieces (greyed until one is done; its hover says when the next will be),
 - **Take Everything Off**: unfinished pieces come down as they went up, less whatever the weather spoiled while they
-  hung.
+  hung. Time a piece spent *not* drying (a shut room, waiting for a roof) counts as time on the shelf: a rack is no
+  larder.
 
 **The Info window** lists every piece with a bar: how far it is, the time left, or why it stands still. Sort it
 furthest along, least along or by process; hover a row for what it will come out as. **Take Done** and **Take All**
