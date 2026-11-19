@@ -1,6 +1,6 @@
 -- Checks the racks' record (TraditionalPreservationFishMeatRack.lua) outside the game: what a rack takes, and that a
 -- piece hung on its own dries, spoils and comes off as a one-piece stack did on the old recipe, through the same
--- weather. Run from the mod folder: luajit tests/test_rack.lua
+-- weather (the stack's figures, fixed here). Run from the mod folder: luajit tests/test_rack.lua
 local H = dofile((os.getenv("TPCORE") or "../TraditionalPreservationCore") .. "/tests/harness.lua")
 H.useModPaths()
 local check = H.check
@@ -33,17 +33,6 @@ local function near(a, b) return math.abs(a - b) < 1e-6 end
 
 local newFood = dofile("tests/standins/food.lua")
 function instanceItem(fullType) return newFood(fullType) end
-
--- The old way: a stack of one on a recipe, for the same weather.
-local function newRecipeData(fish)
-    local craftRecipeData = { modData = {}, elapsed = 0 }
-    function craftRecipeData:getModData() return self.modData end
-    function craftRecipeData:setElapsedTime(elapsed) self.elapsed = elapsed end
-    function craftRecipeData:getRecipe() return { getTime = function() return 1 end } end
-    function craftRecipeData:getAllInputItemsWithFlag() return H.list(fish) end
-    function craftRecipeData:getAllCreatedItems() return H.list({}) end
-    return craftRecipeData
-end
 
 local FRAME, BEAM, GANTRY = T.HANGERS[6], T.HANGERS[408], T.HANGERS[410]
 check("the racks are named for their limits", FRAME.name == "frame" and BEAM.name == "medium" and GANTRY.name == "large"
@@ -84,49 +73,42 @@ local MILD = { temperature = 20, humidity = 0.4, precipitation = 0 }
 local RAINY = { temperature = 12, humidity = 0.9, precipitation = 1 }
 local HOT = { temperature = 30, humidity = 0.6, precipitation = 0 }
 
--- steps: { hours, weather, place }. Returns the stack's modData and the piece.
-local function sideBySide(item, starts, updates, steps)
-    local stackItem = newFood(item.fullType, { ActualWeight = item.values.ActualWeight }, item.modelIndex)
-    for key, value in pairs(item:getModData()) do stackItem:getModData()[key] = value end
-    local stack = newRecipeData({ stackItem })
-    starts(stack)
+-- steps: { hours, weather, place }. Returns the piece and its rack.
+local function hungThrough(item, steps)
     local onRack = {}
     local piece = T.hangPiece(onRack, item, "Open", ledger, hours)
     for _, step in ipairs(steps) do
         hours = hours + step[1]
         T.advance(ledger, hours, step[2])
-        stack.modData.place = step[3]
-        updates(stack)
         T.updateRack(onRack, step[3], ledger, hours)
     end
-    return stack.modData, piece, onRack
+    return piece, onRack
 end
 
-local function same(stack, piece)
+-- The piece's state against the figures a one-piece stack on the old recipe gave through the same weather (the two
+-- were checked side by side until the stacks went, Smokehouse S4): dried, spoiled, under-salted, its bar.
+local function gave(piece, dried, spoiled, under, progress)
     local state = piece.state
-    return near(stack.dried, state.dried) and near(stack.spoiled or 0, state.spoiled or 0)
-        and near(stack.underSpoiled or 0, state.underSpoiled or 0)
+    return near(state.dried, dried) and near(state.spoiled or 0, spoiled) and near(state.underSpoiled or 0, under)
+        and near(T.pieceProgress(piece), progress)
 end
 
 local WEEK = { { 24, MILD, "Open" }, { 12, RAINY, "Open" }, { 30, HOT, "Open" }, { 48, MILD, "Covered" },
     { 24, MILD, "Sheltered" }, { 40, HOT, "AiredRoom" }, { 20, RAINY, "Covered" } }
 
-local stack, piece = sideBySide(fish(PRESSED, 1.2), T.onDryStart, T.onDryUpdate, WEEK)
-check("salt fish: dried and spoiled as a stack", same(stack, piece) and stack.dried > 0 and not T.pieceDone(piece))
-check("its share done is the stack's", near(T.pieceProgress(piece), T.stackProgress(stack, T.DRY_HOURS)))
-
-stack, piece = sideBySide(fish(GUTTED, 1.5), T.onColdDryStart, T.onColdDryUpdate,
+local piece = hungThrough(fish(PRESSED, 1.2), WEEK)
+check("salt fish: dried and spoiled as a stack did", gave(piece, 142.4888889, 0.1072916667, 0, 0.4947530864) and not T.pieceDone(piece))
+piece = hungThrough(fish(GUTTED, 1.5),
     { { 48, { temperature = 3, humidity = 0.5, precipitation = 0 }, "Open" }, { 24, { temperature = -8, humidity = 0.5, precipitation = 0 }, "Open" },
       { 24, { temperature = 4, humidity = 0.8, precipitation = 1 }, "Open" }, { 30, { temperature = 12, humidity = 0.5, precipitation = 0 }, "Covered" } })
-check("cold fish: dried and spoiled as a stack", same(stack, piece) and stack.dried > 0 and stack.spoiled > 0)
-
-stack, piece = sideBySide(newFood(MEAT, { ActualWeight = 0.4 }, 1), T.onCharqueStart, T.onCharqueUpdate, WEEK)
-check("charque: dried and spoiled as a stack", same(stack, piece) and stack.dried > 0)
+check("cold fish: dried and spoiled as a stack did", gave(piece, 62.4, 0.6872949219, 0, 0.08125))
+piece = hungThrough(newFood(MEAT, { ActualWeight = 0.4 }, 1), WEEK)
+check("charque: dried, and under-salted in the room, as a stack did", gave(piece, 120.544, 0, 0.2113703637, 1) and piece.state.cureNeed == 490)
 local cured = newFood(MEAT, { ActualWeight = 0.8 }, 0)
 cured:getModData().longCure = true
-stack, piece = sideBySide(cured, T.onCharqueStart, T.onCharqueUpdate, { { 100, MILD, "Covered" }, { 200, { temperature = 8, humidity = 0.5, precipitation = 0 }, "Covered" } })
-check("Country Cured in the shade dry cures as a stack", same(stack, piece) and T.dryCuring(piece.state)
-    and piece.state.cureNeed == stack.cureNeed and stack.dried > 0)
+piece = hungThrough(cured, { { 100, MILD, "Covered" }, { 200, { temperature = 8, humidity = 0.5, precipitation = 0 }, "Covered" } })
+check("Country Cured in the shade dry cures as a stack did", gave(piece, 233.3333333, 0, 0, 0.3875968992) and T.dryCuring(piece.state)
+    and piece.state.cureNeed == 602)
 
 -- Done, and what comes off.
 local salt = {}
@@ -197,6 +179,9 @@ T.updateRack(shade, "Covered", ledger, hours)
 local dryCured = T.rackOutput(hamPiece, hours)
 check("Country Cured meat dried in the shade comes off Dry Cured, air dried", T.pieceDone(hamPiece)
     and dryCured.fullType == T.DRY_CURED and dryCured:getModData().airDried == true)
+local hungOn = T.rackOutput(hamPiece, hours + 67.5 * 24)
+check("left hanging where it dried it ages on faster: 67.5 days add 22.5 to its ageing", near(dryCured:getModData().agedFrom, 0)
+    and near(hungOn:getModData().agedFrom, -22.5))
 
 -- Taking pieces off, by id.
 local three = {}

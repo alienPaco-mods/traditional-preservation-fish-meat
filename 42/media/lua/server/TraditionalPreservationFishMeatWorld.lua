@@ -1,6 +1,6 @@
--- Traditional Preservation (Fish & Meat): keeps the weather totals, brings each Salting Tub's batch and each rack's
--- pieces (Drying Frame, Hanging Beam, Gantry) up to now, and shows what is in each tub and rack. SpriteOverlayConfig can't show one sprite per fish, so this reads each station
--- and layers sprites itself.
+-- Traditional Preservation (Fish & Meat): keeps the weather totals, brings each Salting Tub's batch and the pieces on
+-- each rack (Drying Frame, Hanging Beam, Gantry) and in each Smokehouse up to now, and shows what is in each tub and
+-- rack. SpriteOverlayConfig can't show one sprite per fish, so this reads each station and layers sprites itself.
 if isClient() then return end
 
 TraditionalPreservationFishMeatWorld = TraditionalPreservationFishMeatWorld or {}
@@ -15,37 +15,6 @@ local FACE_COUNT = Tiles.FACE_COUNT
 
 local TUB_FILLED_SPRITE, TUB_WEIGHTED_SPRITE, TUB_MEAT_SPRITES = Tiles.TUB_FILLED, Tiles.TUB_WEIGHTED, Tiles.TUB_MEAT
 local FRAME_SPRITE = Tiles.FRAME
-
--- Furthest along first; two stacks as far along go by when they were hung, so the order (and the sprites) never
--- depends on the order the engine lists them in (rule 9).
-local function furthestFirst(a, b)
-    if a.progress ~= b.progress then return a.progress > b.progress end
-    return (a.stackId or 0) < (b.stackId or 0)
-end
-
--- How many fish, how many stacks, each stack's style, and the items in slot order (the last in last). Finished dry cured meat still hanging (hangingSince, the
--- hour) ages faster as it is counted (F.ageHanging). rotten[n] is true when any piece of the nth stack has rotted.
-local function countItems(resources, group, io, hangingSince)
-    local count, stacks = 0, 0
-    local seen, styles, all, rotten = {}, {}, {}, {}
-    local items = Station.itemSlots(resources, group, io)
-    for i = 0, items:size() - 1 do
-        local stored = items:get(i):getStoredItems()
-        count = count + stored:size()
-        for j = 0, stored:size() - 1 do
-            table.insert(all, stored:get(j))
-            if hangingSince then F.ageHanging(stored:get(j), hangingSince) end
-            local stackId = tostring(stored:get(j):getModData().stackId)
-            if not seen[stackId] then
-                stacks = stacks + 1
-                seen[stackId] = stacks
-                table.insert(styles, F.fishStyle(stored:get(j)))
-            end
-            if stored:get(j):isRotten() then rotten[seen[stackId]] = true end
-        end
-    end
-    return count, stacks, styles, all, rotten
-end
 
 -- What shows in an uncovered tub: fish (nil), or the meat on top, the last put in (a tub holds fish or meat, and
 -- cuts of any kind together). A leg always shows: it fills the tub.
@@ -79,39 +48,6 @@ function TraditionalPreservationFishMeatWorld.updateTub(station)
     return tub
 end
 
--- place is the station's (TP Core's word; inside the Smokehouse, Smokehouse.PLACE).
--- In the Smokehouse each stack also counts the joined Stone Hearth's fire (F.smokeStep); a done cook is noted for its
--- OnUpdate to finish, and every stack's shed for OnCreate's Cold Smoked swap (F.smokeStations). Another mod's stacks
--- in the shed are its own: only counted, as they take room (others).
-local function readBatch(station, craftData, modData, logic, place, smoking, fire, ledger)
-    -- TP Core's place word, or the Smokehouse's. The totals each place goes by are the ledger's (F.TOTALS).
-    modData.place = place
-    if modData.stackId then F.stackStations[modData.stackId] = station end
-    if smoking then
-        F.smokeStep(modData, fire, ledger)
-        if modData.stackId then F.smokeStations[modData.stackId] = station end
-        if F.hotDone(modData) then F.hotStations[modData.stackId] = station end
-    end
-    return { progress = logic:getProgress(craftData), style = modData.style or F.STYLE_SALT, rotten = F.stackRotten(modData),
-        stackId = modData.stackId }
-end
-
-local function readBatches(station, sessionState, logic, uiLogic, place)
-    local batches, others = {}, 0
-    local smoking = sessionState.hanger and sessionState.hanger.closed
-    local fire = smoking and Smokehouse.fireOf(station)
-    local ledger = smoking and F.getLedger()
-    for craftData, _ in pairs(uiLogic:getItemsInProgress()) do
-        local modData = craftData:getModData()
-        if smoking and not F.ownsStack(modData) then
-            others = others + 1
-        else
-            table.insert(batches, readBatch(station, craftData, modData, logic, place, smoking, fire, ledger))
-        end
-    end
-    return batches, others
-end
-
 local function showSprites(station, sessionState, signature, sprites)
     local names = {}
     for slot, index in ipairs(sprites) do names[slot] = F.spriteName(index) end
@@ -141,31 +77,22 @@ local function refreshRack(station, sessionState)
     showSprites(station, sessionState, table.concat(signature, ","), sprites)
 end
 
-local function refresh(station, sessionState)
-    if sessionState.tub then return refreshTub(station, sessionState) end
-    if sessionState.rack then return refreshRack(station, sessionState) end
-    local resources = station:getComponent(ComponentType.Resources)
-    local logic = station:getComponent(sessionState.logicType)
-    local sprite = station:getSprite()
-    if not resources or not logic or not sprite then return end
-    local uiLogic = Station.uiLogic(station, sessionState, logic)
-    if not uiLogic then return end
-
-    local waiting, _, waitingStyles, waitingItems = countItems(resources, logic:getInputsGroupName(), ResourceIO.Input)
-    local _, finishedStacks, finishedStyles, _, finishedRotten = countItems(resources, logic:getOutputsGroupName(), ResourceIO.Output,
-        sessionState.hanger and getGameTime():getWorldAgeHours())
-    local batches, others = readBatches(station, sessionState, logic, uiLogic, sessionState.place or Weather.placeOf(station))
-    sessionState.busyStacks = finishedStacks + #batches + others
-    sessionState.show(station, sessionState, sessionState.faceIndex, waiting, waitingStyles[1], batches, finishedStyles, waitingItems, finishedRotten)
+-- TP Core's Smokehouse: its pieces brought up to now (F.rackNow: its place and the joined Stone Hearth's fire) on the
+-- back left tile, the one that keeps the record (Smokehouse.recordTile), so the shed steps once. It is closed: Core
+-- draws its look, the door's finished pieces from this mod's count (Smokehouse.countsFinished).
+local function refreshChamber(station)
+    local _, part, col = Smokehouse.tileOf(station)
+    if part == 0 and col == 0 then F.rackNow(station) end
 end
 
--- TP Core's Smokehouse is tracked here too, for this mod's stacks in it: Core draws its look and sets its recipe tag.
--- Inside the chamber's walls and roof it is always Smokehouse.PLACE (an open roof's air, still), wherever it stands.
+local function refresh(station, sessionState)
+    if sessionState.tub then return refreshTub(station, sessionState) end
+    if sessionState.chamber then return refreshChamber(station) end
+    return refreshRack(station, sessionState)
+end
+
 local function newSessionState(station)
-    if Smokehouse.isChamber(station) then
-        return { hanger = F.CHAMBER_HANGER, faceIndex = 0, logicType = ComponentType.DryingCraftLogic,
-            show = function() end, place = Smokehouse.PLACE }
-    end
+    if Smokehouse.isChamber(station) then return { chamber = true } end
     local index = F.stationIndex(station)
     if not index then return nil end
 
@@ -181,45 +108,11 @@ local tracker = Station.tracker({ sprites = sprites, newSessionState = newSessio
 
 TraditionalPreservationFishMeatWorld.track = tracker.track
 
--- Redraws a tracked station now, without waiting for the next tick, e.g. after a player adds fish. A tub or a rack is
--- tracked from here on: one built this session hasn't been through the map loader.
+-- Redraws a tracked station now, without waiting for the next tick, e.g. after a player hangs a piece. One built this
+-- session is tracked from here on: it hasn't been through the map loader.
 function TraditionalPreservationFishMeatWorld.refresh(station)
-    local sessionState = (F.isTub(station) or F.isRack(station)) and tracker.track(station) or tracker.sessionStateOf(station)
+    local sessionState = F.isStation(station) and tracker.track(station) or tracker.sessionStateOf(station)
     if sessionState then refresh(station, sessionState) end
-end
-
--- The stacks on a station that are past its input slots: running, or finished and not yet taken.
-function TraditionalPreservationFishMeatWorld.busyStacks(station)
-    local sessionState = tracker.sessionStateOf(station)
-    return sessionState and sessionState.busyStacks or 0
-end
-
--- What a drying station holds now, for its Info window: its hanger and place, the items waiting in its
--- input slots, the finished ones and their stacks, and the running batches, furthest along first, each with its
--- recipe data and progress. Either tile of a Smokehouse answers for the one with the slots, and lists this mod's
--- stacks only. Nil for a tub (its own Info window) or anything else, or before there is a player.
-function TraditionalPreservationFishMeatWorld.inspect(station)
-    if Smokehouse.isChamber(station) then station = Smokehouse.slotTile(station) end
-    local sessionState = tracker.track(station)
-    if not sessionState or sessionState.tub or sessionState.rack then return nil end
-    local resources = station:getComponent(ComponentType.Resources)
-    local logic = station:getComponent(sessionState.logicType)
-    local uiLogic = resources and logic and Station.uiLogic(station, sessionState, logic)
-    if not uiLogic then return nil end
-
-    local _, _, _, waiting = countItems(resources, logic:getInputsGroupName(), ResourceIO.Input)
-    local finished, finishedStacks = countItems(resources, logic:getOutputsGroupName(), ResourceIO.Output)
-    local batches = {}
-    local closed = sessionState.hanger and sessionState.hanger.closed
-    for craftData, _ in pairs(uiLogic:getItemsInProgress()) do
-        if not closed or F.ownsStack(craftData:getModData()) then
-            table.insert(batches, { craftRecipeData = craftData, progress = logic:getProgress(craftData),
-                stackId = craftData:getModData().stackId })
-        end
-    end
-    table.sort(batches, furthestFirst)
-    return { station = station, hanger = sessionState.hanger, place = sessionState.place or Weather.placeOf(station),
-        waiting = waiting, finished = finished, finishedStacks = finishedStacks, batches = batches }
 end
 
 Weather.onReading(function(now, climate)

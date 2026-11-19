@@ -77,21 +77,9 @@ for _, base in ipairs({ "DryCured", "AirDried", "CountryHam" }) do
 end
 check("every ageing tooltip has its text" .. table.concat(missing, " "), #missing == 0)
 
--- Left hanging: three quarters of the time
-local hung = food(F.COUNTRY_HAM, { ModelIndex = 6, Age = 0 }, { agedFrom = 0 })
-F.ageHanging(hung, 1000)
-check("the first look only notes the hour", hung.modData.hungHour == 1000 and hung.modData.agedFrom == 0)
-F.ageHanging(hung, 1000.5)
-check("not within the hour", hung.modData.hungHour == 1000)
-F.ageHanging(hung, 1000 + 67.5 * 24)
-check("67.5 days hanging add 22.5", near(hung.modData.agedFrom, -22.5))
-hung:setAge(67.5)
-check("so a hanging ham is Aged in 67.5 days", near(F.agedness(hung), 1))
+-- On a shelf a ham ages at its own pace (left hanging it takes three quarters of the time: test_rack).
 local shelf = food(F.COUNTRY_HAM, { ModelIndex = 6, Age = 67.5 }, { agedFrom = 0 })
-check("on a shelf it is three quarters there", near(F.agedness(shelf), 0.75))
-local fish = food("TraditionalPreservationFishMeat.SaltDriedFish")
-F.ageHanging(fish, 1000)
-check("fish left hanging is left alone", fish.modData.hungHour == nil)
+check("on a shelf 67.5 days are three quarters there", near(F.agedness(shelf), 0.75))
 
 -- Slicing a cut: slices of about hunger 14, the first two the recipe's, the rest handed to the character
 local given = {}

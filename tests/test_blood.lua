@@ -19,11 +19,7 @@ ArrayList = { new = function()
     return list
 end }
 
-local recipeTimes = {}
-ScriptManager = { instance = {} }
-function ScriptManager.instance:getCraftRecipe(name)
-    return { Load = function(_, recipeName, text) recipeTimes[recipeName] = text end }
-end
+ScriptManager = { instance = { getCraftRecipe = function() return { Load = function() end } end } }
 
 -- Vanilla's tables as the animal definitions build them (the numbers are vanilla's).
 AnimalDefinitions = { animals = {
@@ -67,8 +63,6 @@ local function casings(parts)
     end
     return n, row
 end
-check("the hang recipe's window time is the blood sausage's 24 h of smoke, the longer",
-    recipeTimes["TraditionalPreservationFishMeat.HangSausageToSmoke"] == "{ time = 86400, }")
 local pigN, pigRow = casings(pigParts)
 local cowN, cowRow = casings(cowParts)
 check("a pig's table gets one casing row", pigN == 1 and pigRow.minNb == 1 and pigRow.maxNb == 1)
@@ -277,10 +271,6 @@ end
 local fried = link(F.BLOOD_SAUSAGE)
 fried.md[OnHeat.KEY] = { finished = true }
 fried.cooked = true
-local boiled = link(F.BLOOD_SAUSAGE)
-boiled.cooked = true
-check("a fried link stays out, a raw one too, a boiled one goes in", not F.canSmokeSausage(fried)
-    and not F.canSmokeSausage(link(F.BLOOD_SAUSAGE)) and F.canSmokeSausage(boiled))
 check("only the Smokehouse takes blood sausage, and never a fried link",
     F.sausageRefusal({ closed = true }, link(F.BLOOD_SAUSAGE)) == nil
     and F.sausageRefusal({}, link(F.BLOOD_SAUSAGE)) == "IGUI_TraditionalPreservationFishMeat_SausageSmokehouse"
@@ -309,9 +299,7 @@ F.smokeStep(stack, fire)
 F.sausageSmokeStep(stack, 132)
 check("banked hours count too, and the smoked hour is placed within the stretch", near(stack.coldSmokeHours, 31)
     and near(stack.smokedAt, 111 + 21 * 14 / 21))
-check("done, it waits for the World's look at its shed", F.sausageProgress(stack, 132) == F.SHED_WAIT)
-F.smokeStations[stack.stackId] = {}
-check("then it ends", F.sausageProgress(stack, 132) == 1)
+check("done, its bar is full", F.sausageProgress(stack, 132) == 1)
 
 local now = 132
 local smoked = F.smokedLink(link(F.BLOOD_SAUSAGE, 1), stack, now, 1)
@@ -329,7 +317,6 @@ check("Food Spoilage's speed runs the clock", near(F.smokedLink(link(F.BLOOD_SAU
 
 local cold = {}
 F.startSausageSmoke(cold, links(link(F.BLOOD_SAUSAGE, 0)), 200, 1)
-F.smokeStations[200] = {}
 check("with no fire the stack ends when its links have gone stale", F.sausageProgress(cold, 200 + 7 * 24 - 1) < 1
     and F.sausageProgress(cold, 200 + 7 * 24) == 1)
 check("and they come down Boiled", F.smokedLink(link(F.BLOOD_SAUSAGE, 0), cold, 200 + 7 * 24, 1).fullType == F.BLOOD_SAUSAGE)
@@ -341,8 +328,6 @@ check("a fire on a warm day doesn't count", F.sausageStatus(cold, { temperature 
 check("once smoked, no stale countdown", F.sausageStatus(stack, { temperature = 5 }, now).staleDays == nil)
 
 -- Smoked Sausage: the script, then a stack on the Smokehouse's hot counter.
-local cookedFresh = link("TraditionalPreservationFishMeat.FreshSausage")
-cookedFresh.cooked = true
 dofile("42/media/lua/shared/TraditionalPreservationFishMeatSausage.lua")
 local sausage = io.open("42/media/scripts/TraditionalPreservationFishMeat_Sausage.txt"):read("*a")
 local function sfield(item, key)
@@ -369,14 +354,7 @@ check("stuffing takes two pork pieces and one of pork, beef or venison, pork fat
     stuff:find("item 2 [Base.Pork;Base.PorkChop]", 1, true) and stuff:find("Base.Beef;Base.Steak;Base.Venison]", 1, true)
     and stuff:find("[TraditionalPreservationFishMeat.PorkFat;Base.Lard]", 1, true) and stuff:find("tags[base:salt]", 1, true)
     and stuff:find("SaltedCasings", 1, true) and stuff:find("item 6 TraditionalPreservationFishMeat.FreshSausage", 1, true))
-local hangBoth = sausage:match("craftRecipe HangSausageToSmoke\n    {(.-)\n    }\n")
-check("one hang recipe, the Smokehouse's alone, takes both sausages and tests each link", hangBoth
-    and hangBoth:find("Tags = Smokehouse,", 1, true)
-    and hangBoth:find("[TraditionalPreservationFishMeat.BloodSausage;TraditionalPreservationFishMeat.FreshSausage]", 1, true)
-    and hangBoth:find("OnTest = TraditionalPreservationFishMeat.canSmokeSausage,", 1, true))
-check("a raw fresh link goes in, a cooked one stays out", F.canSmokeSausage(link(F.FRESH_SAUSAGE)) and not F.canSmokeSausage(cookedFresh))
-check("the stack's kind is its links'", F.sausageOf(links(link(F.FRESH_SAUSAGE))) == "pork"
-    and F.sausageOf(links(link(F.BLOOD_SAUSAGE))) == nil)
+check("no hang recipe: the Smokehouse hangs links from its menu", not sausage:find("craftRecipe HangSausageToSmoke", 1, true))
 
 local cooked = link(F.FRESH_SAUSAGE)
 cooked.cooked = true
@@ -459,9 +437,7 @@ Fire.logFire(pfire, 316, Fire.STOKED, 400)
 F.smokeStep(porkStack, pfire)
 F.sausageSmokeStep(porkStack, 316)
 check("six stoked hours in a row: cooked, the hour placed in the stretch", near(porkStack.hotSmokeHours, 6)
-    and near(porkStack.smokedAt, 316) and F.sausageProgress(porkStack, 316) == F.SHED_WAIT)
-F.smokeStations[porkStack.stackId] = {}
-check("then it ends", F.sausageProgress(porkStack, 316) == 1)
+    and near(porkStack.smokedAt, 316) and F.sausageProgress(porkStack, 316) == 1)
 local smokedPork = F.smokedLink(seasoned, porkStack, 316, 1)
 check("smoked in time: Smoked Sausage, cooked, its age the share of 14 days, seasoning carried",
     smokedPork.fullType == F.SMOKED_SAUSAGE and smokedPork.cooked and near(smokedPork.age, (16 / 24) / 2 * 14)

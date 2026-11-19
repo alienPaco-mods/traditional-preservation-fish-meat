@@ -40,6 +40,16 @@ local check = H.check
 
 local function near(a, b) return math.abs(a - b) < 0.0001 end
 
+-- A piece hung alone on a rack at place (the racks' record, TraditionalPreservationFishMeatRack.lua): the rack and
+-- the piece. step brings it up to now at place.
+local function hang(item, place)
+    local rack = {}
+    return rack, T.hangPiece(rack, item, place or "Open", T.getLedger(), hours)
+end
+local function step(rack, place)
+    T.updateRack(rack, place or "Open", T.getLedger(), hours)
+end
+
 local list = H.list
 
 local function newRecipeData(time, fish, created, name)
@@ -99,8 +109,7 @@ local MILD = { temperature = 20, humidity = 0.4, precipitation = 0 }
 
 -- Recipe times
 onInit()
-check("the drying time comes from DRY_HOURS", loaded["TraditionalPreservationFishMeat.HangFishToDry"] == "{ time = " .. T.DRY_HOURS * 3600 .. ", }")
-check("the tub's cures are no recipes now", loaded["TraditionalPreservationFishMeat.PressSaltedFish"] == nil)
+check("no recipe times are set: the tub and the racks keep their own clocks", next(loaded) == nil)
 
 -- Rates
 check("freezing air dries nothing", T.temperatureRate(-5) == 0 and T.temperatureRate(0) == 0)
@@ -230,9 +239,10 @@ check("the last piece out empties the tub", T.tubStage(hotTub) == "Empty")
 local waited = packedTub(T.GUTTED_FISH, { 1 })
 waited.stage, waited.method, waited.spoiled, waited.doneHour = "Done", "fish", 0, hours - 48
 check("a cured piece left waiting in the tub has aged as lying out", near(T.curedFromTub(T.takeFromTub(waited), hours).age, 2))
-local mixed = list({ newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 3 }), newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 1 }) })
-mixed:get(0):getModData().cureSpoiled = 0.4
-check("a stack starts with its fish's share, by weight", near(T.stackCureSpoiled(mixed), 0.3))
+local warm = newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 1 })
+warm:getModData().cureSpoiled = 0.4
+local _, warmPiece = hang(warm)
+check("a hung piece starts with what its cure took", near(warmPiece.state.spoiled, 0.4))
 ModData.tables = {}
 end
 
@@ -246,12 +256,6 @@ check("a frame takes pressed fish", T.fishRefusal("TraditionalPreservationFishMe
 check("but not raw fish", T.fishRefusal("Base.Walleye") == "IGUI_TraditionalPreservationFishMeat_NeedsPressed")
 
 -- The frame
-check("a stack takes four fish too small to slice", T.frameRefusal(T.HANGERS[6], 0, 0.6 * 3, 0.6) == nil)
-check("but not a fifth", T.frameRefusal(T.HANGERS[6], 0, 2.4, 0.6) == "IGUI_TraditionalPreservationFishMeat_StackFull")
-check("a fish at the limit hangs", T.frameRefusal(T.HANGERS[6], 0, 0, 2.5) == nil)
-check("and takes nothing with it", T.frameRefusal(T.HANGERS[6], 0, 2.5, 0.1) == "IGUI_TraditionalPreservationFishMeat_StackFull")
-check("a heavier fish is told to slice", T.frameRefusal(T.HANGERS[6], 0, 0, 2.6) == "IGUI_TraditionalPreservationFishMeat_TooHeavy")
-check("eight stacks fill the frame", T.frameRefusal(T.HANGERS[6], 7, 0, 0.1) == nil and T.frameRefusal(T.HANGERS[6], 8, 0, 0.1) == "IGUI_TraditionalPreservationFishMeat_FrameFull")
 check("a full frame is 20 weight", T.STACK_WEIGHT * T.MAX_STACKS == 20)
 check("every station finds its hanger, either way round", T.hangerFor(7) == T.HANGERS[6] and T.hangerFor(409) == T.HANGERS[408] and T.hangerFor(410) == T.HANGERS[410])
 check("a tub has none", T.hangerFor(0) == nil and T.hangerFor(5) == nil)
@@ -261,9 +265,6 @@ check("gutted fish hang in the open, under an open roof or in a room (a shut one
     and T.coldRefusal("Sheltered") == nil)
 check("not in a basement or the Smokehouse", T.coldRefusal("Basement") == "IGUI_TraditionalPreservationFishMeat_NoColdIndoors"
     and T.coldRefusal("Smokehouse") == "IGUI_TraditionalPreservationFishMeat_NoColdIndoors")
-check("the Smokehouse takes 6 stacks of 15", T.frameRefusal(T.CHAMBER_HANGER, 5, 0, 15) == nil
-    and T.frameRefusal(T.CHAMBER_HANGER, 0, 0, 15.1) == "IGUI_TraditionalPreservationFishMeat_TooHeavy"
-    and T.frameRefusal(T.CHAMBER_HANGER, 6, 0, 1) == "IGUI_TraditionalPreservationFishMeat_FrameFull")
 IsoFlagType = IsoFlagType or {}
 -- A tiny map: squares by "x,y", each with the sprites standing on it.
 local grid = {}
@@ -330,60 +331,35 @@ end
 check("the tile file has both sheets (the third went with the stacks, 0.4.76)", u32(9) == 2)
 local sheetCount = u32(13 + #"traditionalpreservationfishmeat_01\ntraditionalpreservationfishmeat_01.png\n" + 12)
 check("the first sheet ends where the sprites say", sheetCount == T.FIRST_SHEET_SIZE and sheetCount <= 512)
-check("a medium beam takes 15 a stack on 4 hooks", T.frameRefusal(T.HANGERS[408], 3, 0, 15) == nil and T.frameRefusal(T.HANGERS[408], 0, 0, 15.1) == "IGUI_TraditionalPreservationFishMeat_TooHeavy" and T.frameRefusal(T.HANGERS[408], 4, 0, 1) == "IGUI_TraditionalPreservationFishMeat_FrameFull")
-check("a large beam takes 50 a stack on 2 hooks", T.frameRefusal(T.HANGERS[410], 1, 0, 50) == nil and T.frameRefusal(T.HANGERS[410], 2, 0, 1) == "IGUI_TraditionalPreservationFishMeat_FrameFull")
-local FULL = "IGUI_TraditionalPreservationFishMeat_StackFull"
-check("a Hanging Beam stack takes 12 pieces", T.frameRefusal(T.HANGERS[408], 0, 11, 0.5, 11) == nil
-    and T.frameRefusal(T.HANGERS[408], 0, 6, 0.5, 12) == FULL)
-check("a Gantry stack takes 6 pieces, however light", T.frameRefusal(T.HANGERS[410], 0, 30, 5, 5) == nil
-    and T.frameRefusal(T.HANGERS[410], 0, 3, 0.5, 6) == FULL)
-check("the Drying Frame and the Smokehouse keep 25", T.frameRefusal(T.HANGERS[6], 0, 0, 0.05, 24) == nil
-    and T.frameRefusal(T.HANGERS[6], 0, 0, 0.05, 25) == FULL
-    and T.frameRefusal(T.CHAMBER_HANGER, 0, 0, 0.5, 24) == nil and T.frameRefusal(T.CHAMBER_HANGER, 0, 0, 0.5, 25) == FULL)
 
 -- Drying
-local DRY_TIME = T.DRY_HOURS * 3600
 local shared = T.getLedger()
-local dry = newRecipeData(DRY_TIME)
-T.onDryStart(dry)
+local dryRack, dry = hang(newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 1 }))
 hours = hours + T.DRY_HOURS / 2
 T.advance(shared, hours, MILD)
-T.onDryUpdate(dry)
-check("half the time in good weather is half dry", near(dry.elapsed, DRY_TIME / 2))
+step(dryRack)
+check("half the time in good weather is half dry", near(T.pieceProgress(dry), 0.5))
 
-T.onDryUpdate(dry)
-check("updating twice doesn't count twice", near(dry.elapsed, DRY_TIME / 2))
+step(dryRack)
+check("updating twice doesn't count twice", near(T.pieceProgress(dry), 0.5))
 
-dry.modData.place = "Sheltered"
 hours = hours + 1
 T.advance(shared, hours, MILD)
-local afterRoof = dry.modData.dried
-T.onDryUpdate(dry)
-check("a frame in a shut room dries nothing", near(dry.modData.dried - afterRoof, 0))
+local afterRoof = dry.state.dried
+step(dryRack, "Sheltered")
+check("a frame in a shut room dries nothing", near(dry.state.dried - afterRoof, 0))
 
-dry.modData.place = "Covered"
 hours = hours + 1
 T.advance(shared, hours, MILD)
-local afterCover = dry.modData.dried
-T.onDryUpdate(dry)
-check("an open shed dries as the open air", near(dry.modData.dried - afterCover, 1))
+local afterCover = dry.state.dried
+step(dryRack, "Covered")
+check("an open shed dries as the open air", near(dry.state.dried - afterCover, 1))
 
-dry.modData.place = nil
 hours = hours + 1000
 T.advance(shared, hours, MILD)
-T.onDryUpdate(dry)
-check("time unloaded counts, and stops at done", dry.elapsed == DRY_TIME)
-
-local reused = newRecipeData(DRY_TIME)
-reused.modData = { place = "Sheltered", dried = 90 }
-T.onDryStart(reused)
-T.onDryUpdate(reused)
-check("a reused object starts from nothing", reused.elapsed == 0 and reused.modData.place == nil and reused.modData.spoiled == 0)
-
-local stacked = newRecipeData(DRY_TIME, { newFood("TraditionalPreservationFishMeat.SaltPressedFish", {}) }, { newFood("TraditionalPreservationFishMeat.SaltDriedFish", {}) })
-T.onDryStart(stacked)
-T.onCreateDried(stacked)
-check("dried fish remembers its stack", stacked:getAllCreatedItems():get(0):getModData().stackId == stacked.modData.stackId)
+step(dryRack)
+check("time unloaded counts, and stops at done", T.pieceProgress(dry) == 1 and T.pieceDone(dry))
+check("dried fish remembers its piece's clock", T.rackOutput(dry, hours):getModData().stackId == dry.state.stackId)
 
 -- Sandbox options
 SandboxVars = { TraditionalPreservationFishMeat = { DryDays = 24, MaxDryDays = 48, Spoilage = 4 } }
@@ -500,54 +476,52 @@ local frosty = T.newLedger(0)
 T.advance(frosty, 5, { temperature = -8, humidity = 0.3, precipitation = 0 })
 check("hard frost is counted", frosty.hardFrost == 5 and frosty.coldWet == 0)
 
+-- A gutted fish hung alone, from a fresh ledger: its rack, the piece and the ledger.
 local function coldStack()
     ModData.tables = {}
     hours = 0
-    local stack = newRecipeData(T.COLD_DRY_HOURS * 3600)
-    T.onColdDryStart(stack)
-    return stack, T.getLedger()
+    local rack, piece = hang(newFood(T.GUTTED_FISH, { ActualWeight = 1 }))
+    return rack, piece, T.getLedger()
 end
 
 local WINTER = { temperature = 0, humidity = 0.2, precipitation = 0 }
-local winterStack, winter = coldStack()
+local winterRack, winterStack, winter = coldStack()
 winter.seasonTemperature = 0
 hours = T.COLD_DRY_HOURS / 2
 T.advance(winter, hours, WINTER)
-T.onColdDryUpdate(winterStack)
-check("half the time in winter is half dry", near(winterStack.elapsed, T.COLD_DRY_HOURS * 3600 / 2) and winterStack.modData.spoiled == 0)
+step(winterRack)
+check("half the time in winter is half dry", near(T.pieceProgress(winterStack), 0.5) and winterStack.state.spoiled == 0)
 
-local mildStack, mild = coldStack()
+local mildRack, mildStack, mild = coldStack()
 mild.seasonTemperature, mild.threeDayTemperature = 0, 0
 for hour = 1, 12 do
     hours = hour
     T.advance(mild, hours, { temperature = 15, humidity = 0.2, precipitation = 0 })
 end
-T.onColdDryUpdate(mildStack)
-check("twelve warm hours in winter spoil an open stack and a roofed one (the hour's air), not one in a shut room (its mean)",
-    mildStack.modData.spoiled > 0 and mild.rawSpoil > 0 and mild.rawSpoilRoom == 0)
+step(mildRack)
+check("twelve warm hours in winter spoil an open piece and a roofed one (the hour's air), not one in a shut room (its mean)",
+    mildStack.state.spoiled > 0 and mild.rawSpoil > 0 and mild.rawSpoilRoom == 0)
 
-local warmStack, warm = coldStack()
+local warmRack, warmStack, warm = coldStack()
 warm.seasonTemperature = 20
 hours = T.RAW_SPOIL_HOURS
 T.advance(warm, hours, { temperature = 20, humidity = 0.4, precipitation = 0 })
-T.onColdDryUpdate(warmStack)
-check("a warm season rots it early", warmStack.modData.spoiled >= 1 and warmStack.elapsed == T.COLD_DRY_HOURS * 3600)
+step(warmRack)
+check("a warm season rots it early", warmStack.state.spoiled >= 1 and T.pieceProgress(warmStack) == 1 and T.pieceDone(warmStack))
 
-local roofedStack, roofed = coldStack()
+local roofedRack, roofedStack, roofed = coldStack()
 roofed.seasonTemperature = 0
-roofedStack.modData.place = "Sheltered"
 hours = 10
 T.advance(roofed, hours, WINTER)
-T.onColdDryUpdate(roofedStack)
-check("indoors stops cold drying", roofedStack.modData.dried == 0)
+step(roofedRack, "Sheltered")
+check("indoors stops cold drying", roofedStack.state.dried == 0)
 
-local shedStack, shedLedger = coldStack()
+local shedRack, shedStack, shedLedger = coldStack()
 shedLedger.seasonTemperature = 0
-shedStack.modData.place = "Covered"
 hours = 10
 T.advance(shedLedger, hours, WINTER)
-T.onColdDryUpdate(shedStack)
-check("an open shed dries cold fish at three quarters", near(shedStack.modData.dried, shedLedger.cold * T.COVERED_COLD_RATE) and shedStack.modData.dried > 0)
+step(shedRack, "Covered")
+check("an open shed dries cold fish at three quarters", near(shedStack.state.dried, shedLedger.cold * T.COVERED_COLD_RATE) and shedStack.state.dried > 0)
 
 -- Early frost and wet add to the spoilage, the more the wetter the fish
 local function coldStep(dried, totals, sheltered, covered)
@@ -582,21 +556,20 @@ check("a cold stack from an older version starts counting frost and wet now", ol
 local function saltStack(season, humidity, place)
     ModData.tables = {}
     hours = 0
-    local stack = newRecipeData(T.DRY_HOURS * 3600)
-    T.onDryStart(stack)
-    stack.modData.place = place or "Smokehouse"
+    place = place or "Smokehouse"
+    local rack, piece = hang(newFood(T.PRESSED_FISH, { ActualWeight = 1 }), place)
     local ledger = T.getLedger()
     ledger.seasonTemperature, ledger.seasonHumidity = season, humidity
     hours = T.SALT_SPOIL_HOURS / 2
     T.advance(ledger, hours, { temperature = season, humidity = humidity, precipitation = 0 })
-    T.onDryUpdate(stack)
-    return stack
+    step(rack, place)
+    return piece.state
 end
-check("a cool season leaves salt fish alone", saltStack(15, 0.6).modData.spoiled == 0)
-check("so does a hot dry one", saltStack(28, 0.2).modData.spoiled == 0)
-check("a hot muggy one takes half its keeping", near(saltStack(28, 0.6).modData.spoiled, 0.5))
-check("but not in moving air: under a roof or in an aired room", saltStack(28, 0.6, "Covered").modData.spoiled == 0
-    and saltStack(28, 0.6, "AiredRoom").modData.spoiled == 0)
+check("a cool season leaves salt fish alone", saltStack(15, 0.6).spoiled == 0)
+check("so does a hot dry one", saltStack(28, 0.2).spoiled == 0)
+check("a hot muggy one takes half its keeping", near(saltStack(28, 0.6).spoiled, 0.5))
+check("but not in moving air: under a roof or in an aired room", saltStack(28, 0.6, "Covered").spoiled == 0
+    and saltStack(28, 0.6, "AiredRoom").spoiled == 0)
 
 -- Hot sun on fresh salt fish
 local function saltStep(dried, heat, place)
@@ -617,10 +590,9 @@ T.advance(heatLedger, 5, { temperature = 30, humidity = 0.3, precipitation = 0 }
 T.advance(heatLedger, 10, { temperature = 24, humidity = 0.3, precipitation = 0 })
 check("the ledger counts hours above 25 C", heatLedger.heat == 5)
 
-local oldSave = newRecipeData(T.DRY_HOURS * 3600)
-oldSave.modData = { dried = 10, lastOpen = 0, lastSheltered = 0 }
-T.onDryUpdate(oldSave)
-check("a stack with no marks yet counts from now and carries on", oldSave.modData.spoiled == 0 and oldSave.modData.lastHeat ~= nil)
+local oldSave = { dried = 10, spoiled = 0, lastOpen = 0, lastSheltered = 0 }
+T.saltStep(oldSave, T.getLedger())
+check("a clock with no marks yet counts from now and carries on", oldSave.spoiled == 0 and oldSave.lastHeat ~= nil)
 
 ModData.tables = { [T.MOD_DATA_KEY] = { lastHour = 5, wetness = 0, open = 3, sheltered = 2 } }
 local upgraded = T.getLedger()
@@ -631,14 +603,13 @@ ModData.tables = {}
 
 -- What the season took shows on the finished fish
 local function finished(spoiled)
-    local stack = newRecipeData(0, { newFood("TraditionalPreservationFishMeat.SaltPressedFish", {}) }, { newFood("TraditionalPreservationFishMeat.SaltDriedFish", {}) })
-    stack.modData = { spoiled = spoiled, stackId = 1 }
-    T.onCreateDried(stack)
-    return stack:getAllCreatedItems():get(0)
+    local _, piece = hang(newFood(T.PRESSED_FISH, { ActualWeight = 1 }))
+    piece.state.spoiled, piece.doneHour = spoiled, hours
+    return T.rackOutput(piece, hours)
 end
-check("a sound stack comes out fresh", finished(0).age == 0)
-check("a part spoiled stack keeps for less", near(finished(0.25).age, 30))
-check("a spoiled stack comes out rotten", finished(1).age == 180)
+check("a sound piece comes out fresh", finished(0).age == 0)
+check("a part spoiled piece keeps for less", near(finished(0.25).age, 30))
+check("a spoiled piece comes out rotten", finished(1).age == 180)
 
 -- How a hanging fish looks
 local seen, last = {}, 0
@@ -792,7 +763,7 @@ check("all nine stages have models (Hot Smoked 5c, Cold Smoked 5d; Salt Packed g
 local headBody = script:match("item FishHead\n    {(.-)\n    }")
 check("a head spoils like fresh fish", headBody:find("DaysFresh = 3,", 1, true) and headBody:find("DaysTotallyRotten = 6,", 1, true))
 check("and is a little unpleasant to eat", headBody:find("UnhappyChange = 5,", 1, true) ~= nil and not headBody:find("RemoveUnhappinessWhenCooked", 1, true))
-check("no drying recipe takes a head", not script:find("FishHead", (script:find("craftRecipe HangFishToDry", 1, true)), true))
+check("no rack takes a head", T.fishRefusal("TraditionalPreservationFishMeat.FishHead") == T.REFUSALS.needsPressed)
 -- Design decision: every stock, and the soups and stews made from them, starts at -10
 -- unhappiness and -10 boredom, at hunger -5 (vanilla's soups and stews start at 0). A balance pass that changes them has to change this test, and only
 -- as a deliberate design change.
@@ -1227,32 +1198,25 @@ check("31 salt carried can't start it, 36 can", T.startRefusal(fourTub, "fish", 
     and T.startRefusal(fourTub, "fish", { salt = 36, board = true, stone = true }) == nil)
 instanceof = nil
 
--- How a stack looks on the frame
-check("salted fish hangs as salted", T.fishStyle(newFood("TraditionalPreservationFishMeat.SaltPressedFish", {})) == T.STYLE_SALT)
-check("gutted fish as gutted", T.fishStyle(newFood("TraditionalPreservationFishMeat.GuttedFish", {})) == T.STYLE_GUTTED)
-check("halves as halves", T.fishStyle(newFood("TraditionalPreservationFishMeat.FishHalf", {})) == T.STYLE_HALF)
-check("finished salt fish from before styles stays salted", T.fishStyle(newFood("TraditionalPreservationFishMeat.SaltDriedFish", {})) == T.STYLE_SALT)
-
-local function rolled(start)
+-- How a piece looks on the rack
+local function rolled(fullType)
     local seen = {}
     for roll = 0, 11 do
         nextRoll = roll
-        local stack = newRecipeData(0)
-        start(stack)
-        seen[stack.modData.style] = true
+        local _, piece = hang(newFood(fullType, { ActualWeight = 1 }))
+        seen[piece.state.style] = true
     end
     return seen
 end
-local saltLooks = rolled(T.onDryStart)
-check("salt stacks can be whole, gutted or half", saltLooks[T.STYLE_SALT] and saltLooks[T.STYLE_SALT_GUTTED] and saltLooks[T.STYLE_SALT_HALF])
+local saltLooks = rolled(T.PRESSED_FISH)
+check("salt fish can be whole, gutted or half", saltLooks[T.STYLE_SALT] and saltLooks[T.STYLE_SALT_GUTTED] and saltLooks[T.STYLE_SALT_HALF])
 check("in salt colours only", not saltLooks[T.STYLE_GUTTED] and not saltLooks[T.STYLE_HALF])
-local coldLooks = rolled(T.onColdDryStart)
-check("cold stacks are gutted or half, never whole", coldLooks[T.STYLE_GUTTED] and coldLooks[T.STYLE_HALF] and not coldLooks[T.STYLE_SALT])
-local styled = newRecipeData(0, { newFood("TraditionalPreservationFishMeat.GuttedFish", {}) }, { newFood("TraditionalPreservationFishMeat.ColdDriedFish", {}) })
+local coldLooks = rolled(T.GUTTED_FISH)
+check("cold fish are gutted or half, never whole", coldLooks[T.STYLE_GUTTED] and coldLooks[T.STYLE_HALF] and not coldLooks[T.STYLE_SALT])
 nextRoll = 2
-T.onColdDryStart(styled)
-T.onCreateDried(styled)
-check("a finished stack keeps the look it had", T.fishStyle(styled:getAllCreatedItems():get(0)) == T.STYLE_HALF)
+local _, styled = hang(newFood(T.GUTTED_FISH, { ActualWeight = 1 }))
+styled.doneHour = hours
+check("a finished piece keeps the look it had", T.rackOutput(styled, hours):getModData().style == T.STYLE_HALF)
 
 -- Splitting
 local heavy = through(newFood("Base.Walleye", { Calories = 800, BaseHunger = -0.6, HungChange = -0.6, ActualWeight = 4 }), "GuttedFish")
@@ -1299,11 +1263,21 @@ heavy:getModData().fishName = "Big Walleye"
 check("and keeps Gutted in its name", through(heavy, "SaltPressedFish").name == "Gutted Big Walleye (Salt Cured)")
 
 
+-- What a rack gives for input once it is done, made as output (the script's item, standing in for instanceItem).
+local function driedFrom(input, output)
+    local instance = instanceItem
+    instanceItem = function() return output end
+    local _, piece = hang(input)
+    piece.doneHour = hours
+    local item = T.rackOutput(piece, hours)
+    instanceItem = instance
+    return item
+end
+
 -- Maturing
 local function coldDried(age)
     local gutted = through(newFood("Base.Walleye", { ActualWeight = 3 }), "GuttedFish")
-    local dried = newFood("TraditionalPreservationFishMeat.ColdDriedFish", {})
-    T.onCreateDried(newRecipeData(0, { gutted }, { dried }))
+    local dried = driedFrom(gutted, newFood("TraditionalPreservationFishMeat.ColdDriedFish", {}))
     dried.age = age
     T.rename(dried)
     return dried
@@ -1359,7 +1333,7 @@ check("and says so", toRinse.name == "Medium Walleye (Salt Cured, Rinsed)")
 local rinsedDried = newFood("TraditionalPreservationFishMeat.SaltDriedFish", {})
 rinsedDried.thirst = 0.3
 rinsedDried.unhappy = 3
-T.onCreateDried(newRecipeData(0, { toRinse }, { rinsedDried }))
+driedFrom(toRinse, rinsedDried)
 check("the dried fish from it keeps the rinse: thirst 30 to 20, no sharp tang", near(rinsedDried.thirst, 0.2) and rinsedDried.unhappy == 0)
 check("and keeps a tenth less long, counted from its own script", rinsedDried.offAge == 108)
 check("and its name says so", rinsedDried.name == "Medium Walleye (Salt Dried, Rinsed)")
@@ -1511,35 +1485,34 @@ end)()
     T.advance(snow, 5, { temperature = -2, humidity = 0.4, precipitation = 1, isSnow = true })
     check("snow isn't rain", snow.charqueRain == 0)
 
+    -- A Corned cut hung alone at place; update brings it up to now there.
     local function stack(place)
-        local cured = newFood(T.CURED_MEAT, {})
-        local craftRecipeData = newRecipeData(T.CHARQUE_HOURS * 3600, { cured })
-        T.onCharqueStart(craftRecipeData)
-        craftRecipeData.modData.place = place == "indoors" and "Sheltered" or place == "covered" and "Covered" or nil
-        return craftRecipeData
+        local rack, piece = hang(newFood(T.CURED_MEAT, {}), place)
+        piece.update = function() step(rack, place) end
+        return piece
     end
     local shared = T.getLedger()
-    local open, covered, indoors = stack("open"), stack("covered"), stack("indoors")
-    check("a meat stack hangs as meat", open.modData.style == T.STYLE_MEAT and open.modData.dried == 0)
+    local open, covered, indoors = stack("Open"), stack("Covered"), stack("Sheltered")
+    check("a meat piece hangs as meat", open.state.style == T.STYLE_MEAT and open.state.dried == 0)
     shared.charque, shared.charqueCovered, shared.charqueSheltered = shared.charque + 60, shared.charqueCovered + 60, shared.charqueSheltered + 30
     shared.dryCureRoom, shared.underCureRoom = shared.dryCureRoom + 20, shared.underCureRoom + 0.1
     shared.dryCure, shared.underCure = shared.dryCure + 99, shared.underCure + 0.5
-    for _, craftRecipeData in ipairs({ open, covered, indoors }) do T.onCharqueUpdate(craftRecipeData) end
-    check("each place reads its own total", open.modData.dried == 60 and covered.modData.dried == 60)
-    check("in a room there is no charque: Corned meat dry cures, under-salted (0.4.15)", near(indoors.modData.dried, 20)
-        and near(indoors.modData.underSpoiled, 0.1) and T.dryCuring(indoors.modData) and not T.dryCuring(covered.modData)
-        and near(indoors.elapsed, T.CHARQUE_HOURS * 3600 * 20 / indoors.modData.cureNeed))
-    check("half way is half the bar", near(open.elapsed, T.CHARQUE_HOURS * 3600 / 2))
+    for _, piece in ipairs({ open, covered, indoors }) do piece.update() end
+    check("each place reads its own total", open.state.dried == 60 and covered.state.dried == 60)
+    check("in a room there is no charque: Corned meat dry cures, under-salted (0.4.15)", near(indoors.state.dried, 20)
+        and near(indoors.state.underSpoiled, 0.1) and T.dryCuring(indoors.state) and not T.dryCuring(covered.state)
+        and near(T.pieceProgress(indoors), 20 / indoors.state.cureNeed))
+    check("half way is half the bar", near(T.pieceProgress(open), 0.5))
     shared.charqueRain = shared.charqueRain + T.CHARQUE_RAIN_HOURS
-    for _, craftRecipeData in ipairs({ open, covered }) do T.onCharqueUpdate(craftRecipeData) end
-    check("a day's rain takes a tenth back on an open frame", near(open.modData.dried, 54))
-    check("not under a roof", covered.modData.dried == 60)
+    for _, piece in ipairs({ open, covered }) do piece.update() end
+    check("a day's rain takes a tenth back on an open frame", near(open.state.dried, 54))
+    check("not under a roof", covered.state.dried == 60)
     shared.saltSpoil = shared.saltSpoil + T.SALT_SPOIL_HOURS / 4
-    T.onCharqueUpdate(covered)
-    check("a muggy season doesn't spoil it under a roof (moving air)", covered.modData.spoiled == 0)
+    covered.update()
+    check("a muggy season doesn't spoil it under a roof (moving air)", covered.state.spoiled == 0)
     shared.charqueCovered = shared.charqueCovered + 100
-    T.onCharqueUpdate(covered)
-    check("done stops at the end", covered.elapsed == T.CHARQUE_HOURS * 3600)
+    covered.update()
+    check("done stops at the end", T.pieceProgress(covered) == 1 and T.pieceDone(covered))
 
     local status = T.charqueStatus({ dried = 60 }, { charqueRate = 1.2, wetness = 0 })
     check("the popup's time left goes by the rate", near(status.progress, 0.5) and near(status.hoursLeft, 50))
@@ -1550,13 +1523,11 @@ end)()
 
     check("one stack is one kind", T.hangMethod(T.CURED_MEAT) == "meat" and T.hangMethod("TraditionalPreservationFishMeat.SaltPressedFish") == "salt"
         and T.hangMethod("TraditionalPreservationFishMeat.GuttedFish") == "cold")
-    check("cured meat waiting shows as meat", T.fishStyle(newFood(T.CURED_MEAT, {})) == T.STYLE_MEAT)
 
     local steak = newFood("Base.Steak", { Calories = 220, Proteins = 31.62, Lipids = 9.35, BaseHunger = -0.4, HungChange = -0.4, ActualWeight = 0.3 })
     steak.displayName = "Steak "
     local cured = through(steak, "SaltCuredMeat")
-    local charque = newFood("TraditionalPreservationFishMeat.Charque", {})
-    T.onCreateDried(newRecipeData(0, { cured }, { charque }))
+    local charque = driedFrom(cured, newFood("TraditionalPreservationFishMeat.Charque", {}))
     check("charque is named for its animal", charque.name == "Beef Charque" and charque.modelIndex == 1)
     check("about half the raw weight", near(charque.values.ActualWeight, 0.3 * keptShare * 0.55))
     check("it keeps 90% of the food, 70% of the bulk", near(charque.values.Calories, 198) and near(charque.values.HungChange, -0.28))
@@ -1588,11 +1559,17 @@ end)()
 
     local meatScript = io.open("42/media/scripts/TraditionalPreservationFishMeat_Meat.txt"):read("*a")
     local fishScript = io.open("42/media/scripts/TraditionalPreservationFishMeat.txt"):read("*a")
-    check("charque hangs on every drying station", meatScript:find("craftRecipe HangMeatToDry%s*{[^}]-Tags = DryingFrame") ~= nil)
-    check("and in the Smokehouse", meatScript:find("craftRecipe HangMeatToDry%s*{[^}]-Tags = DryingFrame;Smokehouse") ~= nil)
-    check("salt fish too", fishScript:find("craftRecipe HangFishToDry%s*{[^}]-Tags = DryingFrame;Smokehouse") ~= nil)
-    check("but not cold drying: it needs open air", fishScript:find("craftRecipe HangFishToColdDry%s*{[^}]-Tags = DryingFrame,") ~= nil)
-    check("its time is set from CHARQUE_HOURS", loaded["TraditionalPreservationFishMeat.HangMeatToDry"] == "{ time = " .. T.CHARQUE_HOURS * 3600 .. ", }")
+    local function takes(hanger, place, fullType)
+        return T.rackRefusal({}, hanger, place, newFood(fullType, { ActualWeight = 0.5 }))
+    end
+    check("Corned meat hangs on every rack in the open, and in the Smokehouse", takes(T.HANGERS[6], "Open", T.CURED_MEAT) == nil
+        and takes(T.HANGERS[408], "Open", T.CURED_MEAT) == nil and takes(T.HANGERS[410], "Open", T.CURED_MEAT) == nil
+        and takes(T.CHAMBER_HANGER, "Smokehouse", T.CURED_MEAT) == nil)
+    check("salt fish too", takes(T.HANGERS[6], "Open", T.PRESSED_FISH) == nil and takes(T.CHAMBER_HANGER, "Smokehouse", T.PRESSED_FISH) == nil)
+    check("but not cold drying in the Smokehouse: it needs moving air", takes(T.CHAMBER_HANGER, "Smokehouse", T.GUTTED_FISH)
+        == T.REFUSALS.noColdIndoors and takes(T.HANGERS[6], "Open", T.GUTTED_FISH) == nil)
+    check("no hang recipe is left: the racks and the Smokehouse hang from their menus",
+        not meatScript:find("craftRecipe HangMeatToDry", 1, true) and not fishScript:find("craftRecipe HangFishTo", 1, true))
     for _, stage in ipairs({ "Charque", "SoakedCharque" }) do
         local body = meatScript:match("item " .. stage .. "%s*{(.-)}")
         local count, missing = 0, {}

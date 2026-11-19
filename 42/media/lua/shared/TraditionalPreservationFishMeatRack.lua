@@ -333,9 +333,8 @@ end
 
 -- Engine side
 
--- Whether an object is one of the three racks (not the tub, not the Smokehouse: its pieces have a record of their
--- own kind and its menu is the racks' (RackUI.isHanger), but the World draws it through its crafting window until
--- the switch-over, S4).
+-- Whether an object is one of the three racks (not the tub, not the Smokehouse: its pieces share the racks' record
+-- and menu (RackUI.isHanger), but it is closed, on four tiles, and Core draws its look).
 function F.isRack(isoObject)
     local hanger = F.hangerOf(isoObject)
     return hanger ~= nil and not hanger.closed and F.RACK_LIMITS[hanger.name] ~= nil

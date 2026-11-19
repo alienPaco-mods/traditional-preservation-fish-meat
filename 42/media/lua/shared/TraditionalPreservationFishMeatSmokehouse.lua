@@ -1,20 +1,14 @@
--- Traditional Preservation (Fish & Meat): what its stacks do in the Smokehouse. The chamber, joining the Stone Hearth and
+-- Traditional Preservation (Fish & Meat): what its pieces do in the Smokehouse. The chamber, joining the Stone Hearth and
 -- the fire's two counters are TP Core's (Smokehouse.lua, moved there 2026-11-13); this is the fish and meat's side:
--- each stack's needs, its drying by the fire's warmth, and what comes out. Only stacks this mod hung are stepped
--- here (F.OWNER): another mod's cheese in the same shed is its own.
+-- each piece's needs, its drying by the fire's warmth, and what comes out. The pieces are this mod's own record on
+-- the chamber (TraditionalPreservationFishMeatRack.lua); their counters carry F.OWNER.
 require "TraditionalPreservationFishMeat/Common"
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
-local Station = require "TraditionalPreservationCore/Station"
 local Weather = require "TraditionalPreservationCore/Weather"
 
 F.OWNER = "TraditionalPreservationFishMeat"
-
--- Whether a stack in the Smokehouse is this mod's.
-function F.ownsStack(modData)
-    return Smokehouse.owns(modData, F.OWNER)
-end
 
 -- Hot smoking (ROADMAP §7, 5c). A salt stack (Salt Cured fish, or charque) in a chamber joined to a Stone Hearth counts the
 -- Stone Hearth's fire on two counters: hot, the hours of the stoked session now running (TP Core's Fire.logFire), and
@@ -158,14 +152,10 @@ function F.coldDone(modData)
     return (modData.coldSmokeHours or 0) > 0 and modData.coldSmokeHours >= F.coldNeed(modData)
 end
 
--- Stacks whose cook is done, by stackId, with their chamber: the World sets them, the stack's OnUpdate finishes it,
--- its OnCreate swaps the outputs in the chamber's slots. Not saved: the World's next look after a load sets it again.
-F.hotStations = {}
-
--- Swaps a finished stack's outputs, already in the chamber's slots (the engine makes them before OnCreate), for
--- smoked ones made from its inputs: fishType for fish, meatType for meat (Hot Smoked, or Cold Smoked and Dry Cured).
--- Of the meat, hot smoked pork is vanilla's Ham and a dried leg a Country Ham; airDried marks Dry Cured meat that
--- had too little smoke (Beef (Dry Cured), plain Country Ham). Corned pieces take the stack's under-salted spoilage.
+-- What a done piece comes off as (F.rackOutput): fishType for fish, meatType for meat (Hot Smoked, or Cold Smoked
+-- and Dry Cured). Of the meat, hot smoked pork is vanilla's Ham and a dried leg a Country Ham; airDried marks Dry
+-- Cured meat that had too little smoke (Beef (Dry Cured), plain Country Ham). Corned pieces take the under-salted
+-- spoilage.
 local function smokedMeatType(input, meatType)
     if meatType == F.HOT_MEAT then return F.isPork(input) and not F.isLeg(input) and F.VANILLA_HAM or meatType end
     return F.isLeg(input) and F.COUNTRY_HAM or meatType
@@ -191,40 +181,4 @@ function F.smokedItem(input, modData, fishType, meatType, airDried)
     -- Dry cured meat ages from here (6c).
     if F.ageDays(hot) then hot:getModData().agedFrom = hot:getAge() end
     return hot
-end
-
--- Swaps a finished stack's outputs, already in the station's slots, for make(input) of each of its inputs.
-local function swapOutputs(craftRecipeData, station, make)
-    local inputs = craftRecipeData:getAllInputItemsWithFlag("ItemCount")
-    local created = craftRecipeData:getAllCreatedItems()
-    local logic = station:getComponent(ComponentType.DryingCraftLogic)
-    local resources = station:getComponent(ComponentType.Resources)
-    if not logic or not resources then return false end
-    local slots = Station.itemSlots(resources, logic:getOutputsGroupName(), ResourceIO.Output)
-    for i = 0, math.min(inputs:size(), created:size()) - 1 do
-        local made = created:get(i)
-        local swapped = make(inputs:get(i))
-        for j = 0, slots:size() - 1 do
-            local slot = slots:get(j)
-            if slot:containsItem(made) then
-                slot:removeItem(made)
-                slot:offerItem(swapped, true)
-                break
-            end
-        end
-    end
-    return true
-end
-
-F.swapOutputs = swapOutputs
-
-function F.smokedOutputs(craftRecipeData, station, fishType, meatType, airDried)
-    local modData = craftRecipeData:getModData()
-    return swapOutputs(craftRecipeData, station, function(input) return F.smokedItem(input, modData, fishType, meatType, airDried) end)
-end
-
--- A stack that rotted on any station comes down as what was hung, rotten.
-function F.rottenOutputs(craftRecipeData, station)
-    local modData = craftRecipeData:getModData()
-    return swapOutputs(craftRecipeData, station, function(input) return F.rottenStage(input, modData) end)
 end

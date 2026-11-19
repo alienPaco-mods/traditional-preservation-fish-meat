@@ -159,32 +159,6 @@ module TraditionalPreservationFishMeat
         }
     }
 
-    /* One Smokehouse recipe for both sausages, each sausage alone in its stack (F.hangMethod). Boiled
-       Blood Sausage, never fried, takes SMOKED_SAUSAGE_HOURS of cold smoke on cool days; raw Fresh Sausage a hot run,
-       SAUSAGE_HOT_HOURS stoked in a row (the Smokehouse's hot counter; a broken run starts again). OnTest keeps out a
-       raw blood link, a fried one and a cooked fresh one; OnStart picks the kind from the links. time is overwritten
-       from the longer, SMOKED_SAUSAGE_HOURS; OnUpdate sets the progress, OnCreate swaps in the smoked links (or the
-       ones that went off first). */
-    craftRecipe HangSausageToSmoke
-    {
-        Tooltip = Tooltip_craft_hangSausageToSmoke,
-        time = 86400,
-        Tags = Smokehouse,
-        category = Cooking,
-        OnTest = TraditionalPreservationFishMeat.canSmokeSausage,
-        OnStart = TraditionalPreservationFishMeat.onSausageSmokeStart,
-        OnUpdate = TraditionalPreservationFishMeat.onSausageSmokeUpdate,
-        OnCreate = TraditionalPreservationFishMeat.onCreateSmokedSausage,
-        inputs
-        {
-            item variable[1:25] [TraditionalPreservationFishMeat.BloodSausage;TraditionalPreservationFishMeat.FreshSausage] flags[ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item variable[1:25] TraditionalPreservationFishMeat.SmokedSausage,
-        }
-    }
-
     /* Hot smoked and a little dried (0.25 to 0.22), the fresh link's food: two weeks, a month to rotten. */
     item SmokedSausage
     {

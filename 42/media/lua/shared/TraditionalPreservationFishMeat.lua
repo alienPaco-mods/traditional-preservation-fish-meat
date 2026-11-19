@@ -3,7 +3,6 @@
 -- how much drying it has had, including while its chunk was unloaded.
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
-local Weather = require "TraditionalPreservationCore/Weather"
 local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 require "TraditionalPreservationFishMeat/Common"
 local Doors = require "TraditionalPreservationCore/Doors"
@@ -36,24 +35,19 @@ F.PRESS_BIG_WEIGHT = 2.2
 F.TUB_CAPACITY = 50
 -- Fish too, so a tub can't be filled with fillets. A tub built with more slots still stops here.
 F.TUB_MAX_ITEMS = 35
--- Each press of Craft hangs one stack, with one sprite and one timer, and every stack is limited
--- by weight alone. A full frame holds 20. MAX_STACKS is the frame's spots, from the Tiles.lua that
--- tools/build_tileset.py writes.
+-- The frame's heaviest piece: a raw Gutted Fish over it splits (F.canSplit); a full frame holds 20. MAX_STACKS is
+-- the frame's spots, from the Tiles.lua that tools/build_tileset.py writes.
 F.STACK_WEIGHT = 2.5
 F.MAX_STACKS = Tiles.HANGERS.frame.stacks
--- Every station that hangs fish, by its first sprite: its first hanging tile (spotSprite) and its spots (stacks), from
--- Tiles.lua, and the old stacks' weight and pieces (the Smokehouse's slots still go by them).
+-- Every rack that hangs fish, by its first sprite: its first hanging tile (spotSprite) and its spots (stacks, the
+-- drawing's shares, F.rackSpots), from Tiles.lua; its room is F.RACK_LIMITS.
 -- The Smokehouse chamber is TP Core's (Smokehouse.lua): closed, nothing hangs in sight; F.CHAMBER_HANGER below.
-local STACK_WEIGHTS = { frame = F.STACK_WEIGHT, medium = 15, large = 50, chamber = 15 }
--- And the most pieces in each stack, fish or meat alike (0.4.20): the Beam and the Gantry are for bigger fish, not
--- more of them. 25 is the slot every station is built with.
-local STACK_PIECES = { frame = 25, medium = 12, large = 6, chamber = 25 }
 F.HANGERS = {}
 for name, tileHanger in pairs(Tiles.HANGERS) do
-    local hanger = { name = name, spotSprite = tileHanger.spotSprite, stacks = tileHanger.stacks, stackWeight = STACK_WEIGHTS[name], stackPieces = STACK_PIECES[name], closed = tileHanger.closed }
+    local hanger = { name = name, spotSprite = tileHanger.spotSprite, stacks = tileHanger.stacks, closed = tileHanger.closed }
     for _, base in ipairs(tileHanger.bases or { tileHanger.base }) do F.HANGERS[base] = hanger end
 end
-F.CHAMBER_HANGER = { name = "chamber", stacks = Smokehouse.STACKS, stackWeight = STACK_WEIGHTS.chamber, stackPieces = STACK_PIECES.chamber, closed = true }
+F.CHAMBER_HANGER = { name = "chamber", closed = true }
 
 -- Vanilla's rules for cutting a fish: over this weight, into two fillets of this share of its
 -- weight (more in spawning season, when part goes to roe), each with half its food.
@@ -299,18 +293,14 @@ F.BALE_UNTIE_TICKS = 60
 
 -- Cold smoke (5d, TraditionalPreservationFishMeatSmokehouse.lua): fire hours count only on a day at or under
 -- COLD_SMOKE_MAX (a banked smoulder lifts the shed BANKED_LIFT, 15 C; over 30 C at the meat it cooks rather than
--- smokes; 20 C until 0.4.12, when the lift grew from 10 to 15). Stacks in
--- a Smokehouse, by stackId, as the World last saw them (not saved); a finished one waits at SHED_WAIT until seen.
+-- smokes; 20 C until 0.4.12, when the lift grew from 10 to 15). A bar stops at SHED_WAIT until its piece is done
+-- (a hot cook's share, a link's smoke).
 F.COLD_SMOKE_MAX = 15
 -- The smoulder's warmth: while the Stone Hearth burns, a Smokehouse stack dries as if the shed were this much warmer than
 -- outdoors, banked or stoked, and the warmed air holds the same water, so its humidity halves every 10 C (F.liftedRates).
 -- A stack's modData.burning holds the fire's mode, Core's Fire.STOKED or BANKED.
 F.BANKED_LIFT = 15
 F.STOKED_LIFT = 20
-F.smokeStations = {}
--- Every hanging stack's station, by stackId, as the World last saw it (not saved): a stack that rots comes down as
--- what was hung, not as the finished thing (F.rottenOutputs).
-F.stackStations = {}
 F.SHED_WAIT = 0.999
 
 -- Charque (phase 3c): Salt Cured meat dried in the summer sun, as in Brazil's charqueadas. CHARQUE_HOURS at a rate of
@@ -464,7 +454,6 @@ F.REFUSALS = {
     mixedMeat = "IGUI_TraditionalPreservationFishMeat_MixedMeat",
     frameFull = "IGUI_TraditionalPreservationFishMeat_FrameFull",
     tooHeavy = "IGUI_TraditionalPreservationFishMeat_TooHeavy",
-    stackFull = "IGUI_TraditionalPreservationFishMeat_StackFull",
     noColdIndoors = "IGUI_TraditionalPreservationFishMeat_NoColdIndoors",
     freshSausageSmokehouse = "IGUI_TraditionalPreservationFishMeat_FreshSausageSmokehouse",
     freshSausageCooked = "IGUI_TraditionalPreservationFishMeat_FreshSausageCooked",
@@ -593,27 +582,8 @@ function F.isStation(isoObject)
     return F.stationIndex(isoObject) ~= nil or Smokehouse.isChamber(isoObject)
 end
 
--- Whether an item is this mod's to judge in the Smokehouse's slots: anything of its own module.
-function F.ownsItem(item)
-    return string.find(item:getFullType(), "^TraditionalPreservationFishMeat%.") ~= nil
-end
-
--- Why a fish can't join the stack waiting on a frame, as a translation key, or nil if it can.
--- busyStacks is what is already hanging: running stacks and finished ones not yet taken. waitingPieces is how many
--- pieces already wait in the stack (nil counts as none).
-function F.frameRefusal(hanger, busyStacks, waitingWeight, weight, waitingPieces)
-    if busyStacks >= hanger.stacks then return F.REFUSALS.frameFull end
-    if weight > hanger.stackWeight then return F.REFUSALS.tooHeavy end
-    if (waitingPieces or 0) >= hanger.stackPieces
-            or not F.hasRoom(hanger.stackWeight, waitingWeight, weight) then
-        return F.REFUSALS.stackFull
-    end
-    return nil
-end
-
 -- Cold drying needs moving air: a basement or the Smokehouse (Smokehouse.PLACE; else place is Weather.placeOf's)
--- refuses gutted fish. A room takes them: aired it dries them, shut it waits for a window. The Smokehouse doesn't
--- list the recipe either.
+-- refuses gutted fish. A room takes them: aired it dries them, shut it waits for a window.
 local COLD_PLACES = { Open = true, Covered = true, AiredRoom = true, Sheltered = true }
 
 function F.coldRefusal(place)
@@ -621,49 +591,15 @@ function F.coldRefusal(place)
     return nil
 end
 
--- A random hanging look for a new stack, kept in its modData so it doesn't change.
+-- A random hanging look for a new piece, kept in its state so it doesn't change.
 function F.pickStyle(styles)
     return styles[ZombRand(#styles) + 1]
-end
-
--- The style to show for an item: its stack's, or for fish still waiting, what it is.
-function F.fishStyle(item)
-    local style = item:getModData().style
-    if style then return style end
-    local fullType = item:getFullType()
-    if fullType == F.FISH_HALF then return F.STYLE_HALF end
-    if fullType == F.GUTTED_FISH or fullType == F.COLD_DRIED then return F.STYLE_GUTTED end
-    if fullType == F.CURED_MEAT or fullType == F.CHARQUE then return F.STYLE_MEAT end
-    return F.STYLE_SALT
 end
 
 -- The look for a fish still drying. The last stage is kept for fish that have finished.
 function F.dryingStage(progress)
     local running = F.DRYING_STAGES - 1
     return math.min(math.floor(progress * running), running - 1)
-end
-
--- What a warm cure took from a stack's fish, by weight.
-function F.stackCureSpoiled(fish)
-    local weight, spoiled = 0, 0
-    for i = 0, fish:size() - 1 do
-        local item = fish:get(i)
-        weight = weight + item:getActualWeight()
-        spoiled = spoiled + item:getActualWeight() * (item:getModData().cureSpoiled or 0)
-    end
-    return weight > 0 and spoiled / weight or 0
-end
-
--- Recipe data is pooled with its ModData (ENGINE_NOTES): a new stack starts from nothing, so it can't inherit an old
--- one's place, shed or smoke.
-local function startStack(craftRecipeData)
-    local ledger = F.getLedger()
-    local modData = craftRecipeData:getModData()
-    F.clearModData(modData)
-    modData.dried = 0
-    modData.spoiled = F.stackCureSpoiled(craftRecipeData:getAllInputItemsWithFlag("ItemCount"))
-    modData.stackId = getGameTime():getWorldAgeHours()
-    F.markStack(modData, ledger)
 end
 
 -- How far a stack's hot cook has come in the stoked run now counting, 0 to 1; nil with no run counting (not in a
@@ -674,7 +610,7 @@ function F.cookShare(modData)
 end
 
 -- The stack's bar: how far it has dried, or its hot cook while that is further along (a run that breaks off drops
--- it back to the drying). The cook itself ends the stack only through the World (F.hotStations).
+-- it back to the drying). The cook itself ends the piece (F.updateRack's state.cooked).
 function F.stackProgress(modData, hours)
     local progress = math.min(modData.dried / hours, 1)
     local cook = F.cookShare(modData)
@@ -694,60 +630,6 @@ function F.underLoss(piece, modData)
     local pieceModData = piece:getModData()
     if pieceModData.longCure then return 0 end
     return (modData.underSpoiled or 0) * (pieceModData.rinsed and 1 / F.RINSED_KEEPING or 1)
-end
-
--- Shows a stack's progress, and ends it early if it has rotted or its hot smoking is done (the Smokehouse). A stack
--- in a Smokehouse waits at the end until the World has seen its shed since the load, so OnCreate can swap in Cold
--- Smoked outputs (F.smokeStations).
-local function showProgress(craftRecipeData, modData, hours)
-    local time = craftRecipeData:getRecipe():getTime()
-    local rotten = F.stackRotten(modData)
-    local progress = (rotten or F.hotStations[modData.stackId]) and 1 or F.stackProgress(modData, hours)
-    if progress >= 1 and F.inShed(modData) and not F.smokeStations[modData.stackId] then progress = F.SHED_WAIT end
-    -- A dry-curing stack on a frame waits for the World too, which swaps its Charque for dry cured meat.
-    if progress >= 1 and not F.inShed(modData) and F.dryCuring(modData) and not F.stackStations[modData.stackId] then progress = F.SHED_WAIT end
-    craftRecipeData:setElapsedTime(progress * time)
-end
-
--- OnStart for salted fish on a frame: marks the ledger and picks a look.
-function F.onDryStart(craftRecipeData)
-    startStack(craftRecipeData)
-    F.startSmoke(craftRecipeData:getModData(), craftRecipeData:getAllInputItemsWithFlag("ItemCount"), false)
-    craftRecipeData:getModData().style = F.pickStyle(F.SALT_STYLES)
-end
-
-function F.onDryUpdate(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    if not modData.dried then return end
-    F.saltStep(modData, F.getLedger())
-    showProgress(craftRecipeData, modData, F.DRY_HOURS)
-end
-
--- OnStart for unsalted fish on a cold frame.
-function F.onColdDryStart(craftRecipeData)
-    startStack(craftRecipeData)
-    craftRecipeData:getModData().style = F.pickStyle(F.COLD_STYLES)
-end
-
-function F.onColdDryUpdate(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    if not modData.dried then return end
-    F.coldStep(modData, F.getLedger())
-    showProgress(craftRecipeData, modData, F.COLD_DRY_HOURS)
-end
-
--- OnStart for Salt Cured meat on a frame (charque) or in the Smokehouse (dry curing).
-function F.onCharqueStart(craftRecipeData)
-    startStack(craftRecipeData)
-    F.startSmoke(craftRecipeData:getModData(), craftRecipeData:getAllInputItemsWithFlag("ItemCount"), true)
-    craftRecipeData:getModData().style = F.STYLE_MEAT
-end
-
-function F.onCharqueUpdate(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    if not modData.dried then return end
-    F.charqueStep(modData, F.getLedger())
-    showProgress(craftRecipeData, modData, F.meatHours(modData))
 end
 
 -- A fish from another mod isn't in the list, and keeps the stage's own icon.
@@ -969,19 +851,6 @@ function F.applyAged(item)
     end
 end
 
--- A piece left hanging where it dried (a finished stack in its station's slots) ages faster: once an hour it
--- gets the extra days since the last look, by moving its stamp back. Taken down, it ages at the shelf's pace.
-function F.ageHanging(item, now)
-    if not F.ageDays(item) then return end
-    local modData = item:getModData()
-    local last = modData.hungHour
-    if last and now - last < 1 then return end
-    modData.hungHour = now
-    if not last or modData.aged then return end
-    modData.agedFrom = (modData.agedFrom or 0) - (now - last) / 24 * (1 / F.HANG_AGE_SHARE - 1)
-    F.rename(item)
-end
-
 -- Whether a later stage came from a Gutted Fish (headless). A small fish salted whole keeps its head, so it isn't
 -- (nor one packed whole before 0.4.66). The icon already says which: stages list theirs whole, gutted, then half.
 function F.wasGutted(item)
@@ -1163,46 +1032,6 @@ function F.onCreateSliced(craftRecipeData)
     end
 end
 
--- Marks the fish of a stack, so a frame can tell its finished stacks apart, and ages it by what
--- the season took out of it. A stack hot smoked in the Smokehouse comes out Hot Smoked instead, and one that had
--- its hours of smoke there (F.smokeHours) Cold Smoked. Meat dried in the shed is Dry Cured either way, never Charque.
-function F.onCreateDried(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    local hung = modData.stackId and F.stackStations[modData.stackId]
-    if hung then F.stackStations[modData.stackId] = nil end
-    if hung and (modData.spoiled or 0) >= 1 and F.rottenOutputs(craftRecipeData, hung) then
-        F.hotStations[modData.stackId], F.smokeStations[modData.stackId] = nil, nil
-        return
-    end
-    local station = F.hotStations[modData.stackId]
-    if station then
-        F.hotStations[modData.stackId] = nil
-        if F.smokedOutputs(craftRecipeData, station, F.HOT_FISH, F.HOT_MEAT) then return end
-    end
-    -- Meat dry cured on a Frame or Beam in the shade: air dried, as from the shed with no smoke.
-    if hung and modData.smokeMeat and not F.inShed(modData) and F.dryCuring(modData) and F.smokedOutputs(craftRecipeData, hung, F.COLD_FISH_OUT, F.DRY_CURED, true) then return end
-    station = modData.stackId and F.smokeStations[modData.stackId]
-    if station then F.smokeStations[modData.stackId] = nil end
-    if station then
-        local smoked = F.coldDone(modData)
-        -- Meat from the shed is always Dry Cured, smoked or air dried (6b); fish only with its share of smoke.
-        if (smoked or modData.smokeMeat) and F.smokedOutputs(craftRecipeData, station, F.COLD_FISH_OUT, F.DRY_CURED, not smoked) then return end
-    end
-    F.onCreateCured(craftRecipeData)
-    local spoiled = modData.spoiled or 0
-    local created = craftRecipeData:getAllCreatedItems()
-    for i = 0, created:size() - 1 do
-        local fish = created:get(i)
-        fish:getModData().stackId = modData.stackId
-        fish:getModData().style = modData.style
-        fish:setAge(spoiled >= 1 and fish:getOffAgeMax() or fish:getOffAge() * spoiled)
-        if F.STAGES[fish:getFullType()].matures then
-            fish:getModData().matureAge = fish:getAge()
-            F.rename(fish)
-        end
-    end
-end
-
 -- What the sandbox's spoilage setting does to the limits: off, forgiving, normal and harsh.
 local SPOILAGE_SCALES = { math.huge, 2, 1, 0.5 }
 local RAW_SPOIL_HOURS, SALT_SPOIL_HOURS = F.RAW_SPOIL_HOURS, F.SALT_SPOIL_HOURS
@@ -1244,19 +1073,7 @@ function F.applySandbox()
     F.HOT_ONLY_MAX_DAYS = HOT_ONLY_MAX_DAYS * scale
 end
 
-local function applyRecipeTime(name, hours)
-    Weather.setRecipeHours(name, hours, "TraditionalPreservationFishMeat")
-end
-
--- Sets each slow recipe's script time to the sandbox's, so the crafting window shows the right length.
-function F.applyRecipeTimes()
-    F.applySandbox()
-    applyRecipeTime("TraditionalPreservationFishMeat.HangFishToDry", F.DRY_HOURS)
-    applyRecipeTime("TraditionalPreservationFishMeat.HangFishToColdDry", F.COLD_DRY_HOURS)
-    applyRecipeTime("TraditionalPreservationFishMeat.HangMeatToDry", F.CHARQUE_HOURS)
-end
-
-Events.OnInitGlobalModData.Add(F.applyRecipeTimes)
+Events.OnInitGlobalModData.Add(F.applySandbox)
 
 -- The parts in their own files: the weather's totals and what they do to stacks and tubs, the Salting Tub, the names,
 -- the stocks, and the stockfish's pallet and bales.

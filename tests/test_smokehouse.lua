@@ -33,7 +33,7 @@ end
 local stack = {}
 F.startSmoke(stack, pieces(0.3, 0.5, 0.4), true)
 check("the heaviest cut sets the stack's need", near(stack.hotSmokeHoursNeeded, 8) and stack.hotSmokeHours == 0 and stack.coldSmokeHours == 0)
-check("and the stack is this mod's", stack.smokeOwner == F.OWNER and F.ownsStack(stack) and not F.ownsStack({ smokeOwner = "TraditionalPreservationDairy" }))
+check("and its counters are this mod's", stack.smokeOwner == F.OWNER)
 
 local fire = {}
 Fire.logFire(fire, 100, nil, nil)

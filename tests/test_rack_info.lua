@@ -72,8 +72,9 @@ check("air, wind and wetness in the open", valueOf(shown, "InfoAir") ~= nil and 
     and valueOf(shown, "InfoWetness") == "0%")
 check("a row a piece, by its name, with its icon", #shown.pieces == 3 and shown.pieces[1].name == "Walleye (Salt Cured)"
     and shown.pieces[1].icon == "icon:" .. F.PRESSED_FISH)
-check("its share and its process", math.abs(shown.pieces[1].share - 0.6) < 1e-6 and shown.pieces[1].group == "Salt fish"
-    and shown.pieces[2].group == "Stockfish")
+check("its share, and its tab: its Hang group, in the menu's order", math.abs(shown.pieces[1].share - 0.6) < 1e-6
+    and shown.pieces[1].tab == "Salt Fish" and shown.pieces[2].tab == "Gutted Fish"
+    and shown.pieces[1].tabOrder < shown.pieces[2].tabOrder)
 check("a running piece's bar says its time left", shown.pieces[1].text:find("left", 1, true) ~= nil)
 check("a done piece reads Done, full", shown.pieces[3].text == "Done" and shown.pieces[3].share == 1)
 check("the done note, and the weather's", hasNote(shown, "1 done") and hasNote(shown, "weather holds"))
@@ -187,7 +188,7 @@ check("a rack has no fire row", valueOf(RackUI.view({}, frame, "Open", ledger, 1
 check("a fish's smoke under its bar", shown.pieces[1].note == "12.0 of 24 h of smoke")
 check("a run cooking it comes first", shown.pieces[2].note:find("^2%.0 of %d+ h stoked in a row, 0%.0 of 24 h of smoke$") ~= nil)
 check("a link's smoke and its days to stale", shown.pieces[3].note:find("^0%.0 of %d+ h of smoke, stale in %d") ~= nil
-    and shown.pieces[3].group == "Smoked blood sausage")
+    and shown.pieces[3].tab == "Sausages")
 check("a rack's piece has no line under its bar", RackUI.pieceRow(salt, ledger, 1000).note == nil)
 lines = {}
 shown.pieces[3].popup(tooltip)

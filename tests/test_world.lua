@@ -35,11 +35,6 @@ local cellSquares = {}
 function getCell()
     return { getGridSquare = function(_, x, y, z) return cellSquares[x .. "," .. y .. "," .. z] end }
 end
-CraftLogicUILogic = {
-    new = function(_, _, logic)
-        return { getCraftLogic = function() return logic end, getItemsInProgress = function() return logic.inProgress end }
-    end,
-}
 ScriptManager = { instance = { getCraftRecipe = function() return { Load = function() end } end } }
 
 local function square(x, z)
@@ -113,7 +108,7 @@ check("the map loader knows the tub, the frame and both beams", loaders.traditio
 check("and nothing else", loaders.traditionalpreservationfishmeat_01_8 == nil)
 local shedTilesLoaded = true
 for _, name in ipairs(require("TraditionalPreservationCore/Tiles").CHAMBERS) do shedTilesLoaded = shedTilesLoaded and loaders[name] ~= nil end
-check("and all four tiles of TP Core's Smokehouse, either way round, for this mod's stacks in it", shedTilesLoaded)
+check("and all four tiles of TP Core's Smokehouse, either way round, for this mod's pieces in it", shedTilesLoaded)
 
 -- Racks (ROADMAP section 12, R4): what hangs is the rack's piece record, drawn a spot each 2.5 kg of a frame's 20,
 -- shared by kind: a finished salt fish, a gutted fish halfway, a fresh salt fish (5.4 kg: 3 spots, salt 2, gutted 1).
@@ -208,28 +203,22 @@ check("a mixed stack whose Corned share rotted keeps drying, and its look", not 
 mixed.modData.allUnder = true
 check("all Corned, it is lost", T.stackRotten(mixed.modData))
 
--- TP Core's Smokehouse: its own word wherever it stands (out of the rain, an open roof's air). Core draws its look; this
--- mod steps only its own stacks, and counts another mod's as taking room.
-local SHED = require("TraditionalPreservationCore/Tiles").CHAMBERS[2]
-local smoked = recipeData(0.5, T.STYLE_MEAT)
-smoked.modData.smokeOwner = T.OWNER
-local cheese = recipeData(0.2)
-cheese.modData.smokeOwner = "TraditionalPreservationDairy"
-local smokehouse = station(SHED, 6, true, { fish(T.CURED_MEAT) }, { smoked, cheese }, {})
+-- TP Core's Smokehouse: its pieces are this mod's record on the back left tile (Smokehouse.recordTile), stepped from
+-- that tile alone at the shed's own word (out of the rain, an open roof's air). Core draws its look.
+local CHAMBERS = require("TraditionalPreservationCore/Tiles").CHAMBERS
+local smokehouse = station(CHAMBERS[1], 6, true, {}, {}, {})
 smokehouse.sprites = { "core's" }
-W.track(smokehouse)
+local smoked = T.hangPiece(T.rackOf(smokehouse), newFood(T.CURED_MEAT, { ActualWeight = 0.5 }), "Open", rackLedger, 100)
+smoked.lastLook = 90
 W.refresh(smokehouse)
-check("a Smokehouse in the open is out of the rain inside, and marked as the shed", smoked.modData.place == "Smokehouse"
-    and T.inShed(smoked.modData) and T.sheltered(smoked.modData))
-check("another mod's stack in it is left alone", cheese.modData.place == nil)
+check("a Smokehouse in the open is out of the rain inside, and its pieces are marked as the shed", smoked.lastLook == 100
+    and smoked.state.place == "Smokehouse" and T.inShed(smoked.state) and T.sheltered(smoked.state))
 check("and the look is Core's to draw", smokehouse.sprites[1] == "core's" and smokehouse.clears == 0)
-check("it counts every busy stack, another mod's too", W.busyStacks(smokehouse) == 2)
-
--- What the Info window is told about a station.
-check("a rack has no crafting slots to look at: its Info is Rack Info", W.inspect(shed) == nil)
-check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place == "Smokehouse" and W.inspect(smokehouse).hanger.closed)
-check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].craftRecipeData == smoked)
-check("another mod's object gives nothing", W.inspect(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
+local doorTile = station(CHAMBERS[2], 8, true, {}, {}, {})
+local notHere = T.hangPiece(T.rackOf(doorTile), newFood(T.CURED_MEAT, { ActualWeight = 0.5 }), "Open", rackLedger, 100)
+notHere.lastLook = 90
+W.refresh(doorTile)
+check("another tile of the shed steps nothing: the shed steps once", notHere.lastLook == 90)
 
 -- Tubs: the batch is the tub's own record (movableData), not a crafting station's
 local function tubStation(x, pieces, stage)
@@ -271,16 +260,14 @@ W.refresh(curing)
 ledger.tubCureOpen = before
 check("a look brings the cure up to now, where the tub stands", record.stage == "Done" and record.place == "Open"
     and table.concat(curing.sprites, " ") == "traditionalpreservationfishmeat_01_4")
-check("a tub isn't a drying station to the Info block", W.inspect(curing) == nil)
 check("other mods' objects aren't tracked", W.track(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
-check("an untracked station is safe to ask", W.busyStacks({}) == 0)
 
 -- The stale-station fix: once its chunk unloads the cell no longer returns its square, though the object keeps it.
 cellSquares["2,0,0"] = {}
 yard.sprites = {}
 outdoors.progress = 0.9
 tick(30)
-check("an unloaded frame is dropped, not refreshed", #yard.sprites == 0 and W.busyStacks(yard) == 0)
+check("an unloaded frame is dropped, not refreshed", #yard.sprites == 0)
 
 -- Weather
 local ledger = T.getLedger()

@@ -110,12 +110,15 @@ function RackUI.smokeNote(piece, now)
     return #parts > 0 and table.concat(parts, ", ") or nil
 end
 
--- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first. In the
--- Smokehouse each row has its smoke under the bar.
+-- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first. Its tab
+-- is its Hang group's (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages), in the menu's order. In
+-- the Smokehouse each row has its smoke under the bar.
 function RackUI.pieceRow(piece, ledger, now)
     local batch = Info.batch(piece.method == "freshSausage" and "sausage" or piece.method, piece.state, ledger, now)
     local progress, rotten = F.pieceProgress(piece)
-    local row = { name = piece.name, group = getText(batch.name), share = progress, text = batch.progressText,
+    local group = RackUI.pieceGroup(piece)
+    local row = { name = piece.name, tab = getText(KEY .. "RackTab_" .. group), tabOrder = RackUI.GROUP_ORDER[group],
+        share = progress, text = batch.progressText,
         colour = batch.slow and Info.SLOW_COLOUR or Info.GOOD_COLOUR, weather = batch.weather,
         note = F.inShed(piece.state) and RackUI.smokeNote(piece, now) or nil,
         popup = function(tooltip) drawPopup(tooltip, piece, ledger, now) end }
@@ -278,11 +281,22 @@ end
 RackUI.GROUPS = { "salt", "cold", "corned", "country", "sausage" }
 local METHOD_GROUPS = { salt = "salt", cold = "cold", sausage = "sausage", freshSausage = "sausage" }
 
-function RackUI.groupOf(item)
-    local method = F.hangMethod(item:getFullType())
-    if method == "meat" then return item:getModData().longCure and "country" or "corned" end
+local function groupFor(method, longCure)
+    if method == "meat" then return longCure and "country" or "corned" end
     return METHOD_GROUPS[method]
 end
+
+function RackUI.groupOf(item)
+    return groupFor(F.hangMethod(item:getFullType()), item:getModData().longCure)
+end
+
+-- A hanging piece's group, as its item's was: Rack Info's tab for it (TP Core's PieceList).
+function RackUI.pieceGroup(piece)
+    return groupFor(piece.method, piece.data and piece.data.longCure)
+end
+-- Each group's place in the menu, for the tabs' order.
+RackUI.GROUP_ORDER = {}
+for index, group in ipairs(RackUI.GROUPS) do RackUI.GROUP_ORDER[group] = index end
 
 -- The Hang groups that have something carried: { group, label, rows (RackUI.hangRows of its pieces), refusal (the
 -- first row's reason when no row is open) }.

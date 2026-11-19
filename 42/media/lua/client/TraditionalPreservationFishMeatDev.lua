@@ -44,10 +44,10 @@ function TPFM.help()
     say("TPFM.fatRows()             the fat each vanilla animal's butchering table gives now")
     say("TPFM.crocks()              each Crock of Potted Meat on you or within 4 tiles: place, keeping rate, days left")
     say("TPFM.keep(days)            age those crocks by this many days at their place's rate now")
-    say("TPFM.smoke()               the joined Stone Hearth's fire record and each stack's hot and smoke hours, Smokehouses within 3 tiles")
+    say("TPFM.smoke()               the joined Stone Hearth's fire record and each piece's hot and smoke hours, Smokehouses within 3 tiles")
     say("TPFM.stoke(hours)          add stoked hours to the running session of those joined Stone Hearths (stoke it first)")
     say("TPFM.bank(hours)           add banked hours (default 6) to those joined Stone Hearths: smoke, but only on a day of 15 C or less")
-    say("TPFM.addSmoke(hours)       add hours of smoke (default 60) straight to the stacks in those Smokehouses, whatever the weather")
+    say("TPFM.addSmoke(hours)       add hours of smoke (default 60) straight to the pieces in those Smokehouses, whatever the weather")
     say("TPFM.tubCure(hours)        add this many hours of full-speed cure (default 24) to every running Salting Tub, wherever it stands")
     say("TPFM.rackHang()            hang what you carry that the nearest Drying Frame, Hanging Beam or Gantry (3 tiles) takes, at once (no walking, no action); prints each refusal")
     say("TPFM.rackInfo()            open Rack Info on that rack (brings it up to now)")
@@ -680,15 +680,18 @@ function TPFM.pallet()
     say("No Stockfish Pallet within 3 tiles on this floor.")
 end
 
--- The chamber tiles holding slots within 3 tiles, each with its joined Stone Hearth (or nil).
+-- The Smokehouses within 3 tiles, once each by the tile that keeps the record (Smokehouse.recordTile), each with
+-- its joined Stone Hearth (or nil).
 local function smokehouses()
-    local player, found = getPlayer(), {}
+    local player, found, seen = getPlayer(), {}, {}
     local cell, x, y, z = getCell(), math.floor(player:getX()), math.floor(player:getY()), player:getZ()
     for dx = -3, 3 do
         for dy = -3, 3 do
             local tile = Smokehouse.chamberOn(cell:getGridSquare(x + dx, y + dy, z))
-            if tile and tile:getComponent(ComponentType.DryingCraftLogic) then
-                table.insert(found, { tile = tile, stoneHearth = Smokehouse.joinedStoneHearth(tile) })
+            local record = tile and Smokehouse.recordTile(tile)
+            if record and not seen[record] then
+                seen[record] = true
+                table.insert(found, { tile = record, stoneHearth = Smokehouse.joinedStoneHearth(tile) })
             end
         end
     end
@@ -704,26 +707,27 @@ function TPFM.smoke()
             "fire %s, stoked %.1f h, banked %.1f h, session %s (%.1f h)", tostring(fire.fireMode), fire.stokedHours or 0,
             fire.bankedHours or 0, fire.session and string.format("%.2f", fire.session) or "none", Fire.sessionHours(fire))
             or "no Stone Hearth joined"))
-        local logic = shed.tile:getComponent(ComponentType.DryingCraftLogic)
-        local items = CraftLogicUILogic.new(getPlayer(), shed.tile, logic):getItemsInProgress()
-        for craftData, _ in pairs(items) do
-            local modData = craftData:getModData()
-            say(string.format("  stack %s (heaviest piece %.2f): hot %.1f of %s h, smoke %.1f of %.1f h%s, dried %.0f h%s", tostring(modData.stackId), modData.heaviest or 0, modData.hotSmokeHours or 0,
-                modData.hotSmokeHoursNeeded and string.format("%.0f", modData.hotSmokeHoursNeeded) or "-", modData.coldSmokeHours or 0, F.coldNeed(modData),
-                F.coldDone(modData) and " (Cold Smoked)" or "", modData.dried or 0,
-                F.hotStations[modData.stackId] and ", cook done" or ""))
-            if modData.sausage then
-                local now = getGameTime():getWorldAgeHours()
-                say(string.format("    %s: %s, the freshest link stale in %.1f h",
-                    modData.sausage == "pork" and "fresh sausage (hot run)" or "blood sausage", modData.smokedAt
-                    and string.format("smoked %.1f h ago", now - modData.smokedAt) or "not smoked yet",
-                    (modData.staleAt or now) - now))
+        local rack = F.rackNow(shed.tile)
+        local now = getGameTime():getWorldAgeHours()
+        for _, piece in ipairs(rack.pieces or {}) do
+            local state = piece.state
+            say(string.format("  piece %s %s (%.2f kg): hot %.1f of %s h, smoke %.1f of %.1f h%s, dried %.0f h%s", tostring(piece.id), piece.name or piece.fullType,
+                piece.weight or 0, state.hotSmokeHours or 0,
+                state.hotSmokeHoursNeeded and string.format("%.0f", state.hotSmokeHoursNeeded) or "-", state.coldSmokeHours or 0, F.coldNeed(state) or 0,
+                F.coldDone(state) and " (Cold Smoked)" or "", state.dried or 0,
+                state.cooked and ", cook done" or F.pieceDone(piece) and ", done" or ""))
+            if state.sausage then
+                say(string.format("    %s: %s, stale in %.1f h",
+                    state.sausage == "pork" and "fresh sausage (hot run)" or "blood sausage", state.smokedAt
+                    and string.format("smoked %.1f h ago", now - state.smokedAt) or "not smoked yet",
+                    (state.staleAt or now) - now))
             end
-            if modData.cureNeed then
-                say(string.format("    meat: dry curing needs %.0f h%s%s", modData.cureNeed, modData.noHotSmoke and ", a leg: no hot cook" or "",
-                    modData.underCured and string.format(", under-salted, %.0f%% spoiled", (modData.underSpoiled or 0) * 100) or ""))
+            if state.cureNeed then
+                say(string.format("    meat: dry curing needs %.0f h%s%s", state.cureNeed, state.noHotSmoke and ", a leg: no hot cook" or "",
+                    state.underCured and string.format(", under-salted, %.0f%% spoiled", (state.underSpoiled or 0) * 100) or ""))
             end
         end
+        if #(rack.pieces or {}) == 0 then say("  nothing hanging") end
     end
     if #found == 0 then say("No Smokehouse within 3 tiles on this floor.") end
 end
@@ -751,7 +755,7 @@ function TPFM.bank(hours)
             say(string.format("Added %.0f banked hours (the fire's record is now %.1f h in all).", hours or 6, fire.bankedHours))
             local outdoors = F.getLedger().temperature or 0
             if outdoors > F.COLD_SMOKE_MAX then
-                say(string.format("It is %.0f C outdoors: over %d C banked hours don't count as smoke. TPFM.addSmoke(hours) gives the stacks smoke whatever the weather.",
+                say(string.format("It is %.0f C outdoors: over %d C banked hours don't count as smoke. TPFM.addSmoke(hours) gives the pieces smoke whatever the weather.",
                     outdoors, F.COLD_SMOKE_MAX))
             end
         else
@@ -760,20 +764,23 @@ function TPFM.bank(hours)
     end
 end
 
--- Adds hours of smoke (default 60) straight to every stack in those Smokehouses, whatever the weather or the fire.
+-- Adds hours of smoke (default 60) straight to every piece still hanging in those Smokehouses, whatever the weather
+-- or the fire. The next look (the World's, or Smokehouse Info) finishes the ones that had their smoke.
 function TPFM.addSmoke(hours)
     hours = hours or 60
-    local stacks = 0
+    local pieces = 0
     for _, shed in ipairs(smokehouses()) do
-        local logic = shed.tile:getComponent(ComponentType.DryingCraftLogic)
-        for craftData, _ in pairs(CraftLogicUILogic.new(getPlayer(), shed.tile, logic):getItemsInProgress()) do
-            local modData = craftData:getModData()
-            modData.coldSmokeHours = (modData.coldSmokeHours or 0) + hours
-            stacks = stacks + 1
-            say(string.format("Stack %s: %.0f of %.0f h of smoke.", tostring(modData.stackId), modData.coldSmokeHours, F.coldNeed(modData)))
+        for _, piece in ipairs(F.rackNow(shed.tile).pieces or {}) do
+            if not F.pieceDone(piece) then
+                local state = piece.state
+                state.coldSmokeHours = (state.coldSmokeHours or 0) + hours
+                pieces = pieces + 1
+                say(string.format("Piece %s %s: %.0f of %.0f h of smoke.", tostring(piece.id), piece.name or piece.fullType,
+                    state.coldSmokeHours, F.coldNeed(state) or 0))
+            end
         end
     end
-    if stacks == 0 then say("No stack hanging in a Smokehouse within 3 tiles.") end
+    if pieces == 0 then say("No piece hanging in a Smokehouse within 3 tiles.") end
 end
 
 -- The racks' piece records: hang what you carry at once, and open Rack Info, for quick checks.

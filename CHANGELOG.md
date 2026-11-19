@@ -1,5 +1,22 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.83
+- **Rack Info and Smokehouse Info have tabs** (TP Core 0.1.31's piece list): All, then one for each Hang group hanging
+  (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages, in the menu's order) with its count. Take Done and
+  Take All stay whole-station. `RackUI.pieceGroup(piece)`, `RackUI.GROUP_ORDER`.
+
+## 0.4.82
+- **Smokehouse step S4: the switch-over** (ROADMAP section 12). The Smokehouse has no crafting window: hang and take
+  from its right-click menu or Smokehouse Info. The World steps its pieces from the record tile (`F.rackNow`), once a
+  shed. Gone with the recipes: Hang Salt Cured Fish to Dry, Hang Gutted Fish to Cold Dry, Hang Salted Meat to Dry, Hang
+  Sausage to Smoke and their callbacks (`onDryStart` ... `onCreateDried`, the sausages' `canSmokeSausage`,
+  `onSausageSmokeStart` / `Update`, `onCreateSmokedSausage`), the output swaps (`smokedOutputs`, `rottenOutputs`),
+  `F.stackStations` / `smokeStations` / `hotStations`, the Smokehouse's slot rules and slot popups, the crafting-window
+  Info block (`Info.rows`, `World.inspect`, `busyStacks`), `F.frameRefusal`, `F.fishStyle`, `F.ageHanging` and the
+  hangers' stack weights; their translations. `TPFM.smoke`, `TPFM.addSmoke`, `TPFM.stoke` and `TPFM.bank` work on
+  pieces. A link's bar no longer waits short of the end for the World. Tests that drove the old stacks now hang
+  pieces; the side-by-side checks keep the stacks' figures.
+
 ## 0.4.81
 - **Smokehouse step S3: its menu and Smokehouse Info** (ROADMAP section 12). Right-click any tile of the Smokehouse:
   a Smokehouse submenu as the racks have (what it holds, Info, Hang groups with Hang Sausages, poultry and rabbit under

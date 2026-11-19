@@ -928,48 +928,6 @@ module TraditionalPreservationFishMeat
         }
     }
 
-    /* time is overwritten from DRY_HOURS in TraditionalPreservationFishMeat.lua. OnUpdate sets the progress from
-       the weather, so the frame's Time Remaining is what it would take at a drying rate of 1. */
-    craftRecipe HangFishToDry
-    {
-        Tooltip = Tooltip_craft_hangFishToDry,
-        time = 1036800,
-        Tags = DryingFrame;Smokehouse,
-        category = Cooking,
-        OnStart = TraditionalPreservationFishMeat.onDryStart,
-        OnUpdate = TraditionalPreservationFishMeat.onDryUpdate,
-        OnCreate = TraditionalPreservationFishMeat.onCreateDried,
-        inputs
-        {
-            item variable[1:25] [TraditionalPreservationFishMeat.SaltPressedFish] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item variable[1:25] TraditionalPreservationFishMeat.SaltDriedFish,
-        }
-    }
-
-    /* Gutted fish on the same frame, with no salt. Frozen fish is welcome, because hard frosts are
-       part of it. time is overwritten from COLD_DRY_HOURS in TraditionalPreservationFishMeat.lua. */
-    craftRecipe HangFishToColdDry
-    {
-        Tooltip = Tooltip_craft_hangFishToColdDry,
-        time = 1728000,
-        Tags = DryingFrame,
-        category = Cooking,
-        OnStart = TraditionalPreservationFishMeat.onColdDryStart,
-        OnUpdate = TraditionalPreservationFishMeat.onColdDryUpdate,
-        OnCreate = TraditionalPreservationFishMeat.onCreateDried,
-        inputs
-        {
-            item variable[1:25] [TraditionalPreservationFishMeat.GuttedFish;TraditionalPreservationFishMeat.FishHalf] flags[IsUncookedFoodItem;AllowFrozenItem;ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item variable[1:25] TraditionalPreservationFishMeat.ColdDriedFish,
-        }
-    }
-
     /* Vanilla's fish cutting for a fish at any stage, which stays at that stage. canSlice lets
        through only a fish that vanilla could have cut before it was packed. */
     craftRecipe SliceSaltedFish

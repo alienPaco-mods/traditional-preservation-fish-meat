@@ -71,15 +71,15 @@ local function meatOutcomeName(input, way)
         getText(way == "airDried" and "IGUI_TraditionalPreservationFishMeat_DryCured" or "IGUI_TraditionalPreservationFishMeat_ColdSmoked"))
 end
 
--- What a hanging stack would come down as if it were done now, by F.onCreateDried's rules: a stoked run counting in
+-- What a hanging piece would come down as if it were done now, by F.rackOutput's rules: a stoked run counting in
 -- the Smokehouse makes it Hot Smoked, its hours of smoke Cold Smoked, else it is air dried there; on a frame meat
 -- is charque unless it dry cures. The names of its pieces' products, each once ("Rotten" for a lost piece). The
--- likeliest result, not a promise: the next stoking, banking or move can change it. For the stack's popup.
+-- likeliest result, not a promise: the next stoking, banking or move can change it. For the piece's popup.
 function F.stackOutcome(modData, items, method)
     if (modData.spoiled or 0) >= 1 then return getText("IGUI_TraditionalPreservationFishMeat_OutcomeRotten") end
     local way
     if F.inShed(modData) then
-        way = (modData.hotOnly or F.cookShare(modData) or F.hotStations[modData.stackId]) and "hot"
+        way = (modData.hotOnly or F.cookShare(modData) or modData.cooked) and "hot"
             or F.coldDone(modData) and "smoked" or "airDried"
     elseif method == "meat" then
         way = F.dryCuring(modData) and "airDried" or "charque"

@@ -477,8 +477,8 @@ module TraditionalPreservationFishMeat
         Tooltip = Tooltip_TraditionalPreservationFishMeat_CuredMeat,
     }
 
-    /* Charque, phase 3c: Salt Cured meat sun dried on any drying station (HangMeatToDry). Like Salt Dried fish it
-       keeps for months and takes its food and name from the cut (onCreateDried: "Steak (Charque)"), but it is
+    /* Charque, phase 3c: Salt Cured meat sun dried on a Drying Frame, Hanging Beam or Gantry. Like Salt Dried fish it
+       keeps for months and takes its food and name from the cut (F.rackOutput: "Steak (Charque)"), but it is
        never eaten as it is: real charque is always desalted first (SoakCharque). */
     item Charque
     {
@@ -885,27 +885,6 @@ module TraditionalPreservationFishMeat
         Icon = SoakedCharque,
         FoodType = Beef,
         EvolvedRecipeName = Beef,
-    }
-
-    /* time is overwritten from CHARQUE_HOURS in TraditionalPreservationFishMeat.lua. OnUpdate sets the progress from
-       the weather (charqueStep), so Time Remaining is what it would take in hot sun and a breeze. */
-    craftRecipe HangMeatToDry
-    {
-        Tooltip = Tooltip_craft_hangMeatToDry,
-        time = 432000,
-        Tags = DryingFrame;Smokehouse,
-        category = Cooking,
-        OnStart = TraditionalPreservationFishMeat.onCharqueStart,
-        OnUpdate = TraditionalPreservationFishMeat.onCharqueUpdate,
-        OnCreate = TraditionalPreservationFishMeat.onCreateDried,
-        inputs
-        {
-            item variable[1:25] [TraditionalPreservationFishMeat.SaltCuredMeat] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
-        }
-        outputs
-        {
-            item variable[1:25] TraditionalPreservationFishMeat.Charque,
-        }
     }
 
     craftRecipe SoakCharque

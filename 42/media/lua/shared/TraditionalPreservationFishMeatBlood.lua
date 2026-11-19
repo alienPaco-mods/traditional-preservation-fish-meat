@@ -161,12 +161,12 @@ OnHeat.watch(F.BLOOD_SAUSAGE, F.BLOOD_SAUSAGE_FRY_MINUTES, function(item)
 end)
 
 -- Smoked Blood Sausage: boiled links, never fried, hung alone in the Smokehouse
--- (Hang Sausage to Smoke, one recipe with Smoked Sausage's since 0.4.38) take SMOKED_SAUSAGE_HOURS of cold smoke, whatever the stack: the Smokehouse's cold
+-- (each link a piece of its own) take SMOKED_SAUSAGE_HOURS of cold smoke, whatever else hangs: the Smokehouse's cold
 -- counter (F.smokeStep), so fire hours count only on cool days and a stoked run is smoke at once (never a cook), as
 -- Thuringian Rotwurst or smoked kaszanka are smoked after the kettle. Each link keeps its Boiled clock while it
 -- hangs (vanilla's day a day, by the Food Spoilage setting). One smoked before it went stale comes down Smoked Blood
 -- Sausage (21 / 40), its age the same share of the new keeping; one gone stale first comes down the Boiled link it
--- was. The stack ends once smoked, or once every link has gone stale.
+-- was. A link is done once smoked, or once it has gone stale.
 F.SMOKED_SAUSAGE_HOURS = 24
 
 -- Whether a boiled link was fried afterwards (TP Core's OnHeat ran its rename).
@@ -175,18 +175,11 @@ function F.wasFried(item)
     return heat ~= nil and heat.finished == true
 end
 
--- OnTest for HangSausageToSmoke: blood sausage boiled and never fried after; Fresh Sausage raw.
-function F.canSmokeSausage(item)
-    if item:getFullType() == F.BLOOD_SAUSAGE then return item:isCooked() and not F.wasFried(item) end
-    if item:getFullType() == F.FRESH_SAUSAGE then return not item:isCooked() end
-    return true
-end
-
 -- Sets a new stack's counters from its links (an ArrayList): the Smokehouse's, and the hour its freshest link goes
 -- stale. Blood sausage takes no cook and a fixed smoke; Smoked Sausage ("pork", TraditionalPreservationFishMeatSausage.lua)
 -- a fixed hot run. modData.sausage is true for blood or "pork".
 function F.startSausageSmoke(modData, links, now, speed, sausage)
-    -- Recipe data is pooled with its ModData (ENGINE_NOTES): a stack mustn't inherit an old one's counters.
+    -- A link starts from nothing: it mustn't inherit old counters.
     F.clearModData(modData)
     F.startSmoke(modData, links, false)
     if sausage == "pork" then
@@ -202,24 +195,6 @@ function F.startSausageSmoke(modData, links, now, speed, sausage)
         daysLeft = math.max(daysLeft, link:getOffAge() - link:getAge())
     end
     modData.staleAt = now + daysLeft * 24 / speed
-end
-
--- The crafting window's time is the longer of the two: blood sausage's smoke, as if the fire burnt on a cool day
--- throughout (Smoked Sausage's hot run is a quarter of it).
-Events.OnInitGlobalModData.Add(function()
-    Weather.setRecipeHours("TraditionalPreservationFishMeat.HangSausageToSmoke", F.SMOKED_SAUSAGE_HOURS,
-        "TraditionalPreservationFishMeat")
-end)
-
--- The stack's sausage is its links' (one method to a stack, F.hangMethod): Fresh Sausage takes the hot run.
-function F.sausageOf(links)
-    return links:size() > 0 and links:get(0):getFullType() == F.FRESH_SAUSAGE and "pork" or nil
-end
-
-function F.onSausageSmokeStart(craftRecipeData)
-    local links = craftRecipeData:getAllInputItemsWithFlag("ItemCount")
-    F.startSausageSmoke(craftRecipeData:getModData(), links, getGameTime():getWorldAgeHours(), FluidAgeing.foodRotSpeed(),
-        F.sausageOf(links))
 end
 
 -- A sausage stack's smoke so far and its need: the cold counter for blood sausage, the hot run for Smoked Sausage
@@ -243,22 +218,12 @@ function F.sausageSmokeStep(modData, now)
     modData.seenCold, modData.seenAt = smoke, now
 end
 
--- The stack's bar, 0 to 1: its smoke so far, full once smoked or once every link went stale. It waits just short of
--- the end until the World has seen its shed since the load, so OnCreate can swap the outputs.
+-- A link's bar, 0 to 1: its smoke so far, full once smoked or once it went stale.
 function F.sausageProgress(modData, now)
     local smoke, need = F.sausageSmoke(modData)
     local progress = modData.smokedAt and 1 or math.min(smoke / need, 1)
     if modData.staleAt and now >= modData.staleAt then progress = 1 end
-    if progress >= 1 and not F.smokeStations[modData.stackId] then progress = F.SHED_WAIT end
     return progress
-end
-
-function F.onSausageSmokeUpdate(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    if not modData.sausage then return end
-    local now = getGameTime():getWorldAgeHours()
-    F.sausageSmokeStep(modData, now)
-    craftRecipeData:setElapsedTime(F.sausageProgress(modData, now) * craftRecipeData:getRecipe():getTime())
 end
 
 -- Hands a part-eaten link's share on to what it became.
@@ -292,23 +257,6 @@ function F.smokedLink(link, modData, now, speed)
     keepShare(link, out)
     Season.carry(link, out)
     return out
-end
-
-function F.onCreateSmokedSausage(craftRecipeData)
-    local modData = craftRecipeData:getModData()
-    local station = modData.stackId and F.smokeStations[modData.stackId]
-    if modData.stackId then
-        F.smokeStations[modData.stackId], F.stackStations[modData.stackId] = nil, nil
-        F.hotStations[modData.stackId] = nil
-    end
-    if not station then
-        -- Never seen by the World (it waits for that): at least the script's links are cooked.
-        local created = craftRecipeData:getAllCreatedItems()
-        for i = 0, created:size() - 1 do created:get(i):setCooked(true) end
-        return
-    end
-    local now, speed = getGameTime():getWorldAgeHours(), FluidAgeing.foodRotSpeed()
-    F.swapOutputs(craftRecipeData, station, function(link) return F.smokedLink(link, modData, now, speed) end)
 end
 
 -- What a sausage stack's popup and the station's info say: its bar, the smoke against the need, what the fire is
