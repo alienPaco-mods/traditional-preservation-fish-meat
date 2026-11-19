@@ -41,8 +41,8 @@ F.TUB_MAX_ITEMS = 35
 -- tools/build_tileset.py writes.
 F.STACK_WEIGHT = 2.5
 F.MAX_STACKS = Tiles.HANGERS.frame.stacks
--- Every station that hangs fish, by its first sprite: the first hanging fish sprite and its stacks
--- (from Tiles.lua), and the weight of each stack.
+-- Every station that hangs fish, by its first sprite: its first hanging tile (spotSprite) and its spots (stacks), from
+-- Tiles.lua, and the old stacks' weight and pieces (the Smokehouse's slots still go by them).
 -- The Smokehouse chamber is TP Core's (Smokehouse.lua): closed, nothing hangs in sight; F.CHAMBER_HANGER below.
 local STACK_WEIGHTS = { frame = F.STACK_WEIGHT, medium = 15, large = 50, chamber = 15 }
 -- And the most pieces in each stack, fish or meat alike (0.4.20): the Beam and the Gantry are for bigger fish, not
@@ -50,8 +50,7 @@ local STACK_WEIGHTS = { frame = F.STACK_WEIGHT, medium = 15, large = 50, chamber
 local STACK_PIECES = { frame = 25, medium = 12, large = 6, chamber = 25 }
 F.HANGERS = {}
 for name, tileHanger in pairs(Tiles.HANGERS) do
-    local hanger = { name = name, fishSprite = tileHanger.fishSprite, meatSprite = tileHanger.meatSprite, rottenSprite = tileHanger.rottenSprite,
-        stacks = tileHanger.stacks, stackWeight = STACK_WEIGHTS[name], stackPieces = STACK_PIECES[name], closed = tileHanger.closed }
+    local hanger = { name = name, spotSprite = tileHanger.spotSprite, stacks = tileHanger.stacks, stackWeight = STACK_WEIGHTS[name], stackPieces = STACK_PIECES[name], closed = tileHanger.closed }
     for _, base in ipairs(tileHanger.bases or { tileHanger.base }) do F.HANGERS[base] = hanger end
 end
 F.CHAMBER_HANGER = { name = "chamber", stacks = Smokehouse.STACKS, stackWeight = STACK_WEIGHTS.chamber, stackPieces = STACK_PIECES.chamber, closed = true }
@@ -140,8 +139,9 @@ F.LEG_SALT_PER_STEP = 1
 -- What a frame cold dries.
 F.COLD_FISH = { [F.GUTTED_FISH] = true, [F.FISH_HALF] = true }
 
--- How many looks a hanging fish has, from fresh to done, and its styles. A stack picks a style at
--- random when it starts, whatever is in it, so a frame doesn't look all alike. Both come from Tiles.lua.
+-- How many stages a hanging piece shows, from fresh to done, and its styles. A piece picks a style at random when
+-- it is hung, so a rack doesn't look all alike; each style draws as one of a spot's four looks (F.styleLook). All from
+-- Tiles.lua.
 F.DRYING_STAGES = Tiles.DRYING_STAGES
 F.STYLE_SALT = Tiles.STYLES.SALT
 F.STYLE_GUTTED = Tiles.STYLES.GUTTED
@@ -151,11 +151,29 @@ F.STYLE_SALT_HALF = Tiles.STYLES.SALT_HALF
 F.SALT_STYLES = { 0, 0, 3, 4 }
 F.COLD_STYLES = { 1, 1, 2 }
 F.STYLE_MEAT = Tiles.STYLES.MEAT
--- A rotted stack shows one rotten look (0.4.21), numbered after the meat's stages: F.FIRST_ROTTEN_LOOK plus the look.
+-- A spot's tiles (0.4.76): a look at a stage (look x DRYING_STAGES + stage), then a rotten one a kind (ROTTEN_TILE plus
+-- the kind).
+F.LOOKS = Tiles.LOOKS
 F.ROTTEN_LOOKS = Tiles.ROTTEN_LOOKS
-F.FIRST_ROTTEN_LOOK = (F.STYLE_MEAT + 1) * F.DRYING_STAGES
+F.ROTTEN_TILE = Tiles.ROTTEN_TILE
+F.SPOT_TILES = Tiles.SPOT_TILES
 
--- The rotten look for a stack's style: cold dried fish, meat, or salt fish.
+-- The look a style draws as: a salt gutted fish as a whole salt fish, a cold half as a gutted fish.
+local STYLE_LOOKS = { [F.STYLE_SALT] = F.LOOKS.SALT, [F.STYLE_SALT_GUTTED] = F.LOOKS.SALT,
+    [F.STYLE_SALT_HALF] = F.LOOKS.SALT_HALF, [F.STYLE_GUTTED] = F.LOOKS.GUTTED, [F.STYLE_HALF] = F.LOOKS.GUTTED,
+    [F.STYLE_MEAT] = F.LOOKS.MEAT }
+
+function F.styleLook(style)
+    return STYLE_LOOKS[style] or F.LOOKS.SALT
+end
+
+-- A spot's tile: the style's look at a stage, or rotten.
+function F.spotTile(style, stage, rotten)
+    if rotten then return F.ROTTEN_TILE + F.rottenLook(style) end
+    return F.styleLook(style) * F.DRYING_STAGES + stage
+end
+
+-- The rotten look for a style: cold dried fish, meat, or salt fish.
 function F.rottenLook(style)
     if style == F.STYLE_GUTTED or style == F.STYLE_HALF then return F.ROTTEN_LOOKS.COLD end
     if style == F.STYLE_MEAT then return F.ROTTEN_LOOKS.MEAT end

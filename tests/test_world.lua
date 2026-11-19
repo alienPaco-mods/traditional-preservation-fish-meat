@@ -134,10 +134,11 @@ hang(shed, GUTTED, 2.5, T.STYLE_GUTTED, 0.5)
 hang(shed, PRESSED, 0.4, T.STYLE_SALT, 0)
 loaders.traditionalpreservationfishmeat_01_6(shed)
 tick(30)
--- Salt first (hung first): spot 1 the done fish (look 4), spot 2 the done fish's end and the fresh one (look 0, the
--- least dry); then the gutted fish halfway in spot 3 (look 7), face 0.
+-- Salt first (hung first): spot 1 the done fish (tile 2: salt, dry), spot 2 the done fish's end and the fresh one
+-- (tile 0, the least dry); then the gutted fish halfway in spot 3 (tile 7: gutted, half dry), face 0; a tile is
+-- 8 + (tile x 8 + spot - 1) x 2.
 check("each kind gets its spots, in the order first hung", table.concat(shed.sprites, " ") ==
-    "traditionalpreservationfishmeat_01_72 traditionalpreservationfishmeat_01_10 traditionalpreservationfishmeat_01_124")
+    "traditionalpreservationfishmeat_01_40 traditionalpreservationfishmeat_01_10 traditionalpreservationfishmeat_01_124")
 check("its pieces learn they are indoors", first.state.place == "Sheltered")
 tick(30)
 check("an unchanged rack is left alone", shed.clears == 1)
@@ -154,13 +155,13 @@ local porched = hang(porch, PRESSED, 0.5, T.STYLE_SALT, 0.1)
 W.refresh(porch)
 check("a frame under an open roof is covered, and a refresh tracks it", porched.state.place == "Covered" and #porch.sprites == 1)
 
--- Charque from the meat's own tiles at the end of sheet 2: meat stage 2 in spot 1 (716 + 32 = 748).
+-- Charque: meat half dry (tile 10) in spot 1: 8 + 10 x 8 x 2 = 168.
 local meatRack = station("traditionalpreservationfishmeat_01_6", 5, true, {}, {}, {})
 hang(meatRack, T.CURED_MEAT, 0.5, T.STYLE_MEAT, 0)
 meatRack.pieces = T.rackOf(meatRack).pieces
 meatRack.pieces[1].state.dried = T.CHARQUE_HOURS * 0.5
 W.refresh(meatRack)
-check("charque hangs from the meat tiles", table.concat(meatRack.sprites, " ") == "traditionalpreservationfishmeat_02_340")
+check("charque hangs from the meat's tiles", table.concat(meatRack.sprites, " ") == "traditionalpreservationfishmeat_01_168")
 
 -- A piece reaching past its spot's share draws in both; a rotted piece shows its kind's rotten look.
 local function piece(method, weight, style, spoiled)
@@ -169,35 +170,36 @@ end
 local spots = T.rackSpots({ pieces = { piece("salt", 1.5, T.STYLE_SALT), piece("salt", 1.5, T.STYLE_SALT_HALF),
     piece("salt", 1.5, T.STYLE_SALT) } }, T.HANGERS[6])
 check("a piece over a spot's edge fills both spots: 4.5 kg, 2 spots, the middle fish in both",
-    spots[1] == T.STYLE_SALT * T.DRYING_STAGES and spots[2] == T.STYLE_SALT_HALF * T.DRYING_STAGES and spots[3] == nil)
+    spots[1] == T.spotTile(T.STYLE_SALT, 0) and spots[2] == T.spotTile(T.STYLE_SALT_HALF, 0) and spots[3] == nil)
 local mixedFrame = { pieces = {} }
 for _ = 1, 7 do table.insert(mixedFrame.pieces, piece("salt", 2.5, T.STYLE_SALT)) end
 for _ = 1, 3 do table.insert(mixedFrame.pieces, piece("meat", 0.4, T.STYLE_MEAT)) end
 spots = T.rackSpots(mixedFrame, T.HANGERS[6])
 check("a frame full of fish with 3 steaks shows the meat: 7 fish spots, 1 meat", #spots == 8
-    and spots[7] == T.STYLE_SALT * T.DRYING_STAGES and spots[8] == T.STYLE_MEAT * T.DRYING_STAGES)
+    and spots[7] == T.spotTile(T.STYLE_SALT, 0) and spots[8] == T.spotTile(T.STYLE_MEAT, 0))
 spots = T.rackSpots({ pieces = { piece("salt", 0.3, T.STYLE_SALT), piece("cold", 0.3, T.STYLE_GUTTED),
     piece("meat", 0.3, T.STYLE_MEAT) } }, T.HANGERS[6])
 check("three light kinds take a spot each, though their weight fills one", spots[1] == 0
-    and spots[2] == T.STYLE_GUTTED * T.DRYING_STAGES and spots[3] == T.STYLE_MEAT * T.DRYING_STAGES and spots[4] == nil)
+    and spots[2] == T.spotTile(T.STYLE_GUTTED, 0) and spots[3] == T.spotTile(T.STYLE_MEAT, 0) and spots[4] == nil)
 spots = T.rackSpots({ pieces = { piece("salt", 2, T.STYLE_SALT), piece("meat", 5, T.STYLE_MEAT), piece("cold", 8, T.STYLE_GUTTED) } }, T.HANGERS[410])
-check("a Gantry with three kinds shows its two heaviest, in the order first hung", spots[1] == T.STYLE_MEAT * T.DRYING_STAGES
-    and spots[2] == T.STYLE_GUTTED * T.DRYING_STAGES)
+check("a Gantry with three kinds shows its two heaviest, in the order first hung", spots[1] == T.spotTile(T.STYLE_MEAT, 0)
+    and spots[2] == T.spotTile(T.STYLE_GUTTED, 0))
 local gantrySpots = T.rackSpots({ pieces = { piece("salt", 12, T.STYLE_SALT, 1) } }, T.HANGERS[410])
-check("a Gantry's spot is 50 kg, and a rotted piece's spot is rotten", gantrySpots[1] == T.FIRST_ROTTEN_LOOK + T.ROTTEN_LOOKS.SALT
+check("a Gantry's spot is 50 kg, and a rotted piece's spot is rotten", gantrySpots[1] == T.ROTTEN_TILE + T.ROTTEN_LOOKS.SALT
     and gantrySpots[2] == nil)
-check("a beam's charque is its own run too", W.hangingSprite(T.HANGERS[408], T.STYLE_MEAT * T.DRYING_STAGES, 1, 1) == 797
-    and W.hangingSprite(T.HANGERS[410], T.STYLE_MEAT * T.DRYING_STAGES + 4, 2, 0) == 836 + (4 * 2 + 1) * 2)
-check("fish keep theirs", W.hangingSprite(T.HANGERS[6], 4, 1, 0) == 8 + 4 * 8 * 2)
-
--- Rotted stacks (0.4.21): one look a kind, on the third sheet.
-check("rotten tiles start the third sheet", W.hangingSprite(T.HANGERS[6], T.FIRST_ROTTEN_LOOK, 1, 0) == 880
-    and T.spriteName(880) == "traditionalpreservationfishmeat_03_0")
-check("and run to its 84th", W.hangingSprite(T.HANGERS[410], T.FIRST_ROTTEN_LOOK + T.ROTTEN_LOOKS.MEAT, 2, 1) == 963
-    and T.spriteName(963) == "traditionalpreservationfishmeat_03_83" and T.spriteIndex("traditionalpreservationfishmeat_03_83") == 963)
-check("the first two sheets keep their names", T.spriteName(407) == "traditionalpreservationfishmeat_01_407"
+-- A spot's 15 tiles (0.4.76): 4 looks x 3 stages, then a rotten one a kind; the frame's from 8, the Beam's from 412,
+-- the Gantry's from 532.
+check("a spot has 15 tiles, the rotten ones last", T.SPOT_TILES == 15 and T.ROTTEN_TILE == 12
+    and T.spotTile(T.STYLE_MEAT, 2) == 11 and T.spotTile(T.STYLE_MEAT, 0, true) == 12 + T.ROTTEN_LOOKS.MEAT)
+check("a style draws as its look: salt gutted as salt, a cold half as gutted", T.spotTile(T.STYLE_SALT_GUTTED, 1) == T.spotTile(T.STYLE_SALT, 1)
+    and T.spotTile(T.STYLE_HALF, 1) == T.spotTile(T.STYLE_GUTTED, 1) and T.spotTile(T.STYLE_SALT_HALF, 1) == 4)
+check("the frame's last tile is 247, the Beam's 412 to 531, the Gantry's 532 to 591",
+    W.hangingSprite(T.HANGERS[6], 14, 8, 1) == 247 and W.hangingSprite(T.HANGERS[408], 0, 1, 0) == 412
+    and W.hangingSprite(T.HANGERS[408], 14, 4, 1) == 531 and W.hangingSprite(T.HANGERS[410], 0, 1, 0) == 532
+    and W.hangingSprite(T.HANGERS[410], 14, 2, 1) == 591)
+check("two sheets, keeping their names", T.spriteName(407) == "traditionalpreservationfishmeat_01_407"
     and T.spriteName(408) == "traditionalpreservationfishmeat_02_0" and T.spriteIndex("traditionalpreservationfishmeat_02_471") == 879
-    and T.spriteIndex("traditionalpreservationfishmeat_04_0") == nil)
+    and T.spriteIndex("traditionalpreservationfishmeat_03_0") == nil)
 check("a style's rotten kind", T.rottenLook(T.STYLE_SALT_HALF) == T.ROTTEN_LOOKS.SALT and T.rottenLook(T.STYLE_HALF) == T.ROTTEN_LOOKS.COLD
     and T.rottenLook(T.STYLE_MEAT) == T.ROTTEN_LOOKS.MEAT)
 local mixed = recipeData(0.5, T.STYLE_MEAT)

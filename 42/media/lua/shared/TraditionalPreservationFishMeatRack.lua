@@ -180,7 +180,7 @@ end
 -- kinds than spots (a Gantry's 2) shows its heaviest. Kinds stand in the order they were first hung; within a kind its
 -- pieces fill its spots by weight in hang order, a piece in every spot its weight reaches into. A spot shows its
 -- pieces' look at the least dry piece's stage, its first piece's style, rotten if any piece in it rotted. Returns a
--- look a spot (the World's looks: style x DRYING_STAGES + stage, or F.FIRST_ROTTEN_LOOK on), nil for an empty spot.
+-- spot's tile a spot (F.spotTile: 0 to SPOT_TILES - 1), nil for an empty spot.
 local function rackKinds(rack)
     local kinds, byMethod, total = {}, {}, 0
     for _, piece in ipairs(rack.pieces or {}) do
@@ -248,7 +248,7 @@ function F.rackSpots(rack, hanger)
                 rotten = rotten or lost
                 if not F.pieceDone(piece) then stage = math.min(stage, F.dryingStage(progress)) end
             end
-            looks[spot] = rotten and F.FIRST_ROTTEN_LOOK + F.rottenLook(style) or style * stages + stage
+            looks[spot] = F.spotTile(style, stage, rotten)
         end
     end
     return looks

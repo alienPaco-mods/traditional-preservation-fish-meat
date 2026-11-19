@@ -327,7 +327,7 @@ local function u32(at)
     local a, b, c, d = tiles:byte(at, at + 3)
     return a + b * 256 + c * 65536 + d * 16777216
 end
-check("the tile file has all three sheets", u32(9) == 3)
+check("the tile file has both sheets (the third went with the stacks, 0.4.76)", u32(9) == 2)
 local sheetCount = u32(13 + #"traditionalpreservationfishmeat_01\ntraditionalpreservationfishmeat_01.png\n" + 12)
 check("the first sheet ends where the sprites say", sheetCount == T.FIRST_SHEET_SIZE and sheetCount <= 512)
 check("a medium beam takes 15 a stack on 4 hooks", T.frameRefusal(T.HANGERS[408], 3, 0, 15) == nil and T.frameRefusal(T.HANGERS[408], 0, 0, 15.1) == "IGUI_TraditionalPreservationFishMeat_TooHeavy" and T.frameRefusal(T.HANGERS[408], 4, 0, 1) == "IGUI_TraditionalPreservationFishMeat_FrameFull")
@@ -647,7 +647,7 @@ for step = 0, 99 do
     check("the look only moves forward at " .. step .. "%", stage >= last and stage <= last + 1)
     seen[stage], last = true, stage
 end
-check("it passes through every running look", seen[0] and seen[1] and seen[2] and seen[3])
+check("it passes through every running look: fresh, then half dry", seen[0] and seen[1] and not seen[2])
 check("the last look waits for the finish", T.dryingStage(0.999) == T.DRYING_STAGES - 2)
 
 -- Carrying a fish through the stages

@@ -123,17 +123,9 @@ local function refreshTub(station, sessionState)
     showSprites(station, sessionState, tostring(sprite), sprite and { sprite + sessionState.faceIndex } or {})
 end
 
--- The same numbering as fish_index in tools/build_tileset.py. Meat has its own run of tiles, one per stage, and
--- rotted stacks theirs, one per rotten look.
-function TraditionalPreservationFishMeatWorld.hangingSprite(hanger, look, slot, faceIndex)
-    local first = hanger.fishSprite
-    local firstMeatLook = F.STYLE_MEAT * F.DRYING_STAGES
-    if look >= F.FIRST_ROTTEN_LOOK then
-        first, look = hanger.rottenSprite, look - F.FIRST_ROTTEN_LOOK
-    elseif look >= firstMeatLook then
-        first, look = hanger.meatSprite, look - firstMeatLook
-    end
-    return first + (look * hanger.stacks + slot - 1) * FACE_COUNT + faceIndex
+-- A spot's tile (F.spotTile) on a rack, numbered as spot_index in tools/build_tileset.py.
+function TraditionalPreservationFishMeatWorld.hangingSprite(hanger, tile, slot, faceIndex)
+    return hanger.spotSprite + (tile * hanger.stacks + slot - 1) * FACE_COUNT + faceIndex
 end
 
 -- A rack: its pieces brought up to now at its place, each spot drawn by F.rackSpots (empty spots draw nothing).

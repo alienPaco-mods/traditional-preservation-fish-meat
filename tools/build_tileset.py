@@ -3,8 +3,9 @@
 
 Tiles 0 and 1 are the empty Salting Tub, 2 and 3 its filled overlay, 4 and 5 its weighted overlay (the filled
 overlays for meat, pork and a leg are at TUB_MEAT, after everything else, so no tile number moves). Tiles 6 and 7
-are the Drying Frame. From tile 8 there is one hanging fish per frame slot, drying stage and face, made from vanilla's
-fish icons, which TraditionalPreservationFishMeatWorld.lua layers on top. In every pair the even tile is face S and the odd one face E.
+are the Drying Frame. From tile 8 each rack's spots have their hanging tiles (SPOT_TILES a spot and face: four looks at
+three stages and a rotten one a kind), made from vanilla's fish and meat icons, which
+TraditionalPreservationFishMeatWorld.lua layers on top. In every pair the even tile is face S and the odd one face E.
 Workstations need their own sprite: the game refuses to load a world if two entities share one.
 
 It also writes the item icons and the fish model textures to 42/media/textures. The model textures are vanilla's
@@ -30,10 +31,11 @@ GAME = Path.home() / ".local/share/Steam/steamapps/common/ProjectZomboid/project
 NAME = "traditionalpreservationfishmeat"
 # A tileset can't hold more than 512 tiles (pzart.MAX_SHEET_TILES), or the game drops the whole file and every
 # station with it. Tiles are numbered straight through the sheets. The Lua reads these numbers from the generated Tiles.lua.
-# The third sheet (0.4.21) holds the rotten stacks: the first two are kept as they are, so saves keep their sprites.
-TILESETS = [NAME + "_01", NAME + "_02", NAME + "_03"]
+# Two sheets: the racks' hanging tiles (0.4.76, ROADMAP section 12 R5) fit where the stacks' were, so the third sheet
+# (the stacks' rotten looks) is gone. Station tiles keep their numbers.
+TILESETS = [NAME + "_01", NAME + "_02"]
 COLUMNS = 8
-SHEET_ROWS = [51, 59, 11]
+SHEET_ROWS = [51, 59]
 FIRST_SHEET_SIZE = COLUMNS * SHEET_ROWS[0]
 SHEET_STARTS = [COLUMNS * sum(SHEET_ROWS[:n]) for n in range(len(SHEET_ROWS))]
 NAME_TITLE = "TraditionalPreservationFishMeat"
@@ -43,19 +45,16 @@ SS = 4
 MOD_ICON_KEEP = 0.72
 ICON_SIZE = 32
 
-TUB, TUB_FILLED, TUB_WEIGHTED, FRAME, FISH = 0, 2, 4, 6, 8
-# The beams come after the frame's fish.
-MEDIUM_BEAM, LARGE_BEAM, MEDIUM_FISH, LARGE_FISH = 408, 410, 412, 612
+TUB, TUB_FILLED, TUB_WEIGHTED, FRAME = 0, 2, 4, 6
+MEDIUM_BEAM, LARGE_BEAM = 408, 410
+# What hangs on a rack, a spot at a time (0.4.76): SPOT_TILES tiles a spot and face, numbered as spot_index. The frame's
+# from 8 (where its stack fish were), the Beam's from 412, the Gantry's after it; the rest of the old hanging numbers
+# stay empty, so no station's tile moves.
+FRAME_HANG, MEDIUM_HANG, LARGE_HANG = 8, 412, 532
 MEDIUM_HOOKS, LARGE_HOOKS = 4, 2
 FACES = ["S", "E"]
 # The Stockfish Pallet (one face, like vanilla's crates) and its stack of stockfish at a third, two thirds and full.
 PALLET, PALLET_STACK = 712, 713
-# Charque hanging on each station (phase 3c), after the pallet so no station's tile number moves: one run of
-# stages per spot and face, numbered as the fish (fish_index with the meat's first tile).
-FRAME_MEAT, MEDIUM_MEAT, LARGE_MEAT = 716, 796, 836
-# A stack that rotted shows one rotten look (salt fish, cold dried fish, meat) on the third sheet, numbered as the fish
-# (fish_index, the look for the stage).
-FRAME_ROTTEN, MEDIUM_ROTTEN, LARGE_ROTTEN = 880, 928, 952
 # Tiles 856-869 held the Smokehouse chamber, its flue entries and the ham until it moved to TP Core (2026-11-13):
 # left empty, so no later tile number moves.
 # The filled tub holding meat (step 82): one overlay per meat and face, as TUB_FILLED is for fish (tub_meat_index).
@@ -162,6 +161,14 @@ FRESH_MEAT = dict(colour=(140, 58, 46), strength=0.6, grains=3)
 DONE_MEAT = dict(colour=(78, 40, 26), strength=0.9, grains=0)
 # The style number the Lua gives a meat stack. It has its own tiles, so it isn't counted in FISH_STYLES.
 MEAT_STYLE = FISH_STYLES
+# A spot's tiles (0.4.76; ROADMAP section 12 item 7): four looks at three stages, then a rotten one a kind. Each look
+# is drawn as today's painter draws a style (salt gutted draws as whole salt fish, a cold half as gutted fish); the
+# stages are the painter's fresh, half way and dry.
+RACK_LOOKS = ["SALT", "SALT_HALF", "GUTTED", "MEAT"]
+RACK_LOOK_STYLES = [0, 4, 1, None]  # the painter's style a look draws as; None is the meat
+RACK_STAGES = [0, 2, 4]
+SPOT_TILES = len(RACK_LOOKS) * len(RACK_STAGES) + 3
+ROTTEN_TILE = len(RACK_LOOKS) * len(RACK_STAGES)
 # A rotted stack, by look, in ROTTEN_LOOKS' order: a grey-green cast, dark soft patches and pale mould. Its tiles are
 # drawn from stage numbers past the meat's (ROTTEN_STAGE + look), as the Lua numbers the looks.
 ROTTEN_LOOKS = ["SALT", "COLD", "MEAT"]
@@ -267,9 +274,22 @@ def station_props(custom, group, facing, weight):
     return [("BlocksPlacement", ""), ("CustomName", custom), ("Facing", facing), ("GroupName", group), ("IsMoveAble", ""), ("PickUpWeight", weight), ("solidtrans", "")]
 
 
-def fish_index(face_index, slot, stage, first=FISH, slots=len(SLOTS)):
-    """refreshFrame in TraditionalPreservationFishMeatWorld.lua numbers them the same way, from the generated Tiles.lua."""
-    return first + (stage * slots + slot) * len(FACES) + face_index
+def spot_index(face_index, slot, tile, first, slots):
+    """A rack's hanging tile: hangingSprite in TraditionalPreservationFishMeatWorld.lua numbers them the same way."""
+    return first + (tile * slots + slot) * len(FACES) + face_index
+
+
+def spot_code(tile):
+    """The painter's stage code for a spot's tile: a look at a stage, or a kind's rotten look."""
+    if tile >= ROTTEN_TILE:
+        return ROTTEN_STAGE + tile - ROTTEN_TILE
+    look, stage = divmod(tile, len(RACK_STAGES))
+    style = RACK_LOOK_STYLES[look]
+    first = FISH_STAGES * FISH_STYLES if style is None else style * FISH_STAGES
+    return first + RACK_STAGES[stage]
+
+
+RACKS = [(FRAME_HANG, len(SLOTS)), (MEDIUM_HANG, 4), (LARGE_HANG, 2)]
 
 
 TILE_PROPS = {}
@@ -287,21 +307,10 @@ for face_index, face in enumerate(FACES):
     TILE_PROPS[TUB_WEIGHTED + face_index] = [("Facing", face)]
     for meat_index in range(len(TUB_MEATS)):
         TILE_PROPS[TUB_MEAT + meat_index * len(FACES) + face_index] = [("Facing", face)]
-    for slot in range(len(SLOTS)):
-        for stage in range(FISH_STAGES * FISH_STYLES):
-            TILE_PROPS[fish_index(face_index, slot, stage)] = [("Facing", face)]
-    for first, hooks in ((MEDIUM_FISH, MEDIUM_HOOKS), (LARGE_FISH, LARGE_HOOKS)):
-        for slot in range(hooks):
-            for stage in range(FISH_STAGES * FISH_STYLES):
-                TILE_PROPS[fish_index(face_index, slot, stage, first, hooks)] = [("Facing", face)]
-    for first, hooks in ((FRAME_MEAT, len(SLOTS)), (MEDIUM_MEAT, MEDIUM_HOOKS), (LARGE_MEAT, LARGE_HOOKS)):
-        for slot in range(hooks):
-            for stage in range(FISH_STAGES):
-                TILE_PROPS[fish_index(face_index, slot, stage, first, hooks)] = [("Facing", face)]
-    for first, hooks in ((FRAME_ROTTEN, len(SLOTS)), (MEDIUM_ROTTEN, MEDIUM_HOOKS), (LARGE_ROTTEN, LARGE_HOOKS)):
-        for slot in range(hooks):
-            for look in range(len(ROTTEN_LOOKS)):
-                TILE_PROPS[fish_index(face_index, slot, look, first, hooks)] = [("Facing", face)]
+    for first, slots in RACKS:
+        for slot in range(slots):
+            for tile in range(SPOT_TILES):
+                TILE_PROPS[spot_index(face_index, slot, tile, first, slots)] = [("Facing", face)]
 
 
 def new_layer():
@@ -1224,33 +1233,18 @@ def build_tiles(game=GAME):
         tiles[TUB_WEIGHTED + index] = weather(shrink(paint_weighted(50 + index, face == "E", icons["Item_Boulder"].convert("RGBA"))), 60 + index, WOOD_WEATHER)
         tiles[FRAME + index] = paint_frame(face)
         for slot in range(len(SLOTS)):
-            for stage in range(FISH_STAGES * FISH_STYLES):
-                tiles[fish_index(index, slot, stage)] = paint_fish_tile(icons, face, slot, stage)
-            for stage in range(FISH_STAGES):
-                meat = FISH_STAGES * FISH_STYLES + stage
-                tiles[fish_index(index, slot, stage, FRAME_MEAT)] = paint_fish_tile(icons, face, slot, meat)
-            for look in range(len(ROTTEN_LOOKS)):
-                tiles[fish_index(index, slot, look, FRAME_ROTTEN)] = paint_fish_tile(icons, face, slot, ROTTEN_STAGE + look)
+            for tile in range(SPOT_TILES):
+                tiles[spot_index(index, slot, tile, FRAME_HANG, len(SLOTS))] = paint_fish_tile(icons, face, slot, spot_code(tile))
         tiles[MEDIUM_BEAM + index] = paint_medium_beam(face)
         tiles[LARGE_BEAM + index] = paint_large_beam(face)
         medium_mask = front_post_mask(face, MEDIUM_HALF_LENGTH, MEDIUM_BEAM_Z, POST_RADIUS)
         large_mask = front_post_mask(face, LARGE_HALF_LENGTH, LARGE_BEAM_Z, LARGE_POST_RADIUS)
-        for first, hooks, size, scale, mask in ((MEDIUM_FISH, medium_hooks(face), MEDIUM_HOOK_SIZE, MEDIUM_FISH_SCALE, medium_mask), (LARGE_FISH, large_hooks(face), LARGE_HOOK_SIZE, LARGE_FISH_SCALE, large_mask)):
+        for first, hooks, size, scale, mask in ((MEDIUM_HANG, medium_hooks(face), MEDIUM_HOOK_SIZE, MEDIUM_FISH_SCALE, medium_mask),
+                                                (LARGE_HANG, large_hooks(face), LARGE_HOOK_SIZE, LARGE_FISH_SCALE, large_mask)):
             for slot, point in enumerate(hooks):
-                for stage in range(FISH_STAGES * FISH_STYLES):
-                    tiles[fish_index(index, slot, stage, first, len(hooks))] = paint_hook_fish_tile(icons, face, slot, stage, point, size, scale, mask)
-        for first, meat_first, hooks, size, scale, mask in ((MEDIUM_FISH, MEDIUM_MEAT, medium_hooks(face), MEDIUM_HOOK_SIZE, MEDIUM_FISH_SCALE, medium_mask),
-                                                            (LARGE_FISH, LARGE_MEAT, large_hooks(face), LARGE_HOOK_SIZE, LARGE_FISH_SCALE, large_mask)):
-            for slot, point in enumerate(hooks):
-                for stage in range(FISH_STAGES):
-                    meat = FISH_STAGES * FISH_STYLES + stage
-                    tiles[fish_index(index, slot, stage, meat_first, len(hooks))] = paint_hook_fish_tile(icons, face, slot, meat, point, size, scale, mask)
-        for rotten_first, hooks, size, scale, mask in ((MEDIUM_ROTTEN, medium_hooks(face), MEDIUM_HOOK_SIZE, MEDIUM_FISH_SCALE, medium_mask),
-                                                       (LARGE_ROTTEN, large_hooks(face), LARGE_HOOK_SIZE, LARGE_FISH_SCALE, large_mask)):
-            for slot, point in enumerate(hooks):
-                for look in range(len(ROTTEN_LOOKS)):
-                    tiles[fish_index(index, slot, look, rotten_first, len(hooks))] = paint_hook_fish_tile(
-                        icons, face, slot, ROTTEN_STAGE + look, point, size, scale, mask)
+                for tile in range(SPOT_TILES):
+                    tiles[spot_index(index, slot, tile, first, len(hooks))] = paint_hook_fish_tile(
+                        icons, face, slot, spot_code(tile), point, size, scale, mask)
     tiles[PALLET] = pzart.extract_sprites(game / "media/texturepacks/Tiles2x.pack", {PALLET_SPRITE})[PALLET_SPRITE]
     for level, layers in enumerate(PALLET_LEVELS):
         tiles[PALLET_STACK + level] = paint_pallet_stack(icons, layers)
@@ -1273,17 +1267,20 @@ def lua_tiles():
         # The filled overlay when the tub holds meat: each meat's first tile (face S), as TUB_FILLED is for fish.
         "TUB_MEAT": {meat: tub_meat_index(meat, 0) for meat in TUB_MEATS},
         "FRAME": FRAME,
-        # Every station that hangs fish: its first sprite, its first hanging fish sprite and its stacks.
+        # Every rack: its first sprite, its first hanging tile and its spots (SPOT_TILES tiles a spot and face).
         "HANGERS": {
-            "frame": {"base": FRAME, "fishSprite": FISH, "meatSprite": FRAME_MEAT, "rottenSprite": FRAME_ROTTEN, "stacks": len(SLOTS)},
-            "medium": {"base": MEDIUM_BEAM, "fishSprite": MEDIUM_FISH, "meatSprite": MEDIUM_MEAT, "rottenSprite": MEDIUM_ROTTEN,
-                       "stacks": MEDIUM_HOOKS},
-            "large": {"base": LARGE_BEAM, "fishSprite": LARGE_FISH, "meatSprite": LARGE_MEAT, "rottenSprite": LARGE_ROTTEN,
-                      "stacks": LARGE_HOOKS},
+            "frame": {"base": FRAME, "spotSprite": FRAME_HANG, "stacks": len(SLOTS)},
+            "medium": {"base": MEDIUM_BEAM, "spotSprite": MEDIUM_HANG, "stacks": MEDIUM_HOOKS},
+            "large": {"base": LARGE_BEAM, "spotSprite": LARGE_HANG, "stacks": LARGE_HOOKS},
         },
         "PALLET": tile_name(PALLET),
         "PALLET_STACKS": [tile_name(PALLET_STACK + level) for level in range(len(PALLET_LEVELS))],
-        "DRYING_STAGES": FISH_STAGES,
+        # A spot's tiles: look x DRYING_STAGES + stage, then ROTTEN_TILE + a ROTTEN_LOOKS kind.
+        "DRYING_STAGES": len(RACK_STAGES),
+        "LOOKS": {name: look for look, name in enumerate(RACK_LOOKS)},
+        "SPOT_TILES": SPOT_TILES,
+        "ROTTEN_TILE": ROTTEN_TILE,
+        # A piece's style (kept in its record), each drawn as one of the LOOKS.
         "STYLES": dict({name: style for style, name in enumerate(STYLE_NAMES)}, MEAT=MEAT_STYLE),
         "ROTTEN_LOOKS": {name: look for look, name in enumerate(ROTTEN_LOOKS)},
     }
@@ -1306,13 +1303,14 @@ def main():
     tub.alpha_composite(tiles[TUB_WEIGHTED])
     pzart.write_build_icon(tub, media / "textures" / "Item_SaltingTub.png")
     frame = tiles[FRAME].copy()
+    dry_salt = len(RACK_STAGES) - 1  # look 0 (salt fish), dry
     for slot in range(len(SLOTS)):
-        frame.alpha_composite(tiles[fish_index(0, slot, FISH_STAGES - 1)])
+        frame.alpha_composite(tiles[spot_index(0, slot, dry_salt, FRAME_HANG, len(SLOTS))])
     pzart.write_build_icon(frame, media / "textures" / "Item_DryingFrame.png")
-    for name, beam, first, hooks in (("Medium", MEDIUM_BEAM, MEDIUM_FISH, MEDIUM_HOOKS), ("Large", LARGE_BEAM, LARGE_FISH, LARGE_HOOKS)):
+    for name, beam, first, hooks in (("Medium", MEDIUM_BEAM, MEDIUM_HANG, MEDIUM_HOOKS), ("Large", LARGE_BEAM, LARGE_HANG, LARGE_HOOKS)):
         icon = tiles[beam].copy()
         for slot in range(hooks):
-            icon.alpha_composite(tiles[fish_index(0, slot, FISH_STAGES - 1, first, hooks)])
+            icon.alpha_composite(tiles[spot_index(0, slot, dry_salt, first, hooks)])
         pzart.write_build_icon(icon, media / "textures" / f"Item_DryingBeam{name}.png")
     pallet = tiles[PALLET].copy()
     pallet.alpha_composite(tiles[PALLET_STACK + len(PALLET_LEVELS) - 1])

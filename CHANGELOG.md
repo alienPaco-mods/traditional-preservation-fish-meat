@@ -1,5 +1,14 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.76
+- **The racks' new hanging tiles** (ROADMAP section 12, R5; mock `art/rack_tiles_mock.png`): 15 tiles a spot and
+  face, four looks (salt fish, salt fish half, gutted fish, meat) at three stages (fresh, half dry, dry) and a rotten
+  one a kind (salt, gutted, meat): 420 tiles for the frame's 8 spots, the Beam's 4 and the Gantry's 2, where there
+  were 924. A piece's style draws as a look (`F.styleLook`: a salt gutted fish as whole salt fish, a cold half as
+  gutted fish); `F.spotTile` numbers a spot's tile, `hangingSprite` places it. The frame's tiles start at 8, the
+  Beam's at 412, the Gantry's at 532; station tiles keep their numbers and the third tile sheet (the stacks' rotten
+  looks) is gone. Hanging tiles are drawn anew from each rack's record, so nothing needs carrying over.
+
 ## 0.4.75
 - **A mixed rack shows every kind** (user, session 53): the spots in use (as many as the weight hung fills) are
   shared by kind, salt fish, gutted fish and meat: each kind gets a spot, the rest go to the kind with the most
