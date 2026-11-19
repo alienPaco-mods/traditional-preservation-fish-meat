@@ -22,7 +22,7 @@ Preserve your catch and your kill the old way, with salt, wood, fat, smoke and t
 [h2]Features[/h2]
 [list]
 [*]A Salting Tub for fish and meat, three drying stations and a Smokehouse, with their own art and two facings
-[*]Each hanging stack has its own drying progress and look, so you can start and collect batches independently
+[*]Each hanging piece has its own drying progress, so you can hang and take pieces whenever you like
 [*]Rain, cold, wind, humidity and the seasons all matter, and drying carries on while you're away
 [*]Fish keep their species and size, and meat its cut, through every stage, with their own icons
 [*]Stockfish matures in storage, faster on a pallet in a room with a window open, and travels in bales
@@ -45,34 +45,34 @@ Preserve your catch and your kill the old way, with salt, wood, fat, smoke and t
 [/list]
 
 [h2]Drying stations[/h2]
-Each press of Craft hangs one stack, which keeps its spot until collected. Hover a stack to see its method, what it will come out as, drying rate, smoke and any spoilage. Weights are inventory weight, not kilograms.
+No crafting window: right-click a station to hang what you carry (Hang Salt Fish, Hang Gutted Fish, Hang Corned Meat, Hang Country Cured Meat, Hang Sausages; One or All), take what is done, or open its Info. Info lists every piece with its bar and time left, a tab for each kind, and takes a selection dragged onto it. Each piece hangs until you take it. A station with anything on it can't be picked up.
 [list]
-[*][b]Drying Frame:[/b] Carpentry 2. 6 long sticks, 3 nails, 4 twine, hammer kept. 8 stacks of 2.5 weight. It can stand anywhere, a room or a basement too.
-[*][b]Hanging Beam:[/b] Carpentry 4. 6 planks, 6 nails, 1 large hook, hammer kept. 4 stacks of 15. Anywhere, a room or a basement too.
-[*][b]Gantry:[/b] Carpentry 6. 2 logs, 2 planks, 8 nails, 2 large hooks, hammer kept. 2 stacks of 50. Open air or under an open roof.
-[*][b]Smokehouse[/b] (TP Core's): Carpentry 3. 14 planks, 20 nails, hammer kept. 6 stacks of 15. Four tiles, two by two; open air or under an open roof. Salt fish, meat and sausage.
+[*][b]Drying Frame:[/b] Carpentry 2. 6 long sticks, 3 nails, 4 twine, hammer kept. 20 kg, no piece over 2.5. It can stand anywhere, a room or a basement too.
+[*][b]Hanging Beam:[/b] Carpentry 4. 6 planks, 6 nails, 1 large hook, hammer kept. 60 kg, no piece over 5. Anywhere, a room or a basement too.
+[*][b]Gantry:[/b] Carpentry 6. 2 logs, 2 planks, 8 nails, 2 large hooks, hammer kept. 100 kg in 12 pieces, none over 12. Anywhere but in front of a door.
+[*][b]Smokehouse[/b] (TP Core's): Carpentry 5. 14 planks, 20 nails, 2 large hooks, hammer kept. 90 kg, no piece over 12. Four tiles, two by two; open air or under an open roof. Salt fish, meat and sausage.
 [/list]
 
 [h2]Salt Dried fish[/h2]
-Hang Salt Cured Fish to Dry: 12 days at best, 20 C or warmer. Cool weather slows it, frost doesn't stop it. Salt Dried fish keeps 4 to 6 months, is very salty but safe, and goes straight into soup, stew, rice or pasta. Soak Fish (1 L of water) for a mild fish that cooks like fresh.
+Hang Salt Fish: 12 days at best, 20 C or warmer. Cool weather slows it, frost doesn't stop it. Salt Dried fish keeps 4 to 6 months, is very salty but safe, and goes straight into soup, stew, rice or pasta. Soak Fish (1 L of water) for a mild fish that cooks like fresh.
 
 [h2]Charque[/h2]
-Hang Salted Meat to Dry (beef, mutton, venison): 5 days in hot sun (25 C and up) and a breeze, about a week in a Kentucky summer under a roof. It slows in cooler weather and stops at freezing; rain on an open station takes back a tenth every 6 hours. Charque keeps 4 to 6 months at about half the raw weight. Beef Charque keeps 4 to 6 months; Soak Charque (1 L of water) before eating, then cook it or put it in a stew.
+Hang Corned Meat (beef, mutton, venison) in the open or under a roof: 5 days in hot sun (25 C and up) and a breeze, about a week in a Kentucky summer under a roof. It slows in cooler weather and stops at freezing; rain on an open station takes back a tenth every 6 hours. Charque keeps 4 to 6 months at about half the raw weight. Beef Charque keeps 4 to 6 months; Soak Charque (1 L of water) before eating, then cook it or put it in a stew.
 
 [h2]Stockfish[/h2]
-Gut Fish (a big one also gives a Fish Head), split it if it's over 2.5 weight, and Hang Gutted Fish to Cold Dry in the open, under an open roof or by an open window. No salt, no tub. 32 days at best between 0 and 5 C in a good wind; about 50 to 55 days hung November to January. It rots once the season warms up. Stockfish keeps 1 to 2 years and weighs almost nothing, but it's as hard as wood: Soak Fish before eating. It matures over 60 days in storage, faster on a Stockfish Pallet in a room with a window open, and matured stockfish cheers you up. Tie it into a Stockfish Bale to carry it.
+Gut Fish (a big one also gives a Fish Head), split it if it's over 2.5 weight, and hang it (Hang Gutted Fish) in the open, under an open roof or by an open window. No salt, no tub. 32 days at best between 0 and 5 C in a good wind; about 50 to 55 days hung November to January. It rots once the season warms up. Stockfish keeps 1 to 2 years and weighs almost nothing, but it's as hard as wood: Soak Fish before eating. It matures over 60 days in storage, faster on a Stockfish Pallet in a room with a window open, and matured stockfish cheers you up. Tie it into a Stockfish Bale to carry it.
 
 [h2]The Smokehouse: hot and cold smoking[/h2]
 [list]
 [*]Inside, no rain and no wind, the temperature of a room with a window open (the day's average; the power grid doesn't warm it), about two thirds of the open drying speed. No stockfish: gutted fish need moving air. The tile in front of its door must stay clear.
 [*][b]Connect the Stone Hearth[/b] (from TP Core) on a tile beside it: a clay pipe (2 Clay Pipe Segments, 1 Clay, mason's trowel kept) or a stone trench (3 Flat Stones, 2 Clay, shovel kept). Not at the door end, not with the Stone Hearth's door towards the shed, one Stone Hearth a shed, and only with the fire out. Disconnect gives the pipe or stones back.
-[*][b]Hot smoking:[/b] keep the joined Stone Hearth stoked and each salt stack inside counts the hours in a row: 4 to 6 for fish, 6 to 8 for meat, by the heaviest piece. Then it comes out Hot Smoked: cooked, ready to eat, 1 to 2 weeks' keeping. Banking the fire for up to an hour doesn't break the run. Pork comes out as a Ham you can slice. Stop sooner and fish dries on as Salt Dried; corned meat must get its cook, or it spoils in the shed.
-[*][b]Hot smoked poultry and rabbit:[/b] chicken and turkey cuts, whole birds and rabbit take a light brine (Corn the Meat; a whole chicken 38 hours, a turkey 48) and then a hot cook in the Smokehouse, nothing else: no charque, dry curing or cold smoke, as on the real farm. A stack only waits for its stoked hours (a cut about 6, a whole bird 7 to 8) and spoils until it gets them. Carve Chicken (Hot Smoked) and Carve Turkey (Hot Smoked) cut a smoked bird into legs, wings and fillets.
-[*][b]Cold smoking:[/b] bank the Stone Hearth to a smoulder. Banked hours, and stoked runs that broke off, count as smoke on days of 15 C or less. With its hours of smoke (a day or two for fish, 60 hours for cuts, 120 for a leg, by the heaviest piece) a stack comes out Cold Smoked fish, or smoked dry cured meat named by its animal: Beef, Mutton, Venison or Pork (Cold Smoked), and Smoked Country Ham from a leg. Dry, ready to eat sliced thin, 4 to 6 months' keeping. A burning fire also warms the shed, so it dries faster even in frost.
+[*][b]Hot smoking:[/b] keep the joined Stone Hearth stoked and each salt fish or salted cut inside counts the hours in a row: 4 to 6 for fish, 6 to 8 for meat, by its size. Then it comes out Hot Smoked: cooked, ready to eat, 1 to 2 weeks' keeping. Banking the fire for up to an hour doesn't break the run. Pork comes out as a Ham you can slice. Stop sooner and fish dries on as Salt Dried; corned meat must get its cook, or it spoils in the shed.
+[*][b]Hot smoked poultry and rabbit:[/b] chicken and turkey cuts, whole birds and rabbit take a light brine (Corn the Meat; a whole chicken 38 hours, a turkey 48) and then a hot cook in the Smokehouse, nothing else: no charque, dry curing or cold smoke, as on the real farm. A piece only waits for its stoked hours (a cut about 6, a whole bird 7 to 8) and spoils until it gets them. Carve Chicken (Hot Smoked) and Carve Turkey (Hot Smoked) cut a smoked bird into legs, wings and fillets.
+[*][b]Cold smoking:[/b] bank the Stone Hearth to a smoulder. Banked hours, and stoked runs that broke off, count as smoke on days of 15 C or less. With its hours of smoke (a day or two for fish, 60 hours for cuts, 120 for a leg, by the piece's size) a piece comes out Cold Smoked fish, or smoked dry cured meat named by its animal: Beef, Mutton, Venison or Pork (Cold Smoked), and Smoked Country Ham from a leg. Dry, ready to eat sliced thin, 4 to 6 months' keeping. A burning fire also warms the shed, so it dries faster even in frost.
 [*][b]Dry curing:[/b] meat hung in the Smokehouse is never charque. Country cured, it dries slowly in cool air: 3 weeks at best for a cut, 6 for a leg, longer in frost. Without smoke it comes out air dried: Beef, Mutton, Venison or Pork (Dry Cured), and a Country Ham from a leg, which keeps half a year to a year. No Smokehouse yet? Country cured meat dries the same way on any drying station under a roof, on a Frame or Beam indoors, and in a basement by the cellar's own temperature: about a month for a cut from June to October, two to three months in midwinter, twice that for a leg.
 [*][b]Ageing:[/b] dry cured meat ages after it has dried: 30 days for a cut, 90 for a Country Ham, or three quarters of that if you leave it hanging where it dried (once taken down it can't go back up). Aged meat lifts the mood more, and an aged Country Ham takes the boredom off too.
 [*][b]Slices:[/b] slice a dry cured or hot smoked cut (2 to 6 slices by its size), or carve a Country Ham 5 slices at a time, 15 from a leg, and keep the rest on the bone. Slices go wherever Ham Slices go (sandwiches, pizza, salads, the pot) and keep half as long as the whole piece.
-[*]While finished stacks wait inside, a piece hangs by the door for every two: a country ham, a smoked chicken, a smoked rabbit.
+[*]While finished pieces wait inside, something hangs by the door, up to three: a country ham, a smoked chicken, a smoked rabbit.
 [/list]
 
 [h2]Lard, Tallow and Cracklings[/h2]
@@ -132,5 +132,5 @@ Set salt drying time, the slowest it can take, stockfish drying and maturing tim
 [h2]Known issues[/h2]
 [list]
 [*]Early release, so please report bugs. Multiplayer is not supported.
-[*]Hanging fish are a mix of shapes for looks, so a stack may not look like the fish in it.
+[*]Hanging fish are a mix of shapes for looks, so a spot may not look like the fish in it.
 [/list]

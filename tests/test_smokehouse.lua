@@ -489,9 +489,6 @@ check("a red meat stack isn't", not redStack.hotOnly)
 check("poultry hangs only in the Smokehouse", F.meatRefusal({ closed = true }, "Smokehouse", cut(7)) == nil
     and F.meatRefusal({}, "Covered", cut(7)) == "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse"
     and F.meatRefusal({}, "Basement", cut(15)) == "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse")
-check("and apart from red meat", F.mixedMeat(cut(7), cut(0)) == "IGUI_TraditionalPreservationFishMeat_MixedMeat"
-    and F.mixedMeat(cut(0), cut(15)) == "IGUI_TraditionalPreservationFishMeat_MixedMeat"
-    and F.mixedMeat(cut(7), cut(14)) == nil and F.mixedMeat(cut(0), cut(1)) == nil)
 check("the long cure refuses it (F.startRefusal)", F.isHotOnly(cut(9)) and not F.isHotOnly(cut(0)))
 
 local birdShed = F.newLedger(0)

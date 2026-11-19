@@ -441,8 +441,7 @@ function F.timingWeight(item)
     return F.TIMING_WEIGHTS[F.cutIndex(item) or -1] or item:getActualWeight()
 end
 
--- Why a drying station refuses an item, as translation keys (the *Refusal functions, F.mixedMeat; Fresh Sausage's
--- in ...Sausage).
+-- Why a drying station refuses an item, as translation keys (the *Refusal functions; Fresh Sausage's in ...Sausage).
 F.REFUSALS = {
     needsPressed = "IGUI_TraditionalPreservationFishMeat_NeedsPressed",
     charqueOff = "IGUI_TraditionalPreservationFishMeat_CharqueOff",
@@ -451,7 +450,6 @@ F.REFUSALS = {
     countryCuredSmokehouse = "IGUI_TraditionalPreservationFishMeat_CountryCuredSmokehouse",
     porkSmokehouse = "IGUI_TraditionalPreservationFishMeat_PorkSmokehouse",
     hotOnlySmokehouse = "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse",
-    mixedMeat = "IGUI_TraditionalPreservationFishMeat_MixedMeat",
     frameFull = "IGUI_TraditionalPreservationFishMeat_FrameFull",
     tooHeavy = "IGUI_TraditionalPreservationFishMeat_TooHeavy",
     noColdIndoors = "IGUI_TraditionalPreservationFishMeat_NoColdIndoors",
@@ -495,13 +493,6 @@ function F.meatRefusal(hanger, place, item)
     end
     if F.isPork(item) then return F.REFUSALS.porkSmokehouse end
     if F.isHotOnly(item) then return F.REFUSALS.hotOnlySmokehouse end
-    return nil
-end
-
--- One stack of meat is red meat or hot-smoke-only meat (poultry, rabbit), never both: they finish differently.
-function F.mixedMeat(stored, item)
-    if stored:getFullType() ~= F.CURED_MEAT or item:getFullType() ~= F.CURED_MEAT then return nil end
-    if F.isHotOnly(stored) ~= F.isHotOnly(item) then return F.REFUSALS.mixedMeat end
     return nil
 end
 

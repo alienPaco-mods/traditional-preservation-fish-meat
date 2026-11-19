@@ -88,9 +88,9 @@ local function drawPopup(tooltip, piece, ledger, now)
 end
 
 -- The Smokehouse's line under a piece's bar (panel C of art/rack_window_mock.png): its own smoke since it was hung.
--- A hot run counting (always for poultry, rabbit and Fresh Sausage), then its cold smoke against its need, and a
--- link's days to stale until it is smoked.
-function RackUI.smokeNote(piece, now)
+-- A hot run counting (always for poultry, rabbit and Fresh Sausage), then its cold smoke against its need (with a
+-- fire joined on a day over F.COLD_SMOKE_MAX, too warm to count), and a link's days to stale until it is smoked.
+function RackUI.smokeNote(piece, now, ledger)
     local state, parts = piece.state, {}
     local function hours(key, have, need)
         table.insert(parts, UI.say(KEY .. key, string.format("%.1f", have or 0), string.format("%.0f", need)))
@@ -105,7 +105,12 @@ function RackUI.smokeNote(piece, now)
         if state.hotSmokeHoursNeeded and not state.noHotSmoke and (state.hotOnly or F.cookShare(state)) then
             hours("HotSmokeHours", state.hotSmokeHours, state.hotSmokeHoursNeeded)
         end
-        if not state.hotOnly and state.smokeNeed then hours("ColdSmokeNeed", state.coldSmokeHours, state.smokeNeed) end
+        if not state.hotOnly and state.smokeNeed then
+            hours("ColdSmokeNeed", state.coldSmokeHours, state.smokeNeed)
+            if state.smokeFrom and ledger and (ledger.temperature or 0) > F.COLD_SMOKE_MAX then
+                table.insert(parts, UI.say(KEY .. "RackTooWarm", tostring(F.COLD_SMOKE_MAX)))
+            end
+        end
     end
     return #parts > 0 and table.concat(parts, ", ") or nil
 end
@@ -120,7 +125,7 @@ function RackUI.pieceRow(piece, ledger, now)
     local row = { name = piece.name, tab = getText(KEY .. "RackTab_" .. group), tabOrder = RackUI.GROUP_ORDER[group],
         share = progress, text = batch.progressText,
         colour = batch.slow and Info.SLOW_COLOUR or Info.GOOD_COLOUR, weather = batch.weather,
-        note = F.inShed(piece.state) and RackUI.smokeNote(piece, now) or nil,
+        note = F.inShed(piece.state) and RackUI.smokeNote(piece, now, ledger) or nil,
         popup = function(tooltip) drawPopup(tooltip, piece, ledger, now) end }
     if rotten then
         row.text, row.colour = getText(KEY .. "OutcomeRotten"), ROTTEN_COLOUR

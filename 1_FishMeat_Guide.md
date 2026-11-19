@@ -254,12 +254,13 @@ Rinsed, whatever it becomes is **less salty** (a third less thirst; Salt Dried f
 
 ## 6. The Drying Stations
 
-**The Drying Frame, Hanging Beam and Gantry** hang one piece at a time, each with its own clock. **Right-click** the
-rack:
+**The Drying Frame, Hanging Beam, Gantry and the Smokehouse** hang one piece at a time, each with its own clock.
+**Right-click** the rack (any tile of the Smokehouse):
 
 - a line with what it holds (pieces, kg of its total; hover for where it stands),
-- **Drying Frame Info** (Beam, Gantry: the same), also at the bottom of the main right-click menu,
-- **Hang Salt Fish**, **Hang Gutted Fish**, **Hang Corned Meat**, **Hang Country Cured Meat**: a submenu for each kind
+- **Drying Frame Info** (Beam, Gantry, Smokehouse: the same), also at the bottom of the main right-click menu,
+- **Hang Salt Fish**, **Hang Gutted Fish**, **Hang Corned Meat**, **Hang Country Cured Meat**, and in the Smokehouse
+  **Hang Sausages**: a submenu for each kind
   you carry, each kind with **One** or **All**. A red row says why it won't hang (too heavy, full, the wrong place),
 - **Take Done (n)**: the finished pieces (greyed until one is done; its hover says when the next will be),
 - **Take Everything Off**: unfinished pieces come down as they went up, less whatever the weather spoiled while they
@@ -267,7 +268,8 @@ rack:
   larder.
 
 **The Info window** lists every piece with a bar: how far it is, the time left, or why it stands still. Sort it
-furthest along, least along or by process; hover a row for what it will come out as. **Take Done** and **Take All**
+furthest along or least along; with more than one kind hanging, a tab for each sits over the list (*All*, *Salt Fish
+(4)*, ...). Hover a row for what it will come out as. **Take Done** and **Take All**
 buttons sit under the list. Drag fish or meat from your
 inventory or a crate onto the **square under the list** to hang it: green, it all goes on; orange, some will be
 refused; red, none.
@@ -279,17 +281,18 @@ refused; red, none.
 | **Drying Frame** | Carpentry 2 | 6 long sticks, 3 nails, 4 twine | 20 kg, 200 pieces | 2.5 kg: small fish, every cut | Anywhere, a room too |
 | **Hanging Beam** | Carpentry 4 | 6 planks, 6 nails, 1 large hook | 60 kg, 48 pieces | 5 kg | Anywhere: open air, under a roof, in a room or a basement |
 | **Gantry** | Carpentry 6 | 2 logs, 2 planks, 8 nails, 2 large hooks | 100 kg, 12 pieces | 12 kg | Anywhere but in front of a door |
-| **Smokehouse** | Carpentry 5 | 14 planks, 20 nails, 2 large hooks | 6 stacks × 15 weight, 25 pieces | 15 (a stack) | Open air or under an open roof; four tiles, two by two; chapter 10 |
+| **Smokehouse** | Carpentry 5 | 14 planks, 20 nails, 2 large hooks | 90 kg, 150 pieces | 12 kg | Open air or under an open roof; four tiles, two by two; chapter 10 |
 
 The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants and hang the halves.
 
-| What hangs | Frame, Beam, Gantry | Smokehouse (its own window: load a hanging recipe, press **Craft**) |
+| What hangs | Frame, Beam, Gantry | Smokehouse |
 |---|---|---|
-| **Salt fish** (Salt Cured) | Yes | Yes (**Hang Salt Cured Fish to Dry**) |
-| **Corned beef, mutton, venison** (charque) | Yes, in the sun or under an open roof | Yes (**Hang Salted Meat to Dry**): a hot cook, never charque; with no fire it dry cures, under-salted |
+| **Salt fish** (Salt Cured) | Yes | Yes |
+| **Corned beef, mutton, venison** (charque) | Yes, in the sun or under an open roof | Yes: a hot cook, never charque; with no fire it dry cures, under-salted |
 | **Country Cured meat**, pork too (dry curing) | Yes, **in the shade only**: under a roof, in a room or a basement | Yes |
 | **Corned pork** | No | Yes: a hot cook |
 | **Gutted fish** (stockfish) | Yes; in a room only with a window open | **No** |
+| **Sausages** (boiled blood sausage, raw fresh sausage) | No | Yes (chapter 14) |
 
 **Where it hangs** (the piece's *Place*):
 - **Open air**: no roof overhead. Walls with no roof are still the open air. Rain pauses drying until the wet has dried off.
@@ -299,9 +302,9 @@ The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants an
 - **In the Smokehouse**: inside it, wherever it stands. A plank shed has an aired room's air, the **day's average**, but still: no rain and no wind, and the power grid doesn't warm it. Salt fish dries at about two thirds of the speed, gutted fish is refused and meat dry cures. Its fire warms the day's air.
 - **Basement**: any level below ground. Indoors, but at the **cellar's own temperature**, not the day's: about 5 C from January to March, 13 C from July to September, a month behind the season. Whatever dries there goes by it, so salt fish crawls (about **27 days** a batch, all year): a cellar is for keeping salt fish, not drying it.
 
-**Hover a piece** in a rack's Info (or a stack in the Smokehouse's window) to see its method, what it **comes out as** if it came down now (chapter 23 has every end), the time left and a warning if the season is spoiling it; the Smokehouse's popup also shows the place, the weather and the smoke.
+**Hover a piece** in Info to see its method, what it **comes out as** if it came down now (chapter 23 has every end), the time left and a warning if the season is spoiling it.
 
-**The Smokehouse's own window tells you the rest.** Under *In Progress*, *Done* and *Take All*, it lists the place, how many stacks are in use, the air now and over the season (below ground, the basement's own temperature), and a bar for every running batch with its share, its time left or the reason it stands still. Under the bars it lists what wants your eye: a batch that is spoiling, a hot cook under way, the smoke so far, pieces loaded but never started, finished ones waiting to be taken.
+**Smokehouse Info** adds a **Fire** row (the joined Stone Hearth: none, out, banked or stoked) and, under each piece's bar, its own smoke: a hot cook under way, the smoke so far against what it needs, and a sausage's days before it goes stale.
 
 > *Margin note:* the times left assume today's weather holds. Nobody on the Volga could promise that either.
 
@@ -310,7 +313,7 @@ The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants an
 ## 7. Salt Dried Fish
 
 1. **Pack** and **cure** (chapter 5), rinse if you like.
-2. **Hang Salt Fish** on a rack (or **Hang Salt Cured Fish to Dry** in the Smokehouse). **12 days** at best: 20 C or warmer in dry air. Cold slows it, even frost, but never stops it.
+2. **Hang Salt Fish** on a rack or in the Smokehouse. **12 days** at best: 20 C or warmer in dry air. Cold slows it, even frost, but never stops it.
 3. Take down **Salt Dried** fish: about 37% of the fresh fish's weight, 90% of its food, keeps **120 / 180 days** (rinsed 108 / 162).
 4. **Eat it** as it is (very salty, and safe), toss it straight into soup, stew, rice or pasta, or **Soak Fish** (1 L of water, container kept) for a mild fish that cooks like fresh and keeps 2 / 4 days.
 
@@ -369,7 +372,7 @@ Stockfish is unsalted fish dried by frost and wind. It needs no salt and no tub,
 
 **Weather**
 - Slower in frost (four fifths at -5 C, three fifths below), slower from 5 to 10 C, and it **stops above 10 C**. In the open and under a roof that is the air now: a warm afternoon stops it. **By an open window** it goes by the day's average, so a room dries on through a mild afternoon.
-- **Wind** matters as much: still air halves the speed, a good breeze (the popup's *Good drying wind*) adds a fifth. Under an open roof, three quarters of the speed, but it never waits out the rain.
+- **Wind** matters as much: still air halves the speed, a good breeze (Info's **Wind** row: *Good drying wind*) adds a fifth. Under an open roof, three quarters of the speed, but it never waits out the rain.
 - **Fresh fish is fragile.** Until a fish is about 30% dried it has no dry skin: hard frost (below -5 C) and lying wet above freezing each take a little off how long the finished fish keeps, a quarter at most.
 - **Warmth rots it, while it's wet.** Every hour over 10 C where it hangs eats into a fresh fish (blowflies wake at about that). The drier the fish, the less it minds: half dry, a quarter of the harm; nearly dry, almost none. That is why Lofoten's racks can stand into May, and why a roof or a window, drying slower, rots more in a warm spell than the open rack.
 
@@ -388,15 +391,15 @@ A plank shed on four tiles, two by two, under a low pitched roof, its pair of do
 | | |
 |---|---|
 | Build | Carpentry 5: **14 planks, 20 nails, 2 large hooks**, hammer kept (Build menu, Furniture) |
-| Holds | **6 stacks** of up to **15 weight**, 25 pieces |
-| Takes | **Hang Salt Cured Fish**, **Hang Salted Meat** and **Hang Sausage to Smoke** only; the one place Corned pork may hang |
+| Holds | **90 kg**, up to 150 pieces, none over **12 kg** |
+| Takes | **Salt fish**, **Corned** and **Country Cured meat** and **sausages**; the one place Corned pork, poultry and rabbit may hang |
 | Inside | always **In the Smokehouse**: no rain, no wind, an aired room's temperature (the day's average; never the grid's 22 C), wherever it stands |
 | Stands | in the open or under an open roof, not inside a room; the tile in front of its door stays clear |
 
-1. **Click either tile**: one window, **Smokehouse**, with the hanging recipes. Load it as you would a frame. Nothing hangs in sight: hover a stack in the window to see how it's doing.
+1. **Right-click any tile**: the same menu as a rack's (chapter 6), and **Smokehouse Info**. Nothing hangs in sight: Info shows how each piece is doing.
 2. **With no fire it dries like a room**: salt fish at about **two thirds** of its open speed, never rained on. **Meat dry cures** here on its own slow clock (chapter 11), and never comes out Charque.
 3. **No stockfish.** Gutted fish needs moving air, so the shed doesn't offer cold drying.
-4. **Moving it:** empty and unjoined, it picks up as one item and puts down again as both tiles.
+4. **Moving it:** empty and unjoined, it picks up as one item and puts down again as all four tiles.
 
 ### Joining a Stone Hearth
 
@@ -415,28 +418,28 @@ The **Stone Hearth** and its flue come from *Traditional Preservation (Core)*: i
 
 Light the joined Stone Hearth and keep it going. A lit Stone Hearth is **stoked**; **Bank the Fire** (Core) rakes it down to a smoulder, **Stoke the Fire** brings it back up.
 
-- Every salt stack in the shed counts the **stoked hours in a row**. When a stack has enough, it **finishes at once** as **Hot Smoked Fish** or **Hot Smoked** meat (*Beef (Hot Smoked)*); **pork comes out as a Ham**, the game's own, with the cut's weight and food, so **Slice Ham** and every ham dish take it. And a **smoked ham hangs by the shed's door** until you take it out.
-- **How long** goes by the **heaviest piece** in the stack, as it weighs now, cured (the popup shows the stack's own figure):
+- Every salt fish and salted cut in the shed counts the **stoked hours in a row**. When a piece has enough, it is **done at once** (Info says *Done*; **Take Done** brings it out) as **Hot Smoked Fish** or **Hot Smoked** meat (*Beef (Hot Smoked)*); **pork comes out as a Ham**, the game's own, with the cut's weight and food, so **Slice Ham** and every ham dish take it. And a **smoked ham hangs by the shed's door** until you take it out.
+- **How long** goes by the piece's weight, as it weighs now, cured (Info shows each piece's own figure):
 
-| Stack | Stoked hours in a row |
+| Piece | Stoked hours in a row |
 |---|---|
 | Salt Cured fish, all up to 1.1 weight | **4** |
 | A Salt Cured fish of 2.2 weight | **6** (in between by weight) |
 | A bigger fish still | 2 more for each 1.1 weight: about **8** for a walleye caught at 4 weight, **9** for the biggest that goes in whole |
 | Steaks and Mutton Chops | about **6** |
 | Any Beef, Venison or Pork | about **7½** |
-| A stack with a **Leg of Pork** in it | **never**: a leg takes no hot cook, its stoked hours are smoke |
+| A **Leg of Pork** | **never**: a leg takes no hot cook, its stoked hours are smoke |
 | Chicken or turkey cuts, Rabbit Meat | about **6** |
 | A whole **Chicken** | **7** |
 | A whole **Turkey** | **8** |
 
-- **Watch the stack.** While the run is counting, the stack's yellow bar follows the cook and a small **Hot Smoked icon** sits in its bottom left corner, where a salt stack shows its salt. A full bar is a finished cook. If the run breaks, the icon goes and the bar drops back to how far the stack has dried.
-- **Keep it going.** Adding wood, or banking it **for up to an hour**, doesn't break the run (the banked time doesn't count towards it either). Let it go out or banked for longer and the run is over: those hours count as **smoke** instead (the popup's *Smoke* line), and the next stoking starts from nothing.
+- **Watch the piece.** While the run is counting, its bar in Smokehouse Info follows the cook and the line under it says how many stoked hours of how many. A full bar is a finished cook. If the run breaks, the bar drops back to how far the piece has dried.
+- **Keep it going.** Adding wood, or banking it **for up to an hour**, doesn't break the run (the banked time doesn't count towards it either). Let it go out or banked for longer and the run is over: those hours count as **smoke** instead (the line under the piece's bar), and the next stoking starts from nothing.
 - **Away from home?** The fire burns its wood while you're gone: a fire with three hours of wood gives three hours, however long you stay away.
-- **Short of a cook, fish loses nothing.** The stack keeps drying as the shed always does, and comes out Salt Dried or Cold Smoked when it's dry.
+- **Short of a cook, fish loses nothing.** The piece keeps drying as the shed always does, and comes out Salt Dried or Cold Smoked when it's dry.
 - **Corned meat must get its cook.** The short cure salts meat for days, not weeks: left to dry in the shed it is **under-salted** and spoils (chapter 11). Meat for the long hang takes the long cure.
 - **Want Salt Dried fish instead?** Hang it with the fire out, or on a frame. **Charque** comes from the frames only.
-- The stack's popup shows **Hot Smoke: x of y h stoked in a row**, and the **Smoke** line for cold smoking (below).
+- The line under a piece's bar shows its **stoked hours in a row** and its **smoke** for cold smoking (below).
 
 | | Hot Smoked Fish | Hot Smoked meat |
 |---|---|---|
@@ -453,7 +456,7 @@ Birds and rabbits take **one road through the salt: the hot cook.** No charque, 
 1. **The Salting Tub** takes the six cuts (legs, wings and fillets), a **whole Chicken or Turkey**, and **Rabbit Meat**. It's a brine's salt, half what red meat takes: 2 for a cut, 5 for a whole chicken.
 2. **Corn the Meat** in the tub. A cut takes about **29 hours**, a **whole chicken 38**, a **turkey 48**. A bird is hollow, so the salt only has to go as deep as a thick steak. **Country Cure refuses them**, and the tub tells you why.
 3. Out comes *Chicken Leg (Corned)*, *Turkey (Whole) (Corned)* and the rest. A light brine keeps **3 / 6 days**, not red meat's week, so hang it soon.
-4. Hang it in the **Smokehouse**: nowhere else will take it, and it hangs **apart from red meat** (a stack is poultry and rabbit, or red meat). There it **never dries and never takes smoke**. It only waits for its **stoked hours in a row**: about 6 for a cut, **7 for a whole chicken, 8 for a turkey**. A broken run starts again from nothing.
+4. Hang it in the **Smokehouse**: nowhere else will take it. There it **never dries and never takes smoke**. It only waits for its **stoked hours in a row**: about 6 for a cut, **7 for a whole chicken, 8 for a turkey**. A broken run starts again from nothing.
 5. **While it waits, it spoils**, like Corned red meat left in the shed but **more than twice as fast**: about 12 days at 10 C, 2½ days at 20 C, and **within two weeks** in any weather above freezing. Frozen, it keeps: a bird hung in a hard frost waits weeks for its fire, as farms hung them all winter. A banked fire warms the shed and speeds it up. The popup says *Hot smoking only* and, until the Stone Hearth is stoked, *Waiting (Needs a stoked Stone Hearth)*.
 
 Out comes **Hot Smoked** meat that **keeps the cut's name** (*Turkey Wing (Hot Smoked)*, *Chicken (Whole) (Hot Smoked)*), with Hot Smoked meat's keeping and mood, and the game's own food values for the cut. The cuts are eaten as they are, not sliced. **Carve Chicken (Hot Smoked)** and **Carve Turkey (Hot Smoked)** (a knife, on a surface) take a whole smoked bird apart the way the game's Cut Chicken takes a raw one: **2 legs, 2 wings and 2 fillets**, sharing out the bird's food. Packed a bird whole and want it in pieces? **Carve Chicken (Salt Packed)** and **Carve Chicken (Corned)** (and the turkey's) do the same before smoking. The cuts keep the bird's age and cure, and brine and smoke faster than the whole bird (about 29 hours in the tub and 5.7 stoked hours a cut, against 38 and 7).
@@ -468,20 +471,20 @@ Out comes **Hot Smoked** meat that **keeps the cut's name** (*Turkey Wing (Hot S
 
 ### Cold smoking
 
-**Bank** the joined Stone Hearth and let it smoulder. The stacks dry as they always do, in smoky air, and the smoke is counted.
+**Bank** the joined Stone Hearth and let it smoulder. The pieces dry as they always do, in smoky air, and the smoke is counted.
 
-- **Smoke** = the hours the Stone Hearth smouldered, plus any stoked run that broke off before it cooked the stack. Only hours on a day of **15 C or less** count, whichever way the fire burned: on a warmer day the smoulder heats the meat past 30 C, which cooks it rather than cures it.
-- **When the stack is dry**, it looks at its smoke. With its **hours of smoke** it comes out **Cold Smoked**; short of them, fish is plain Salt Dried and meat is **air dried** (Beef (Dry Cured) and its kin, chapter 11). The hours go by the **heaviest piece**, and needn't come in a row:
+- **Smoke** = the hours the Stone Hearth smouldered, plus any stoked run that broke off before it cooked the piece. Only hours on a day of **15 C or less** count, whichever way the fire burned: on a warmer day the smoulder heats the meat past 30 C, which cooks it rather than cures it.
+- **When a piece is dry**, it looks at its smoke. With its **hours of smoke** it comes out **Cold Smoked**; short of them, fish is plain Salt Dried and meat is **air dried** (Beef (Dry Cured) and its kin, chapter 11). The hours go by the piece's weight, and needn't come in a row:
 
-| Stack | Hours of smoke |
+| Piece | Hours of smoke |
 |---|---|
 | Salt Cured fish, all up to 1.1 weight | **24** |
 | Salt Cured fish of 2.2 weight or more | **48** (in between by weight) |
 | Steaks, chops and any Beef, Venison or Pork | **60** |
-| A stack with a **Leg of Pork** | **120** (in between by weight) |
+| A **Leg of Pork** | **120** (in between by weight) |
 
-- A banked fire for eight hours a day gives a fish stack its smoke in three to six days, a stack of cuts in about a week, a leg in about two.
-- **A fire warms the shed, and warm air dries.** Any hour with the Stone Hearth burning, the stacks dry as if the shed were **15 C warmer** than outdoors when banked, **20 C warmer** when stoked, and the warmed air is drier too. So the smoulder speeds drying even in the cold months, from a little under freezing upward. Meat gains as much. The popup's **Drying Rate** shows the rate while the fire burns.
+- A banked fire for eight hours a day gives a fish its smoke in three to six days, a cut in about a week, a leg in about two.
+- **A fire warms the shed, and warm air dries.** Any hour with the Stone Hearth burning, the pieces dry as if the shed were **15 C warmer** than outdoors when banked, **20 C warmer** when stoked, and the warmed air is drier too. So the smoulder speeds drying even in the cold months, from a little under freezing upward. Meat gains as much. The time left in Smokehouse Info goes by that rate while the fire burns.
 
 | Salt fish, damp day | Fire out | Banked | Stoked |
 |---|---|---|---|
@@ -492,7 +495,7 @@ Out comes **Hot Smoked** meat that **keeps the cut's name** (*Turkey Wing (Hot S
 
 > *Margin note:* days as if the fire burned every hour; a few hours a day lands between the two columns.
 
-- The popup's **Smoke** line reads *x of y h of smoke*. Over 15 C it says **Too warm to count**.
+- The line under a piece's bar in Smokehouse Info reads *x of y h of smoke*. On a day over 15 C with a fire joined it adds **too warm to count (over 15 C)**.
 
 | | Cold Smoked Fish |
 |---|---|
@@ -517,8 +520,8 @@ Dry curing is the winter road for meat: a long salting in the cold, then weeks o
 **The road, step by step**
 
 1. **Salt it in the cold months.** **Country Cure** it in the Salting Tub (chapter 5): **10 days** for cuts, **21** with a Leg of Pork. Only while it stays **10 C or less** where the tub stands, about **October to April** (a basement helps): warmer, the long cure spoils in the tub.
-2. **Hang it in the shade** (**Hang Country Cured Meat** on a rack, **Hang Salted Meat to Dry** in the Smokehouse): in the **Smokehouse**, on **any rack under a roof**, or on a **Frame or Hanging Beam in a room or a basement**. Never in the open: sun and rain are for charque.
-3. **Smoke it, or don't.** In a Smokehouse with a Stone Hearth, bank the fire a few hours a day until the stack has its hours of smoke: **60** for cuts, **120** with a leg, on days of 15 C or less (chapter 10). Anywhere else, or with no fire, it air dries.
+2. **Hang it in the shade** (**Hang Country Cured Meat**, on a rack or in the Smokehouse): in the **Smokehouse**, on **any rack under a roof**, or on a **Frame or Hanging Beam in a room or a basement**. Never in the open: sun and rain are for charque.
+3. **Smoke it, or don't.** In a Smokehouse with a Stone Hearth, bank the fire a few hours a day until the meat has its hours of smoke: **60** for cuts, **120** with a leg, on days of 15 C or less (chapter 10). Anywhere else, or with no fire, it air dries.
 4. **Wait.** Three weeks for a cut and six for a leg at full speed; longer in the cold (below).
 5. **Take it down** and eat it as it is. What it's called goes by its animal and its smoke:
 
@@ -544,7 +547,7 @@ Dry curing is the winter road for meat: a long salting in the cold, then weeks o
 - **By the heaviest piece:** **3 weeks** for a Beef, Venison or Pork, a little less for a Steak or a chop, **6 weeks** for a Leg of Pork, at full speed.
 - **Full speed is a cellar's cool:** from **12 C** up. Colder air dries slower, down to **a quarter** of the speed in frost, and never stops. Damp air slows it as it does salt fish. Wind plays no part.
 - **A fire helps**, in the Smokehouse only: banked, the shed is 15 C warmer.
-- **Which temperature:** a roof goes by the air, the Smokehouse and an aired room by the day's average, a shut room by the last three days (a room 22 C while the grid is on), and the Smokehouse's fire warms the day's air. A shut room dries nothing until a window is open. Corned meat spoils by the same temperature, so an under-salted stack in a powered room rots in about four days.
+- **Which temperature:** a roof goes by the air, the Smokehouse and an aired room by the day's average, a shut room by the last three days (a room 22 C while the grid is on), and the Smokehouse's fire warms the day's air. A shut room dries nothing until a window is open. Corned meat spoils by the same temperature, so an under-salted cut in a powered room rots in about four days.
 
 | Where a cut hangs | In frost | At 6 C | From 12 C | Smoke? |
 |---|---|---|---|---|
@@ -587,8 +590,8 @@ Dried meat is ready, but it isn't finished. Left alone it **ages** on its own fo
 | Country Ham | **90 days** | **67½ days** | Unhappiness -10 | **Unhappiness -40, Boredom -20** |
 
 - **The name tells you:** *Beef (Cold Smoked)*, then *Beef (Cold Smoked, Aged)*; *Country Ham*, then *Country Ham (Aged)*. The tooltip counts the tenths on the way.
-- **Leave it hanging and it ages in three quarters of the time.** A finished piece still on its Frame, Beam or Gantry, or a stack in the Smokehouse, is hanging. **Once you take a piece down it can't go back up**, and it ages at the shelf's pace from then on.
-- **Hanging meat holds its place.** A ham left to age in the Smokehouse keeps its stack for two more months. That is the price, and why the old farms had a meat house.
+- **Leave it hanging and it ages in three quarters of the time.** A finished piece still on its Frame, Beam or Gantry, or in the Smokehouse, is hanging. **Once you take a piece down it can't go back up**, and it ages at the shelf's pace from then on.
+- **Hanging meat holds its place.** A ham left to age in the Smokehouse takes up its room (12 kg of the shed's 90) for two more months. That is the price, and why the old farms had a meat house.
 - **Young is fine.** Nothing is lost by eating it sooner but the mood. Hot Smoked meat, Ham and Charque never age.
 - **The ham's reward is its mood, not its calories:** a leg makes the same food as the Pork it came from. A whole Aged ham is worth forty points of cheer and twenty of boredom, shared out bite by bite and slice by slice.
 
@@ -752,7 +755,7 @@ Every pig-killing ends the same way, in every country that keeps pigs: the blood
 
 **Boiled, fried, or both.** A boiled link is cooked and ready to eat. Fry it as well, five minutes in a pan, and it becomes **Blood Sausage (Boiled, Fried)**. A raw link fried as it is cooks too, and is **Blood Sausage (Fried)**, but it keeps only its raw day or two: boiling is what makes it last the week. **Slice Blood Sausage** cuts a cooked link into four rounds. Slices of both go into soups, stews, stir fries, sandwiches, burgers, rice and pasta, named *Black Pudding* and *Blood Sausage* there.
 
-**Smoked, for three weeks.** Boiled links go into the **Smokehouse** (chapter 10) with **Hang Sausage to Smoke** (the same recipe as the Smoked Sausage below), a stack of their own: no fish or meat with them, and never a fried link. They take **24 hours of the Stone Hearth's smoke**, banked or stoked, counted only on days of **15 C or less** outside, as all cold smoke is; a stoked fire smokes them, it never cooks them. Banked all day in a cool month, that is a day. While they hang the links keep their boiled week: smoked in time they come down **Smoked Blood Sausage**, 0.22 a link, the same food, keeping **21 / 40 days**, as fresh a share of that as they were of their week. Any that went stale first come down as they went up, *Blood Sausage (Boiled)*; with no fire at all the stack ends when its links do. A smoked link is ready to eat cold, fries, and slices into four (**Slice Smoked Blood Sausage**). Hover the stack for its smoke so far and the days its links have left.
+**Smoked, for three weeks.** Boiled links go into the **Smokehouse** (chapter 10) with **Hang Sausages** (as the Smoked Sausage below), each link a piece of its own; never a fried link. They take **24 hours of the Stone Hearth's smoke**, banked or stoked, counted only on days of **15 C or less** outside, as all cold smoke is; a stoked fire smokes them, it never cooks them. Banked all day in a cool month, that is a day. While they hang the links keep their boiled week: smoked in time they come down **Smoked Blood Sausage**, 0.22 a link, the same food, keeping **21 / 40 days**, as fresh a share of that as they were of their week. Any that went stale first come down as they went up, *Blood Sausage (Boiled)*; with no fire at all a link is done when it goes stale. A smoked link is ready to eat cold, fries, and slices into four (**Slice Smoked Blood Sausage**). Smokehouse Info shows each link's smoke so far and the days it has left.
 
 > *Margin note:* the blood is stirred as it runs, or it sets into a jelly; a pinch of salt or a splash of vinegar per litre keeps it liquid and holds it a few more days. A litre makes about a kilo and a half of pudding, at around 300 calories a hundred grams in the real thing. Here it comes to a little less, from what goes in: blood itself carries little but protein, and most of the calories are the fat.
 
@@ -776,7 +779,7 @@ The other half of the pig-killing is the meat sausage: coarse pork, salt and gar
 
 **What a link holds.** The six links share what went in: two pieces of pork, the third piece and the fat come to about 3,150 calories, so a link is **525**. Most of it is the fat, as in the real thing.
 
-**Smoked, for two weeks.** Raw links go into the **Smokehouse** (chapter 10) with **Hang Sausage to Smoke**, the one recipe both sausages hang with, a stack of their own: no fish, meat or blood sausage with them, and never a link that is already cooked. They take a **hot run**: **6 hours of a stoked Stone Hearth in a row**, which cooks them through in the smoke, in any weather and any month. A banked fire doesn't cook them, and a run that breaks off starts again from nothing. Cooked in time they come down **Smoked Sausage**, 0.22 a link, keeping **14 / 30 days**, as fresh a share of that as they were of their two days. Raw links keep only those two days while they wait, so light the fire the day you hang them. Any that went off first come down raw. A smoked link is ready to eat cold, fries, and slices into four (**Slice Smoked Sausage**). Its seasoning goes with it into the slices. Hover the stack to see the hours of the run so far and the days its links have left.
+**Smoked, for two weeks.** Raw links go into the **Smokehouse** (chapter 10) with **Hang Sausages**, each link a piece of its own; never a link that is already cooked. They take a **hot run**: **6 hours of a stoked Stone Hearth in a row**, which cooks them through in the smoke, in any weather and any month. A banked fire doesn't cook them, and a run that breaks off starts again from nothing. Cooked in time they come down **Smoked Sausage**, 0.22 a link, keeping **14 / 30 days**, as fresh a share of that as they were of their two days. Raw links keep only those two days while they wait, so light the fire the day you hang them. Any that went off first come down raw. A smoked link is ready to eat cold, fries, and slices into four (**Slice Smoked Sausage**). Its seasoning goes with it into the slices. Smokehouse Info shows each link's hours of the run so far and the days it has left.
 
 | | Keeps (fresh / rotten) | Calories | Hunger |
 |---|---|---|---|
@@ -882,7 +885,7 @@ What each stage is good for once it's in your hands. *Cook* is its time on a sto
 | Blood Sausage Slice | Yes | 10 min (30) | As the slices, and salad | - |
 | **Smoked Blood Sausage** | Yes | 20 min (50) | As the slices | **Slice Smoked Blood Sausage** (4); the Smokehouse makes it from boiled links |
 | Smoked Blood Sausage Slice | Yes | 10 min (30) | As the slices, and salad | - |
-| Fresh Sausage, uncooked | Cooked | Fry 30 min (60): *Fried*, keeps 2 / 4 | Soup, stew, stir fry, pizza, sandwich, burger, rice, pasta | **Put Sausages in Water** (6, a Pot with 1.5 L); **Hang Sausage to Smoke** |
+| Fresh Sausage, uncooked | Cooked | Fry 30 min (60): *Fried*, keeps 2 / 4 | Soup, stew, stir fry, pizza, sandwich, burger, rice, pasta | **Put Sausages in Water** (6, a Pot with 1.5 L); **Hang Sausages** (Smokehouse) |
 | Pot of Sausages | No | 30 min, at the boil (90) | - | **Take Out Sausages**: *Fresh Sausage (Boiled)* |
 | **Smoked Sausage** | Yes | 20 min (50) | As the fresh link | **Slice Smoked Sausage** (4); the Smokehouse makes it from raw links |
 | Smoked Sausage Slice | Yes | 10 min (30) | As the fresh link, and salad | - |
@@ -1063,7 +1066,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 - **Why won't a room take gutted fish?** Stockfish dries in moving air at around freezing: cold enough that nothing rots, dry and windy enough that the water leaves. In a room the air goes still.
 - **Why dry salt fish in the shade?** In full summer sun the skin dries hard before the inside does, trapping the wet, and the fat turns rusty. Volga salters hang their vobla under awnings and in open sheds.
 - **Why does charque want the sun?** Lean beef has little fat to turn rancid, and heavy salt keeps flies and rot off while the heat drives the water out in days.
-- **Why do warm stacks rot?** Unsalted fish has nothing protecting it but the cold. Once the season averages above 10 C, it spoils faster than it dries.
+- **Why does gutted fish rot in the warm?** Unsalted fish has nothing protecting it but the cold. Once the season averages above 10 C, it spoils faster than it dries.
 - **Why gut it first?** The guts spoil first and fastest. Stockfish makers gutted and headed every fish before it went on the rack.
 
 ### Old names, old ways
@@ -1115,14 +1118,13 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Country Cured meat won't hang on a frame | It dries in the shade: put the station under a roof, indoors or in a basement, or use the Smokehouse. For charque, corn it |
 | The tub refuses all meat | Salting meat may be off in the sandbox |
 | A station refuses a fish or cut | It takes only Salt Cured fish or meat, or Gutted Fish and halves. Raw, rotten, frozen salted and cooked pieces are refused. A frame takes pieces up to 2.5 kg, a Beam 5, a Gantry 12; the red row's hover says which limit it hit |
-| The Smokehouse refuses meat (or fish) | The stack waiting to start is the other kind: one stack is one kind. Craft it first, then load the next |
 | Station indoors refuses gutted fish | It has no moving air. Cold drying needs the open or an open roof |
 | Not drying | Rain on an open station (cold fish too, until it dries off), or charque at or below freezing |
-| Cold stack came out rotten | It was hung in a warm spell: over 10 C where it hung while it was still wet (October, late February) |
+| Gutted fish came out rotten | It was hung in a warm spell: over 10 C where it hung while it was still wet (October, late February) |
 | Stockfish keeps less than a year | Hard frost or rain caught it in its first days on the frame |
 | Charque lost progress | It was rained on, on an open station: a tenth for every 6 hours of rain |
 | Salt fish keeps less than it should | A warm cure (the season was above 20 C while it cured) or hot sun on an open station before it was half dry |
-| Time Remaining looks wrong in the window | The window shows the time in the best weather, or the longest cure. Hover the stack or the curing batch for the real time left |
+| The time left keeps changing | Info's time left assumes today's weather holds; a colder, wetter or windier day moves it |
 | No Eat option on stockfish or charque | They're too hard to eat as they are. Rehydrate them first |
 | No Fish Head from gutting | The fish was 1.0 weight or less |
 | Make Fish Head Stock missing | The pot needs the full 1.5 L of water |
@@ -1131,10 +1133,10 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Smokehouse or Stone Hearth won't build there | Something stands in front of its door (or of a Stone Hearth's door next to it), or a wall is on that edge. Turn it, or clear the tile |
 | Connect the Stone Hearth is greyed out | It stands at the shed's door end, its own door faces the shed, the shed already has a Stone Hearth, the Stone Hearth is already joined, or the fire is lit or banked. Hover it for the reason |
 | Can't pick up the Stone Hearth or the Smokehouse | They're joined: Disconnect the Stone Hearth first |
-| No Hot Smoke line in the popup | The shed has no Stone Hearth joined, or the stack is on a frame |
+| No stoked hours under a piece's bar | The shed has no Stone Hearth joined, the fire isn't stoked, or the piece is on a rack |
 | Hot Smoke went back to 0 | The fire was out or banked for over an hour: the run broke, and its hours went to Smoke. Stoke it and start again |
-| Wanted Salt Dried, got Hot Smoked | The Stone Hearth was stoked long enough. Let it go out while salt stacks hang, or dry them on a frame |
-| Wanted Cold Smoked, got Salt Dried; wanted Beef (Cold Smoked), got Beef (Dry Cured) | The stack was short of its hours of smoke (the popup's *Smoke* line), or the days were over 15 C (*Too warm to count*). Bank the Stone Hearth more of the time, in a cooler month |
+| Wanted Salt Dried, got Hot Smoked | The Stone Hearth was stoked long enough. Let it go out while salt fish hangs, or dry it on a frame |
+| Wanted Cold Smoked, got Salt Dried; wanted Beef (Cold Smoked), got Beef (Dry Cured) | The piece was short of its hours of smoke (the line under its bar in Smokehouse Info), or the days were over 15 C (*too warm to count*). Bank the Stone Hearth more of the time, in a cooler month |
 | Meat in the shed says *Under-salted* and spoils | It is Corned. Give it its hot cook, or use Country Cure for meat that hangs |
 | A piece came down as *Corned Beef (Rotten)* or a rotten pressed fish | It rotted before it was done, so it is still what you hung |
 | A spot looks rotten but some pieces are fine | A spot shows rotten when any piece in it rotted: Rack Info says which one |
@@ -1169,7 +1171,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 
 ## 23. The Yearly Plan
 
-Laid out as the game's planting seasons: the months a process works, its best and poor months, and the months it is out of season. What comes down depends on the cure, the place and the fire. Hover over a piece in Rack Info (or a stack in the Smokehouse) and its **Comes out as** line says what it would be if it came down now. The days are a Kentucky year from the game's own forecasts (the Almanac, chapter 16).
+Laid out as the game's planting seasons: the months a process works, its best and poor months, and the months it is out of season. What comes down depends on the cure, the place and the fire. Hover over a piece in Rack Info or Smokehouse Info and its **Comes out as** line says what it would be if it came down now. The days are a Kentucky year from the game's own forecasts (the Almanac, chapter 16).
 
 | Process | Season | Best months | Poor months | Out of season | Where, at its best | Takes, at its best |
 |---|---|---|---|---|---|---|
@@ -1199,7 +1201,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | Smokehouse, with its hours of smoke | **Smoked dry cured** (Beef (Cold Smoked) and kin), under-salted | **Smoked dry cured** | Cold Smoked |
 | Smokehouse, fire out | **Air dried** (Beef (Dry Cured) and kin), under-salted | **Air dried** | Salt Dried |
 
-> *Margin note:* the days are a Kentucky year read from the game's own forecasts, at full speed where the line says "about". A cold snap, a wet week or a few hours less fire stretch them; the stack's popup always has the real time left.
+> *Margin note:* the days are a Kentucky year read from the game's own forecasts, at full speed where the line says "about". A cold snap, a wet week or a few hours less fire stretch them; a piece's row in Info always has the real time left.
 
 ---
 
@@ -1217,11 +1219,11 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.here()` | Which place you're standing in, as a station there would read it: Open, Covered (a roof, no room), Sheltered (a shut room), AiredRoom (a window open) or Basement |
 | `TPFM.wind()` | Starts a log of the live wind every 10 minutes; run it again to print it beside the forecast |
 | `TPFM.age(hours)` | Gives everything hanging this many hours of perfect drying weather. `TPFM.age(288)` finishes salt fish, `TPFM.age(768)` gutted fish, `TPFM.age(120)` charque |
-| `TPFM.rain(hours)` | Adds hours of rain (default 6) and wets the open stations: an open charque stack loses a tenth per 6 hours. Then `TPFM.dry()` |
+| `TPFM.rain(hours)` | Adds hours of rain (default 6) and wets the open stations: open charque loses a tenth per 6 hours. Then `TPFM.dry()` |
 | `TPFM.dry()` | Clears the wetness, so open and cold stations start drying again at once |
-| `TPFM.spoil(hours)` | Adds spoiling weather, to test rotting. A fresh cold stack rots after 48 |
-| `TPFM.frost(hours)` | Adds hours of hard frost (72 hours take a tenth of a fresh cold stack's keeping) |
-| `TPFM.heat(hours)` | Adds hours of hot sun (24 hours take a twentieth of a fresh open salt stack's keeping) |
+| `TPFM.spoil(hours)` | Adds spoiling weather, to test rotting. A fresh gutted fish rots after 48 |
+| `TPFM.frost(hours)` | Adds hours of hard frost (72 hours take a tenth of a fresh gutted fish's keeping) |
+| `TPFM.heat(hours)` | Adds hours of hot sun (24 hours take a twentieth of a fresh open salt fish's keeping) |
 | `TPFM.warmCure(hours)` | Adds hours of a warm cure at 25 C, to test a warm cure spoiling a running tub (24 hours take about a fifth) |
 | `TPFM.longCure(hours)` | Adds hours of a 15 C season (default 168) to a running Country Cure, which wants 10 C or less (a leg's cure rots after 504) |
 | `TPFM.mature(days)` | Ages the stockfish and the dry cured meat you carry by this many days. Stockfish is Matured after 60, a cut Aged after 30, a Country Ham after 90 |
@@ -1236,7 +1238,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.give(name, n, option)` | Spawns `n` of: `"head"` (Fish Head), `"stock"` (Pot of Fish Head Stock), `"boneBroth"`, `"chickenStock"`, `"soups"` (one of each stock's soup and stew), `"salt"` (vanilla shaker), `"fat"` (one each of Pork Fat, Beef Suet and Mutton Fat), `"fatPot"` (a Pot of Pork Fat, cooked; option `"burnt"` or `"raw"`), `"crock"` (a full Crock of Potted Meat: four Steaks in Lard in a Glazed Clay Jar), `"blood"` (a Bucket of 4 L of blood; option `"cured"` or `"spoiled"`), `"casings"`, `"saltedCasings"`, `"blackPudding"`, `"bloodSausage"` (boiled, cooked; option `"stale"`: 0.1 days short of its week), `"smokedBloodSausage"`, `"freshSausage"` (raw; option `"seasoned"`: garlic, pepper, oregano, or `"stale"`), `"smokedSausage"` (option `"seasoned"`). Default food values. `TPFM.give()` lists them |
 | `TPFM.kit("blood")` | Spawns what black pudding and blood sausage take: a Bucket of 4 L of fresh blood, an Empty Jar, a Baking Pan, a Pot, every filler (Oats, Rice, 12 grains each of Barley, Rye and Wheat), Lard, Pork Fat, 4 Salt, Vinegar, Raw Casings, Salted Casings and a Kitchen Knife; 6 boiled Blood Sausages for the Smokehouse and a Smoked Blood Sausage |
 | `TPFM.kit("sausage")` | Spawns what Smoked Sausage takes: 2 Pork, a Pork Chop, Beef, Venison, Pork Fat, Lard, 2 Salt, Garlic, Onion, Pepper, Oregano, Thyme, Sage, 2 Salted Casings, a Pot and a Kitchen Knife; 6 raw Fresh Sausages for the Smokehouse and a seasoned Smoked Sausage |
-| `TPFM.kit("poultry")` | Spawns what hot smoked poultry takes: a whole Chicken and Turkey, every chicken and turkey cut, Rabbit Meat, a Steak (to see the mixed-stack refusal), 2 Salt and a Kitchen Knife |
+| `TPFM.kit("poultry")` | Spawns what hot smoked poultry takes: a whole Chicken and Turkey, every chicken and turkey cut, Rabbit Meat, a Steak, 2 Salt and a Kitchen Knife |
 | `TPFM.kit("potted")` | Spawns what Potted Meat takes: 2 Pots, 2 Lard, Salt, four red meat cuts, a Chicken leg, Turkey Legs, Turkey Wings and Rabbit Meat, and the three clay vessels |
 | `TPFM.kit("stock")` | Spawns what every stock takes: a Fish Head, 2 Animal Bones, a Large Animal Bone, 6 Small Animal Bones, 2 Chicken Feet, a hen's and a turkey's head, 5 Pots to fill with water and 4 Bowls. |
 
@@ -1250,10 +1252,10 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.keep(days)` | Ages those crocks by this many days at their place |
 | `TPFM.animals()` | Each live animal within 6 tiles: its weight and the blood it would give; each carcass: the blood left in it. The game's own animal window shows no weight |
 | `TPFM.blood(hours)` | Each container of blood you carry: litres, fresh or cured, its age and the hours left at 20 C before it spoils, and where it is. With hours, ages it that much first (`TPFM.blood(30)` spoils fresh blood) |
-| `TPFM.smoke()` | The joined Stone Hearth's fire record (stoked, banked, the run now going) and each stack's heaviest piece, hot hours and smoke against Cold Smoked's need |
+| `TPFM.smoke()` | The joined Stone Hearth's fire record (stoked, banked, the run now going) and each piece's weight, hot hours and smoke against Cold Smoked's need |
 | `TPFM.stoke(hours)` | Adds stoked hours to the run now going in those joined Stone Hearths (stoke it first) |
 | `TPFM.bank(hours)` | Adds banked hours (default 6) to those joined Stone Hearths: smoke for Cold Smoked, if today is 15 C or less |
-| `TPFM.addSmoke(hours)` | Adds hours of smoke (default 60) straight to every stack in the Smokehouses within 3 tiles, whatever the weather or the fire |
+| `TPFM.addSmoke(hours)` | Adds hours of smoke (default 60) straight to every piece still hanging in the Smokehouses within 3 tiles, whatever the weather or the fire |
 | `TPFM.underSalt(hours)` | Adds hours of a 10 C shed (default 168) for Corned meat hanging in a Smokehouse, a room or under a roof; it rots after 672 |
 
 The Salting Tub cures by its place's temperature on its own totals: `TPFM.age` doesn't speed it up, `TPFM.tubCure(hours)` does. `TPFM.kit("tub")` gives a plank, a stone, salt and meat to put in.
@@ -1264,7 +1266,7 @@ The Salting Tub cures by its place's temperature on its own totals: `TPFM.age` d
 - **Potted Meat:** `TPFM.kit("potted")`, Put Meat in Fat with the Steak, Add Meat to the Pot three times, cook it two hours, Pack Potted Meat into the Glazed Clay Jar, then eat a quarter.
 - **Hot smoking:** build a Smokehouse (`TPC.kit("smokehouse")`), `TPC.kit("stone")` and `TPC.kit("flue")`, build a Stone Hearth by a long side with its door turned away, Connect the Stone Hearth, hang `TPFM.meat("all", 2, "corned")` inside, light the Stone Hearth, then `TPFM.stoke(8)`: Hot Smoked meat, and a ham by the door.
 - **Cold smoking:** in a cool month, the same Smokehouse and Stone Hearth, hang `TPFM.fish("Walleye", 3, "cured")`, bank the Stone Hearth, `TPFM.bank(50)`, then `TPFM.age(288)`: Cold Smoked Fish.
-- **Dry curing:** hang `TPFM.meat("all", 1, "country")` (Country Cured, with a leg) in the Smokehouse. `TPFM.age(1008)` with no fire: Beef, Mutton, Venison and Pork (Dry Cured) and a Country Ham. With `TPFM.addSmoke(130)` first (or `TPFM.bank(130)` on a day of 15 C or less): Beef, Mutton, Venison and Pork (Cold Smoked) and a Smoked Country Ham. Hang `TPFM.meat("all", 1, "corned")` (Corned) and `TPFM.age(520)`: it comes down Corned and rotten, as it would after three weeks in a 12 C shed (`TPFM.underSalt(hours)` adds the spoiling alone). `TPFM.smoke()` lists each stack's hours.
+- **Dry curing:** hang `TPFM.meat("all", 1, "country")` (Country Cured, with a leg) in the Smokehouse. `TPFM.age(1008)` with no fire: Beef, Mutton, Venison and Pork (Dry Cured) and a Country Ham. With `TPFM.addSmoke(130)` first (or `TPFM.bank(130)` on a day of 15 C or less): Beef, Mutton, Venison and Pork (Cold Smoked) and a Smoked Country Ham. Hang `TPFM.meat("all", 1, "corned")` (Corned) and `TPFM.age(520)`: it comes down Corned and rotten, as it would after three weeks in a 12 C shed (`TPFM.underSalt(hours)` adds the spoiling alone). `TPFM.smoke()` lists each piece's hours.
 - **Blood:** `TPFM.kit("blood")`, right-click the bucket, Cure Blood → Salt: *Animal Blood (Cured, Fresh)*. Mix Black Pudding, bake an hour, Turn Out, Slice: six slices. Clean and Salt Casings, Stuff Blood Sausages, fill the Pot with 1.5 L of water, Put Blood Sausages in Water, boil half an hour, Take Out: six Blood Sausage (Boiled).
 - **Smoked Blood Sausage:** the kit's six boiled links into a joined Smokehouse, the Stone Hearth banked, `TPFM.addSmoke(24)`: six Smoked Blood Sausage. `TPFM.give("bloodSausage", 2, "stale")` hung with no smoke: they come down Boiled within a few hours.
 - **Smoked Sausage:** `TPFM.kit("sausage")`, Stuff Sausages, Season a link or all six (right-click: Season), then the kit's six raw links into a joined Smokehouse, the Stone Hearth lit and stoked, `TPFM.stoke(6)`: six Smoked Sausage. `TPFM.give("freshSausage", 2, "stale")` hung with the fire out: they come down raw within a few hours.

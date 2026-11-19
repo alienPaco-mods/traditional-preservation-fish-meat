@@ -1,5 +1,15 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.84
+- **Smokehouse step S5: docs and checks** (ROADMAP section 12). README, DEVHELP, Workshop text and the guide describe
+  the racks and the Smokehouse as they are now (pieces, Info, tabs; no crafting window). The racks' build tooltips
+  give their real limits (Frame 20 kg, none over 2.5; Beam 60 kg, none over 5; Gantry 100 kg in 12 pieces, none over
+  12, anywhere but in front of a door). A full rack now says *Full: no room left for it*; Stone Hearth Info's flue
+  note speaks of salt fish and salted meat and a day or more of smoke. `F.mixedMeat` (a stack's poultry-or-red-meat
+  rule, unused since S4) and its string are gone. The console's help and messages say pieces. Smokehouse Info's line
+  under a fish's or meat's bar adds *too warm to count (over 15 C)* with a fire joined on a warmer day (the old slot
+  popup's line; `RackUI.smokeNote(piece, now, ledger)`).
+
 ## 0.4.83
 - **Rack Info and Smokehouse Info have tabs** (TP Core 0.1.31's piece list): All, then one for each Hang group hanging
   (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages, in the menu's order) with its count. Take Done and

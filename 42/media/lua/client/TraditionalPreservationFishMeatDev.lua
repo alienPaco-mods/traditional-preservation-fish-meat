@@ -23,11 +23,11 @@ function TPFM.help()
     say("TPFM.weather()             the drying weather now: temperature, season, wetness, rates, spoilage and totals")
     say("TPFM.here()                which place you're standing in: Open, Covered (a roof, no room), Sheltered (a shut room), AiredRoom (a window open) or Basement")
     say("TPFM.wind()                start a log of live wind every 10 minutes; again to print it beside the forecast")
-    say("TPFM.age(hours)            give every hanging stack this many hours of perfect drying weather (Corned meat in a Smokehouse spoils with it)")
-    say("TPFM.spoil(hours)          add this many hours of spoiling weather, to test rotting stacks")
+    say("TPFM.age(hours)            give every hanging piece this many hours of perfect drying weather (Corned meat in a Smokehouse spoils with it)")
+    say("TPFM.spoil(hours)          add this many hours of spoiling weather, to test rotting pieces")
     say("TPFM.underSalt(hours)      add this many hours of a 10 C shed (default 168) for Corned meat hanging in a Smokehouse, a room or under a roof")
-    say("TPFM.frost(hours)          add this many hours of hard frost, to test early frost on fresh cold stacks")
-    say("TPFM.heat(hours)           add this many hours of hot sun, to test it on fresh open salt stacks")
+    say("TPFM.frost(hours)          add this many hours of hard frost, to test early frost on fresh gutted fish")
+    say("TPFM.heat(hours)           add this many hours of hot sun, to test it on fresh open salt fish")
     say("TPFM.warmCure(hours)       add this many hours of a warm cure at 25 C, to test a warm cure spoiling a running tub")
     say("TPFM.longCure(hours)       add this many hours of a 15 C season (default 168) to a running Country Cure, which wants 10 C or less")
     say("TPFM.dry()                 clear the wetness, so open and cold frames start drying again at once")
@@ -86,7 +86,7 @@ function TPFM.weather()
         .. ", charque indoors " .. n(ledger.charqueSheltered) .. ", rain " .. n(ledger.charqueRain)
         .. ", Smokehouse banked " .. n(ledger.smokeBanked) .. ", stoked " .. n(ledger.smokeStoked)
         .. ", charque banked " .. n(ledger.charqueBanked) .. ", charque stoked " .. n(ledger.charqueStoked))
-    say(string.format("A stack needs %d hours to salt dry, %d to cold dry and %d to dry as charque.", F.DRY_HOURS, F.COLD_DRY_HOURS, F.CHARQUE_HOURS))
+    say(string.format("A piece needs %d hours at full rate to salt dry, %d to cold dry and %d to dry as charque.", F.DRY_HOURS, F.COLD_DRY_HOURS, F.CHARQUE_HOURS))
 end
 
 -- Wind probe for the cold-drying wind curve: live wind every 10 minutes against the day's forecast.
@@ -145,14 +145,14 @@ function TPFM.age(hours)
     ledger.underCureBanked, ledger.underCureStoked = ledger.underCureBanked + under, ledger.underCureStoked + under
     local hotOnly = hours * F.hotOnlyUnderRate(F.DRY_CURE_FULL_HEAT)
     for _, key in ipairs({ "hotOnlyUnder", "hotOnlyUnderBanked", "hotOnlyUnderStoked" }) do ledger[key] = (ledger[key] or 0) + hotOnly end
-    say(string.format("Added %.0f hours of perfect drying weather. Stacks update within a few seconds. Corned meat in a Smokehouse spoiled %.0f%% (a 12 C shed), poultry and rabbit %.0f%%.", hours, under * 100, hotOnly * 100))
+    say(string.format("Added %.0f hours of perfect drying weather. Pieces update within a few seconds. Corned meat in a Smokehouse spoiled %.0f%% (a 12 C shed), poultry and rabbit %.0f%%.", hours, under * 100, hotOnly * 100))
 end
 
 function TPFM.spoil(hours)
     hours = hours or 24
     local ledger = F.getLedger()
     addToTotals(ledger, { "rawSpoil", "saltSpoil" }, hours)
-    say(string.format("Added %.0f hours of spoiling weather. A fresh cold stack rots after %d.", hours, F.RAW_SPOIL_HOURS))
+    say(string.format("Added %.0f hours of spoiling weather. A fresh gutted fish rots after %d.", hours, F.RAW_SPOIL_HOURS))
 end
 
 -- Hours of a 10 C shed for under-salted (Corned) meat hanging in a Smokehouse, a room or under a roof: rotten after
@@ -170,7 +170,7 @@ function TPFM.frost(hours)
     hours = hours or 24
     local ledger = F.getLedger()
     ledger.hardFrost = ledger.hardFrost + hours
-    say(string.format("Added %.0f hours of hard frost. A fresh cold stack loses %.0f%% of its keeping per %d hours, at most %.0f%%.",
+    say(string.format("Added %.0f hours of hard frost. A fresh gutted fish loses %.0f%% of its keeping per %d hours, at most %.0f%%.",
         hours, F.FREEZE_DAMAGE * 100, F.FREEZE_DAMAGE_HOURS, F.DAMAGE_CAP * 100))
 end
 
@@ -178,7 +178,7 @@ function TPFM.heat(hours)
     hours = hours or 24
     local ledger = F.getLedger()
     ledger.heat = ledger.heat + hours
-    say(string.format("Added %.0f hours of hot sun. A fresh open salt stack loses %.0f%% of its keeping per %d hours, at most %.0f%%.",
+    say(string.format("Added %.0f hours of hot sun. A fresh open salt fish loses %.0f%% of its keeping per %d hours, at most %.0f%%.",
         hours, F.HEAT_DAMAGE * 100, F.HEAT_DAMAGE_HOURS, F.DAMAGE_CAP * 100))
 end
 
@@ -188,7 +188,7 @@ function TPFM.rain(hours)
     local ledger = F.getLedger()
     ledger.charqueRain = ledger.charqueRain + hours
     ledger.wetness = 1
-    say(string.format("Added %.0f hours of rain: an open charque stack keeps %.0f%% of its progress, and waits for the frame to dry off (TPFM.dry()).",
+    say(string.format("Added %.0f hours of rain: open charque keeps %.0f%% of its progress, and waits for the frame to dry off (TPFM.dry()).",
         hours, (1 - F.CHARQUE_REWET) ^ (hours / F.CHARQUE_RAIN_HOURS) * 100))
 end
 

@@ -186,6 +186,12 @@ check("Smokehouse Info: what it holds by the Smokehouse's limits, and the fire",
     and valueOf(shown, "InfoFire") == "Stoked (hot)")
 check("a rack has no fire row", valueOf(RackUI.view({}, frame, "Open", ledger, 1000), "InfoFire") == nil)
 check("a fish's smoke under its bar", shown.pieces[1].note == "12.0 of 24 h of smoke")
+smoked.state.smokeFrom = 1
+check("joined on a cool day, no more", RackUI.smokeNote(smoked, 1000, { temperature = 15 }) == "12.0 of 24 h of smoke")
+check("over 15 C: too warm to count", RackUI.smokeNote(smoked, 1000, { temperature = 18 })
+    == "12.0 of 24 h of smoke, too warm to count (over 15 C)")
+smoked.state.smokeFrom = nil
+check("no fire joined: nothing said of the warmth", RackUI.smokeNote(smoked, 1000, { temperature = 18 }) == "12.0 of 24 h of smoke")
 check("a run cooking it comes first", shown.pieces[2].note:find("^2%.0 of %d+ h stoked in a row, 0%.0 of 24 h of smoke$") ~= nil)
 check("a link's smoke and its days to stale", shown.pieces[3].note:find("^0%.0 of %d+ h of smoke, stale in %d") ~= nil
     and shown.pieces[3].tab == "Sausages")
