@@ -115,8 +115,8 @@ local shedTilesLoaded = true
 for _, name in ipairs(require("TraditionalPreservationCore/Tiles").CHAMBERS) do shedTilesLoaded = shedTilesLoaded and loaders[name] ~= nil end
 check("and all four tiles of TP Core's Smokehouse, either way round, for this mod's stacks in it", shedTilesLoaded)
 
--- Racks (ROADMAP section 12, R4): what hangs is the rack's piece record, drawn a spot each 2.5 kg of a frame's 20, in
--- hang order: a finished salt fish, a gutted fish halfway, a fresh salt fish.
+-- Racks (ROADMAP section 12, R4): what hangs is the rack's piece record, drawn a spot each 2.5 kg of a frame's 20,
+-- shared by kind: a finished salt fish, a gutted fish halfway, a fresh salt fish (5.4 kg: 3 spots, salt 2, gutted 1).
 ItemTag = ItemTag or { UNCUT_FISH = "uncut", SALT = "salt", FISH_MEAT = "fishmeat" }
 local newFood = dofile("tests/standins/food.lua")
 function ZombRand() return 0 end
@@ -134,9 +134,10 @@ hang(shed, GUTTED, 2.5, T.STYLE_GUTTED, 0.5)
 hang(shed, PRESSED, 0.4, T.STYLE_SALT, 0)
 loaders.traditionalpreservationfishmeat_01_6(shed)
 tick(30)
--- Looks 4 (salt, done), 7 (gutted, stage 2), 0 (salt, fresh) in spots 1-3 of face 0.
-check("each spot gets its sprite, in hang order", table.concat(shed.sprites, " ") ==
-    "traditionalpreservationfishmeat_01_72 traditionalpreservationfishmeat_01_122 traditionalpreservationfishmeat_01_12")
+-- Salt first (hung first): spot 1 the done fish (look 4), spot 2 the done fish's end and the fresh one (look 0, the
+-- least dry); then the gutted fish halfway in spot 3 (look 7), face 0.
+check("each kind gets its spots, in the order first hung", table.concat(shed.sprites, " ") ==
+    "traditionalpreservationfishmeat_01_72 traditionalpreservationfishmeat_01_10 traditionalpreservationfishmeat_01_124")
 check("its pieces learn they are indoors", first.state.place == "Sheltered")
 tick(30)
 check("an unchanged rack is left alone", shed.clears == 1)
@@ -162,10 +163,27 @@ W.refresh(meatRack)
 check("charque hangs from the meat tiles", table.concat(meatRack.sprites, " ") == "traditionalpreservationfishmeat_02_340")
 
 -- A piece reaching past its spot's share draws in both; a rotted piece shows its kind's rotten look.
-local spots = T.rackSpots({ pieces = { { weight = 2, method = "salt", state = { dried = 0, style = T.STYLE_SALT } },
-    { weight = 2, method = "salt", state = { dried = 0, style = T.STYLE_SALT } } } }, T.HANGERS[6])
-check("a piece over a spot's edge fills both spots", spots[1] == 0 and spots[2] == 0 and spots[3] == nil)
-local gantrySpots = T.rackSpots({ pieces = { { weight = 12, method = "salt", state = { dried = 0, spoiled = 1, style = T.STYLE_SALT } } } }, T.HANGERS[410])
+local function piece(method, weight, style, spoiled)
+    return { weight = weight, method = method, state = { dried = 0, spoiled = spoiled, style = style } }
+end
+local spots = T.rackSpots({ pieces = { piece("salt", 1.5, T.STYLE_SALT), piece("salt", 1.5, T.STYLE_SALT_HALF),
+    piece("salt", 1.5, T.STYLE_SALT) } }, T.HANGERS[6])
+check("a piece over a spot's edge fills both spots: 4.5 kg, 2 spots, the middle fish in both",
+    spots[1] == T.STYLE_SALT * T.DRYING_STAGES and spots[2] == T.STYLE_SALT_HALF * T.DRYING_STAGES and spots[3] == nil)
+local mixedFrame = { pieces = {} }
+for _ = 1, 7 do table.insert(mixedFrame.pieces, piece("salt", 2.5, T.STYLE_SALT)) end
+for _ = 1, 3 do table.insert(mixedFrame.pieces, piece("meat", 0.4, T.STYLE_MEAT)) end
+spots = T.rackSpots(mixedFrame, T.HANGERS[6])
+check("a frame full of fish with 3 steaks shows the meat: 7 fish spots, 1 meat", #spots == 8
+    and spots[7] == T.STYLE_SALT * T.DRYING_STAGES and spots[8] == T.STYLE_MEAT * T.DRYING_STAGES)
+spots = T.rackSpots({ pieces = { piece("salt", 0.3, T.STYLE_SALT), piece("cold", 0.3, T.STYLE_GUTTED),
+    piece("meat", 0.3, T.STYLE_MEAT) } }, T.HANGERS[6])
+check("three light kinds take a spot each, though their weight fills one", spots[1] == 0
+    and spots[2] == T.STYLE_GUTTED * T.DRYING_STAGES and spots[3] == T.STYLE_MEAT * T.DRYING_STAGES and spots[4] == nil)
+spots = T.rackSpots({ pieces = { piece("salt", 2, T.STYLE_SALT), piece("meat", 5, T.STYLE_MEAT), piece("cold", 8, T.STYLE_GUTTED) } }, T.HANGERS[410])
+check("a Gantry with three kinds shows its two heaviest, in the order first hung", spots[1] == T.STYLE_MEAT * T.DRYING_STAGES
+    and spots[2] == T.STYLE_GUTTED * T.DRYING_STAGES)
+local gantrySpots = T.rackSpots({ pieces = { piece("salt", 12, T.STYLE_SALT, 1) } }, T.HANGERS[410])
 check("a Gantry's spot is 50 kg, and a rotted piece's spot is rotten", gantrySpots[1] == T.FIRST_ROTTEN_LOOK + T.ROTTEN_LOOKS.SALT
     and gantrySpots[2] == nil)
 check("a beam's charque is its own run too", W.hangingSprite(T.HANGERS[408], T.STYLE_MEAT * T.DRYING_STAGES, 1, 1) == 797

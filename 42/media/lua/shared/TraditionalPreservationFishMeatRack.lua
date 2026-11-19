@@ -174,25 +174,72 @@ function F.rackOutput(piece, now)
     return item
 end
 
--- What shows on the rack (ROADMAP section 12, item 7): its spots fill by weight, one spot a total / spots kg, the
--- pieces in hang order; a piece takes every spot its weight reaches into. A spot shows its pieces' look at the least
--- dry piece's stage, its first piece's style, rotten if any piece in it rotted. Returns a look a spot (the World's
--- looks: style x DRYING_STAGES + stage, or F.FIRST_ROTTEN_LOOK on), nil for an empty spot.
-function F.rackSpots(rack, hanger)
-    local spots, spotWeight = hanger.stacks, F.RACK_LIMITS[hanger.name].total / hanger.stacks
-    local bySpot, from = {}, 0
+-- What shows on the rack (ROADMAP section 12, item 7): a spot each total / spots kg, as many in use as the weight hung
+-- fills. The spots in use are shared out by kind (salt fish, gutted fish, meat: the method), so a mixed rack shows
+-- each kind: every kind gets one spot, the rest go one by one to the kind with the most weight a spot; a rack with more
+-- kinds than spots (a Gantry's 2) shows its heaviest. Kinds stand in the order they were first hung; within a kind its
+-- pieces fill its spots by weight in hang order, a piece in every spot its weight reaches into. A spot shows its
+-- pieces' look at the least dry piece's stage, its first piece's style, rotten if any piece in it rotted. Returns a
+-- look a spot (the World's looks: style x DRYING_STAGES + stage, or F.FIRST_ROTTEN_LOOK on), nil for an empty spot.
+local function rackKinds(rack)
+    local kinds, byMethod, total = {}, {}, 0
     for _, piece in ipairs(rack.pieces or {}) do
-        local to = from + piece.weight
-        local first = math.min(math.floor(from / spotWeight) + 1, spots)
-        local last = math.min(math.max(math.ceil(to / spotWeight - F.WEIGHT_SLACK), first), spots)
-        for spot = first, last do
-            bySpot[spot] = bySpot[spot] or {}
-            table.insert(bySpot[spot], piece)
+        local kind = byMethod[piece.method]
+        if not kind then
+            kind = { pieces = {}, weight = 0, order = #kinds + 1 }
+            byMethod[piece.method] = kind
+            table.insert(kinds, kind)
         end
-        from = to
+        table.insert(kind.pieces, piece)
+        kind.weight, total = kind.weight + piece.weight, total + piece.weight
+    end
+    return kinds, total
+end
+
+-- Shares used spots among kinds: the heaviest kinds when there are more kinds than spots, one each, then the rest
+-- one at a time to the kind with the most weight a spot (ties to the first hung). Kept in first-hung order.
+local function shareSpots(kinds, used)
+    if #kinds > used then
+        table.sort(kinds, function(a, b)
+            if a.weight ~= b.weight then return a.weight > b.weight end
+            return a.order < b.order
+        end)
+        for i = #kinds, used + 1, -1 do table.remove(kinds, i) end
+        table.sort(kinds, function(a, b) return a.order < b.order end)
+    end
+    for _, kind in ipairs(kinds) do kind.spots = 1 end
+    for _ = #kinds + 1, used do
+        local best
+        for _, kind in ipairs(kinds) do
+            if not best or kind.weight / kind.spots > best.weight / best.spots then best = kind end
+        end
+        best.spots = best.spots + 1
+    end
+    return kinds
+end
+
+function F.rackSpots(rack, hanger)
+    local kinds, total = rackKinds(rack)
+    if #kinds == 0 then return {} end
+    local spotWeight = F.RACK_LIMITS[hanger.name].total / hanger.stacks
+    local used = math.min(hanger.stacks, math.max(math.ceil(total / spotWeight - F.WEIGHT_SLACK), #kinds, 1))
+    local bySpot, offset = {}, 0
+    for _, kind in ipairs(shareSpots(kinds, used)) do
+        local from = 0
+        for _, piece in ipairs(kind.pieces) do
+            local to = from + piece.weight
+            local first = math.min(math.floor(from / kind.weight * kind.spots) + 1, kind.spots)
+            local last = math.min(math.max(math.ceil(to / kind.weight * kind.spots - F.WEIGHT_SLACK), first), kind.spots)
+            for spot = offset + first, offset + last do
+                bySpot[spot] = bySpot[spot] or {}
+                table.insert(bySpot[spot], piece)
+            end
+            from = to
+        end
+        offset = offset + kind.spots
     end
     local stages, looks = F.DRYING_STAGES, {}
-    for spot = 1, spots do
+    for spot = 1, hanger.stacks do
         local pieces = bySpot[spot]
         if pieces then
             local style, stage, rotten = pieces[1].state.style or F.STYLE_SALT, stages - 1, false

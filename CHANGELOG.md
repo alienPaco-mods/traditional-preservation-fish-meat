@@ -1,5 +1,12 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.75
+- **A mixed rack shows every kind** (user, session 53): the spots in use (as many as the weight hung fills) are
+  shared by kind, salt fish, gutted fish and meat: each kind gets a spot, the rest go to the kind with the most
+  weight a spot; a rack with more kinds than spots (a Gantry's 2) shows its heaviest. Kinds stand in the order first
+  hung; within a kind pieces fill its spots by weight in hang order, so a piece joins a spot of its kind that isn't
+  full. Three Corned Steaks on a frame of fish now show as meat.
+
 ## 0.4.74
 - **The Drying Frame, Hanging Beam and Gantry are off CraftLogic** (ROADMAP section 12, R4): their entity scripts keep
   the build and the look (no window, `uiEnabled = false`, as the Salting Tub); vanilla's second menu entry and the
