@@ -42,8 +42,10 @@ function TPFMRack:waitToStart()
     return self.character:shouldBeTurning()
 end
 
+-- Vanilla's take-down-curtain reach (ISRemoveSheetAction), hands empty: up to the rack, hanging or taking down.
 function TPFMRack:start()
-    self:setActionAnim("Loot")
+    self:setActionAnim("RemoveCurtain")
+    self:setOverrideHandModels(nil, nil)
 end
 
 function TPFMRack:complete()

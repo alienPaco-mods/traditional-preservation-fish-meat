@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.73
+- **Hanging and taking down use vanilla's take-down-curtain animation** (`RemoveCurtain`, hands empty), not the loot one (user, session 53).
+- **Rack Info's drop square** (TP Core's DropZone): drag a selection from the inventory or a loot window onto it to
+  hang what the rack takes, lightest first, one hang action a piece, by the menu's rules (`RackUI.dropJudge`).
+- **Info in the main menu too** (user, session 53): every station's Info row is also at the bottom of the main right-click menu, besides its submenu (TP Core's `UI.topInfo`). Tub Info and Rack Info.
+
 ## 0.4.72
 - **Info windows open from the right-click menu only** (user, session 53): a left click on a station is vanilla's again, as for every vanilla workstation (a container opens its loot window). Tub Info is in the tub's menu.
 - **Racks off CraftLogic, first steps** (ROADMAP section 12, R1-R3; the racks' crafting window still runs beside it until R4):

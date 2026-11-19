@@ -125,6 +125,11 @@ function RackWindow:render()
     local y = self:top()
     for _, row in ipairs(rackView.rows) do y = self:row(y, row[1], row[2]) end
     y = self:pieceList(y, KEY .. "RackHanging", rackView.pieces)
+    local station, playerObj = self.station, self.playerObj
+    y = self:dropZone(y, getText(KEY .. "RackDropIdle"), function(items)
+        local rack, place = F.rackNow(station)
+        return RackUI.dropJudge(rack, F.hangerOf(station), place, items)
+    end, function(take) RackUI.hang(playerObj, station, take) end)
     self:drawNotes(y, rackView.notes)
 end
 
@@ -243,18 +248,47 @@ function RackUI.soonestHours(rack, ledger)
     return soonest
 end
 
+-- What Rack Info's drop square makes of a dragged selection (TP Core's DropZone judge): the pieces it would hang,
+-- lightest first so the most fit, by the menu's rules; the lines to show; and why the rest won't hang.
+function RackUI.dropJudge(rack, hanger, place, items)
+    local limits = F.RACK_LIMITS[hanger.name]
+    local count, weight = F.rackCount(rack), F.rackWeight(rack)
+    local takes, refused = {}, nil
+    for _, item in ipairs(items) do
+        local why = F.rackRefusal({}, hanger, place, item)
+        if why then refused = refused or RackUI.refusalText(why, hanger, item) else table.insert(takes, item) end
+    end
+    table.sort(takes, function(a, b) return a:getActualWeight() < b:getActualWeight() end)
+    local take, takeWeight = {}, weight
+    for _, item in ipairs(takes) do
+        if count + #take >= limits.pieces or takeWeight + item:getActualWeight() > limits.total then
+            refused = refused or getText(KEY .. "RackFull")
+            break
+        end
+        table.insert(take, item)
+        takeWeight = takeWeight + item:getActualWeight()
+    end
+    if #take == 0 then return { take = take, lines = { refused or getText(KEY .. "RackFull") }, refused = refused } end
+    local lines = { UI.say(KEY .. "RackDropHang", tostring(#take), tostring(#items)),
+        UI.say(KEY .. "RackDropRoom", string.format("%.1f", limits.total - weight)) }
+    if #take < #items then table.insert(lines, getText(KEY .. "RackDropSome")) end
+    return { take = take, lines = lines, refused = #take < #items and refused or nil }
+end
+
 -- Every carried piece of a kind some rack hangs (the rest of the rules are the rack's to say).
 local function hangable(item)
     return instanceof(item, "Food") and F.fishRefusal(item:getFullType()) == nil
 end
 
-local function onHang(playerObj, station, items)
+-- Walks to the rack and queues a hang a piece, each brought to hand first (from a loot window, a bag).
+function RackUI.hang(playerObj, station, items)
     if #items == 0 or not ISEntityUI.WalkToEntity(playerObj, station) then return end
     for _, item in ipairs(items) do
         ISInventoryPaneContextMenu.transferIfNeeded(playerObj, item)
         ISTimedActionQueue.add(TPFMRack:new(playerObj, station, "hang", item))
     end
 end
+local onHang = RackUI.hang
 
 local function onTake(playerObj, station, ids)
     if not ISEntityUI.WalkToEntity(playerObj, station) then return end
@@ -274,6 +308,7 @@ local function addRackMenu(context, playerObj, station)
     status.isDisabled = true
     UI.tooltip(status, UI.placeName(place))
     menu:addOption(getText(KEY .. "RackInfo_" .. hanger.name), playerObj, RackUI.open, station)
+    UI.topInfo(context, getText(KEY .. "RackInfo_" .. hanger.name), nil, playerObj, RackUI.open, station)
 
     for _, group in ipairs(RackUI.hangGroups(rack, hanger, place, UI.findItems(playerObj, hangable))) do
         local groupOption = menu:addOption(group.label)

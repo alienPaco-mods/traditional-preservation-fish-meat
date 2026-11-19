@@ -186,6 +186,7 @@ local function addTubMenu(context, playerObj, station)
     tooltipFor(statusOption, UI.placeText(status.place, status.temperature) .. " <LINE> " .. nextText(tub, status))
     local info = menu:addOption(getText(MENU .. "TubInfo"), playerObj, TubWindow.open, station)
     info.iconTexture = getTexture(TUB_ICON)
+    UI.topInfo(context, getText(MENU .. "TubInfo"), getTexture(TUB_ICON), playerObj, TubWindow.open, station)
 
     if stage == "Empty" or stage == "Packing" then
         local rows = piecesByType(playerObj)

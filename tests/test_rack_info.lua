@@ -142,4 +142,23 @@ F.hangPiece(nearlyFull, fish(F.PRESSED_FISH, 2.5, "Big"), "Open", ledger, 1000)
 rows = RackUI.hangRows(nearlyFull, frame, "Open", { named(F.PRESSED_FISH, 0.4, "Walleye (Salt Cured)") })
 check("a full frame: the row has no room, says so", rows[1].room == 0 and rows[1].refusal == nil and rows[1].noRoom == "Full: no room for another piece.")
 
+-- The drop square's judgement: what it hangs (lightest first, by the menu's rules), its lines, and why the rest won't.
+local judged = RackUI.dropJudge({}, frame, "Open", { fish(F.PRESSED_FISH, 0.5, "Bluegill (Salt Cured)"),
+    fish(F.PRESSED_FISH, 0.4, "Bluegill (Salt Cured)") })
+check("a drop it all takes: both, lightest first, no warning", #judged.take == 2 and judged.take[1]:getActualWeight() == 0.4
+    and judged.lines[1] == "Drop to hang 2 of 2" and judged.lines[2] == "Room for 20.0 kg more" and #judged.lines == 2
+    and judged.refused == nil)
+judged = RackUI.dropJudge({}, frame, "Open", { fish(F.PRESSED_FISH, 0.5, "Bluegill (Salt Cured)"),
+    fish(F.PRESSED_FISH, 3.1, "Walleye (Salt Cured)") })
+check("a mixed drop: what it takes, and the line that some will be rejected", #judged.take == 1
+    and judged.lines[1] == "Drop to hang 1 of 2" and judged.lines[3] == "Some items will be rejected."
+    and judged.refused:find("Too heavy for a frame: 3.1 kg.", 1, true) == 1)
+judged = RackUI.dropJudge({}, frame, "Open", { fish(F.PRESSED_FISH, 3.1, "Walleye (Salt Cured)") })
+check("nothing it takes: the reason is the line", #judged.take == 0 and judged.lines[1]:find("Too heavy", 1, true) == 1)
+local almost = {}
+for _ = 1, 7 do F.hangPiece(almost, fish(F.PRESSED_FISH, 2.5, "Big"), "Open", ledger, 1000) end
+judged = RackUI.dropJudge(almost, frame, "Open", { fish(F.PRESSED_FISH, 2, "A"), fish(F.PRESSED_FISH, 2, "B"), fish(F.PRESSED_FISH, 0.4, "C") })
+check("more than the room: the lightest that fit, the rest refused as full", #judged.take == 2 and judged.take[1]:getActualWeight() == 0.4
+    and judged.refused == "Full: no room for another piece." and judged.lines[3] == "Some items will be rejected.")
+
 H.done()

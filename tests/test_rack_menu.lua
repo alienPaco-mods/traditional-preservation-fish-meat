@@ -145,6 +145,7 @@ local function runQueued()
     ui.queued = {}
     for _, action in ipairs(queued) do
         action.setActionAnim = function() end
+        action.setOverrideHandModels = function() end
         if action:isValid() then
             action:start()
             action:complete()
