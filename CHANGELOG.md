@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.80
+- **Smokehouse step S2** (nothing changes in game yet): its record on TP Core's record tile, and its finished pieces
+  counted for the shed's door look. The Smokehouse's build is TP Core's: Carpentry 5 and 2 large hooks now (docs).
+
 ## 0.4.79
 - **Items move into the inventory before the walk** (user, session 53; vanilla's order): hanging on a rack (the menu
   and the drop square) and the Salting Tub move every piece from a crate or a bag first, then walk (TP Core's `UI.walkTo`, keeping the queue), then act.

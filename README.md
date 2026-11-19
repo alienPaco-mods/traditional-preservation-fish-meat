@@ -79,7 +79,7 @@ dry cured meat left hanging ages faster, as it does today.
 | **Drying Frame** | Carpentry 2: 6 long sticks, 3 nails, 4 twine | 20 kg, 200 pieces | 2.5 kg: every meat cut and small fish | Anywhere |
 | **Hanging Beam** | Carpentry 4: 6 planks, 6 nails, 1 large hook | 60 kg, 48 pieces | 5 kg: fish 2.5 to 5 kg | Anywhere |
 | **Gantry** | Carpentry 6: 2 logs, 2 planks, 8 nails, 2 large hooks | 100 kg, 12 pieces | 12 kg: fish 5 to 12 kg, halves of the giants | Anywhere but in front of a door (in a shut room what hangs waits for a window) |
-| **Smokehouse** (TP Core's) | Carpentry 3: 14 planks, 20 nails | 6 stacks of 15, 25 pieces | 15 (a stack) | Open air or under an open roof; four tiles, two by two |
+| **Smokehouse** (TP Core's) | Carpentry 5: 14 planks, 20 nails, 2 large hooks | 6 stacks of 15, 25 pieces | 15 (a stack) | Open air or under an open roof; four tiles, two by two |
 
 A rack takes **salt fish** (Salt Cured), **gutted fish** and halves (cold drying) and **salted meat** (charque, or dry
 curing in the shade). **Country Cured meat, pork too, hangs in the shade** (`F.meatRefusal`): on a **Frame, Beam or

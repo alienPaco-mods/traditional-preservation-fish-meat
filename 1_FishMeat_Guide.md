@@ -109,7 +109,7 @@ Every road on one page. *Start* is when to begin it in Kentucky's weather; *Yiel
 | Salt Dried fish | **4 per half weight**: 160 for a full frame | None | Tub, a drying station (Carpentry 2) |
 | Stockfish | **None** | None | A drying station |
 | Charque, dry cured meat | **4 a Beef, Venison or Pork, 2 a Steak or chop**, 10 a leg: 150 for a cow | None; a little wood for smoke | Tub, a drying station, or the Smokehouse |
-| Hot and cold smoking | As above | Wood, hours of it | Smokehouse (Carpentry 3) and Stone Hearth (Masonry 2) |
+| Hot and cold smoking | As above | Wood, hours of it | Smokehouse (Carpentry 5) and Stone Hearth (Masonry 2) |
 | Potted Meat | **1 a pot** | A cooking fire | A pot and a clay jar |
 | Black Pudding, Blood Sausage | **1 a litre of blood**, a use per 2 L to cure it, 1 for each casing | An hour's baking or half an hour's boil | A pan or a pot |
 
@@ -279,7 +279,7 @@ refused; red, none.
 | **Drying Frame** | Carpentry 2 | 6 long sticks, 3 nails, 4 twine | 20 kg, 200 pieces | 2.5 kg: small fish, every cut | Anywhere, a room too |
 | **Hanging Beam** | Carpentry 4 | 6 planks, 6 nails, 1 large hook | 60 kg, 48 pieces | 5 kg | Anywhere: open air, under a roof, in a room or a basement |
 | **Gantry** | Carpentry 6 | 2 logs, 2 planks, 8 nails, 2 large hooks | 100 kg, 12 pieces | 12 kg | Anywhere but in front of a door |
-| **Smokehouse** | Carpentry 3 | 14 planks, 20 nails | 6 stacks × 15 weight, 25 pieces | 15 (a stack) | Open air or under an open roof; four tiles, two by two; chapter 10 |
+| **Smokehouse** | Carpentry 5 | 14 planks, 20 nails, 2 large hooks | 6 stacks × 15 weight, 25 pieces | 15 (a stack) | Open air or under an open roof; four tiles, two by two; chapter 10 |
 
 The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants and hang the halves.
 
@@ -387,7 +387,7 @@ A plank shed on four tiles, two by two, under a low pitched roof, its pair of do
 
 | | |
 |---|---|
-| Build | Carpentry 3: **14 planks, 20 nails**, hammer kept (Build menu, Furniture) |
+| Build | Carpentry 5: **14 planks, 20 nails, 2 large hooks**, hammer kept (Build menu, Furniture) |
 | Holds | **6 stacks** of up to **15 weight**, 25 pieces |
 | Takes | **Hang Salt Cured Fish**, **Hang Salted Meat** and **Hang Sausage to Smoke** only; the one place Corned pork may hang |
 | Inside | always **In the Smokehouse**: no rain, no wind, an aired room's temperature (the day's average; never the grid's 22 C), wherever it stands |

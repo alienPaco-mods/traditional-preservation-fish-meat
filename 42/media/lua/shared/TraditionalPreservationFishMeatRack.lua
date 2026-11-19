@@ -325,13 +325,22 @@ function F.isRack(isoObject)
     return hanger ~= nil and not hanger.closed and F.RACK_LIMITS[hanger.name] ~= nil
 end
 
+-- A rack's record; the Smokehouse's on its record tile (TP Core's Smokehouse.recordTile), whichever tile is asked.
 function F.rackOf(station)
+    if Smokehouse.isChamber(station) then station = Smokehouse.recordTile(station) end
     local modData = Station.movableData(station)
     modData[F.RACK_KEY] = modData[F.RACK_KEY] or {}
     return modData[F.RACK_KEY]
 end
 
 -- A rack's record brought up to now at the place it stands (Weather.placeOf), and that place.
+-- The Smokehouse's door look counts this mod's finished pieces in it (TP Core's Smokehouse.countsFinished).
+Smokehouse.countsFinished(function(recordTile)
+    local modData = recordTile:getModData().movableData
+    local rack = modData and modData[F.RACK_KEY]
+    return rack and #F.pieceIds(rack, true) or 0
+end)
+
 -- The Smokehouse's place is always Smokehouse.PLACE, and its pieces count the joined Stone Hearth's fire.
 function F.rackNow(station)
     local hanger = F.hangerOf(station)
