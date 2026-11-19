@@ -1,4 +1,11 @@
 {
+  "ContextMenu_TraditionalPreservationFishMeat_RackHang_salt": "Hang Salt Fish",
+  "ContextMenu_TraditionalPreservationFishMeat_RackHang_cold": "Hang Gutted Fish",
+  "ContextMenu_TraditionalPreservationFishMeat_RackHang_corned": "Hang Corned Meat",
+  "ContextMenu_TraditionalPreservationFishMeat_RackHang_country": "Hang Country Cured Meat",
+  "ContextMenu_TraditionalPreservationFishMeat_RackHang_sausage": "Hang Sausages",
+  "ContextMenu_TraditionalPreservationFishMeat_RackTakeDone": "Take Done (%1)",
+  "ContextMenu_TraditionalPreservationFishMeat_RackTakeAll": "Take Everything Off",
   "ContextMenu_EvolvedRecipe_FishHeadStock": "Fish Head Stock",
   "ContextMenu_TraditionalPreservationFishMeat_RinseAtSink": "Rinse at Sink",
   "ContextMenu_TraditionalPreservationFishMeat_PalletSpeed": "Stockfish Pallet: ripens stockfish x%1 (%2)",

@@ -1,5 +1,13 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.72
+- **Info windows open from the right-click menu only** (user, session 53): a left click on a station is vanilla's again, as for every vanilla workstation (a container opens its loot window). Tub Info is in the tub's menu.
+- **Racks off CraftLogic, first steps** (ROADMAP section 12, R1-R3; the racks' crafting window still runs beside it until R4):
+  - **A piece record** (`TraditionalPreservationFishMeatRack.lua`, movableData `tpfmRack`): each piece hung on a Drying Frame, Hanging Beam or Gantry keeps its item (`F.keptPiece`, now shared with the Salting Tub: `keptPiece`, `keptItem`, `itemFromKept`) and its own clock, the state a stack used to keep, so `saltStep`, `coldStep`, `charqueStep` and the outputs run a piece at a time. Each rack takes up to a total weight, a count and a heaviest piece: frame 20 kg, 200 pieces, 2.5 kg; Beam 60, 48, 5; Gantry 100, 12, 12. Done pieces wait on the rack, ageing as food does.
+  - **Rack Info** (`TraditionalPreservationFishMeatRackUI.lua`): place rows, what it holds, and a row a piece in TP Core's scrolling list (process for the sort, a popup with method, outcome, time left and warnings). `Info.placeRows` split out of `Info.rows`.
+  - **The rack's menu**: what it holds, Info, a Hang submenu a group (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages) with a row a kind carried (One / All, lightest first so the most fit; a refused kind says why, too heavy with every rack's limit; a group with nothing open is red with the reason), Take Done (n) (always there: greyed until a piece is done, its hover says when the next is), Take Everything Off (pieces not done come off as hung); `TPFMRack` hangs or takes one piece an action. A rack holding pieces can't be picked up.
+  - **Console:** `TPFM.kit("rack")`, `TPFM.rackHang()`, `TPFM.rackInfo()`. Tests: `test_rack.lua` (each method side by side with a one-piece stack), `test_rack_info.lua`, `test_rack_menu.lua`; the food stand-in in `tests/standins/food.lua`.
+
 ## 0.4.71
 - **A Salting Tub with anything in it can't be picked up** (2026-11-19): pieces waiting, curing or cured keep it
   where it is, and its time goes by its place; empty, it picks up as before.

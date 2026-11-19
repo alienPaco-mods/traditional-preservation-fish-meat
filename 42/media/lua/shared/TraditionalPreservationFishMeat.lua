@@ -50,11 +50,11 @@ local STACK_WEIGHTS = { frame = F.STACK_WEIGHT, medium = 15, large = 50, chamber
 local STACK_PIECES = { frame = 25, medium = 12, large = 6, chamber = 25 }
 F.HANGERS = {}
 for name, tileHanger in pairs(Tiles.HANGERS) do
-    local hanger = { fishSprite = tileHanger.fishSprite, meatSprite = tileHanger.meatSprite, rottenSprite = tileHanger.rottenSprite,
+    local hanger = { name = name, fishSprite = tileHanger.fishSprite, meatSprite = tileHanger.meatSprite, rottenSprite = tileHanger.rottenSprite,
         stacks = tileHanger.stacks, stackWeight = STACK_WEIGHTS[name], stackPieces = STACK_PIECES[name], closed = tileHanger.closed }
     for _, base in ipairs(tileHanger.bases or { tileHanger.base }) do F.HANGERS[base] = hanger end
 end
-F.CHAMBER_HANGER = { stacks = Smokehouse.STACKS, stackWeight = STACK_WEIGHTS.chamber, stackPieces = STACK_PIECES.chamber, closed = true }
+F.CHAMBER_HANGER = { name = "chamber", stacks = Smokehouse.STACKS, stackWeight = STACK_WEIGHTS.chamber, stackPieces = STACK_PIECES.chamber, closed = true }
 
 -- Vanilla's rules for cutting a fish: over this weight, into two fillets of this share of its
 -- weight (more in spawning season, when part goes to roe), each with half its food.
@@ -1218,6 +1218,7 @@ Events.OnInitGlobalModData.Add(F.applyRecipeTimes)
 -- the stocks, and the stockfish's pallet and bales.
 require "TraditionalPreservationFishMeatLedger"
 require "TraditionalPreservationFishMeatTub"
+require "TraditionalPreservationFishMeatRack"
 require "TraditionalPreservationFishMeatNames"
 require "TraditionalPreservationFishMeatStock"
 require "TraditionalPreservationFishMeatStockfish"

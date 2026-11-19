@@ -181,7 +181,7 @@ Numbers are for an average animal and an unskilled butcher. A bigger or meatier 
 
 ## 5. The Salting Tub
 
-**Build:** Carpentry 2: 4 planks, 6 nails, 2 twine; hammer and saw kept. Holds **50 weight or 35 pieces**, **fish or meat, never both at once**: the first piece in decides. Everything is on its **right-click menu**; **Tub Info** (in the menu, or click the tub) shows what is in it, where it stands and how the cure is going.
+**Build:** Carpentry 2: 4 planks, 6 nails, 2 twine; hammer and saw kept. Holds **50 weight or 35 pieces**, **fish or meat, never both at once**: the first piece in decides. Everything is on its **right-click menu**; **Tub Info** (in the menu) shows what is in it, where it stands and how the cure is going.
 
 ### Step 1. Put it in
 

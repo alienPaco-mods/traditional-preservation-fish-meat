@@ -248,11 +248,6 @@ function TubWindow:render()
 end
 
 -- Clicking a tub opens Tub Info, as clicking a door opens it.
-InfoWindow.clickOpens(F.isTub, function(playerObj, station)
-    if TraditionalPreservationFishMeatWorld then TraditionalPreservationFishMeatWorld.track(station) end
-    TubWindow.open(playerObj, station)
-end)
-
 local function onFillContextMenu(playerNum, context, worldobjects, test)
     local seen = {}
     for _, isoObject in ipairs(worldobjects) do

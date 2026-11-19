@@ -36,7 +36,7 @@ function TPFM.help()
     say("TPFM.fish(name, n, weight, stage) spawn n fish, e.g. TPFM.fish(\"Walleye\", 2, 4); stage \"cured\", \"dried\", \"hotSmoked\", \"coldSmoked\" or \"stockfish\" (it may take weight's place); TPFM.fish() lists the names, \"all\" gives each")
     say("TPFM.meat(name, n, stage)  spawn n of a cut, e.g. TPFM.meat(\"Steak\", 2) or TPFM.meat(\"all\", 1, \"corned\"); stage \"corned\", \"country\", \"charque\", \"hotSmoked\" or \"dryCured\" (chicken, turkey and rabbit: corned and hotSmoked only); TPFM.meat() lists the names")
     say("TPFM.give(name, n, option) spawn n of: head, stock, salt, fat, fatPot (option \"burnt\" or \"raw\"), crock (full, four Steaks in Lard), blood (a Bucket of 4 L; option \"cured\" or \"spoiled\"), casings, saltedCasings, blackPudding, bloodSausage (boiled; option \"stale\"), smokedBloodSausage, freshSausage (raw; option \"seasoned\" or \"stale\"), smokedSausage (option \"seasoned\"). TPFM.give() lists them")
-    say("TPFM.kit(kind)             the things a test needs: \"tub\" (the Salting Tub), \"potted\" (Potted Meat), \"stock\", \"poultry\" (hot smoked poultry), \"blood\" (black pudding, blood sausage, smoked blood sausage) or \"sausage\" (Smoked Sausage); the Smokehouse's and the flue's are TP Core's (TPC.kit). TPFM.kit() lists the kinds")
+    say("TPFM.kit(kind)             the things a test needs: \"tub\" (the Salting Tub), \"potted\" (Potted Meat), \"stock\", \"poultry\" (hot smoked poultry), \"blood\" (black pudding, blood sausage, smoked blood sausage) or \"sausage\" (Smoked Sausage) or \"rack\" (salt fish at every rack's size, a gutted fish, corned and country meat); the Smokehouse's and the flue's are TP Core's (TPC.kit). TPFM.kit() lists the kinds")
     say("TPFM.animals()             live animals and carcasses within 6 tiles: weight, and the blood each gives (3.5 cl a kg)")
     say("TPFM.blood(hours)          the blood you carry: state, age, hours left at 20 C, place; with hours, ages it that much first")
     say("TPFM.pallet()              the Stockfish Pallet near you: its place, ripening speed, stack and fish")
@@ -49,6 +49,8 @@ function TPFM.help()
     say("TPFM.bank(hours)           add banked hours (default 6) to those joined Stone Hearths: smoke, but only on a day of 15 C or less")
     say("TPFM.addSmoke(hours)       add hours of smoke (default 60) straight to the stacks in those Smokehouses, whatever the weather")
     say("TPFM.tubCure(hours)        add this many hours of full-speed cure (default 24) to every running Salting Tub, wherever it stands")
+    say("TPFM.rackHang()            hang what you carry that the nearest Drying Frame, Hanging Beam or Gantry (3 tiles) takes on its new piece record (racks section 12, before the menu); prints each refusal")
+    say("TPFM.rackInfo()            open Rack Info on that rack (brings it up to now)")
     say("The Salting Tub cures on its own totals, so TPFM.age doesn't speed it up: TPFM.tubCure does.")
 end
 
@@ -487,7 +489,29 @@ function TPFM.give(name, count, option)
 end
 
 -- What a test of kind needs.
+-- The racks' kit: salt fish at each rung's size (3 small, 2 at 2 kg for a frame, 3 kg for a Beam, 6 kg for a Gantry,
+-- 13 kg for none), a gutted fish for the cold, and meat: 2 Corned Steaks, a Country Cured Beef (no open frame) and a
+-- Corned Pork Chop (the Smokehouse's only).
+local function giveRackKit()
+    local inventory = getPlayer():getInventory()
+    for _, weight in ipairs({ 0.5, 0.5, 0.5, 2, 2, 3, 6, 13 }) do
+        local fish = curedFish("Base.Walleye", weight)
+        setWeight(fish, weight)
+        inventory:AddItem(fish)
+    end
+    local gutted = instanceItem(F.GUTTED_FISH)
+    F.carry(instanceItem("Base.Walleye"), gutted)
+    setWeight(gutted, 1.5)
+    inventory:AddItem(gutted)
+    inventory:AddItem(curedCut("Base.Steak"))
+    inventory:AddItem(curedCut("Base.Steak"))
+    inventory:AddItem(curedCut("Base.Beef", true))
+    inventory:AddItem(curedCut("Base.PorkChop"))
+    say("Gave the racks' kit: 8 salt Walleye (0.5 x3, 2 x2, 3, 6, 13 kg), a gutted Walleye (1.5 kg), 2 Corned Steaks, a Country Cured Beef, a Corned Pork Chop.")
+end
+
 local KITS = {
+    rack = { about = "salt Walleye at every rack's size (0.5 x3, 2 x2, 3, 6, 13 kg), a gutted Walleye, 2 Corned Steaks, a Country Cured Beef and a Corned Pork Chop, for the racks' menu and refusals", give = giveRackKit },
     potted = { about = "2 Pots, 2 Lard, Salt, a Steak, Beef, Pork Chop and Pork, a Chicken leg, Turkey Legs, Turkey Wings and Rabbit Meat, and a Clay Jar, Glazed Clay Jar and Clay Pot, for Potted Meat",
         "Base.Pot", "Base.Pot", "Base.Lard", "Base.Lard", "Base.Salt", "Base.Steak", "Base.Beef", "Base.PorkChop",
         "Base.Pork", "Base.Chicken", "Base.TurkeyLegs", "Base.TurkeyWings", "Base.Rabbitmeat", "Base.ClayJar",
@@ -528,6 +552,7 @@ function TPFM.kit(kind)
         for _, name in ipairs(names) do say("TPFM.kit(\"" .. name .. "\"): " .. KITS[name].about) end
         return
     end
+    if kit.give then return kit.give() end
     for _, fullType in ipairs(kit) do give(fullType) end
     for fullType, count in pairs(kit.counts or {}) do give(fullType, count) end
     for name, count in pairs(kit.give or {}) do GIVES[name](count) end
@@ -749,6 +774,60 @@ function TPFM.addSmoke(hours)
         end
     end
     if stacks == 0 then say("No stack hanging in a Smokehouse within 3 tiles.") end
+end
+
+-- The racks' piece records (ROADMAP section 12): until the menu (R3) and the World (R4), these hang and show them.
+local RACK_RADIUS = 3
+
+local function nearestRack()
+    local player = getPlayer()
+    local cell, x, y, z = getCell(), math.floor(player:getX()), math.floor(player:getY()), player:getZ()
+    local best, bestDistance
+    for dx = -RACK_RADIUS, RACK_RADIUS do
+        for dy = -RACK_RADIUS, RACK_RADIUS do
+            local square = cell:getGridSquare(x + dx, y + dy, z)
+            local objects = square and square:getObjects()
+            for i = 0, objects and objects:size() - 1 or -1 do
+                local object = objects:get(i)
+                local distance = dx * dx + dy * dy
+                if TraditionalPreservationFishMeatRackUI.isRack(object) and (not bestDistance or distance < bestDistance) then
+                    best, bestDistance = object, distance
+                end
+            end
+        end
+    end
+    return best
+end
+
+function TPFM.rackHang()
+    local station = nearestRack()
+    if not station then return say(string.format("No Drying Frame, Hanging Beam or Gantry within %d tiles on this floor.", RACK_RADIUS)) end
+    local rack, hanger, place = F.rackOf(station), F.hangerOf(station), Weather.placeOf(station)
+    local ledger, now = F.getLedger(), getGameTime():getWorldAgeHours()
+    local inventory = getPlayer():getInventory()
+    local items, hung = inventory:getItems(), 0
+    local carried = {}
+    for i = 0, items:size() - 1 do table.insert(carried, items:get(i)) end
+    for _, item in ipairs(carried) do
+        if instanceof(item, "Food") then
+            local refusal = F.rackRefusal(rack, hanger, place, item)
+            if refusal then
+                if F.fishRefusal(item:getFullType()) == nil then say(item:getDisplayName() .. ": " .. getText(refusal)) end
+            else
+                F.hangPiece(rack, item, place, ledger, now)
+                inventory:Remove(item)
+                hung = hung + 1
+            end
+        end
+    end
+    say(string.format("Hung %d piece(s) on the %s at %d,%d (%s). It holds %d piece(s), %.1f kg. TPFM.rackInfo() to see them.",
+        hung, hanger.name, station:getX(), station:getY(), tostring(place), F.rackCount(rack), F.rackWeight(rack)))
+end
+
+function TPFM.rackInfo()
+    local station = nearestRack()
+    if not station then return say(string.format("No Drying Frame, Hanging Beam or Gantry within %d tiles on this floor.", RACK_RADIUS)) end
+    TraditionalPreservationFishMeatRackUI.open(getPlayer(), station)
 end
 
 say("Debug commands loaded. Type TPFM.help() in the Lua console.")

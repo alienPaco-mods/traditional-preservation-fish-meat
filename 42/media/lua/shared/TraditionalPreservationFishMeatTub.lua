@@ -81,22 +81,29 @@ local function copyValue(value)
     return copy
 end
 
--- An item as the tub keeps it: everything the cure (F.carry) and Unpack read off it, its weight in the tub (as it
--- weighed packed in salt: a vanilla fillet by its food, F.packedWeight), the weight that sets the cure's hours
--- (F.timingWeight's, packed), its salt (F.saltFor) and the hour it went in.
-function F.tubPiece(item, hour)
+-- An item kept in a station's record (the tub's, a rack's) instead of as an item: everything F.carry and the rules
+-- read off it, and the hour it went in. F.keptItem stands in for it; F.itemFromKept makes it again.
+function F.keptPiece(item, hour)
     local piece = { fullType = item:getFullType(), age = item:getAge(), hour = hour, food = {},
         weight = item:getActualWeight(), customWeight = item:isCustomWeight(), name = item:getDisplayName(),
-        modelIndex = item:getModelIndex(), uncut = item:hasTag(ItemTag.UNCUT_FISH), data = copyValue(item:getModData()),
-        kind = F.tubKindOf(item), tubWeight = F.packedWeight(item), salt = F.saltFor(item),
-        leg = F.isLeg(item), pork = F.PORK_INDICES[F.cutIndex(item) or -1] == true, hotOnly = F.isHotOnly(item) }
+        modelIndex = item:getModelIndex(), uncut = item:hasTag(ItemTag.UNCUT_FISH), data = copyValue(item:getModData()) }
     for _, field in ipairs(FOOD_FIELDS) do piece.food[field] = item["get" .. field](item) end
+    return piece
+end
+
+-- An item as the tub keeps it: a kept piece, with its weight in the tub (as it weighed packed in salt: a vanilla
+-- fillet by its food, F.packedWeight), the weight that sets the cure's hours (F.timingWeight's, packed) and its salt
+-- (F.saltFor).
+function F.tubPiece(item, hour)
+    local piece = F.keptPiece(item, hour)
+    piece.kind, piece.tubWeight, piece.salt = F.tubKindOf(item), F.packedWeight(item), F.saltFor(item)
+    piece.leg, piece.pork, piece.hotOnly = F.isLeg(item), F.PORK_INDICES[F.cutIndex(item) or -1] == true, F.isHotOnly(item)
     piece.timing = F.TIMING_WEIGHTS[F.cutIndex(item) or -1] or piece.tubWeight
     return piece
 end
 
 -- A kept piece standing in for the item it was, for F.carry and the rules that read an item.
-function F.tubItem(piece)
+function F.keptItem(piece)
     local stored = {}
     function stored:getFullType() return piece.fullType end
     function stored:getModData() return piece.data end
@@ -216,8 +223,8 @@ function F.tubOf(station)
     return modData[F.TUB_KEY]
 end
 
--- The raw piece Unpack gives back, as it went in and aged since.
-function F.itemFromTub(piece)
+-- A kept piece as an item again (the raw piece Unpack gives back, as it went in and aged since).
+function F.itemFromKept(piece)
     local item = instanceItem(piece.fullType)
     for _, field in ipairs(FOOD_FIELDS) do item["set" .. field](item, piece.food[field]) end
     item:setActualWeight(piece.weight)
@@ -239,7 +246,7 @@ end
 function F.curedFromTub(taken, now)
     local method = F.TUB_METHOD[taken.method]
     local cured = instanceItem(method.cured)
-    F.carry(F.tubItem(taken.piece), cured)
+    F.carry(F.keptItem(taken.piece), cured)
     if cured:getFullType() == F.CURED_MEAT and F.isHotOnly(cured) then
         cured:setOffAge(F.HOT_ONLY_DAYS[1])
         cured:setOffAgeMax(F.HOT_ONLY_DAYS[2])

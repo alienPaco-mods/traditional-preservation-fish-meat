@@ -74,7 +74,7 @@ function TPFMSaltingTub:complete()
         end
     elseif self.mode == "unpack" then
         for _, piece in ipairs(F.unpackTub(tub, now)) do
-            Actions.addOrDropItem(character, F.itemFromTub(piece))
+            Actions.addOrDropItem(character, F.itemFromKept(piece))
         end
     elseif self.mode == "start" then
         local kit = TPFMSaltingTub.startKit(character)

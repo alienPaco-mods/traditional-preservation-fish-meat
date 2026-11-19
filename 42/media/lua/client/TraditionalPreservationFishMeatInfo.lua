@@ -22,6 +22,7 @@ local RECIPE_METHODS = { HangFishToDry = "salt", HangFishToColdDry = "cold", Han
 local METHOD_NAMES = { salt = KEY .. "InfoSalt", cold = KEY .. "InfoCold", meat = KEY .. "InfoCharque",
     sausage = KEY .. "InfoSausage", freshSausage = KEY .. "InfoSmokedSausage" }
 local GOOD_COLOUR, SLOW_COLOUR = { 0.35, 0.6, 0.3 }, { 0.75, 0.55, 0.2 }
+Info.GOOD_COLOUR, Info.SLOW_COLOUR = GOOD_COLOUR, SLOW_COLOUR
 
 -- A stack of blood sausage or Fresh Sausage (F.sausageStatus): smoke only (a hot run for Fresh Sausage), no drying or
 -- spoiling of its own.
@@ -77,33 +78,41 @@ function Info.batch(method, modData, ledger, now)
     return row
 end
 
--- Everything the block shows, from the World's look at the station (its inspect): rows of label key and value,
--- a bar for each batch and the notes under them. fire is "none", "out", "banked" or "stoked" for a Smokehouse.
-function Info.rows(found, ledger, now, fire)
-    local hanger = found.hanger
-    local rows, bars, notes = {}, {}, {}
-    table.insert(rows, { KEY .. "Place", UI.placeName(PLACES[found.place] and found.place or "Sheltered") })
-    table.insert(rows, { KEY .. "InfoHolds", UI.say(KEY .. "InfoStacks", tostring(found.finishedStacks + #found.batches),
-        tostring(hanger.stacks), tostring(hanger.stackWeight)) })
+-- A station's place rows, label key and value: Place, then holds (a value, or nil to leave the row out), Air, Wind
+-- where wind reaches, Wetness in the open, and the fire for a Smokehouse ("none", "out", "banked" or "stoked").
+function Info.placeRows(place, ledger, holds, fire)
+    local rows = {}
+    table.insert(rows, { KEY .. "Place", UI.placeName(PLACES[place] and place or "Sheltered") })
+    if holds then table.insert(rows, { KEY .. "InfoHolds", holds }) end
     local temperature = ledger.temperature or 0
     -- Below ground, in a room and in the Smokehouse the stacks go by the place's own temperature (the Smokehouse's is
     -- an open roof's, the hour's).
-    if found.place == "Basement" or found.place == "AiredRoom" or found.place == "Sheltered" or found.place == Smokehouse.PLACE then
-        table.insert(rows, { KEY .. "InfoAir", UI.placeText(found.place, F.ownTemperature(ledger, found.place)) })
+    if place == "Basement" or place == "AiredRoom" or place == "Sheltered" or place == Smokehouse.PLACE then
+        table.insert(rows, { KEY .. "InfoAir", UI.placeText(place, F.ownTemperature(ledger, place)) })
     else
         table.insert(rows, { KEY .. "InfoAir", UI.say(KEY .. "InfoAirValue", UI.degrees(temperature),
             UI.degrees(ledger.seasonTemperature or temperature)) })
     end
     -- Wind reaches a hanger in the open, under an open roof and through an open window.
-    if found.place == "Open" or found.place == "Covered" or found.place == "AiredRoom" then
+    if place == "Open" or place == "Covered" or place == "AiredRoom" then
         table.insert(rows, { KEY .. "Wind", getText(F.windWord(ledger.wind)) })
     end
-    if found.place == "Open" then
+    if place == "Open" then
         table.insert(rows, { KEY .. "InfoWetness", UI.percent(ledger.wetness or 0) })
     end
     if fire then
         table.insert(rows, { KEY .. "InfoFire", getText(KEY .. "InfoFire" .. string.upper(string.sub(fire, 1, 1)) .. string.sub(fire, 2)) })
     end
+    return rows
+end
+
+-- Everything the block shows, from the World's look at the station (its inspect): rows of label key and value,
+-- a bar for each batch and the notes under them. fire is "none", "out", "banked" or "stoked" for a Smokehouse.
+function Info.rows(found, ledger, now, fire)
+    local hanger = found.hanger
+    local bars, notes = {}, {}
+    local rows = Info.placeRows(found.place, ledger, UI.say(KEY .. "InfoStacks", tostring(found.finishedStacks + #found.batches),
+        tostring(hanger.stacks), tostring(hanger.stackWeight)), fire)
 
     local weather = false
     for index, batch in ipairs(found.batches) do
