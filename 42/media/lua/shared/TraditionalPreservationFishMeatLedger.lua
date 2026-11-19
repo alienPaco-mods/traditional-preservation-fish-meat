@@ -5,6 +5,7 @@ TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
 local Weather = require "TraditionalPreservationCore/Weather"
 local Fire = require "TraditionalPreservationCore/Fire"
+local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
 
 -- From DryingCraftLogic, so the frame's wetness readout tells the truth.
 local RAIN_WETTING = 0.001  -- per game second, at full intensity
@@ -110,12 +111,13 @@ function F.liftedRates(weather, lift)
 end
 
 -- Where a stack or a tub is: TP Core's place word, as the World last saw it (modData.place), the open air before its
--- first look. Each place's totals in the ledger go by its own temperature: the open air and the Smokehouse (Shed,
--- Enclosed) by the day's, a roof (Covered) by the season's mean, a room, a loft and a basement by Core's figure there.
+-- first look; inside TP Core's Smokehouse its word (Smokehouse.PLACE). Each place's totals in the ledger go by its own
+-- temperature: the open air by the day's, a roof (Covered) and the Smokehouse (Shed: an open roof's air, still and out
+-- of the rain) by the season's mean, a room, a loft and a basement by Core's figure there.
 local LEDGER_PLACES = { Open = "Open", Covered = "Covered", Sheltered = "Room", Loft = "Loft", Basement = "Basement",
-    Enclosed = "Shed" }
+    [Smokehouse.PLACE] = "Shed" }
 -- The Core place word each ledger place reads its temperature from.
-local PLACE_WORDS = { Covered = "Covered", Room = "Sheltered", Loft = "Loft", Basement = "Basement" }
+local PLACE_WORDS = { Covered = "Covered", Room = "Sheltered", Loft = "Loft", Basement = "Basement", Shed = Smokehouse.PLACE }
 
 function F.placeWord(modData)
     return modData.place or Weather.NEW_RUN_PLACE
@@ -128,7 +130,7 @@ end
 
 -- In the Smokehouse.
 function F.inShed(modData)
-    return modData.place == "Enclosed"
+    return modData.place == Smokehouse.PLACE
 end
 
 -- Out of the rain: a room, a loft, a basement or the Smokehouse.
@@ -144,8 +146,7 @@ end
 
 -- The ledger's totals, by family and place: the key each place's total is kept under, or one key for every place.
 -- A place a family leaves out has none (cold fish doesn't dry indoors; dry curing doesn't in the open). Families:
--- dry, salt fish drying; charque; cure, dry curing; under, under-salted meat spoiling (in the open it hangs on by the
--- shed's); cold, unsalted fish drying; hardFrost and coldWet, frost and wet on fresh cold fish (a room the open air's);
+-- dry, salt fish drying; charque; cure, dry curing; under, under-salted meat spoiling; cold, unsalted fish drying; hardFrost and coldWet, frost and wet on fresh cold fish (a room the open air's);
 -- rawSpoil, unsalted fish spoiling (the open air by the day, all else by the season); saltSpoil, salt fish in a muggy
 -- season (the open air, a roof and the Smokehouse by the season); warmCure, longCure and tubCure, a tub's (a roof by
 -- the season); heat, hot sun; charqueRain, rain on open charque; hotOnly, poultry and rabbit waiting in the shed.
@@ -157,7 +158,7 @@ F.TOTALS = {
         Loft = "charqueLoft", Basement = "charqueBasement" },
     cure = { Shed = "dryCure", Covered = "dryCureCovered", Room = "dryCureRoom", Loft = "dryCureLoft",
         Basement = "dryCureBasement" },
-    under = { Open = "underCure", Shed = "underCure", Covered = "underCureCovered", Room = "underCureRoom",
+    under = { Open = "underCureOpen", Shed = "underCure", Covered = "underCureCovered", Room = "underCureRoom",
         Loft = "underCureLoft", Basement = "underCureBasement" },
     cold = { Open = "cold", Covered = "coldCovered" },
     hardFrost = { Open = "hardFrost", Covered = "hardFrostCovered", Shed = "hardFrost", Room = "hardFrost",
@@ -233,7 +234,7 @@ function F.newLedger(now)
     return ledger
 end
 -- The last total a new ledger has: getLedger fills in a table without it.
-local NEWEST_TOTAL = "hotOnlyUnderStoked"
+local NEWEST_TOTAL = "underCureOpen"
 
 -- Adds rate x hours to a total and keeps its rate.
 local function add(ledger, key, rate, hours)
@@ -301,29 +302,25 @@ function F.advance(ledger, now, weather)
         ledger.coldWetness = math.max(ledger.coldWetness - dryingOff, 0)
     end
 
-    -- The open air and the Smokehouse, by the day's temperature.
+    -- The open air, by the day's temperature; and the Smokehouse's fire, which warms the day's air.
     local air = F.airRate(weather.humidity)
     local rate = temperatureRate * air
     add(ledger, "open", ledger.wetness <= 0 and math.max(rate, minRate) or 0, hours)
-    add(ledger, "sheltered", math.max(rate * F.SHELTERED_RATE, minRate), hours)
     local coldRate = F.coldRate(weather.temperature) * F.windRate(weather.wind)
     add(ledger, "cold", ledger.coldWetness <= 0 and coldRate or 0, hours)
     local charqueRate = F.charqueWarmRate(weather.temperature) * air
     add(ledger, "charque", ledger.wetness <= 0 and charqueRate * F.charqueWindRate(weather.wind) or 0, hours)
-    add(ledger, "charqueSheltered", charqueRate * F.CHARQUE_INDOORS_RATE, hours)
     if raining then ledger.charqueRain = ledger.charqueRain + hours end
     ledger.clock = ledger.clock + hours
     if weather.temperature <= F.COLD_SMOKE_MAX then ledger.smokeCool = ledger.smokeCool + hours end
     local bankedRate, charqueBanked, cureBanked, underBanked, hotOnlyBanked = F.liftedRates(weather, F.BANKED_LIFT)
     local stokedRate, charqueStoked, cureStoked, underStoked, hotOnlyStoked = F.liftedRates(weather, F.STOKED_LIFT)
-    add(ledger, "dryCure", F.dryCureRate(weather.temperature) * air, hours)
     add(ledger, "dryCureBanked", cureBanked, hours)
     add(ledger, "dryCureStoked", cureStoked, hours)
-    add(ledger, "underCure", F.underCureRate(weather.temperature), hours)
+    add(ledger, "underCureOpen", F.underCureRate(weather.temperature), hours)
     add(ledger, "underCureBanked", underBanked, hours)
     add(ledger, "underCureStoked", underStoked, hours)
-    -- Poultry and rabbit hang in the Smokehouse only: the shed's air, the fire out, banked and stoked.
-    add(ledger, "hotOnlyUnder", F.hotOnlyUnderRate(weather.temperature), hours)
+    -- Poultry and rabbit hang in the Smokehouse only: by a banked and a stoked fire (the fire out: below).
     add(ledger, "hotOnlyUnderBanked", hotOnlyBanked, hours)
     add(ledger, "hotOnlyUnderStoked", hotOnlyStoked, hours)
     -- The smoulder's warmth: bankedRate and stokedRate are salt fish's in the warmed shed (smokeBanked, smokeStoked).
@@ -376,6 +373,13 @@ function F.advance(ledger, now, weather)
     add(ledger, "underCureCovered", F.underCureRate(roof), hours)
     add(ledger, "coldCovered", F.coldRate(roof) * F.windRate(weather.wind) * F.COVERED_COLD_RATE, hours)
     if roof < F.HARD_FROST then ledger.hardFrostCovered = (ledger.hardFrostCovered or 0) + hours end
+    -- The Smokehouse with the fire out: an open roof's air, but still (salt fish at SHELTERED_RATE, charque at
+    -- CHARQUE_INDOORS_RATE) and out of the rain.
+    add(ledger, "sheltered", math.max(F.temperatureRate(roof) * air * F.SHELTERED_RATE, minRate), hours)
+    add(ledger, "charqueSheltered", F.charqueWarmRate(roof) * air * F.CHARQUE_INDOORS_RATE, hours)
+    add(ledger, "dryCure", F.dryCureRate(roof) * air, hours)
+    add(ledger, "underCure", F.underCureRate(roof), hours)
+    add(ledger, "hotOnlyUnder", F.hotOnlyUnderRate(roof), hours)
     -- A muggy season: the season's for the open air, a roof and the Smokehouse; by the place's own temperature
     -- (step I) in a room (22 C on the grid is not over the limit), a loft (a July loft is) and a basement
     -- (never).
@@ -514,7 +518,8 @@ function F.charqueStatus(modData, ledger)
             dryCuring = false,
             hotOnly = true,
             underSalted = true,
-            shedTemperature = (ledger.temperature or 0) + (stoked and F.STOKED_LIFT or burning and F.BANKED_LIFT or 0),
+            shedTemperature = burning and (ledger.temperature or 0) + (stoked and F.STOKED_LIFT or F.BANKED_LIFT)
+                or F.ownTemperature(ledger, Smokehouse.PLACE),
         }
     end
     local rate, reason
@@ -545,10 +550,10 @@ function F.charqueStatus(modData, ledger)
         spoiling = not curing and ledger[F.totalKey("saltSpoil", place) .. "On"] == true,
         scorching = false,
         dryCuring = curing,
-        -- Corned meat in the shed, and the shed's temperature it spoils by: a room's, a loft's, a basement's or a
-        -- roof's own (Core's), the Smokehouse's the day's and the fire's.
+        -- Corned meat in the shed, and the shed's temperature it spoils by: the place's own (Core's; the
+        -- Smokehouse's an open roof's), or with the fire burning the day's and the fire's.
         underSalted = curing and modData.underCured == true,
-        shedTemperature = curing and PLACE_WORDS[place] and F.ownTemperature(ledger, PLACE_WORDS[place])
+        shedTemperature = curing and lift == 0 and PLACE_WORDS[place] and F.ownTemperature(ledger, PLACE_WORDS[place])
             or (ledger.temperature or 0) + lift,
     }
 end

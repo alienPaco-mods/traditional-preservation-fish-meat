@@ -180,7 +180,7 @@ check("a mixed stack whose Corned share rotted keeps drying, and its look", not 
 mixed.modData.allUnder = true
 check("all Corned, it is lost", T.stackRotten(mixed.modData))
 
--- TP Core's Smokehouse: Enclosed wherever it stands (out of the rain, by the day's air). Core draws its look; this
+-- TP Core's Smokehouse: its own word wherever it stands (out of the rain, an open roof's air). Core draws its look; this
 -- mod steps only its own stacks, and counts another mod's as taking room.
 local SHED = require("TraditionalPreservationCore/Tiles").CHAMBERS[2]
 local smoked = recipeData(0.5, T.STYLE_MEAT)
@@ -191,7 +191,7 @@ local smokehouse = station(SHED, 6, true, { fish(T.CURED_MEAT) }, { smoked, chee
 smokehouse.sprites = { "core's" }
 W.track(smokehouse)
 W.refresh(smokehouse)
-check("a Smokehouse in the open is out of the rain inside, and marked as the shed", smoked.modData.place == "Enclosed"
+check("a Smokehouse in the open is out of the rain inside, and marked as the shed", smoked.modData.place == "Smokehouse"
     and T.inShed(smoked.modData) and T.sheltered(smoked.modData))
 check("another mod's stack in it is left alone", cheese.modData.place == nil)
 check("and the look is Core's to draw", smokehouse.sprites[1] == "core's" and smokehouse.clears == 0)
@@ -203,7 +203,7 @@ local seen = W.inspect(shed)
 check("a look at the frame: its hanger, place and contents", seen.hanger == T.HANGERS[6] and seen.place == "Sheltered"
     and #seen.waiting == 1 and seen.finished == 1 and seen.finishedStacks == 1)
 check("and its running batch with its progress", #seen.batches == 1 and seen.batches[1].craftRecipeData == running and seen.batches[1].progress == 0.5)
-check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place == "Enclosed" and W.inspect(smokehouse).hanger.closed)
+check("a Smokehouse is Enclosed to the window too", W.inspect(smokehouse).place == "Smokehouse" and W.inspect(smokehouse).hanger.closed)
 check("and the window lists this mod's stacks only", #W.inspect(smokehouse).batches == 1 and W.inspect(smokehouse).batches[1].craftRecipeData == smoked)
 check("another mod's object gives nothing", W.inspect(station("carpentry_02_122", 4, true, {}, {}, {})) == nil)
 

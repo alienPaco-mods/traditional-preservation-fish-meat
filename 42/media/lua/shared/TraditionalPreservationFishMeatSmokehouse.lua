@@ -32,7 +32,7 @@ F.HOT_MAX_HOURS = 12
 -- when it has dried (smoked-dried fish, balyk, suho meso: a few hours of smoke a day over the drying). The need is
 -- by the heaviest piece, as the cook's: a day or two of smoke for fish, a week or two of daily fires for meat (a
 -- Beef 60 hours, a Leg of Pork 120). Hours with the fire burning dry it in air warmed by the fire (F.BANKED_LIFT,
--- F.STOKED_LIFT), not at the cold shed's rate (Enclosed: the day's temperature).
+-- F.STOKED_LIFT), not at the cold shed's rate (an open roof's air, the season's mean).
 F.SMOKE_FISH_HOURS = { { 1.1, 24 }, { 2.2, 48 } }
 F.SMOKE_MEAT_HOURS = { { 0.45, 60 }, { 2.25, 120 } }
 -- 6b: a Leg of Pork dries to a Country Ham and never takes a hot cook (a hot smoked whole ham is a wet-cured city
@@ -75,8 +75,8 @@ function F.startSmoke(modData, items, isMeat)
     modData.smokeMeat = isMeat
 end
 
--- The ledger totals a stack's warmth reads: salt fish's drying in the shed (the ledger's sheltered, by the day's
--- temperature) or meat's dry curing with the fire out, and by a banked and by a stoked fire.
+-- The ledger totals a stack's warmth reads: salt fish's drying in the shed (the ledger's sheltered, by the season's
+-- mean) or meat's dry curing with the fire out, and by a banked and by a stoked fire.
 local function warmthTotals(modData, ledger)
     if modData.smokeMeat then return ledger.dryCure or 0, ledger.dryCureBanked or 0, ledger.dryCureStoked or 0 end
     return ledger.sheltered or 0, ledger.smokeBanked or 0, ledger.smokeStoked or 0

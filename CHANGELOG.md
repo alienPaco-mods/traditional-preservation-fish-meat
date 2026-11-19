@@ -1,5 +1,14 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.69
+- **The Smokehouse goes by an open roof's temperature** (2026-11-19, TP Core 0.1.14): with the fire out, a stack
+  inside dries, dry cures and spoils (Corned meat, poultry and rabbit waiting for their cook) by the season's mean, as
+  under an open roof, not the day's; its air is still a room's (salt fish and charque at 0.65), out of the rain and
+  wind. The fire's warmth still lifts the day's air. Seasonal check: drying and dry curing move a few days at most;
+  a waiting Corned or poultry stack spoils about half as fast in April and May (no afternoon peaks). Stacks carry TP
+  Core's `Smokehouse.PLACE` (was `"Enclosed"`); the window reads *In the Smokehouse* and the shed's own temperature.
+  Corned meat on an open frame keeps the day's, on its own total (`underCureOpen`). Needs TP Core 0.1.14.
+
 ## 0.4.68
 - **Docs and tests for TP Core 0.1.13's 2 x 2 Smokehouse** (2026-11-19): nothing changes in this mod's play. The shed
   is four tiles, the two in front of its doors stay clear, and a piece hangs by the door for every two finished stacks

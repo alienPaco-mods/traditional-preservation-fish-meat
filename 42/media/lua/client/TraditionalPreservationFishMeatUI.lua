@@ -41,10 +41,10 @@ local function refusal(slot, item, queued)
     local hanger = F.hangerOf(entity)
     local sausageRefused = F.sausageRefusal(hanger, item)
     if sausageRefused then return sausageRefused end
-    local porkRefused = F.meatRefusal(hanger, hanger.closed and "Enclosed" or Weather.placeOf(entity), item)
+    local porkRefused = F.meatRefusal(hanger, hanger.closed and Smokehouse.PLACE or Weather.placeOf(entity), item)
     if porkRefused then return porkRefused end
     if F.hangMethod(item:getFullType()) == "cold" then
-        local coldRefused = F.coldRefusal(hanger.closed and "Enclosed" or Weather.placeOf(entity))
+        local coldRefused = F.coldRefusal(hanger.closed and Smokehouse.PLACE or Weather.placeOf(entity))
         if coldRefused then return coldRefused end
     end
     return F.frameRefusal(hanger, TraditionalPreservationFishMeatWorld.busyStacks(entity), waiting, weight,
@@ -96,9 +96,9 @@ local function drawStackTooltip(slot, tooltip, method)
         local modData = slot.craftRecipeData:getModData()
         local place = F.placeWord(modData)
         UI.addLine(layout, "IGUI_TraditionalPreservationFishMeat_Place", UI.placeName(place))
-        -- A basement, loft, room or roofed stack dries by that place's temperature (Core's); the Smokehouse and the
-        -- open air go by the day's.
-        local own = place == "Basement" or place == "Loft" or place == "Sheltered" or place == "Covered"
+        -- A basement, loft, room, roofed or Smokehouse stack dries by that place's temperature (Core's); the open
+        -- air goes by the day's.
+        local own = place ~= "Open"
         local celsius = own and F.ownTemperature(ledger, place) or ledger.temperature or 0
         local word = F.temperatureWord(isCold, celsius, place == "Open")
         if status.dryCuring or status.hotOnly then

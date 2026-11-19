@@ -275,7 +275,7 @@ Every drying station works the same way: pick a hanging recipe, load it, press *
 - **Open air**: no roof overhead. Walls with no roof are still the open air. Rain pauses drying until the wet has dried off.
 - **Under an open roof**: a porch, an open shed, a floor laid on the level above. Rain never reaches it, and it's **in the shade**: salt fish, charque, dry curing and stockfish go by the **average of the last ten days**, not the afternoon's heat or the night's frost: a warm afternoon in November stops stockfish in the open, not under a roof. A **Salting Tub in the open air** feels the day: afternoons over 20 C warm cure it (May to September), so give it a roof.
 - **Indoors**: inside a room, including one you built yourself with walls all round and a full roof. A room goes by the **average of the last ten days**, and is **22 C while the power grid is on**, as vanilla keeps it: drying runs at summer speed all year, but so does spoiling (chapter 5). Still air: salt fish dries at about **two thirds** of the speed, and **gutted fish is refused** (stockfish needs moving air). **Meat indoors is never charque**: it dry cures (chapter 11).
-- **In a shed**: inside the Smokehouse, wherever it stands. A closed plank shed in the outside air: no rain and no wind, as indoors, but it goes by **the day's temperature**, plus its fire, and the power grid doesn't warm it. Salt fish dries at about two thirds of the speed, gutted fish is refused and meat dry cures, as in a room.
+- **In the Smokehouse**: inside it, wherever it stands. A plank shed has an open shed's air, the **average of the last ten days**, but still: no rain and no wind, as indoors, and the power grid doesn't warm it. Salt fish dries at about two thirds of the speed, gutted fish is refused and meat dry cures, as in a room. Its fire warms the day's air.
 - **Loft**: the top storey: a room upstairs with no room over it, at the **loft's own temperature** (about 24 C in a 21 C July, as a room from October to April; TP Core's guide, chapter 8). Salt fish, charque and dry curing there go by it, and so does a Salting Tub: a summer loft is the worst place for a cure in the tub.
 - **Basement**: any level below ground. Indoors, but at the **cellar's own temperature**, not the day's: about 5 C from January to March, 13 C from July to September, a month behind the season. Whatever dries there goes by it, so salt fish crawls (about **27 days** a batch, all year): a cellar is for keeping salt fish, not drying it.
 
@@ -370,7 +370,7 @@ A plank shed on four tiles, two by two, under a low pitched roof, its pair of do
 | Build | Carpentry 3: **14 planks, 20 nails**, hammer kept (Build menu, Furniture) |
 | Holds | **6 stacks** of up to **15 weight**, 25 pieces |
 | Takes | **Hang Salt Cured Fish**, **Hang Salted Meat** and **Hang Sausage to Smoke** only; the one place Corned pork may hang |
-| Inside | always **In a shed**: no rain, no wind, the day's temperature, wherever it stands |
+| Inside | always **In the Smokehouse**: no rain, no wind, an open shed's temperature (the last ten days' average), wherever it stands |
 | Stands | in the open or under an open roof, not inside a room; the tile in front of its door stays clear |
 
 1. **Click either tile**: one window, **Smokehouse**, with the hanging recipes. Load it as you would a frame. Nothing hangs in sight: hover a stack in the window to see how it's doing.
@@ -524,7 +524,7 @@ Dry curing is the winter road for meat: a long salting in the cold, then weeks o
 - **By the heaviest piece:** **3 weeks** for a Beef, Venison or Pork, a little less for a Steak or a chop, **6 weeks** for a Leg of Pork, at full speed.
 - **Full speed is a cellar's cool:** from **12 C** up. Colder air dries slower, down to **a quarter** of the speed in frost, and never stops. Damp air slows it as it does salt fish. Wind plays no part.
 - **A fire helps**, in the Smokehouse only: banked, the shed is 15 C warmer.
-- **Which temperature:** the Smokehouse goes by the day's, a roof and a room by the last ten days' average (a room 22 C while the grid is on), so a cold snap slows a shed more than a porch. Corned meat spoils by the same temperature, so an under-salted stack in a powered room rots in about four days.
+- **Which temperature:** the Smokehouse, a roof and a room go by the last ten days' average (a room 22 C while the grid is on), and the Smokehouse's fire warms the day's air. Corned meat spoils by the same temperature, so an under-salted stack in a powered room rots in about four days.
 
 | Where a cut hangs | In frost | At 6 C | From 12 C | Smoke? |
 |---|---|---|---|---|

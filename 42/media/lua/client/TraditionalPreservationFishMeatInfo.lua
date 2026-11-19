@@ -15,7 +15,7 @@ local Info = TraditionalPreservationFishMeatInfo
 
 local KEY = "IGUI_TraditionalPreservationFishMeat_"
 -- Places with a word of their own (TP Core's); anything else under a roof reads as indoors.
-local PLACES = { Open = true, Covered = true, Sheltered = true, Loft = true, Basement = true, Enclosed = true }
+local PLACES = { Open = true, Covered = true, Sheltered = true, Loft = true, Basement = true, [Smokehouse.PLACE] = true }
 -- A running batch's method, by its recipe's short name.
 local RECIPE_METHODS = { HangFishToDry = "salt", HangFishToColdDry = "cold", HangMeatToDry = "meat",
     HangSausageToSmoke = "sausage" }
@@ -86,9 +86,9 @@ function Info.rows(found, ledger, now, fire)
     table.insert(rows, { KEY .. "InfoHolds", UI.say(KEY .. "InfoStacks", tostring(found.finishedStacks + #found.batches),
         tostring(hanger.stacks), tostring(hanger.stackWeight)) })
     local temperature = ledger.temperature or 0
-    -- Below ground, in a loft and in a room the stacks go by the place's own temperature, not the day's
-    -- (the Smokehouse, Enclosed, goes by the day's as the open air does).
-    if found.place == "Basement" or found.place == "Loft" or found.place == "Sheltered" then
+    -- Below ground, in a loft, in a room and in the Smokehouse the stacks go by the place's own temperature, not the
+    -- day's (the Smokehouse's is an open roof's).
+    if found.place == "Basement" or found.place == "Loft" or found.place == "Sheltered" or found.place == Smokehouse.PLACE then
         table.insert(rows, { KEY .. "InfoAir", UI.placeText(found.place, F.ownTemperature(ledger, found.place)) })
     else
         table.insert(rows, { KEY .. "InfoAir", UI.say(KEY .. "InfoAirValue", UI.degrees(temperature),

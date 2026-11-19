@@ -474,7 +474,7 @@ function F.sausageRefusal(hanger, item)
     return nil
 end
 
--- Meat a drying station refuses, by where it stands (Weather.placeOf; the Smokehouse is Enclosed). The Smokehouse takes
+-- Meat a drying station refuses, by where it stands (Weather.placeOf; in the Smokehouse Smokehouse.PLACE). The Smokehouse takes
 -- all. Country Cured meat, pork too, dry cures in the shade: a Frame, Beam or Gantry under a roof, a Frame or Beam
 -- indoors or in a basement, never in the open (sun and rain are charque's). Corned pork has only its hot cook: in
 -- sun and wind its fat goes rancid, and it has too little salt to hang.
@@ -597,7 +597,7 @@ function F.frameRefusal(hanger, busyStacks, waitingWeight, weight, waitingPieces
     return nil
 end
 
--- Cold drying needs moving air: a room, a basement or the Smokehouse (Enclosed; else place is Weather.placeOf's)
+-- Cold drying needs moving air: a room, a basement or the Smokehouse (Smokehouse.PLACE; else place is Weather.placeOf's)
 -- refuses gutted fish. The Smokehouse doesn't list the recipe either.
 function F.coldRefusal(place)
     if place ~= "Open" and place ~= "Covered" then return F.REFUSALS.noColdIndoors end

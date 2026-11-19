@@ -101,12 +101,12 @@ function TraditionalPreservationFishMeatWorld.updateTub(station)
     return tub
 end
 
--- place is the station's (TP Core's word, the Smokehouse Enclosed).
+-- place is the station's (TP Core's word; inside the Smokehouse, Smokehouse.PLACE).
 -- In the Smokehouse each stack also counts the joined Stone Hearth's fire (F.smokeStep); a done cook is noted for its
 -- OnUpdate to finish, and every stack's shed for OnCreate's Cold Smoked swap (F.smokeStations). Another mod's stacks
 -- in the shed are its own: only counted, as they take room (others).
 local function readBatch(station, craftData, modData, logic, place, smoking, fire, ledger)
-    -- TP Core's place word: the Smokehouse is Enclosed. The totals each place goes by are the ledger's (F.TOTALS).
+    -- TP Core's place word, or the Smokehouse's. The totals each place goes by are the ledger's (F.TOTALS).
     modData.place = place
     if modData.stackId then F.stackStations[modData.stackId] = station end
     if smoking then
@@ -185,11 +185,11 @@ local function refresh(station, sessionState)
 end
 
 -- TP Core's Smokehouse is tracked here too, for this mod's stacks in it: Core draws its look and sets its recipe tag.
--- Inside the chamber's walls and roof it is always Enclosed (TP Core's shed in the outside air), wherever it stands.
+-- Inside the chamber's walls and roof it is always Smokehouse.PLACE (an open roof's air, still), wherever it stands.
 local function newSessionState(station)
     if Smokehouse.isChamber(station) then
         return { hanger = F.CHAMBER_HANGER, faceIndex = 0, logicType = ComponentType.DryingCraftLogic,
-            show = function() end, place = "Enclosed" }
+            show = function() end, place = Smokehouse.PLACE }
     end
     local index = F.stationIndex(station)
     if not index then return nil end

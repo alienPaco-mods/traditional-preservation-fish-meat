@@ -139,12 +139,12 @@ check("a stack's first look starts its warm totals, gaining nothing yet", old.dr
 check("a stack by a burning fire knows how it burns", cool.burning == Fire.BANKED)
 local rates = { shelteredRate = 0.4, bankedRate = 0.6, stokedRate = 0.9, charqueShelteredRate = 0.3, charqueBankedRate = 0.5,
     charqueStokedRate = 0.8 }
-check("banked, its Drying Rate is the banked fire's", near(F.stackStatus(false, { place = "Enclosed", burning = Fire.BANKED, dried = 0 }, rates).rate, 0.6)
-    and near(F.charqueStatus({ place = "Enclosed", burning = Fire.BANKED, dried = 0 }, rates).rate, 0.5))
-check("stoked, the stoked fire's", near(F.stackStatus(false, { place = "Enclosed", burning = Fire.STOKED, dried = 0 }, rates).rate, 0.9)
-    and near(F.charqueStatus({ place = "Enclosed", burning = Fire.STOKED, dried = 0 }, rates).rate, 0.8))
-check("a stack saved burning before reads banked", near(F.stackStatus(false, { place = "Enclosed", burning = true, dried = 0 }, rates).rate, 0.6))
-check("with the fire out, Sheltered's", near(F.stackStatus(false, { place = "Enclosed", dried = 0 }, rates).rate, 0.4))
+check("banked, its Drying Rate is the banked fire's", near(F.stackStatus(false, { place = "Smokehouse", burning = Fire.BANKED, dried = 0 }, rates).rate, 0.6)
+    and near(F.charqueStatus({ place = "Smokehouse", burning = Fire.BANKED, dried = 0 }, rates).rate, 0.5))
+check("stoked, the stoked fire's", near(F.stackStatus(false, { place = "Smokehouse", burning = Fire.STOKED, dried = 0 }, rates).rate, 0.9)
+    and near(F.charqueStatus({ place = "Smokehouse", burning = Fire.STOKED, dried = 0 }, rates).rate, 0.8))
+check("a stack saved burning before reads banked", near(F.stackStatus(false, { place = "Smokehouse", burning = true, dried = 0 }, rates).rate, 0.6))
+check("with the fire out, Sheltered's", near(F.stackStatus(false, { place = "Smokehouse", dried = 0 }, rates).rate, 0.4))
 
 -- The smoulder's warmth: the shed reads BANKED_LIFT (15) / STOKED_LIFT (20) warmer, its humidity halved per 10 C, outdoor wind.
 local damp = { temperature = 5, humidity = 0.8, wind = F.WIND_GOOD, precipitation = 0 }
@@ -200,16 +200,16 @@ check("Country Cured beef under a roof is Beef (Dry Cured), a leg Country Ham",
     F.stackOutcome({ dried = 0, longStack = true, cureNeed = 504 }, list(hung(0, true), hung(F.LEG_INDEX, true)), "meat") == "Beef (Dry Cured), Country Ham")
 check("Corned mutton in a room dry cures", F.stackOutcome({ place = "Sheltered", dried = 0, cureNeed = 504 }, list(hung(2)), "meat") == "Mutton (Dry Cured)")
 check("in the Smokehouse with a stoked run counting: Hot Smoked, pork vanilla's Ham",
-    F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, hotSmokeHoursNeeded = 6, hotSmokeHours = 2 }, list(hung(3), hung(4)), "meat") == "Venison (Hot Smoked), Ham")
-check("with its hours of smoke: Beef (Cold Smoked)", F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, smokeNeed = 60, coldSmokeHours = 60 }, list(hung(1, true)), "meat") == "Beef (Cold Smoked)")
-check("short of them: Beef (Dry Cured)", F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, smokeNeed = 60, coldSmokeHours = 20 }, list(hung(1, true)), "meat") == "Beef (Dry Cured)")
+    F.stackOutcome({ place = "Smokehouse", dried = 0, cureNeed = 504, hotSmokeHoursNeeded = 6, hotSmokeHours = 2 }, list(hung(3), hung(4)), "meat") == "Venison (Hot Smoked), Ham")
+check("with its hours of smoke: Beef (Cold Smoked)", F.stackOutcome({ place = "Smokehouse", dried = 0, cureNeed = 504, smokeNeed = 60, coldSmokeHours = 60 }, list(hung(1, true)), "meat") == "Beef (Cold Smoked)")
+check("short of them: Beef (Dry Cured)", F.stackOutcome({ place = "Smokehouse", dried = 0, cureNeed = 504, smokeNeed = 60, coldSmokeHours = 20 }, list(hung(1, true)), "meat") == "Beef (Dry Cured)")
 check("each name once", F.stackOutcome({ dried = 0 }, list(hung(0), hung(1), hung(0)), "meat") == "Beef Charque")
 check("a Corned piece lost to under-salting is Rotten, the Country Cured dries on",
-    F.stackOutcome({ place = "Enclosed", dried = 0, cureNeed = 504, underSpoiled = 1 }, list(hung(0), hung(0, true)), "meat") == "Rotten, Beef (Dry Cured)")
+    F.stackOutcome({ place = "Smokehouse", dried = 0, cureNeed = 504, underSpoiled = 1 }, list(hung(0), hung(0, true)), "meat") == "Rotten, Beef (Dry Cured)")
 check("a lost stack is Rotten", F.stackOutcome({ dried = 0, spoiled = 1 }, list(hung(0)), "meat") == "Rotten")
 check("fish: Salt Dried, Hot or Cold Smoked in the shed, Stockfish cold dried",
-    F.stackOutcome({ dried = 0 }, nil, "salt") == "SaltDriedFish" and F.stackOutcome({ place = "Enclosed", hotSmokeHoursNeeded = 4, hotSmokeHours = 1 }, nil, "salt") == "HotSmokedFish"
-    and F.stackOutcome({ place = "Enclosed", smokeNeed = 24, coldSmokeHours = 24 }, nil, "salt") == "ColdSmokedFish" and F.stackOutcome({}, nil, "cold") == "ColdDriedFish")
+    F.stackOutcome({ dried = 0 }, nil, "salt") == "SaltDriedFish" and F.stackOutcome({ place = "Smokehouse", hotSmokeHoursNeeded = 4, hotSmokeHours = 1 }, nil, "salt") == "HotSmokedFish"
+    and F.stackOutcome({ place = "Smokehouse", smokeNeed = 24, coldSmokeHours = 24 }, nil, "salt") == "ColdSmokedFish" and F.stackOutcome({}, nil, "cold") == "ColdDriedFish")
 
 -- Dry curing (6b): meat in the shed dries in cool air on its own need, by the heaviest piece.
 check("full from 12 C, a quarter in frost", F.dryCureRate(12) == 1 and F.dryCureRate(25) == 1 and near(F.dryCureRate(6), 0.5)
@@ -244,7 +244,7 @@ check("fish has no dry-curing need", cool.cureNeed == nil and not F.dryCuring(co
 local shed = F.newLedger(0)
 corned.dried, corned.spoiled, corned.stackId = 0, 0, 0
 corned.lastDryCure, corned.lastUnderCure, corned.lastSaltSpoil = 0, 0, 0
-corned.place = "Enclosed"
+corned.place = "Smokehouse"
 local shedFire = {}
 Fire.logFire(shedFire, 500, nil, nil)
 F.smokeStep(corned, shedFire, shed)
@@ -267,7 +267,7 @@ check("its popup reads dry curing, under-salted, the shed at 15 C", status.dryCu
 check("the shed's words", F.dryCureTemperatureWord(15) == "IGUI_TraditionalPreservationFishMeat_TempGoodCure"
     and F.dryCureTemperatureWord(-3) == "IGUI_TraditionalPreservationFishMeat_TempFrostSlow")
 check("on a frame it is still charque", not F.dryCuring({ cureNeed = 504 }) and F.meatHours({ cureNeed = 504 }) == F.CHARQUE_HOURS
-    and F.meatHours({ place = "Enclosed", cureNeed = 504 }) == 504)
+    and F.meatHours({ place = "Smokehouse", cureNeed = 504 }) == 504)
 
 -- Country Cured meat on a Frame or Beam in the shade (0.4.15): it dry cures there too, air dried; a basement by its own
 -- temperature, times two thirds (sweep step D).
@@ -373,10 +373,10 @@ hot.gridOn = true
 check("while the grid is on the loft is the grid's 22 C here too", Weather.placeTemperature(hot, "Loft") == Weather.GRID_ROOM_C)
 hot.gridOn = nil
 
--- Sweep step I: a room and a roof by Core's place temperature; the Smokehouse (a shed) keeps the day's.
+-- Sweep step I: a room and a roof by Core's place temperature; the Smokehouse by a roof's, its air still.
 local roomFish = { place = "Sheltered", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
     lastCovered = hot.covered, lastSaltSpoil = hot.saltSpoil, lastHeat = hot.heat, lastRoomSheltered = hot.roomSheltered }
-local shedFish = { place = "Enclosed", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
+local shedFish = { place = "Smokehouse", dried = 0, spoiled = 0, lastOpen = hot.open, lastSheltered = hot.sheltered,
     lastCovered = hot.covered, lastSaltSpoil = hot.saltSpoil, lastHeat = hot.heat, lastRoomSheltered = hot.roomSheltered }
 local roomCure = { place = "Sheltered", cureNeed = 504, longStack = true, underCured = true, dried = 0, spoiled = 0,
     lastDryCure = hot.dryCure, lastUnderCure = hot.underCure, lastDryCureRoom = hot.dryCureRoom, lastUnderCureRoom = hot.underCureRoom,
@@ -394,8 +394,12 @@ F.charqueStep(roofCure, hot)
 check("a room reads the season's mean, not a cold day's", roomC > cool.temperature and roomC == roofC)
 check("salt fish in a room dries by it", near(hot.roomShelteredRate, math.max(F.temperatureRate(roomC) * F.airRate(0.3) * F.SHELTERED_RATE,
     F.MIN_DRY_RATE)) and near(roomFish.dried, 24 * hot.roomShelteredRate) and F.stackStatus(false, roomFish, hot).rate == hot.roomShelteredRate)
-check("in the Smokehouse by the day's", near(shedFish.dried, 24 * hot.shelteredRate) and shedFish.dried < roomFish.dried
+check("in the Smokehouse by an open roof's, still as a room's", near(hot.shelteredRate, math.max(F.temperatureRate(roofC)
+    * F.airRate(0.3) * F.SHELTERED_RATE, F.MIN_DRY_RATE)) and near(shedFish.dried, 24 * hot.shelteredRate)
     and F.stackStatus(false, shedFish, hot).rate == hot.shelteredRate)
+check("Corned meat spoils in the open by the day's, in the Smokehouse by an open roof's",
+    near(hot.underCureOpenRate, F.underCureRate(cool.temperature)) and near(hot.underCureRate, F.underCureRate(roofC))
+    and near(hot.hotOnlyUnderRate, F.hotOnlyUnderRate(roofC)) and near(hot.dryCureRate, hot.dryCureCoveredRate))
 check("under a roof by the season's mean too", near(hot.coveredRate, math.max(F.temperatureRate(roofC) * F.airRate(0.3), F.MIN_DRY_RATE))
     and near(hot.charqueCoveredRate, F.charqueWarmRate(roofC) * F.airRate(0.3) * F.charqueWindRate(0)))
 check("dry curing in a room and under a roof go by their own, and Corned meat spoils by it",
@@ -475,7 +479,7 @@ check("a bird's stack is hot-only, under-salted, timed by the whole bird", bird.
 local redStack = {}
 F.startSmoke(redStack, list(cut(0, 0.45)), true)
 check("a red meat stack isn't", not redStack.hotOnly)
-check("poultry hangs only in the Smokehouse", F.meatRefusal({ closed = true }, "Enclosed", cut(7)) == nil
+check("poultry hangs only in the Smokehouse", F.meatRefusal({ closed = true }, "Smokehouse", cut(7)) == nil
     and F.meatRefusal({}, "Covered", cut(7)) == "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse"
     and F.meatRefusal({}, "Basement", cut(15)) == "IGUI_TraditionalPreservationFishMeat_HotOnlySmokehouse")
 check("and apart from red meat", F.mixedMeat(cut(7), cut(0)) == "IGUI_TraditionalPreservationFishMeat_MixedMeat"
@@ -484,7 +488,7 @@ check("and apart from red meat", F.mixedMeat(cut(7), cut(0)) == "IGUI_Traditiona
 check("the long cure refuses it (F.startRefusal)", F.isHotOnly(cut(9)) and not F.isHotOnly(cut(0)))
 
 local birdShed = F.newLedger(0)
-bird.dried, bird.spoiled, bird.stackId, bird.place = 0, 0, 1, "Enclosed"
+bird.dried, bird.spoiled, bird.stackId, bird.place = 0, 0, 1, "Smokehouse"
 bird.lastDryCure, bird.lastUnderCure, bird.lastSaltSpoil = 0, 0, 0
 bird.lastHotOnlyUnder = 0
 local birdFire = {}
@@ -499,7 +503,7 @@ check("and spoils faster than red meat, slowly while frozen (0 C is not thawed)"
 check("above freezing poultry rots within 14 days, red meat within 6 weeks, however cool", near(F.hotOnlyUnderRate(1), 1 / (14 * 24))
     and near(F.underCureRate(1), 1 / (42 * 24)) and F.underCureRate(-5) < 1 / (42 * 24) * 0.2)
 check("warm air goes by the curve", near(F.hotOnlyUnderRate(20), F.underCureRate(20) * F.HOT_ONLY_UNDER_RATE))
-local warmBird = { place = "Enclosed", hotOnly = true, underCured = true, dried = 0, cureNeed = 504, lastDryCure = 0, lastUnderCure = 0, lastHotOnlyUnder = 0 }
+local warmBird = { place = "Smokehouse", hotOnly = true, underCured = true, dried = 0, cureNeed = 504, lastDryCure = 0, lastUnderCure = 0, lastHotOnlyUnder = 0 }
 local warmShed = F.newLedger(0)
 F.charqueStep(warmBird, warmShed)
 F.advance(warmShed, 24, { temperature = 20, humidity = 0.3, precipitation = 0, wind = 0 })
@@ -516,9 +520,9 @@ Fire.logFire(birdFire, 808, Fire.STOKED, 900)
 Fire.logFire(birdFire, 815, Fire.STOKED, 900)
 F.smokeStep(bird, birdFire, birdShed)
 check("a broken run starts again, and seven stoked hours in a row cook it", near(bird.hotSmokeHours, 7) and F.hotDone(bird))
-check("its outcome is always the cook, named by the cut", F.stackOutcome({ place = "Enclosed", hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 0 },
+check("its outcome is always the cook, named by the cut", F.stackOutcome({ place = "Smokehouse", hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 0 },
     list(cut(10), cut(15)), "meat") == "ChickenWhole (Hot Smoked), Rabbitmeat (Hot Smoked)")
-check("or Rotten", F.stackOutcome({ place = "Enclosed", hotOnly = true, allUnder = true, underSpoiled = 1 }, list(cut(7)), "meat") == "Rotten")
+check("or Rotten", F.stackOutcome({ place = "Smokehouse", hotOnly = true, allUnder = true, underSpoiled = 1 }, list(cut(7)), "meat") == "Rotten")
 local waiting = F.charqueStatus({ hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 0, underSpoiled = 0.2 }, { temperature = 5 })
 local cooking = F.charqueStatus({ hotOnly = true, hotSmokeHoursNeeded = 7, hotSmokeHours = 3.5, burning = Fire.STOKED }, { temperature = 5 })
 check("its popup waits for a stoked fire, then counts the cook", waiting.hotOnly and waiting.reason == "NeedsStoking"
