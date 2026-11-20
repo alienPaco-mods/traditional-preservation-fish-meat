@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.90
+- Salting Tub Info's cells are drawn in big fish scales or marbled meat by what the tub holds (TP Core 0.1.39), a drag's cells
+  in what it puts in. `TPCell_Fish`, `TPCell_Meat` and `TPCell_Sausage` (the Smokehouse's, for its window) from Core's
+  `tools/cell_patterns.py`.
+
 ## 0.4.89
 - **Salting Tub Info built to the approved mock** (TP Core 0.1.37's pieces): a state band under the title (Empty,
   Packing with the salt it wants, Curing with the time left, Spoiling in a warm season, Cured with the pieces left;

@@ -212,6 +212,8 @@ end
 -- notes. Kept up to date while open.
 local CURE_COLOUR, SLOW_COLOUR = { 0.35, 0.6, 0.3 }, { 0.75, 0.55, 0.2 }
 local LOAD_COLOUR = { 0.59, 0.51, 0.39 }
+-- The cells' pattern by what the tub holds (tools/cell_patterns.py in TP Core).
+local PATTERNS = { fish = "media/textures/TPCell_Fish.png", meat = "media/textures/TPCell_Meat.png" }
 local METHOD_NAMES = { fish = KEY .. "InfoCure", corn = KEY .. "InfoCorn", long = KEY .. "InfoLongCure" }
 
 TubWindow = InfoWindow:derive("TraditionalPreservationFishMeatTubWindow")
@@ -277,7 +279,10 @@ function TubUI.judgeDrop(tub, items)
     local Holds = require "TraditionalPreservationCore/Holds"
     judged.cells = Holds.filledCells({ share = fullShare(count, weight) })
         - Holds.filledCells({ share = fullShare(F.tubCount(tub), F.tubWeight(tub)) })
-    if #judged.take > 0 then table.insert(judged.lines, say(KEY .. "TubDropPut", #judged.take)) end
+    if #judged.take > 0 then
+        table.insert(judged.lines, say(KEY .. "TubDropPut", #judged.take))
+        judged.pattern = PATTERNS[kind]
+    end
     if refusal then
         judged.refused = refusalText(refusal, tub)
         if #judged.take == 0 then judged.lines = { judged.refused } end
@@ -298,7 +303,7 @@ function TubUI.holding(tub, drop)
     return { kind = "cells", name = getText(KEY .. "TubHoldsName_" .. kind),
         amount = stage == "Empty" and getText(KEY .. "TubHoldsNone") or say(KEY .. "TubHoldsCount_" .. kind, count),
         state = say(KEY .. "TubHoldsWeight", string.format("%.1f", weight), F.TUB_CAPACITY),
-        share = fullShare(count, weight), colour = LOAD_COLOUR,
+        share = fullShare(count, weight), colour = LOAD_COLOUR, pattern = PATTERNS[tub.kind],
         drop = (stage == "Empty" or stage == "Packing") and drop or nil }
 end
 

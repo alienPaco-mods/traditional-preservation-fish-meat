@@ -279,4 +279,9 @@ buttons = TubUI.buttons(meat, {}, function() end)
 check("packing meat: Corn the Meat, Country Cure, Unpack", #buttons == 3 and buttons[1].title == "Corn the Meat"
     and buttons[2].title == "Country Cure")
 
+check("fish cells in the fish pattern, meat in the meat, an empty tub plain",
+    TubUI.holding(packing).pattern:find("TPCell_Fish", 1, true) and TubUI.holding(meat).pattern:find("TPCell_Meat", 1, true)
+    and TubUI.holding({}).pattern == nil)
+check("a drag shows its cells in what it puts in", TubUI.judgeDrop({}, { food("Base.Steak", 0.4) }).pattern:find("TPCell_Meat", 1, true))
+
 H.done()
