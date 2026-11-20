@@ -267,12 +267,16 @@ Rinsed, whatever it becomes is **less salty** (a third less thirst; Salt Dried f
   hung. Time a piece spent *not* drying (a shut room, waiting for a roof) counts as time on the shelf: a rack is no
   larder.
 
-**The Info window** lists every piece with a bar: how far it is, the time left, or why it stands still. Sort it
-furthest along or least along; with more than one kind hanging, a tab for each sits over the list (*All*, *Salt Fish
-(4)*, ...). Hover a row for what it will come out as. **Take Done** and **Take All**
-buttons sit under the list. Drag fish or meat from your
-inventory or a crate onto the **square under the list** to hang it: green, it all goes on; orange, some will be
-refused; red, none.
+**The Info window** of a Drying Frame, Hanging Beam or Gantry opens on a band with the rack's state (empty, drying
+and in what wind, done, stopped and why, or spoiling), then the **Station** rows (the place and its temperature, the
+season's mean out of doors, wind, wetness, the heaviest piece it takes) and the load as cells of fish, meat or
+sausage. **Hanging** lists every piece with a bar: how far it is, the time left, or why it stands still, a piece in
+trouble (spoiling, under-salted, stopped) in amber. Sort it furthest along or least along; with more than one kind
+hanging, a tab for each sits over the list (*All*, *Salt Fish (4)*, ...). Hover a row for what it will come out as;
+click the **Hanging** header to fold the list away (each kind of rack remembers it). **Take Done** and **Take All**
+buttons sit under it. Drag fish or meat from your inventory or a crate onto the **load's cells** to hang it: green, it
+all goes on; orange, some will be refused; red, none. The Smokehouse's window keeps the older layout for now, the
+drop square under its list.
 
 > *Margin note:* a rack holding anything stays where it is. Empty it first if you want to move it.
 
