@@ -322,8 +322,9 @@ F.CHARQUE_ON = true
 -- Dry curing (6b): meat hung in the Smokehouse never comes out Charque. It dries slowly in cool air, as a ham or a
 -- side of suho meso does: its need is by the heaviest piece (DRY_CURE_HOURS: three weeks at a rate of 1 for a Beef,
 -- six for a Leg of Pork, a Steak about 19 days), and its rate is full from DRY_CURE_FULL_HEAT (a cellar's
--- 12 C) and never under DRY_CURE_FROST_RATE (frost only slows it), times the air's (airRate). The fire's warmth
--- lifts the shed as it does for fish (F.liftedRates).
+-- 12 C) and never under DRY_CURE_FROST_RATE above MEAT_FREEZE_C, times the air's (airRate); at MEAT_FREEZE_C and below
+-- the meat is frozen and takes no salt, so it waits. The fire's warmth lifts the shed as it does for fish
+-- (F.liftedRates), so a fire keeps it going in frost.
 F.DRY_CURE_HOURS = { { 0.45, 504 }, { 2.25, 1008 } }
 F.DRY_CURE_FULL_HEAT = 12
 F.DRY_CURE_FROST_RATE = 0.25
@@ -1066,8 +1067,9 @@ end
 
 Events.OnInitGlobalModData.Add(F.applySandbox)
 
--- The parts in their own files: the weather's totals and what they do to stacks and tubs, the Salting Tub, the names,
--- the stocks, and the stockfish's pallet and bales.
+-- The parts in their own files: the natural freezer, the weather's totals and what they do to stacks and tubs, the
+-- Salting Tub, the names, the stocks, and the stockfish's pallet and bales.
+require "TraditionalPreservationFishMeatFrost"
 require "TraditionalPreservationFishMeatLedger"
 require "TraditionalPreservationFishMeatTub"
 require "TraditionalPreservationFishMeatRack"

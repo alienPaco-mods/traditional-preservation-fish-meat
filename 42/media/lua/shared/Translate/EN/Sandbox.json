@@ -29,5 +29,7 @@
   "Sandbox_TraditionalPreservationFishMeat_CharqueDays": "Charque drying time (days)",
   "Sandbox_TraditionalPreservationFishMeat_CharqueDays_tooltip": "Days to dry charque in hot sun (25°C and up) and a breeze. Kentucky's summer makes it about 7 to 11 under a roof; real charque takes 4 to 6.",
   "Sandbox_TraditionalPreservationFishMeat_PottedByPlace": "Potted Meat keeps by place",
-  "Sandbox_TraditionalPreservationFishMeat_PottedByPlace_tooltip": "A crock of Potted Meat keeps 120 days in a fridge or a cold month, about 110 in a winter basement and 64 in a summer one; a room follows the season, from as long as a fridge in winter to 14 days in summer (18 while the grid powers it); and the first portion taken costs a third of the time it has left. Off, it keeps 60 days anywhere, as plain food."
+  "Sandbox_TraditionalPreservationFishMeat_PottedByPlace_tooltip": "A crock of Potted Meat keeps 120 days in a fridge or a cold month, about 110 in a winter basement and 64 in a summer one; a room follows the season, from as long as a fridge in winter to 14 days in summer (18 while the grid powers it); and the first portion taken costs a third of the time it has left. Off, it keeps 60 days anywhere, as plain food.",
+  "Sandbox_TraditionalPreservationFishMeat_FrostKeepsMeat": "Frost keeps meat",
+  "Sandbox_TraditionalPreservationFishMeat_FrostKeepsMeat_tooltip": "Raw meat and fish left where it is -2°C or colder keep as in a freezer: outdoors, under a roof or in a cold room, carried, in a container or on the ground. A basement never gets that cold, and a fire nearby keeps the frost off. Off, raw meat and fish spoil as in the base game however cold it is."
 }

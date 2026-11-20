@@ -82,13 +82,17 @@ local function copyValue(value)
 end
 
 -- An item kept in a station's record (the tub's, a rack's) instead of as an item: everything F.carry and the rules
--- read off it, and the hour it went in. F.keptItem stands in for it; F.itemFromKept makes it again.
+-- read off it, and the hour it went in. F.keptItem stands in for it; F.itemFromKept makes it again. A raw piece's frost
+-- is brought up to the hour it goes in and then left behind: the station keeps its time from here, and the piece
+-- that comes out again starts a new frost record.
 function F.keptPiece(item, hour)
+    if item:getModData()[F.FROST_KEY] then F.keepFrozen(item, hour) end
     local piece = { fullType = item:getFullType(), age = item:getAge(), hour = hour, food = {},
         weight = item:getActualWeight(), customWeight = item:isCustomWeight(), name = item:getDisplayName(),
         modelIndex = item:getModelIndex(), uncut = item:hasTag(ItemTag.UNCUT_FISH), data = copyValue(item:getModData()),
         cooked = item:isCooked() or nil }
     for _, field in ipairs(FOOD_FIELDS) do piece.food[field] = item["get" .. field](item) end
+    piece.data[F.FROST_KEY] = nil
     return piece
 end
 

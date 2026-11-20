@@ -212,8 +212,9 @@ check("fish: Salt Dried, Hot or Cold Smoked in the shed, Stockfish cold dried",
     and F.stackOutcome({ place = "Smokehouse", smokeNeed = 24, coldSmokeHours = 24 }, nil, "salt") == "ColdSmokedFish" and F.stackOutcome({}, nil, "cold") == "ColdDriedFish")
 
 -- Dry curing (6b): meat in the shed dries in cool air on its own need, by the heaviest piece.
-check("full from 12 C, a quarter in frost", F.dryCureRate(12) == 1 and F.dryCureRate(25) == 1 and near(F.dryCureRate(6), 0.5)
-    and F.dryCureRate(0) == 0.25 and F.dryCureRate(-15) == 0.25)
+check("full from 12 C, a quarter in a light frost, nothing frozen at -2 C and below", F.dryCureRate(12) == 1 and F.dryCureRate(25) == 1
+    and near(F.dryCureRate(6), 0.5) and F.dryCureRate(0) == 0.25 and F.dryCureRate(-1.9) == 0.25 and F.dryCureRate(-2) == 0
+    and F.dryCureRate(-15) == 0)
 check("a Beef needs three weeks, a leg six, a Steak a little less", near(F.dryCureHours(0.45), 504) and near(F.dryCureHours(2.25), 1008)
     and near(F.dryCureHours(0.27), 453.6) and F.dryCureHours(5) == 1008)
 check("under-salted meat rots in four weeks at 10 C, five times slower at 0 C, five times faster at 20 C",
@@ -267,7 +268,8 @@ local status = F.charqueStatus(corned, shed)
 check("its popup reads dry curing, under-salted, the shed at 15 C", status.dryCuring and status.underSalted and status.shedTemperature == 15
     and near(status.rate, 1) and near(status.progress, 30 / 504) and near(status.spoiled, corned.underSpoiled))
 check("the shed's words", F.dryCureTemperatureWord(15) == "IGUI_TraditionalPreservationFishMeat_TempGoodCure"
-    and F.dryCureTemperatureWord(-3) == "IGUI_TraditionalPreservationFishMeat_TempFrostSlow")
+    and F.dryCureTemperatureWord(-1) == "IGUI_TraditionalPreservationFishMeat_TempFrostSlow"
+    and F.dryCureTemperatureWord(-2) == "IGUI_TraditionalPreservationFishMeat_TempTooCold")
 check("on a frame it is still charque", not F.dryCuring({ cureNeed = 504 }) and F.meatHours({ cureNeed = 504 }) == F.CHARQUE_HOURS
     and F.meatHours({ place = "Smokehouse", cureNeed = 504 }) == 504)
 

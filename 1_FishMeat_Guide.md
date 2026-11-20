@@ -96,8 +96,8 @@ Every road on one page. *Start* is when to begin it in Kentucky's weather; *Yiel
 | **Charque** (beef, mutton, venison) | **May to September** | Corned, 1 to 2 days | Any drying station in the sun or under an open roof | 1 to 3 weeks | 50% weight, 90% food | 120 / 180 | Soak, then cook |
 | **Hot Smoked meat**; pork becomes **Ham** | Any month | Corned, 1 to 2 days | Smokehouse, Stone Hearth stoked | 6 to 7½ hours of fire | 70% weight, all the food | 7 / 14 (Ham 5 / 10) | As it is |
 | **Hot Smoked chicken, turkey, rabbit** | Any month | Corned (a brine), 1 to 2 days | Smokehouse, Stone Hearth stoked, and nowhere else | About 6 hours of fire; a whole bird 7 or 8 | 70% weight, all the food | 7 / 14 (Corned 3 / 6) | As it is |
-| **Dry cured cuts**: Beef (Dry Cured), Beef (Cold Smoked) and their kin | **October to April** | Country Cured, 10 days | Smokehouse, any station under a roof or in a room with a window open, or in a basement | 3 to 12 weeks | 50% weight, 90% food | 120 / 180 | As it is |
-| **Country Ham** (a Leg of Pork) | **October to March** | Country Cured, 21 days | The same | 6 weeks to 5 months | 50% weight, 90% food | **180 / 365** | As it is |
+| **Dry cured cuts**: Beef (Dry Cured), Beef (Cold Smoked) and their kin | **October to April** | Country Cured, 10 days | Smokehouse, any station under a roof or in a room with a window open, or in a basement | 3 to 18 weeks | 50% weight, 90% food | 120 / 180 | As it is |
+| **Country Ham** (a Leg of Pork) | **October to March** | Country Cured, 21 days | The same | 6 weeks to 6 months | 50% weight, 90% food | **180 / 365** | As it is |
 | **Potted Meat** (any cut, pork, poultry and rabbit too) | Any month; whenever you butcher | None | A pot, a fire, a ceramic jar | 2 hours | The meat and its fat | 17 to 120, by where it's kept | As it is |
 | **Lard, Tallow** | Whenever you butcher | None | A pot, or a Stone Hearth's Forged Cauldron | 1 hour | 2 pieces of fat a block | Don't spoil | For cooking and potting |
 | **Black Pudding, Blood Sausage** | The day you butcher (cured blood: within 3 days) | None | A pan in the oven; casings and a pot of water | 1 hour baking; half an hour boiling (smoked: 24 hours of cool-day smoke more) | 1 L of blood, filler and fat: 6 slices or 6 links | 5 / 10 (boiled links 7 / 14, smoked 21 / 40) | As it is, fried, or in a dish |
@@ -176,6 +176,24 @@ In the base game a butchered animal gives no fat, and Lard is something you find
 | Sheep (ewe, ram) | Mutton Fat | 2 to 4 | 1 | Tallow |
 
 Numbers are for an average animal and an unskilled butcher. A bigger or meatier animal gives more, Butchering skill raises the top end, and roadkill or an old carcass gives less: the game's own butchering rules, as for the meat. Piglets, calves, lambs and deer are too lean to give any. Raw fat keeps 2 / 4 days. What to do with it: chapter 12.
+
+### Frost keeps it
+
+In the base game only a freezer stops raw meat going off. Here the winter does too: raw meat and fish left where it is **-2 C or colder** keep as in a freezer, for every hour it stays that cold. Outdoors, under a roof, in a cold room, on the ground, in a crate or in your pack, it goes by the air where it lies. Above -2 C it spoils as usual.
+
+| Kept by frost | Not kept |
+|---|---|
+| Raw fish and fillets, Gutted Fish, Fish Halves, Fish Heads | Anything cooked or burnt |
+| Raw beef, mutton, venison, pork, chicken, turkey, rabbit, the Leg of Pork | Salted, dried and smoked pieces (they keep by their own days) |
+| Pork Fat, Beef Suet, Mutton Fat, Raw Casings, Fresh Sausage, Blood Sausage before it is boiled | Fish and meat hanging on a station or in the Salting Tub (the station keeps their time) |
+| Charque (Soaked), Salt Dried Fish (Soaked), Stockfish (Soaked) | |
+
+- **A basement never freezes.** It stays a few degrees above freezing all winter, so meat there spoils as in a cool room.
+- **A fire keeps the frost off.** Meat lying by a lit fire is warm, frost or no frost.
+- **A powered freezer** works as it always did; a powered fridge only slows it.
+- Turn it off in the sandbox (*Frost keeps meat*) and raw meat spoils as in the base game however cold it is.
+
+> *Margin note:* before the freezer, a winter kill hung in an unheated outbuilding, a shed or a barn loft, and was cut from as needed until the thaw. In the far north fish were simply stacked in the snow.
 
 ---
 
@@ -552,11 +570,12 @@ Dry curing is the winter road for meat: a long salting in the cold, then weeks o
 **How fast it dries**
 
 - **By the heaviest piece:** **3 weeks** for a Beef, Venison or Pork, a little less for a Steak or a chop, **6 weeks** for a Leg of Pork, at full speed.
-- **Full speed is a cellar's cool:** from **12 C** up. Colder air dries slower, down to **a quarter** of the speed in frost, and never stops. Damp air slows it as it does salt fish. Wind plays no part.
+- **Full speed is a cellar's cool:** from **12 C** up. Colder air dries slower, down to **a quarter** of the speed in a light frost. **At -2 C and colder it stops**: the meat is frozen and takes no salt, and the popup reads *Too cold*. It starts again as soon as it thaws. Damp air slows it as it does salt fish. Wind plays no part.
+- **A fire keeps it going in a frost**, in the Smokehouse: banked, the shed is 15 C warmer than the day, so only the hardest frost stops it.
 - **A fire helps**, in the Smokehouse only: banked, the shed is 15 C warmer.
 - **Which temperature:** a roof goes by the air, the Smokehouse and an aired room by the day's average, a shut room by the last three days (a room 22 C while the grid is on), and the Smokehouse's fire warms the day's air. A shut room dries nothing until a window is open. Corned meat spoils by the same temperature, so an under-salted cut in a powered room rots in about four days.
 
-| Where a cut hangs | In frost | At 6 C | From 12 C | Smoke? |
+| Where a cut hangs | In a light frost (0 to -2 C) | At 6 C | From 12 C | Smoke? |
 |---|---|---|---|---|
 | Smokehouse, fire out; any station under a roof; a Frame or Beam in a room | 12 weeks | 6 weeks | 3 weeks | no |
 | A Frame or Beam in a room while the grid is on (22 C) | 3 weeks | 3 weeks | 3 weeks | no |
@@ -1038,7 +1057,7 @@ The farm's year turns on two slaughters.
 - **Summer: fish hard, and salt it.** The fish bite best now. A frame holds 20 weight of fish, about **8,000 calories**, three days of food, and takes **160 salt** and two to three weeks under the roof. One frame can't keep up with a good rod: build two or three, or a Hanging Beam (60 weight).
 - **A summer deer is charque.** 26 Venison, one tub load, 104 salt, two days of corning; the whole deer hangs on one frame and dries in one to two weeks to about 6.5 weight of **Venison Charque**: 10,000 calories you can carry.
 - **Winter: every fish is stockfish.** The bite is halved, so nothing is wasted: gut it and hang it the same day, no salt, no tub. A frame's 20 weight comes down in seven or eight weeks as about 4.4 weight of stockfish, about 8,900 calories, and it keeps a year.
-- **A winter deer is dry cured.** Country cure it for ten days, then hang it under the lean-to: twelve weeks in the frosts, five to seven from March. That's **Venison (Dry Cured)**, eaten as it is. With a Smokehouse and a Stone Hearth (Carpentry 3, Masonry 2) it's **Venison (Cold Smoked)** in about seven weeks.
+- **A winter deer is dry cured.** Country cure it for ten days, then hang it under the lean-to: about four months through the frosts (it waits out every hard one), five to seven weeks from March. That's **Venison (Dry Cured)**, eaten as it is. With a Smokehouse and a Stone Hearth (Carpentry 3, Masonry 2) it's **Venison (Cold Smoked)** in about seven weeks.
 - **No fat, no crocks.** Deer give no fat, so Potted Meat needs Lard you've found. A wild boar or a raided pig farm changes that.
 - **Hot smoke for the trail's first week**, if you have the shed: four hours of fire for small fish.
 
@@ -1147,7 +1166,8 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Meat in the shed says *Under-salted* and spoils | It is Corned. Give it its hot cook, or use Country Cure for meat that hangs |
 | A piece came down as *Corned Beef (Rotten)* or a rotten pressed fish | It rotted before it was done, so it is still what you hung |
 | A spot looks rotten but some pieces are fine | A spot shows rotten when any piece in it rotted: the rack's window says which one |
-| Meat in the shed takes months | Dry curing is slow in frost. A banked fire a few hours a day warms the shed; March and April are the quick months |
+| Meat in the shed takes months | Dry curing is slow in frost and stops at -2 C and colder (*Too cold*). A banked fire a few hours a day warms the shed; March and April are the quick months |
+| Raw meat left outdoors in winter is still fresh | Frost keeps it, as a freezer would, while it stays at -2 C or colder. Turn it off in the sandbox (*Frost keeps meat*) |
 | Wanted Charque, got Beef (Dry Cured), smoked or not | Meat hung in the Smokehouse is always dry cured. For charque, use a frame in the sun |
 | Drying Rate didn't rise with the fire | Below about -2 C outdoors a banked fire can't lift salt fish off its slowest rate (27 days); stoke it, which helps from about -7 C. Over about 5 C banked is already at full speed, so stoking adds nothing to drying |
 | Add Meat to the Pot is greyed out | The pot already has four cuts, or it has cooked: meat goes in raw |
@@ -1173,6 +1193,7 @@ Drying takes the water out and leaves the food in. Here's what one unit of inven
 | Salting meat | On | Off, meat can't go in the Salting Tub or hang |
 | Charque drying time (days) | 5 | In hot sun and a fair breeze. Kentucky's summer makes it about 7 to 11 under a roof; the real charqueadas took 4 to 6 |
 | Potted Meat keeps by place | On | Off, a crock keeps 60 / 90 days anywhere, as plain food, and opening it costs nothing |
+| Frost keeps meat | On | Raw meat and fish at -2 C or colder keep as in a freezer. Off, they spoil as in the base game however cold it is. Dry curing stops at -2 C either way |
 
 ---
 
@@ -1187,7 +1208,7 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | **Charque**: Beef, Mutton, Venison (Corned) | April to October | June, July, August, September | April (11 to 34 days), May (7 to 25); October (under a roof only, 17 to 65) | November to March: it barely dries | Under an open roof or by an open window, or the open air on dry weeks | 7 to 10 days |
 | **The long cure**: Country Cured meat | October to April; a basement tub November to May | November to March | October, April | May to September: it spoils in the tub | Any tub in the cold | 10 days for cuts, 21 with a Leg of Pork |
 | **Smoked dry curing**: Beef, Mutton, Venison, Pork (Cold Smoked), Smoked Country Ham (Country Cured) | October to April | December, January, February, March | October, November, April | May to September: over 15 C the smoke doesn't count, the meat air dries | Smokehouse, Stone Hearth banked | Cuts 3 to 4 weeks banked all day, about 7 with a fire a few hours a day; a leg about 3 months |
-| **Air dry curing**: Beef, Mutton, Venison, Pork (Dry Cured), Country Ham (Country Cured) | All year | May (under a roof); June to October (a basement) | December, January, February: 12 weeks in frost | None | Under a roof in May; the Smokehouse with the fire out; a basement in summer | Cuts about 3 weeks, a leg about 6; a basement 4½ to 5 and 9 to 11 |
+| **Air dry curing**: Beef, Mutton, Venison, Pork (Dry Cured), Country Ham (Country Cured) | All year | May (under a roof); June to October (a basement) | December, January, February: 13 to 18 weeks, the cure stopping at -2 C | None | Under a roof in May; the Smokehouse with the fire out; a basement in summer | Cuts about 3 weeks, a leg about 6; a basement 4½ to 5 and 9 to 11 |
 | **Cold smoking**: Cold Smoked Fish (cured) | October to April | October, April | November to March (17 to 27 days banked all day) | May to September: over 15 C the smoke doesn't count | Smokehouse, Stone Hearth banked | About 12 days from 5 C; 21 at 0 C |
 | **Hot smoking**: Hot Smoked Fish; Beef, Mutton, Venison (Hot Smoked); pork becomes Ham; chicken, turkey and rabbit (Corned, brined a day or two) | All year | Any | None | None | Smokehouse, Stone Hearth stoked; never a leg | Fish 4 to 6 hours in a row, Steaks, chops and poultry cuts 6, a Beef or Venison 7½, a whole chicken 7, a turkey 8 |
 | **Potting and rendering**: Potted Meat, Lard, Tallow | All year | Whenever you butcher | None | None | A pot and a fire (Potted Meat then a ceramic jar, kept in a cellar) | 2 hours; rendering 1 |
@@ -1229,12 +1250,12 @@ Laid out as the game's planting seasons: the months a process works, its best an
 | `TPFM.rain(hours)` | Adds hours of rain (default 6) and wets the open stations: open charque loses a tenth per 6 hours. Then `TPFM.dry()` |
 | `TPFM.dry()` | Clears the wetness, so open and cold stations start drying again at once |
 | `TPFM.spoil(hours)` | Adds spoiling weather, to test rotting. A fresh gutted fish rots after 48 |
-| `TPFM.frost(hours)` | Adds hours of hard frost (72 hours take a tenth of a fresh gutted fish's keeping) |
+| `TPFM.frost(hours)` | Adds hours of hard frost (72 hours take a tenth of a fresh gutted fish's keeping), and gives the loose raw meat and fish on you or within 4 tiles that many hours of frost: they come out that much younger, as frost would have kept them |
 | `TPFM.heat(hours)` | Adds hours of hot sun (24 hours take a twentieth of a fresh open salt fish's keeping) |
 | `TPFM.warmCure(hours)` | Adds hours of a warm cure at 25 C, to test a warm cure spoiling a running tub (24 hours take about a fifth) |
 | `TPFM.longCure(hours)` | Adds hours of a 15 C season (default 168) to a running Country Cure, which wants 10 C or less (a leg's cure rots after 504) |
 | `TPFM.mature(days)` | Ages the stockfish and the dry cured meat you carry by this many days. Stockfish is Matured after 60, a cut Aged after 30, a Country Ham after 90 |
-| `TPFM.food()` | The cured fish and meat you carry, with the numbers the game rounds or hides: hunger, unhappiness, boredom, thirst, weight, age against its days, ageing |
+| `TPFM.food()` | The cured fish and meat you carry, with the numbers the game rounds or hides: hunger, unhappiness, boredom, thirst, weight, age against its days, ageing, and a raw piece's hours frozen |
 
 **Spawning**
 

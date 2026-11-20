@@ -1,5 +1,24 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.94
+- **Frost keeps raw meat and fish** (the natural freezer): loose raw meat and fish (carried, in a container, on the
+  ground) age nothing in the hours at or below -2 C where they are, as in a freezer; above it, vanilla's clock as
+  before. Vanilla's raw fish and cuts, the Leg of Pork, Gutted Fish, Fish Half, Fish Head, Fresh Sausage, raw Blood
+  Sausage, Raw Casings, Pork Fat, Mutton Fat, Beef Suet and the soaked stages; cooked or burnt pieces keep vanilla's
+  clock. By TP Core's place temperature on its frost ledger (`Frost.point(-2)`): a basement never freezes, a powered
+  fridge never, a fire nearby keeps the frost off. Each piece keeps a frost record (`modData.tpfmFrost`), looked at
+  through TP Core's `PlaceKeepingUI`; a piece hung on a rack or packed in the tub leaves its record behind. New
+  sandbox option **Frost keeps meat** (`FrostKeepsMeat`, on).
+- **Dry curing stops at -2 C and below** (`F.dryCureRate` 0): frozen meat takes no salt. Above it as before (a
+  quarter in a light frost, full from 12 C); a fire's warmth in the Smokehouse keeps it going. The popup's
+  temperature word reads *Too cold* there.
+  With no fire a winter start now takes longer (a scratch run on the forecasts, the Smokehouse with the fire
+  out): a Beef hung in November 75 to 129 days, in January about 78 to 93; a Leg of Pork in November 147 to 170;
+  basements and March on unchanged. README and guide figures updated (cuts 3 to 18 weeks, a ham up to 6 months).
+- Console: `TPFM.frost(hours)` also gives the loose raw meat and fish on you or within 4 tiles that many hours of
+  frost; `TPFM.food()` shows a raw piece's hours frozen. Tests in `tests/test_frost.lua`.
+- Needs TP Core 0.1.52.
+
 ## 0.4.93
 - **A done piece's row is named and drawn as it comes off** (user, session 72): on the racks and in the Smokehouse, a
   piece done reads the name, with the icon, of what Take Done gives (*Beef (Country Cured)* hung reads *Beef (Dry Cured)*, *Cold Smoked* or

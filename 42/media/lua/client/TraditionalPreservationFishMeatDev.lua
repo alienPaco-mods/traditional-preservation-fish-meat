@@ -26,13 +26,13 @@ function TPFM.help()
     say("TPFM.age(hours)            give every hanging piece this many hours of perfect drying weather (Corned meat in a Smokehouse spoils with it)")
     say("TPFM.spoil(hours)          add this many hours of spoiling weather, to test rotting pieces")
     say("TPFM.underSalt(hours)      add this many hours of a 10 C shed (default 168) for Corned meat hanging in a Smokehouse, a room or under a roof")
-    say("TPFM.frost(hours)          add this many hours of hard frost, to test early frost on fresh gutted fish")
+    say("TPFM.frost(hours)          add this many hours of hard frost, to test early frost on fresh gutted fish; and give the loose raw meat and fish on you or within 4 tiles that many hours of frost (their age given back, as frost keeps them)")
     say("TPFM.heat(hours)           add this many hours of hot sun, to test it on fresh open salt fish")
     say("TPFM.warmCure(hours)       add this many hours of a warm cure at 25 C, to test a warm cure spoiling a running tub")
     say("TPFM.longCure(hours)       add this many hours of a 15 C season (default 168) to a running Country Cure, which wants 10 C or less")
     say("TPFM.dry()                 clear the wetness, so open and cold frames start drying again at once")
     say("TPFM.mature(days)          age the stockfish and dry cured meat you carry by this many days, to test maturing and ageing")
-    say("TPFM.food()                the cured fish and meat you carry: hunger, unhappiness, boredom, thirst, age against its days, ageing")
+    say("TPFM.food()                the cured fish and meat you carry: hunger, unhappiness, boredom, thirst, age against its days, ageing, hours frozen")
     say("TPFM.fish(name, n, weight, stage) spawn n fish, e.g. TPFM.fish(\"Walleye\", 2, 4); stage \"cured\", \"dried\", \"hotSmoked\", \"coldSmoked\" or \"stockfish\" (it may take weight's place); TPFM.fish() lists the names, \"all\" gives each")
     say("TPFM.meat(name, n, stage)  spawn n of a cut, e.g. TPFM.meat(\"Steak\", 2) or TPFM.meat(\"all\", 1, \"corned\"); stage \"corned\", \"country\", \"charque\", \"hotSmoked\" or \"dryCured\" (chicken, turkey and rabbit: corned and hotSmoked only); TPFM.meat() lists the names")
     say("TPFM.give(name, n, option) spawn n of: head, stock, salt, fat, fatPot (option \"burnt\" or \"raw\"), crock (full, four Steaks in Lard), blood (a Bucket of 4 L; option \"cured\" or \"spoiled\"), casings, saltedCasings, blackPudding, bloodSausage (boiled; option \"stale\"), smokedBloodSausage, freshSausage (raw; option \"seasoned\" or \"stale\"), smokedSausage (option \"seasoned\"). TPFM.give() lists them")
@@ -172,6 +172,19 @@ function TPFM.frost(hours)
     ledger.hardFrost = ledger.hardFrost + hours
     say(string.format("Added %.0f hours of hard frost. A fresh gutted fish loses %.0f%% of its keeping per %d hours, at most %.0f%%.",
         hours, F.FREEZE_DAMAGE * 100, F.FREEZE_DAMAGE_HOURS, F.DAMAGE_CAP * 100))
+    -- Loose raw pieces: brought up to now, then the hours of frost given back off their age as a look would.
+    local pieces, kept = PlaceKeepingUI.near(F.frostKeptTypes()), 0
+    for _, item in ipairs(pieces) do
+        local record = F.keepFrozen(item)
+        if record then
+            record.age = record.age + hours
+            if F.frostKeepsMeat() then F.giveFrostBack(item, hours, 0) end
+            record.itemAge = item:getAge()
+            kept = kept + 1
+        end
+    end
+    say(string.format("Gave %d loose raw piece(s) of meat and fish %.0f hours of frost%s.", kept, hours,
+        F.frostKeepsMeat() and "" or " (Frost keeps meat is off in the sandbox: their age stays)"))
 end
 
 function TPFM.heat(hours)
@@ -253,9 +266,11 @@ function TPFM.food()
         for i = 0, items:size() - 1 do
             local item = items:get(i)
             local ageing = F.ageDays(item) and string.format(", aged %.0f%%", F.agedness(item) * 100) or ""
-            say(string.format("%s: hunger %.1f, unhappiness %.1f, boredom %.1f, thirst %.1f, weight %.2f, age %.1f of %d / %d days%s",
+            local frozen = F.frozenHours(item)
+            local frost = frozen and string.format(", frozen %.1f h in all", frozen) or ""
+            say(string.format("%s: hunger %.1f, unhappiness %.1f, boredom %.1f, thirst %.1f, weight %.2f, age %.1f of %d / %d days%s%s",
                 item:getDisplayName(), item:getHungChange() * 100, item:getUnhappyChange(), item:getBoredomChange(),
-                item:getThirstChange() * 100, item:getActualWeight(), item:getAge(), item:getOffAge(), item:getOffAgeMax(), ageing))
+                item:getThirstChange() * 100, item:getActualWeight(), item:getAge(), item:getOffAge(), item:getOffAgeMax(), ageing, frost))
             count = count + 1
         end
     end

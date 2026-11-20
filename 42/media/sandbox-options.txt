@@ -108,3 +108,10 @@ option TraditionalPreservationFishMeat.PottedByPlace {
     page = TraditionalPreservationFishMeat,
     translation = TraditionalPreservationFishMeat_PottedByPlace,
 }
+
+option TraditionalPreservationFishMeat.FrostKeepsMeat {
+    type = boolean,
+    default = true,
+    page = TraditionalPreservationFishMeat,
+    translation = TraditionalPreservationFishMeat_FrostKeepsMeat,
+}

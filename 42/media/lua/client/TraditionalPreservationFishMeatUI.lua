@@ -1,8 +1,9 @@
--- Traditional Preservation (Fish & Meat): the stations' placement rules, the hourly renaming of fish and crocks,
--- Rinse at Sink, Tie / Untie Bale and the Stockfish Pallet's menu. The tub's, the racks' and the Smokehouse's menus
--- and Info windows are in ...TubUI.lua and ...RackUI.lua.
+-- Traditional Preservation (Fish & Meat): the stations' placement rules, the hourly renaming of fish and crocks, the
+-- natural freezer's looks, Rinse at Sink, Tie / Untie Bale and the Stockfish Pallet's menu. The tub's, the racks' and
+-- the Smokehouse's menus and Info windows are in ...TubUI.lua and ...RackUI.lua.
 local UI = require "TraditionalPreservationCore/UI"
 local Transfer = require "TraditionalPreservationCore/Transfer"
+local PlaceKeepingUI = require "TraditionalPreservationCore/PlaceKeepingUI"
 local Weather = require "TraditionalPreservationCore/Weather"
 local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 local F = TraditionalPreservationFishMeat
@@ -57,6 +58,9 @@ end)
 Transfer.before(function(_, item)
     if item:getFullType() == F.CROCK then F.keepCrock(item) end
 end)
+
+-- Loose raw meat and fish catch up on their frost whenever they are looked at or moved (TP Core's PlaceKeepingUI).
+PlaceKeepingUI.watch({ keep = F.keepFrozen }, F.frostKeptTypes())
 
 -- Rinse at Sink: the Rinse recipe takes carried water, and this takes it from the nearest sink, bathtub, barrel or
 -- well of clean water, walking there. It goes in the fish's own submenu, beside the recipe, for every selected fish.

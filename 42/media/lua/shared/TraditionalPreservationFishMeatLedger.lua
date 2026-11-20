@@ -73,8 +73,10 @@ function F.tubCureRate(celsius)
     return Weather.curve(F.TUB_CURE_POINTS, celsius)
 end
 
--- Dry curing's rate by temperature: DRY_CURE_FROST_RATE at its lowest, full from DRY_CURE_FULL_HEAT.
+-- Dry curing's rate by temperature: nothing at MEAT_FREEZE_C and below (the meat frozen), DRY_CURE_FROST_RATE at
+-- its lowest above it, full from DRY_CURE_FULL_HEAT.
 function F.dryCureRate(celsius)
+    if celsius <= F.MEAT_FREEZE_C then return 0 end
     return math.max(F.DRY_CURE_FROST_RATE, math.min(celsius / F.DRY_CURE_FULL_HEAT, 1))
 end
 
@@ -588,11 +590,13 @@ function F.charqueTemperatureWord(celsius)
     return F.WORDS.tempTooCold
 end
 
--- The popup's word for the temperature on meat in the Smokehouse: cool air is right, frost only slows it.
+-- The popup's word for the temperature on meat in the Smokehouse: cool air is right, a light frost slows it, and
+-- at MEAT_FREEZE_C and below the meat is frozen and waits.
 function F.dryCureTemperatureWord(celsius)
     if celsius >= F.DRY_CURE_FULL_HEAT then return F.WORDS.tempGoodCure end
     if celsius > 0 then return F.WORDS.tempCool end
-    return F.WORDS.tempFrostSlow
+    if celsius > F.MEAT_FREEZE_C then return F.WORDS.tempFrostSlow end
+    return F.WORDS.tempTooCold
 end
 
 -- The popup's word for the wind on a cold frame: calm, a light breeze or a good drying wind.

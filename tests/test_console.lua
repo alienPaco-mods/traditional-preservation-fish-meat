@@ -125,4 +125,20 @@ function getCell() return { getGridSquare = function() return nil end } end
 check("pallet says when there is none near", run("pallet"):find("No Stockfish Pallet", 1, true) ~= nil)
 check("smoke says when no Smokehouse is near", run("smoke"):find("No Smokehouse", 1, true) ~= nil)
 
+-- frost: the racks' hard frost, and a carried Steak's age given back (its first look starts its record, in the open).
+local steak = { modData = {}, age = 2 }
+function steak:getFullType() return "Base.Steak" end
+function steak:getModData() return self.modData end
+function steak:getAge() return self.age end
+function steak:setAge(age) self.age = age end
+function steak:isCooked() return false end
+function steak:isBurnt() return false end
+function steak:getOutermostContainer() return nil end
+function steak:getWorldItem() return nil end
+player:getInventory().getAllEvalRecurse = function(_, wanted) return H.list(wanted(steak) and { steak } or {}) end
+local hardFrost = ledger.hardFrost
+local frosted = run("frost", 12)
+check("frost adds hard frost and keeps a carried Steak 12 hours", ledger.hardFrost == hardFrost + 12
+    and frosted:find("Gave 1 loose raw piece", 1, true) ~= nil and H.near(steak.age, 1.5) and H.near(F.frozenHours(steak), 12))
+
 H.done()
