@@ -1,6 +1,11 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
-## Unreleased
+## 0.4.93
+- **A done piece's row is named and drawn as it comes off** (user, session 72): on the racks and in the Smokehouse, a
+  piece done reads the name, with the icon, of what Take Done gives (*Beef (Country Cured)* hung reads *Beef (Dry Cured)*, *Cold Smoked* or
+  *Hot Smoked*; a salt fish *Bluegill (Salt Dried)*; pork hot smoked *Ham*; a smoked link *Smoked Blood Sausage*;
+  ageing shows, *Aged*), worked out from the kept piece at most once a game hour. A piece still drying keeps the name
+  it was hung with.
 - Docs: Smokehouse Info's band carries the joined hearth's Bank / Stoke and Light / Put Out buttons (TP Core 0.1.42).
 
 ## 0.4.92

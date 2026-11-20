@@ -1,4 +1,4 @@
-# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.92)
+# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.93)
 
 **Status: experimental.** The stations build, open and hang fish and meat in the game, but a full year hasn't been played. Back up your save before enabling.
 
@@ -67,7 +67,8 @@ drying don't age it, hours it hung without drying (a shut room, the wrong place)
 movement, one piece an action. A rack with anything on it can't be picked up.
 
 The rack's window lists the place, the air, wind and wetness, what it holds, and a row a piece (its bar with the share
-dried and time left, or why it stands still, or *Done* / *Rotten*), sorted furthest along or least along; with more than
+dried and time left, or why it stands still, or *Done* / *Rotten*; a done piece named as it comes off, *Beef (Dry
+Cured)* for the *Beef (Country Cured)* hung), sorted furthest along or least along; with more than
 one Hang group on it, a tab for each over the list (*All*, *Salt Fish (4)*, ...);
 hover a row for its method, what it comes out as, the time left and any spoilage. Under the list, **Take Done (n)**
 and **Take All (n)** buttons, as the menu's rows. A selection dragged from the inventory or a loot window onto the

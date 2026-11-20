@@ -61,7 +61,9 @@ local function fish(fullType, weight, name)
 end
 local salt = F.hangPiece(rack, fish(F.PRESSED_FISH, 1.5, "Walleye (Salt Cured)"), "Open", ledger, 1000)
 local cold = F.hangPiece(rack, fish(F.GUTTED_FISH, 1, "Walleye (Gutted)"), "Open", ledger, 1000)
-local done = F.hangPiece(rack, fish(F.PRESSED_FISH, 0.5, "Bluegill (Salt Cured)"), "Open", ledger, 1000)
+local bluegill = fish(F.PRESSED_FISH, 0.5, "Bluegill (Salt Cured)")
+bluegill:getModData().fishName = "Bluegill"
+local done = F.hangPiece(rack, bluegill, "Open", ledger, 1000)
 salt.state.dried = F.DRY_HOURS * 0.6
 done.doneHour, done.state.dried = 1000, F.DRY_HOURS
 
@@ -77,6 +79,10 @@ check("its share, and its tab: its Hang group, in the menu's order", math.abs(sh
     and shown.pieces[1].tabOrder < shown.pieces[2].tabOrder)
 check("a running piece's bar says its time left", shown.pieces[1].text:find("left", 1, true) ~= nil)
 check("a done piece reads Done, full", shown.pieces[3].text == "Done" and shown.pieces[3].share == 1)
+check("a done piece is named as it comes off (user, session 72), a running one as it was hung",
+    shown.pieces[3].name == "Bluegill (Salt Dried)"
+    and shown.pieces[3].icon == "icon:" .. F.SALT_DRIED and shown.pieces[1].icon == "icon:" .. F.PRESSED_FISH
+    and shown.pieces[1].name == "Walleye (Salt Cured)")
 check("the done note, and the weather's", hasNote(shown, "1 done") and hasNote(shown, "weather holds"))
 check("the window's take lists: done ids and every id, and why Take Done waits", #shown.doneIds == 1 and shown.doneIds[1] == done.id
     and #shown.allIds == 3 and type(shown.waitText) == "string")

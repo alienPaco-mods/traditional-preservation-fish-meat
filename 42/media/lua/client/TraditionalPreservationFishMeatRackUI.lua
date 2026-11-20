@@ -41,6 +41,22 @@ local function iconOf(piece)
     return icon or nil
 end
 
+-- A done piece's name and icon: what it comes off as (F.rackOutput's item: Dry Cured, Cold Smoked, Hot Smoked, a ham,
+-- Aged; user, session 72: a Country Cured beef reads as the Dry Cured beef it has become). Made from the kept piece,
+-- which it leaves as it is, at most once a game hour (the name ages with it); a weak table, as the icons.
+local doneLooks = setmetatable({}, { __mode = "k" })
+local function doneLook(piece, now)
+    local hour = math.floor(now or piece.doneHour or 0)
+    local known = doneLooks[piece]
+    if not known or known.hour ~= hour then
+        local item = F.rackOutput(piece, now)
+        known = { hour = hour, name = item and string.gsub(item:getDisplayName(), "%s+$", "") or piece.name,
+            icon = item and item:getTexture() or nil }
+        doneLooks[piece] = known
+    end
+    return known
+end
+
 -- Each rack's own icon, by its hanger's name: the menu's item icons, and Rack Info's outline (TP Core
 -- tools/station_icons.py; the Smokehouse's is TP Core's).
 local RACK_ICONS = { frame = "media/textures/Item_DryingFrame.png", medium = "media/textures/Item_DryingBeamMedium.png",
@@ -153,7 +169,8 @@ local function holdBack(piece, ledger)
     return nil
 end
 
--- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first. Its tab
+-- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first, named as it
+-- comes off. Its tab
 -- is its Hang group's (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages), in the menu's order. In
 -- the Smokehouse each row has its smoke under the bar. What holds it back is its warning (spoiling, or stopped: then
 -- the bar reads its share alone, the warning says why).
@@ -173,6 +190,7 @@ function RackUI.pieceRow(piece, ledger, now)
     elseif F.pieceDone(piece) then
         row.text, row.colour, row.weather = getText(KEY .. "RackDone"), DONE_COLOUR, nil
     end
+    if F.pieceDone(piece) then row.name = doneLook(piece, now).name end
     return row
 end
 
@@ -185,7 +203,7 @@ function RackUI.view(rack, hanger, place, ledger, now, fire)
     local pieces, notes, weather, done = {}, {}, false, 0
     for _, piece in ipairs(rack.pieces or {}) do
         local row = RackUI.pieceRow(piece, ledger, now)
-        row.icon = iconOf(piece)
+        row.icon = F.pieceDone(piece) and doneLook(piece, now).icon or iconOf(piece)
         table.insert(pieces, row)
         weather = weather or row.weather == true
         if F.pieceDone(piece) then done = done + 1 end

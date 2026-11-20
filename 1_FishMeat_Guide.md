@@ -271,7 +271,8 @@ Rinsed, whatever it becomes is **less salty** (a third less thirst; Salt Dried f
 and in what wind, done, stopped and why, or spoiling), then the **Station** rows (the place and its temperature, the
 season's mean out of doors, wind, wetness, the heaviest piece it takes) and the load as cells of fish, meat or
 sausage. **Hanging** lists every piece with a bar: how far it is, the time left, or why it stands still, a piece in
-trouble (spoiling, under-salted, stopped) in amber. Sort it furthest along or least along; with more than one kind
+trouble (spoiling, under-salted, stopped) in amber. A done piece goes by what it has become: the *Beef (Country
+Cured)* you hung reads *Beef (Dry Cured)*, *Cold Smoked* or *Hot Smoked*. Sort it furthest along or least along; with more than one kind
 hanging, a tab for each sits over the list (*All*, *Salt Fish (4)*, ...). Hover a row for what it will come out as;
 click the **Hanging** header to fold the list away (each kind of rack remembers it). **Take Done** and **Take All**
 buttons sit under it. Drag fish or meat from your inventory or a crate onto the **load's cells** to hang it: a white
