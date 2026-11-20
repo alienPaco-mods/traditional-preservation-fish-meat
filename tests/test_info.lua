@@ -40,7 +40,7 @@ local ledger = { temperature = 22, seasonTemperature = 19, wind = 0.3, wetness =
     coveredRate = 1, shelteredRate = 0.65, coldRate = 0, coldCoveredRate = 0, rawSpoilOn = true, rawSpoilOpenOn = true, saltSpoilOn = false }
 local rows = Info.placeRows("Open", ledger, "3 pieces")
 check("the place and what it holds", valueOf(rows, "Place") == "Open air" and valueOf(rows, "InfoHolds") == "3 pieces")
-check("the air now and over the season", valueOf(rows, "InfoAir") == "22 C now, 19 C over the season")
+check("the air now and over the season", valueOf(rows, "InfoAir") == "22°C now, 19°C over the season")
 check("wind and wetness in the open", valueOf(rows, "Wind") == "Good drying wind" and valueOf(rows, "InfoWetness") == "0%")
 check("no Stone Hearth line off the Smokehouse", valueOf(rows, "InfoFire") == nil)
 
@@ -68,14 +68,14 @@ local Fire = require "TraditionalPreservationCore/Fire"
 local shedRows = Info.placeRows("Smokehouse", cool, nil, "stoked")
 check("the Smokehouse's fire", valueOf(shedRows, "InfoFire") == "Stoked (hot)" and valueOf(shedRows, "Wind") == nil)
 check("the Smokehouse is its own word, by an aired room's air (the hour's with no day mean yet, 1 C over in the cold)",
-    valueOf(shedRows, "Place") == "In the Smokehouse" and valueOf(shedRows, "InfoAir") == "9 C (In the Smokehouse)")
+    valueOf(shedRows, "Place") == "In the Smokehouse" and valueOf(shedRows, "InfoAir") == "9°C (In the Smokehouse)")
 local meat = Info.batch("meat", { place = "Smokehouse", dried = 100, spoiled = 0, underSpoiled = 0.1, cureNeed = 504,
     underCured = true, burning = Fire.STOKED, hotSmokeHours = 3, hotSmokeHoursNeeded = 8, coldSmokeHours = 12, smokeNeed = 60,
     smokeFrom = 7, smokeMeat = true }, cool, 1000)
 check("meat in the shed dry cures", getText(meat.name) == "Dry cure")
 check("the cook is called out", hasNote(meat, "Hot smoking, 3.0 of 8 h stoked in a row: it comes out Hot Smoked"))
 check("and the smoke so far", hasNote(meat, "12.0 of 60 h of smoke"))
-check("and the under-salting", hasNote(meat, "Spoiling (28 C where it hangs)"))
+check("and the under-salting", hasNote(meat, "Spoiling (28°C where it hangs)"))
 check("no fire joined", valueOf(Info.placeRows("Smokehouse", cool, nil, "none"), "InfoFire") == "None joined")
 check("still no percentage passed to the translator", #H.textWarnings == 0)
 

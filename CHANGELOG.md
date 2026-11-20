@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.88
+- Temperatures in the game's text read with the degree sign ("12°C", was "12 C"), as TP Core 0.1.37's. Its tests expect the new text.
+
 ## 0.4.87
 - The rack's and the Smokehouse's drop squares show an icon of what they take (a Yellow Perch, a Steak).
 - Drying Frame, Hanging Beam, Gantry and Smokehouse Info each keep their own width when resized (Core 0.1.36).
