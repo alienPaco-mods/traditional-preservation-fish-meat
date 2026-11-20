@@ -17,6 +17,8 @@ local START_ITEMS = { fish = F.PRESSED_FISH, corn = F.CURED_MEAT, long = F.CURED
 local REFUSAL_KEYS = { CharqueOff = KEY .. "CharqueOff", Mixed = KEY .. "MixedTub", Full = KEY .. "Full",
     LegNeedsLongCure = KEY .. "LegNeedsLongCure", HotOnlyShortCure = KEY .. "HotOnlyShortCure" }
 local TubWindow -- the info window, below the menu
+TraditionalPreservationFishMeatTubUI = {}
+local TubUI = TraditionalPreservationFishMeatTubUI
 
 -- An item type's icon.
 local function iconOf(fullType)
@@ -205,9 +207,11 @@ local function addTubMenu(context, playerObj, station)
     end
 end
 
--- Tub Info: the stage, what is in it, the place and its heat, the cure and what a warm one takes, kept up to date
--- while open.
+-- Salting Tub Info (all_info_mock): a band with the tub's state, the place, what it holds as cells with a line of
+-- history beside them (what is dragged onto them goes in while it is packing), the cure's bar while it runs, then
+-- notes. Kept up to date while open.
 local CURE_COLOUR, SLOW_COLOUR = { 0.35, 0.6, 0.3 }, { 0.75, 0.55, 0.2 }
+local LOAD_COLOUR = { 0.59, 0.51, 0.39 }
 local METHOD_NAMES = { fish = KEY .. "InfoCure", corn = KEY .. "InfoCorn", long = KEY .. "InfoLongCure" }
 
 TubWindow = InfoWindow:derive("TraditionalPreservationFishMeatTubWindow")
@@ -222,31 +226,151 @@ function TubWindow.open(playerObj, station)
     InfoWindow.open(TubWindow, playerObj, station)
 end
 
+-- The band: empty, packing, spoiling, paused, curing or cured; the worst first. Returns the word's key, the finished
+-- text and the colours.
+function TubUI.band(tub, status)
+    local stage = status.stage
+    if stage == "Empty" then
+        return KEY .. "TubStageEmpty", getText(KEY .. "TubBandEmptyText"), InfoWindow.BAND_IDLE
+    elseif stage == "Packing" then
+        return KEY .. "TubStagePacking", say(KEY .. "TubBandPackingText", F.tubSalt(tub)), InfoWindow.BAND_WAITING
+    elseif stage == "Done" then
+        return KEY .. "TubStageDone", say(KEY .. "TubBandDoneText", F.tubCount(tub)), InfoWindow.BAND_WORKING
+    end
+    if status.spoiling then
+        return KEY .. "TubBandSpoiling", say(KEY .. "TubBandSpoilingText", UI.percent(status.spoiled)), InfoWindow.BAND_AT_RISK
+    end
+    if not status.hoursLeft then
+        return KEY .. "Paused", getText(KEY .. "TubBandPausedText"), InfoWindow.BAND_WAITING
+    end
+    return KEY .. "TubStageCuring", say(KEY .. "TubBandCuringText", UI.durationText(status.hoursLeft)), InfoWindow.BAND_WORKING
+end
+
+-- The share of the tub taken: by weight or by count, whichever is fuller.
+local function fullShare(count, weight)
+    return math.max(count / F.TUB_MAX_ITEMS, weight / F.TUB_CAPACITY)
+end
+
+-- What is dragged onto the tub's cells: the pieces it takes now, in order, as Put in Tub would (one kind, room by
+-- count and weight), with the first reason a piece is left out. Returns DropZone's { take, lines, refused } and
+-- cells, the cells the pieces would fill.
+function TubUI.judgeDrop(tub, items)
+    local judged = { take = {}, lines = {} }
+    local stage = F.tubStage(tub)
+    local kind, count, weight = tub.kind, F.tubCount(tub), F.tubWeight(tub)
+    local refusal
+    for _, item in ipairs(items) do
+        local why = (stage ~= "Empty" and stage ~= "Packing") and "Busy" or F.tubItemRefusal(item)
+        local itemKind, itemWeight = nil, 0
+        if not why then
+            itemKind, itemWeight = F.tubKindOf(item), F.packedWeight(item)
+            if kind and kind ~= itemKind then why = "Mixed"
+            elseif count >= F.TUB_MAX_ITEMS or not F.hasRoom(F.TUB_CAPACITY, weight, itemWeight) then why = "Full" end
+        end
+        if why then
+            refusal = refusal or why
+        else
+            table.insert(judged.take, item)
+            kind, count, weight = itemKind, count + 1, weight + itemWeight
+        end
+    end
+    local Holds = require "TraditionalPreservationCore/Holds"
+    judged.cells = Holds.filledCells({ share = fullShare(count, weight) })
+        - Holds.filledCells({ share = fullShare(F.tubCount(tub), F.tubWeight(tub)) })
+    if #judged.take > 0 then table.insert(judged.lines, say(KEY .. "TubDropPut", #judged.take)) end
+    if refusal then
+        judged.refused = refusalText(refusal, tub)
+        if #judged.take == 0 then judged.lines = { judged.refused } end
+    end
+    return judged
+end
+
+local function tubDrop(window)
+    local function judge(items) return TubUI.judgeDrop(tubNow(window.station), items) end
+    local function drop(take) queue(window.playerObj, window.station, "put", take) end
+    return { judge = judge, drop = drop }
+end
+
+-- The cells: what the tub holds, by count and weight, the drop while it is packing.
+function TubUI.holding(tub, drop)
+    local count, weight, stage = F.tubCount(tub), F.tubWeight(tub), F.tubStage(tub)
+    local kind = tub.kind or "empty"
+    return { kind = "cells", name = getText(KEY .. "TubHoldsName_" .. kind),
+        amount = stage == "Empty" and getText(KEY .. "TubHoldsNone") or say(KEY .. "TubHoldsCount_" .. kind, count),
+        state = say(KEY .. "TubHoldsWeight", string.format("%.1f", weight), F.TUB_CAPACITY),
+        share = fullShare(count, weight), colour = LOAD_COLOUR,
+        drop = (stage == "Empty" or stage == "Packing") and drop or nil }
+end
+
+-- The window's buttons (tub_buttons_mock B): while packing, the start rows for what is in the tub (greyed with the
+-- reason, as the menu's) and Unpack (n); once cured, Take One and Take All (n). act(mode, pieces, method) does it.
+local RETURNED_ICON = "media/ui/Entity/Icon_Returned_48x48.png"
+
+function TubUI.buttons(tub, kit, act)
+    local stage, left = F.tubStage(tub), F.tubCount(tub)
+    local buttons = {}
+    if stage == "Packing" then
+        for _, method in ipairs(F.TUB_METHODS) do
+            if F.TUB_METHOD[method].kind == tub.kind then
+                local refusal = F.startRefusal(tub, method, kit)
+                table.insert(buttons, { title = getText(KEY .. "TubButtonStart_" .. method), icon = iconOf(START_ITEMS[method]),
+                    enabled = refusal == nil, tooltip = refusal and refusalText(refusal, tub)
+                        or say(KEY .. "TubStartHelp_" .. method, UI.hoursText(F.tubHours(tub, method))),
+                    onClick = function() act("start", nil, method) end })
+            end
+        end
+        table.insert(buttons, { title = say(KEY .. "TubButtonUnpack", left), icon = RETURNED_ICON, enabled = true,
+            tooltip = getText(KEY .. "TubUnpackHelp"), onClick = function() act("unpack") end })
+    elseif stage == "Done" then
+        local icon, all = iconOf(START_ITEMS[tub.method]), {}
+        for i = 1, left do all[i] = false end
+        table.insert(buttons, { title = getText(KEY .. "TubButtonOne"), icon = icon, enabled = left > 0,
+            onClick = function() act("take", { false }) end })
+        table.insert(buttons, { title = say(KEY .. "TubButtonAll", left), icon = icon, enabled = left > 0,
+            onClick = function() act("take", all) end })
+    end
+    return buttons
+end
+
+function TubWindow:tubButtons(y)
+    local playerObj, station = self.playerObj, self.station
+    local buttons = TubUI.buttons(self.tubView.tub, self.tubView.kit, function(mode, pieces, method)
+        if mode == "start" then return onStart(playerObj, station, method, startKit(playerObj)) end
+        queue(playerObj, station, mode, pieces)
+    end)
+    return self:buttonRow(y, buttons)
+end
+
 function TubWindow:refresh()
     local tub = tubNow(self.station)
-    self.tubView = { tub = tub, status = statusOf(tub) }
+    self.tubView = { tub = tub, status = statusOf(tub), kit = F.tubStage(tub) == "Packing" and startKit(self.playerObj) or {} }
+    self.drop = self.drop or tubDrop(self)
 end
 
 function TubWindow:render()
     ISCollapsableWindow.render(self)
     if self.isCollapsed or not self.tubView then return end
     local tub, status = self.tubView.tub, self.tubView.status
-    local y = self:top()
-    y = self:row(y, KEY .. "TubInfoStage", stageText(tub))
-    y = self:row(y, KEY .. "InfoHolds", contentsText(tub))
-    y = self:row(y, KEY .. "Place", UI.placeText(status.place, status.temperature))
+    local word, text, look = TubUI.band(tub, status)
+    local y = self:band(getText(word), text, look[1], look[2])
+    y = self:section(y, "IGUI_TraditionalPreservationCore_SectionStation")
+    y = self:placeRow(y, KEY .. "Place", status.place, status.temperature)
+    y = self:section(y, "IGUI_TraditionalPreservationCore_SectionHolds")
+    y = self:holds(y, { TubUI.holding(tub, self.drop) }, getText(KEY .. "TubLore_" .. (tub.kind or "fish")))
+    y = self:tubButtons(y)
     local notes = {}
     if status.stage == "Curing" then
         local slow = status.spoiling or not status.hoursLeft
-        y = self:bar(y, METHOD_NAMES[tub.method], status.progress, slow and SLOW_COLOUR or CURE_COLOUR, UI.percent(status.progress))
-        y = self:row(y, KEY .. "TubInfoSpeed", UI.percent(status.rate))
+        y = self:section(y, "IGUI_TraditionalPreservationCore_SectionWorking")
+        y = self:bar(y, METHOD_NAMES[tub.method], status.progress, slow and SLOW_COLOUR or CURE_COLOUR,
+            say(KEY .. "TubBarText", UI.percent(status.progress), UI.percent(status.rate)))
         if status.spoiling or status.spoiled > 0 then
             table.insert(notes, say(status.spoiling and KEY .. "SpoilingWarmCure" or KEY .. "Spoiled", UI.percent(status.spoiled)))
         end
     elseif status.stage == "Done" and (tub.spoiled or 0) > 0 then
         table.insert(notes, say(KEY .. "Spoiled", UI.percent(tub.spoiled)))
     end
-    y = self:row(y, KEY .. "TubInfoNext", nextText(tub, status))
+    if status.stage == "Empty" or status.stage == "Packing" then table.insert(notes, getText(KEY .. "TubNoteDrag")) end
     table.insert(notes, getText(KEY .. "TubNote" .. status.stage))
     self:drawNotes(y, notes)
 end

@@ -226,4 +226,57 @@ runQueued()
 check("All takes the other 3, then the plank and stone come back", #given == 6 and given[5].fullType == "Base.Plank"
     and given[6].fullType == "Base.FlatStone" and F.tubStage(tub) == "Empty")
 
+-- Salting Tub Info: the band (the worst first) and what a drag onto the cells puts in.
+local TubUI = TraditionalPreservationFishMeatTubUI
+local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
+local function bandOf(tubRecord, status)
+    status.stage = F.tubStage(tubRecord)
+    local word, text, look = TubUI.band(tubRecord, status)
+    return word:match("_(%a+)$"), text, look
+end
+local word, text, look = bandOf({}, {})
+check("an empty tub: grey", word == "TubStageEmpty" and look == InfoWindow.BAND_IDLE)
+local packing = {}
+F.putInTub(packing, F.tubPiece(food("Base.Crappie", 0.5), 100))
+word, text, look = bandOf(packing, {})
+check("packing: amber, the salt it wants", word == "TubStagePacking" and look == InfoWindow.BAND_WAITING and text:find("salt it", 1, true))
+local curing = { stage = "Curing", pieces = packing.pieces, kind = "fish" }
+word, text, look = bandOf(curing, { hoursLeft = 30, spoiled = 0 })
+check("curing: green, the time left", word == "TubStageCuring" and look == InfoWindow.BAND_WORKING and text:find("cured in about", 1, true))
+word, _, look = bandOf(curing, { hoursLeft = 30, spoiling = true, spoiled = 0.1 })
+check("a warm cure beats the time left: red", word == "TubBandSpoiling" and look == InfoWindow.BAND_AT_RISK)
+
+local judged = TubUI.judgeDrop(packing, { food("Base.Crappie", 0.5), food("Base.Steak", 0.4), food("Base.Crappie", 0.5) })
+check("a drag puts the fish in and leaves the meat, saying why", #judged.take == 2 and judged.lines[1] == "Put 2 in the tub"
+    and judged.refused == "A tub salts fish or meat, not both at once")
+judged = TubUI.judgeDrop({}, { food("Base.Steak", 0.4), food("Base.Crappie", 0.5) })
+check("into an empty tub the first piece decides", #judged.take == 1 and judged.take[1].fullType == "Base.Steak")
+judged = TubUI.judgeDrop(curing, { food("Base.Crappie", 0.5) })
+check("nothing goes into a salted tub", #judged.take == 0 and judged.lines[1] == judged.refused and judged.refused:find("Salted", 1, true))
+local full = {}
+for _ = 1, F.TUB_MAX_ITEMS do F.putInTub(full, F.tubPiece(food("Base.Crappie", 0.5), 100)) end
+judged = TubUI.judgeDrop(full, { food("Base.Crappie", 0.5) })
+check("a tub full by count takes no more", #judged.take == 0 and judged.refused ~= nil)
+check("its cells show full; a salted tub takes no drag", TubUI.holding(full).share == 1 and TubUI.holding(packing, {}).drop ~= nil
+    and TubUI.holding(curing, {}).drop == nil)
+
+local cured = { stage = "Done", kind = "fish", method = "fish", pieces = { {}, {}, {} } }
+local asked
+local buttons = TubUI.buttons(cured, {}, function(mode, pieces) asked = { mode = mode, pieces = pieces } end)
+buttons[2].onClick()
+check("cured: Take One and Take All (3), All asks for every piece", #buttons == 2 and buttons[1].title == "Take One"
+    and buttons[2].title == "Take All (3)" and asked.mode == "take" and #asked.pieces == 3)
+check("no buttons while it cures", #TubUI.buttons(curing, {}, function() end) == 0)
+buttons = TubUI.buttons(packing, { salt = 0, board = true, stone = true }, function(mode, _, method) asked = { mode = mode, method = method } end)
+check("packing fish: Cure Fish, greyed for want of salt, then Unpack (1)", #buttons == 2 and buttons[1].title == "Cure Fish"
+    and not buttons[1].enabled and buttons[1].tooltip:find("salt", 1, true) and buttons[2].title == "Unpack (1)")
+buttons = TubUI.buttons(packing, { salt = 99, board = true, stone = true }, function(mode, _, method) asked = { mode = mode, method = method } end)
+buttons[1].onClick()
+check("with salt, a plank and a stone it starts", buttons[1].enabled and asked.mode == "start" and asked.method == "fish")
+local meat = {}
+F.putInTub(meat, F.tubPiece(food("Base.Steak", 0.4), 100))
+buttons = TubUI.buttons(meat, {}, function() end)
+check("packing meat: Corn the Meat, Country Cure, Unpack", #buttons == 3 and buttons[1].title == "Corn the Meat"
+    and buttons[2].title == "Country Cure")
+
 H.done()

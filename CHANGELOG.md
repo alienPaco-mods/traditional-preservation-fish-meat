@@ -1,5 +1,15 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.89
+- **Salting Tub Info built to the approved mock** (TP Core 0.1.37's pieces): a state band under the title (Empty,
+  Packing with the salt it wants, Curing with the time left, Spoiling in a warm season, Cured with the pieces left;
+  the worst first), the Station block with the place's icon, Holds as five cells by weight or count with a line of
+  history beside them (salt cod for fish, corned beef for meat), and the cure's bar under Working ("60%, 100% speed").
+  The Stage, Next and Cure Speed rows are gone (the band and the bar say it).
+- Raw fish or meat dragged from the inventory onto the tub's cells goes in while it is packing, as Put in Tub would
+  (one kind, room by count and weight); the hint by the mouse says how many, or why not.
+- **Buttons in the window** (tub_buttons_mock B): while packing, the start for what is in the tub (Cure Fish; Corn the Meat and Country Cure for meat), greyed with the reason as the menu's rows, and **Unpack (n)**; once cured, **Take One** and **Take All (n)** with the cured piece's icon. None while it cures or once empty (TP Core 0.1.38 hides buttons a row no longer has).
+
 ## 0.4.88
 - Temperatures in the game's text read with the degree sign ("12°C", was "12 C"), as TP Core 0.1.37's. Its tests expect the new text.
 
