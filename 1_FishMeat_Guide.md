@@ -309,8 +309,8 @@ The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants an
 
 The **Smokehouse Info** window is a rack's, with the joined Stone Hearth's fire as its band: red STOKED (hot smoke, and
 how long it burns), orange BANKED (cold smoke on embers, or too warm for it on a day over 15 C), grey OUT, or NO FIRE
-when no Stone Hearth is joined. The hearth's Lighter or Extinguisher sits at the band's right, to light it or put it
-out from here. Under each piece's bar is its own smoke: a hot cook under way, the smoke so far against what it needs, and a sausage's days before it goes stale.
+when no Stone Hearth is joined. The hearth's buttons sit at the band's right: Bank or Stoke (embers or a flame),
+then the Lighter or the bucket of water, to light it or put it out from here. Under each piece's bar is its own smoke: a hot cook under way, the smoke so far against what it needs, and a sausage's days before it goes stale.
 
 > *Margin note:* the times left assume today's weather holds. Nobody on the Volga could promise that either.
 

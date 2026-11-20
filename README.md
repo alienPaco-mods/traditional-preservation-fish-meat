@@ -95,8 +95,8 @@ by kind, so a mixed rack shows each of salt fish, gutted fish and meat; a spot s
 dry, dry), rotten if any piece in it rotted.
 
 The **Smokehouse Info** window is the rack's window with the joined Stone Hearth's fire as its band (TP Core's
-`SmokehouseUI.band`: Stoked, hot smoke; Banked, cold smoke, or too warm for it on a day over 15 C; Out; No Fire when none is joined; the hearth's Light /
-Put Out button with it) and each piece's own smoke under its bar: a hot run counting, its cold smoke against its need (*too warm to count* with a fire
+`SmokehouseUI.band`: Stoked, hot smoke; Banked, cold smoke, or too warm for it on a day over 15 C; Out; No Fire when none is joined; the hearth's Bank /
+Stoke and Light / Put Out buttons with it) and each piece's own smoke under its bar: a hot run counting, its cold smoke against its need (*too warm to count* with a fire
 joined on a day over 15 C), and a link's days to stale.
 Gutted fish doesn't hang there (cold drying needs moving air). While finished pieces wait inside, something hangs by
 the door (TP Core's look).

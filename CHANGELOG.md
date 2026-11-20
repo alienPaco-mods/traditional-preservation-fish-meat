@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## Unreleased
+- Docs: Smokehouse Info's band carries the joined hearth's Bank / Stoke and Light / Put Out buttons (TP Core 0.1.42).
+
 ## 0.4.92
 - **Smokehouse Info built to the approved mock**, on the racks' window: the joined Stone Hearth's fire as its band
   (TP Core 0.1.41's `SmokehouseUI.band`, the Light / Put Out button with it), the Station block with the Smokehouse's
