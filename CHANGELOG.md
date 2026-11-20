@@ -1,5 +1,13 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.92
+- **Smokehouse Info built to the approved mock**, on the racks' window: the joined Stone Hearth's fire as its band
+  (TP Core 0.1.41's `SmokehouseUI.band`, the Light / Put Out button with it), the Station block with the Smokehouse's
+  outline icon (Place, Season, the heaviest piece), the load as cells with the farm smokehouse's lore beside them, the
+  list with each piece's smoke under its bar, Take Done and Take All with icons. The drop square is gone: what is
+  dragged onto the load's cells hangs, as on the racks. The Fire row moves into the band. On a day over 15°C (`F.COLD_SMOKE_MAX`) a banked fire's band reads
+  "too warm for cold smoke".
+
 ## 0.4.91
 - **Drying Frame, Hanging Beam and Gantry Info built to the approved mock** (TP Core 0.1.39's pieces): a state band
   under the title (Empty; Spoiling with how many pieces; Done; Stopped with the first piece's reason, as wet from

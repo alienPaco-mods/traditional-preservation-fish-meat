@@ -274,9 +274,8 @@ sausage. **Hanging** lists every piece with a bar: how far it is, the time left,
 trouble (spoiling, under-salted, stopped) in amber. Sort it furthest along or least along; with more than one kind
 hanging, a tab for each sits over the list (*All*, *Salt Fish (4)*, ...). Hover a row for what it will come out as;
 click the **Hanging** header to fold the list away (each kind of rack remembers it). **Take Done** and **Take All**
-buttons sit under it. Drag fish or meat from your inventory or a crate onto the **load's cells** to hang it: green, it
-all goes on; orange, some will be refused; red, none. The Smokehouse's window keeps the older layout for now, the
-drop square under its list.
+buttons sit under it. Drag fish or meat from your inventory or a crate onto the **load's cells** to hang it: a white
+frame, it all goes on; orange, some will be refused; red, none.
 
 > *Margin note:* a rack holding anything stays where it is. Empty it first if you want to move it.
 
@@ -308,7 +307,10 @@ The biggest fish: none over 12 kg fits a Gantry, so **Split Fish** the giants an
 
 **Hover a piece** in Info to see its method, what it **comes out as** if it came down now (chapter 23 has every end), the time left and a warning if the season is spoiling it.
 
-The **Smokehouse Info** window adds a **Fire** row (the joined Stone Hearth: none, out, banked or stoked) and, under each piece's bar, its own smoke: a hot cook under way, the smoke so far against what it needs, and a sausage's days before it goes stale.
+The **Smokehouse Info** window is a rack's, with the joined Stone Hearth's fire as its band: red STOKED (hot smoke, and
+how long it burns), orange BANKED (cold smoke on embers, or too warm for it on a day over 15 C), grey OUT, or NO FIRE
+when no Stone Hearth is joined. The hearth's Lighter or Extinguisher sits at the band's right, to light it or put it
+out from here. Under each piece's bar is its own smoke: a hot cook under way, the smoke so far against what it needs, and a sausage's days before it goes stale.
 
 > *Margin note:* the times left assume today's weather holds. Nobody on the Volga could promise that either.
 

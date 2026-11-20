@@ -6,14 +6,15 @@
 -- onto them hangs) with the racks' lore, then one row a piece: its bar and text from the stack status it always had
 -- (Info.batch on the piece's own state), what holds it back as its warning, its process for the by-process sort, and
 -- a popup with its method, what it comes out as, the time left and any warning. Opening it brings the rack up to
--- now, as the World's look does. Smokehouse Info keeps its place rows (with the joined Stone Hearth's fire), each
--- piece's own smoke under its bar and its drop square until its own turn in step b.
+-- now, as the World's look does. Smokehouse Info is the same window with the joined Stone Hearth's fire as its band
+-- (TP Core's SmokehouseUI.band), the farm smokehouse's lore, and each piece's own smoke under its bar.
 require "TraditionalPreservationFishMeatInfo"
 require "TimedActions/TPFMRack"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
 local PiecesUI = require "TraditionalPreservationCore/PiecesUI"
 local UI = require "TraditionalPreservationCore/UI"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
+local SmokehouseUI = require "TraditionalPreservationCore/SmokehouseUI"
 local F = TraditionalPreservationFishMeat
 local Info = TraditionalPreservationFishMeatInfo
 
@@ -276,12 +277,6 @@ function RackUI.waitText(rack, ledger)
 end
 
 -- The Smokehouse's fire word (Info.fireWord), nil for a rack.
--- The icon of an item by its full type, for the drop square (nil if the item is gone).
-local function itemIcon(fullType)
-    local script = getScriptManager():FindItem(fullType)
-    return script and script:getNormalTexture()
-end
-
 local function fireOf(station)
     return Smokehouse.isChamber(station) and Info.fireWord(station) or nil
 end
@@ -291,6 +286,8 @@ local function viewOf(station)
     local rack, place = F.rackNow(station)
     local rackView = RackUI.view(rack, F.hangerOf(station), place, F.getLedger(), getGameTime():getWorldAgeHours(), fireOf(station))
     rackView.doneIcon = firstDoneIcon(rack)
+    -- Cold smoke counts only on a cool day (F.COLD_SMOKE_MAX): the Smokehouse's band says when it doesn't.
+    rackView.tooWarm = (F.getLedger().temperature or 0) > F.COLD_SMOKE_MAX
     return rackView
 end
 
@@ -320,31 +317,37 @@ function RackWindow:refresh()
 end
 
 -- The notes under a rack's window: done pieces keep, times assume the weather, and how to hang.
-local function rackNotes(rackView)
+local function rackNotes(rackView, chamber)
     local notes = {}
     for _, note in ipairs(rackView.notes) do
         if note ~= getText(KEY .. "InfoEmpty") then table.insert(notes, note) end
     end
-    table.insert(notes, getText(KEY .. "RackNoteDrag"))
+    table.insert(notes, getText(KEY .. (chamber and "SmokehouseNoteDrag" or "RackNoteDrag")))
     return notes
 end
 
--- Rack Info on the settled look (all_info_mock, the Drying Frame's): a band with the rack's state, the Station block,
--- the load as cells with the racks' lore beside them (what is dragged onto them hangs), the pieces hanging, Take Done
--- and Take All, then notes.
+-- Rack Info and Smokehouse Info on the settled look (all_info_mock): a band (a rack's state; the Smokehouse's joined
+-- Stone Hearth's fire, TP Core's SmokehouseUI.band), the Station block, the load as cells with their lore beside them
+-- (what is dragged onto them hangs), the pieces hanging (in the Smokehouse each with its smoke under its bar), Take
+-- Done and Take All, then notes.
 function RackWindow:render()
     ISCollapsableWindow.render(self)
     if self.isCollapsed or not self.rackView then return end
-    if Smokehouse.isChamber(self.station) then return self:renderChamber() end
     local rackView = self.rackView
-    local band = rackView.band
-    local y = self:band(getText(band[1]), band[2], band[3][1], band[3][2])
+    local chamber = Smokehouse.isChamber(self.station)
+    local y
+    if chamber then
+        y = SmokehouseUI.band(self, self.station, rackView.tooWarm)
+    else
+        local band = rackView.band
+        y = self:band(getText(band[1]), band[2], band[3][1], band[3][2])
+    end
     y = self:stationBlock(y, STATION_ICONS[F.hangerOf(self.station).name], rackView.place, rackView.temperature,
         rackView.stationRows)
     y = self:section(y, "IGUI_TraditionalPreservationCore_SectionHolds")
     local holding = rackView.holding
     holding.drop = self.drop
-    y = self:holds(y, { holding }, getText(KEY .. "RackLore"))
+    y = self:holds(y, { holding }, getText(KEY .. (chamber and "SmokehouseLore" or "RackLore")))
     if #rackView.pieces > 0 then
         y = self:pieceListBlock(y, KEY .. "RackHanging", UI.say(KEY .. "RackListCount", tostring(#rackView.pieces)),
             rackView.pieces)
@@ -359,31 +362,7 @@ function RackWindow:render()
           enabled = #all > 0, tooltip = #all > #done and getText(KEY .. "RackTakeAllHelp") or nil,
           onClick = function() RackUI.take(playerObj, station, all) end },
     })
-    self:drawNotes(y, rackNotes(rackView))
-end
-
--- Smokehouse Info, as it was until its own turn in step b (ROADMAP): the place rows, the list, the buttons and the
--- drop square.
-function RackWindow:renderChamber()
-    local rackView = self.rackView
-    local y = self:top()
-    for _, row in ipairs(rackView.rows) do y = self:row(y, row[1], row[2]) end
-    y = self:pieceList(y, KEY .. "RackHanging", rackView.pieces)
-    local station, playerObj = self.station, self.playerObj
-    -- Take Done and Take All, as the menu's rows: greyed with the reason when there is nothing to take.
-    local done, all = rackView.doneIds, rackView.allIds
-    y = self:buttonRow(y, {
-        { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeDone", tostring(#done)), enabled = #done > 0,
-          tooltip = #done == 0 and rackView.waitText or nil, onClick = function() RackUI.take(playerObj, station, done) end },
-        { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeAllCount", tostring(#all)), enabled = #all > 0,
-          tooltip = #all > #done and getText(KEY .. "RackTakeAllHelp") or nil, onClick = function() RackUI.take(playerObj, station, all) end },
-    })
-    y = self:dropZone(y, getText(KEY .. (Smokehouse.isChamber(station) and "RackDropIdleChamber" or "RackDropIdle")), function(items)
-        local rack, place = F.rackNow(station)
-        return RackUI.dropJudge(rack, F.hangerOf(station), place, items)
-    end, function(take) RackUI.hang(playerObj, station, take) end,
-        itemIcon(Smokehouse.isChamber(station) and "Base.Steak" or "Base.YellowPerch"))
-    self:drawNotes(y, rackView.notes)
+    self:drawNotes(y, rackNotes(rackView, chamber))
 end
 
 -- Opens Rack Info on a Drying Frame, Hanging Beam or Gantry, or Smokehouse Info on any tile of the Smokehouse.
