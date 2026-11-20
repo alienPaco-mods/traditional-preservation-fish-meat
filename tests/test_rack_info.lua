@@ -16,7 +16,6 @@ end
 H.installMenus()
 ISPanel = H.class("ISPanel")
 ISCollapsableWindow = H.class("ISCollapsableWindow")
-ISWidgetCraftLogicOutputProgress = { createDynamicChildren = function() end, calculateLayout = function() end }
 ItemTag = ItemTag or {}
 ItemTag.UNCUT_FISH, ItemTag.SALT, ItemTag.FISH_MEAT = "uncut", "salt", "fishmeat"
 function ZombRand() return 0 end

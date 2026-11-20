@@ -112,7 +112,6 @@ local F = TraditionalPreservationFishMeat
 ISCollapsableWindow = H.class("ISCollapsableWindow")
 function ZombRand() return 0 end
 ISPanel = H.class("ISPanel")
-ISWidgetCraftLogicOutputProgress = { createDynamicChildren = function() end, calculateLayout = function() end }
 dofile("42/media/lua/client/TraditionalPreservationFishMeatRackUI.lua")
 local handlers = H.handlers.OnFillWorldObjectContextMenu
 local onFillMenu = handlers[#handlers]
