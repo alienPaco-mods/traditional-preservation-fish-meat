@@ -1,11 +1,13 @@
 -- Traditional Preservation (Fish & Meat): the right-click menu of a Drying Frame, a Hanging Beam, a Gantry or TP Core's
 -- Smokehouse (what it holds, Info, a Hang submenu a group (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat,
 -- Sausages) with a row for each kind carried, One / All, Take Done, Take Everything Off; TPFMRack does the hand
--- jobs) and Rack Info, its info window (TP Core's InfoWindow, its pieces in TP Core's scrolling list). The place rows (Info.placeRows), what the rack holds,
--- then one row a piece: its bar and text from the stack status it always had (Info.batch on the piece's own state),
--- its process for the by-process sort, and a popup with its method, what it comes out as, the time left and any
--- warning. Opening it brings the rack up to now, as the World's look does. Smokehouse Info adds the joined Stone
--- Hearth's fire to the place rows and each piece's own smoke under its bar.
+-- jobs) and Rack Info, its info window (TP Core's InfoWindow, its pieces in TP Core's scrolling list). A rack's window
+-- is on the settled look (all_info_mock): a band with its state, the Station rows, the load as cells (what is dragged
+-- onto them hangs) with the racks' lore, then one row a piece: its bar and text from the stack status it always had
+-- (Info.batch on the piece's own state), what holds it back as its warning, its process for the by-process sort, and
+-- a popup with its method, what it comes out as, the time left and any warning. Opening it brings the rack up to
+-- now, as the World's look does. Smokehouse Info keeps its place rows (with the joined Stone Hearth's fire), each
+-- piece's own smoke under its bar and its drop square until its own turn in step b.
 require "TraditionalPreservationFishMeatInfo"
 require "TimedActions/TPFMRack"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
@@ -36,6 +38,26 @@ local function iconOf(piece)
         icons[piece] = icon
     end
     return icon or nil
+end
+
+-- Each rack's own icon, by its hanger's name: the menu's item icons, and Rack Info's outline (TP Core
+-- tools/station_icons.py; the Smokehouse's is TP Core's).
+local RACK_ICONS = { frame = "media/textures/Item_DryingFrame.png", medium = "media/textures/Item_DryingBeamMedium.png",
+    large = "media/textures/Item_DryingBeamLarge.png", chamber = "media/textures/Item_SmokehouseChamber.png" }
+local STATION_ICONS = { frame = "media/textures/TPStation_DryingFrame.png", medium = "media/textures/TPStation_HangingBeam.png",
+    large = "media/textures/TPStation_Gantry.png", chamber = "media/textures/TPStation_Smokehouse.png" }
+
+-- The icon of what the first done piece comes off as (Salt Dried, Stockfish, Charque ...), for Take Done; else
+-- vanilla's crafted icon.
+local CRAFTED_ICON, RETURNED_ICON = "media/ui/Entity/Icon_Crafted_48x48.png", "media/ui/Entity/Icon_Returned_48x48.png"
+local function firstDoneIcon(rack)
+    for _, piece in ipairs(rack.pieces or {}) do
+        if F.pieceDone(piece) then
+            local script = getScriptManager():FindItem(F.pieceOutputType(piece))
+            if script then return script:getNormalTexture() end
+        end
+    end
+    return CRAFTED_ICON
 end
 
 -- A link's popup: its smoking, what it comes down as, what the fire does for it, and when it goes stale.
@@ -115,9 +137,25 @@ function RackUI.smokeNote(piece, now, ledger)
     return #parts > 0 and table.concat(parts, ", ") or nil
 end
 
+-- What holds a piece back, for its row's warning (amber, right) and the band: spoiling (the season, hot sun or too
+-- little salt for the warmth) before stopped (its status's reason: rain, a shut room, too warm ...). Returns the
+-- warning text, whether it is spoiling, and the reason it stopped, or nil. A done piece and a link have none.
+local function holdBack(piece, ledger)
+    if F.pieceDone(piece) or F.RACK_METHODS[piece.method].sausage then return nil end
+    local status = piece.method == "meat" and F.charqueStatus(piece.state, ledger)
+        or F.stackStatus(piece.method == "cold", piece.state, ledger)
+    if status.spoiling or status.scorching then
+        return UI.say(KEY .. "RackWarnSpoiling", UI.percent(status.spoiled)), true
+    end
+    if status.underSalted then return getText(KEY .. "RackWarnUnderSalted"), true end
+    if status.reason then return getText(KEY .. "RackWarn_" .. status.reason), false, status.reason end
+    return nil
+end
+
 -- One list row for a piece (TP Core's PieceList row). A done piece reads Done (or Rotten) and sorts first. Its tab
 -- is its Hang group's (Salt Fish, Gutted Fish, Corned Meat, Country Cured Meat, Sausages), in the menu's order. In
--- the Smokehouse each row has its smoke under the bar.
+-- the Smokehouse each row has its smoke under the bar. What holds it back is its warning (spoiling, or stopped: then
+-- the bar reads its share alone, the warning says why).
 function RackUI.pieceRow(piece, ledger, now)
     local batch = Info.batch(piece.method == "freshSausage" and "sausage" or piece.method, piece.state, ledger, now)
     local progress, rotten = F.pieceProgress(piece)
@@ -127,8 +165,10 @@ function RackUI.pieceRow(piece, ledger, now)
         colour = batch.slow and Info.SLOW_COLOUR or Info.GOOD_COLOUR, weather = batch.weather,
         note = F.inShed(piece.state) and RackUI.smokeNote(piece, now, ledger) or nil,
         popup = function(tooltip) drawPopup(tooltip, piece, ledger, now) end }
+    row.warning, row.spoiling, row.stopped = holdBack(piece, ledger)
+    if row.stopped then row.text = UI.percent(progress) end
     if rotten then
-        row.text, row.colour = getText(KEY .. "OutcomeRotten"), ROTTEN_COLOUR
+        row.text, row.colour, row.spoiling = getText(KEY .. "OutcomeRotten"), ROTTEN_COLOUR, true
     elseif F.pieceDone(piece) then
         row.text, row.colour, row.weather = getText(KEY .. "RackDone"), DONE_COLOUR, nil
     end
@@ -153,7 +193,79 @@ function RackUI.view(rack, hanger, place, ledger, now, fire)
     if weather then table.insert(notes, getText(KEY .. "InfoWeather")) end
     if #pieces == 0 then table.insert(notes, getText(KEY .. "InfoEmpty")) end
     return { rows = Info.placeRows(place, ledger, holds, fire), pieces = pieces, notes = notes,
-        doneIds = F.pieceIds(rack, true), allIds = F.pieceIds(rack), waitText = RackUI.waitText(rack, ledger) }
+        doneIds = F.pieceIds(rack, true), allIds = F.pieceIds(rack), waitText = RackUI.waitText(rack, ledger),
+        place = place, temperature = F.ownTemperature(ledger, place), stationRows = RackUI.stationRows(hanger, place, ledger),
+        holding = RackUI.holding(rack, hanger), band = { RackUI.band(pieces, place, ledger) } }
+end
+
+-- Rack Info's own Station rows under Place and Season (TP Core's stationBlock; label key, value): the wind where it
+-- reaches, the wetness in the open, and the heaviest piece the rack takes.
+function RackUI.stationRows(hanger, place, ledger)
+    local rows = {}
+    if place == "Open" or place == "Covered" or place == "AiredRoom" then
+        table.insert(rows, { KEY .. "Wind", getText(F.windWord(ledger.wind)) })
+    end
+    if place == "Open" then table.insert(rows, { KEY .. "InfoWetness", UI.percent(ledger.wetness or 0) }) end
+    table.insert(rows, { KEY .. "RackPieces", UI.say(KEY .. "RackPiecesValue", tostring(F.RACK_LIMITS[hanger.name].heaviest)) })
+    return rows
+end
+
+-- The band (all_info_mock), the worst first: empty; a piece spoiling or rotted; all done; a piece stopped (the first
+-- one's reason); else drying, with the wind where it reaches. pieces are the view's rows. Returns the word's key,
+-- the finished text and the colours.
+function RackUI.band(pieces, place, ledger)
+    local count, done, spoiling, stopped, reason = #pieces, 0, 0, 0, nil
+    for _, row in ipairs(pieces) do
+        if row.spoiling then spoiling = spoiling + 1 end
+        if row.stopped then stopped, reason = stopped + 1, reason or row.stopped end
+        if row.colour == DONE_COLOUR then done = done + 1 end
+    end
+    if count == 0 then return KEY .. "RackBandEmpty", getText(KEY .. "RackBandEmptyText"), InfoWindow.BAND_IDLE end
+    if spoiling > 0 then
+        return KEY .. "TubBandSpoiling", UI.say(KEY .. "RackBandSpoilingText", tostring(spoiling), tostring(count)), InfoWindow.BAND_AT_RISK
+    end
+    if done == count then return KEY .. "RackDone", UI.say(KEY .. "RackBandDoneText", tostring(done)), InfoWindow.BAND_WORKING end
+    if stopped > 0 then
+        return KEY .. "RackBandStopped", UI.say(KEY .. "RackBandStoppedText", getText(KEY .. "RackBandWhy_" .. reason),
+            tostring(stopped), tostring(count)), InfoWindow.BAND_WAITING
+    end
+    if place == "Open" or place == "Covered" or place == "AiredRoom" then
+        local wind = string.gsub(F.windWord(ledger.wind), "^.*_Wind", "")
+        return KEY .. "RackBandDrying", UI.say(KEY .. "RackBandDryingWindText", getText(KEY .. "RackBandWind_" .. wind),
+            tostring(done), tostring(count)), InfoWindow.BAND_WORKING
+    end
+    return KEY .. "RackBandDrying", UI.say(KEY .. "RackBandDryingText", tostring(done), tostring(count)), InfoWindow.BAND_WORKING
+end
+
+-- The load's cells (tools/cell_patterns.py in TP Core): fish, meat and links each in their pattern, by weight.
+local LOAD_COLOUR = { 0.59, 0.51, 0.39 }
+local PATTERNS = { salt = "media/textures/TPCell_Fish.png", cold = "media/textures/TPCell_Fish.png",
+    meat = "media/textures/TPCell_Meat.png", sausage = "media/textures/TPCell_Sausage.png",
+    freshSausage = "media/textures/TPCell_Sausage.png" }
+RackUI.PATTERNS = PATTERNS
+
+-- The share of the rack taken: by weight or by count, whichever is fuller.
+local function loadShare(limits, count, weight)
+    return math.max(count / limits.pieces, weight / limits.total)
+end
+
+-- The load as Holds' cells: its weight against the rack's, its pieces against its count, in parts by pattern.
+function RackUI.holding(rack, hanger)
+    local limits = F.RACK_LIMITS[hanger.name]
+    local count, weight = F.rackCount(rack), F.rackWeight(rack)
+    local byPattern, parts = {}, {}
+    for _, piece in ipairs(rack.pieces or {}) do
+        local pattern = PATTERNS[piece.method]
+        if not byPattern[pattern] then
+            byPattern[pattern] = { pattern = pattern, weight = 0 }
+            table.insert(parts, byPattern[pattern])
+        end
+        byPattern[pattern].weight = byPattern[pattern].weight + piece.weight
+    end
+    return { kind = "cells", name = getText(KEY .. "RackLoad"),
+        amount = UI.say(KEY .. "RackLoadWeight", string.format("%.1f", weight), tostring(limits.total)),
+        state = UI.say(KEY .. "RackLoadPieces", tostring(count), tostring(limits.pieces)),
+        share = loadShare(limits, count, weight), colour = LOAD_COLOUR, parts = #parts > 0 and parts or nil }
 end
 
 -- Why Take Done is greyed: nothing hangs, or when the next piece will be done (or that nothing dries now).
@@ -177,7 +289,9 @@ end
 -- The rack brought up to now at its place, and what the window shows.
 local function viewOf(station)
     local rack, place = F.rackNow(station)
-    return RackUI.view(rack, F.hangerOf(station), place, F.getLedger(), getGameTime():getWorldAgeHours(), fireOf(station))
+    local rackView = RackUI.view(rack, F.hangerOf(station), place, F.getLedger(), getGameTime():getWorldAgeHours(), fireOf(station))
+    rackView.doneIcon = firstDoneIcon(rack)
+    return rackView
 end
 
 local RackWindow = InfoWindow:derive("TraditionalPreservationFishMeatRackWindow")
@@ -190,13 +304,67 @@ function RackWindow:new(playerObj, station)
     return o
 end
 
-function RackWindow:refresh()
-    self.rackView = viewOf(self.station)
+-- What is dragged onto the load's cells hangs, by the menu's rules.
+local function rackDrop(window)
+    local function judge(items)
+        local rack, place = F.rackNow(window.station)
+        return RackUI.dropJudge(rack, F.hangerOf(window.station), place, items)
+    end
+    local function drop(take) RackUI.hang(window.playerObj, window.station, take) end
+    return { judge = judge, drop = drop }
 end
 
+function RackWindow:refresh()
+    self.rackView = viewOf(self.station)
+    self.drop = self.drop or rackDrop(self)
+end
+
+-- The notes under a rack's window: done pieces keep, times assume the weather, and how to hang.
+local function rackNotes(rackView)
+    local notes = {}
+    for _, note in ipairs(rackView.notes) do
+        if note ~= getText(KEY .. "InfoEmpty") then table.insert(notes, note) end
+    end
+    table.insert(notes, getText(KEY .. "RackNoteDrag"))
+    return notes
+end
+
+-- Rack Info on the settled look (all_info_mock, the Drying Frame's): a band with the rack's state, the Station block,
+-- the load as cells with the racks' lore beside them (what is dragged onto them hangs), the pieces hanging, Take Done
+-- and Take All, then notes.
 function RackWindow:render()
     ISCollapsableWindow.render(self)
     if self.isCollapsed or not self.rackView then return end
+    if Smokehouse.isChamber(self.station) then return self:renderChamber() end
+    local rackView = self.rackView
+    local band = rackView.band
+    local y = self:band(getText(band[1]), band[2], band[3][1], band[3][2])
+    y = self:stationBlock(y, STATION_ICONS[F.hangerOf(self.station).name], rackView.place, rackView.temperature,
+        rackView.stationRows)
+    y = self:section(y, "IGUI_TraditionalPreservationCore_SectionHolds")
+    local holding = rackView.holding
+    holding.drop = self.drop
+    y = self:holds(y, { holding }, getText(KEY .. "RackLore"))
+    if #rackView.pieces > 0 then
+        y = self:pieceListBlock(y, KEY .. "RackHanging", UI.say(KEY .. "RackListCount", tostring(#rackView.pieces)),
+            rackView.pieces)
+    end
+    local station, playerObj = self.station, self.playerObj
+    local done, all = rackView.doneIds, rackView.allIds
+    y = self:buttonRow(y, {
+        { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeDone", tostring(#done)), icon = rackView.doneIcon,
+          enabled = #done > 0, tooltip = #done == 0 and rackView.waitText or nil,
+          onClick = function() RackUI.take(playerObj, station, done) end },
+        { title = UI.say("ContextMenu_TraditionalPreservationFishMeat_RackTakeAllCount", tostring(#all)), icon = RETURNED_ICON,
+          enabled = #all > 0, tooltip = #all > #done and getText(KEY .. "RackTakeAllHelp") or nil,
+          onClick = function() RackUI.take(playerObj, station, all) end },
+    })
+    self:drawNotes(y, rackNotes(rackView))
+end
+
+-- Smokehouse Info, as it was until its own turn in step b (ROADMAP): the place rows, the list, the buttons and the
+-- drop square.
+function RackWindow:renderChamber()
     local rackView = self.rackView
     local y = self:top()
     for _, row in ipairs(rackView.rows) do y = self:row(y, row[1], row[2]) end
@@ -349,8 +517,9 @@ function RackUI.soonestHours(rack, ledger)
     return soonest
 end
 
--- What Rack Info's drop square makes of a dragged selection (TP Core's DropZone judge): the pieces it would hang,
--- lightest first so the most fit, by the menu's rules; the lines to show; and why the rest won't hang.
+-- What Rack Info makes of a selection dragged onto its cells (TP Core's DropZone judge): the pieces it would hang,
+-- lightest first so the most fit, by the menu's rules; the lines to show; why the rest won't hang; and the cells
+-- they would fill, in the first one's pattern.
 function RackUI.dropJudge(rack, hanger, place, items)
     local limits = F.RACK_LIMITS[hanger.name]
     local count, weight = F.rackCount(rack), F.rackWeight(rack)
@@ -369,11 +538,15 @@ function RackUI.dropJudge(rack, hanger, place, items)
         table.insert(take, item)
         takeWeight = takeWeight + item:getActualWeight()
     end
-    if #take == 0 then return { take = take, lines = { refused or getText(KEY .. "RackFull") }, refused = refused } end
+    if #take == 0 then return { take = take, lines = { refused or getText(KEY .. "RackFull") }, refused = refused, cells = 0 } end
     local lines = { UI.say(KEY .. "RackDropHang", tostring(#take), tostring(#items)),
         UI.say(KEY .. "RackDropRoom", string.format("%.1f", limits.total - weight)) }
     if #take < #items then table.insert(lines, getText(KEY .. "RackDropSome")) end
-    return { take = take, lines = lines, refused = #take < #items and refused or nil }
+    local Holds = require "TraditionalPreservationCore/Holds"
+    local cells = Holds.filledCells({ share = loadShare(limits, count + #take, takeWeight) })
+        - Holds.filledCells({ share = loadShare(limits, count, weight) })
+    return { take = take, lines = lines, refused = #take < #items and refused or nil, cells = cells,
+        pattern = PATTERNS[F.hangMethod(take[1]:getFullType())] }
 end
 
 -- Every carried piece of a kind some rack hangs (the rest of the rules are the rack's to say).
@@ -391,9 +564,7 @@ function RackUI.hang(playerObj, station, items)
 end
 local onHang = RackUI.hang
 
--- Each rack's own icon, by its hanger's name; a script item's icon by its full type.
-local RACK_ICONS = { frame = "media/textures/Item_DryingFrame.png", medium = "media/textures/Item_DryingBeamMedium.png",
-    large = "media/textures/Item_DryingBeamLarge.png", chamber = "media/textures/Item_SmokehouseChamber.png" }
+-- A script item's icon by its full type.
 
 local function iconOfType(fullType)
     local script = ScriptManager.instance:getItem(fullType)

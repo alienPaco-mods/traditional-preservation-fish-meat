@@ -11,6 +11,7 @@ local tooltipFor, refuse, findItems = UI.tooltip, UI.refuse, UI.findItems
 local KEY = "IGUI_TraditionalPreservationFishMeat_"
 local MENU = "ContextMenu_TraditionalPreservationFishMeat_"
 local TUB_ICON = "media/textures/Item_SaltingTub.png"
+local STATION_ICON = "media/textures/TPStation_SaltingTub.png"   -- Tub Info's Station block (TP Core tools/station_icons.py)
 -- What each start row gives, for its icon.
 local START_ITEMS = { fish = F.PRESSED_FISH, corn = F.CURED_MEAT, long = F.CURED_MEAT }
 -- Refusals with a key of their own elsewhere in the mod; the rest are Tub<refusal>.
@@ -358,8 +359,7 @@ function TubWindow:render()
     local tub, status = self.tubView.tub, self.tubView.status
     local word, text, look = TubUI.band(tub, status)
     local y = self:band(getText(word), text, look[1], look[2])
-    y = self:section(y, "IGUI_TraditionalPreservationCore_SectionStation")
-    y = self:placeRow(y, KEY .. "Place", status.place, status.temperature)
+    y = self:stationBlock(y, STATION_ICON, status.place, status.temperature)
     y = self:section(y, "IGUI_TraditionalPreservationCore_SectionHolds")
     y = self:holds(y, { TubUI.holding(tub, self.drop) }, getText(KEY .. "TubLore_" .. (tub.kind or "fish")))
     y = self:tubButtons(y)

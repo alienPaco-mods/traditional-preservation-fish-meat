@@ -170,6 +170,79 @@ judged = RackUI.dropJudge(almost, frame, "Open", { fish(F.PRESSED_FISH, 2, "A"),
 check("more than the room: the lightest that fit, the rest refused as full", #judged.take == 2 and judged.take[1]:getActualWeight() == 0.4
     and judged.refused == "Full: no room for another piece." and judged.lines[3] == "Some items will be rejected.")
 
+-- The settled look (all_info_mock): the band, the Station rows, the load's cells, a row's warning, the drop's cells.
+local BAND = require("TraditionalPreservationCore/InfoWindow")
+local function bandOf(pieces, place, weather)
+    local word, text, look = RackUI.band(pieces, place, weather or ledger)
+    return word:gsub("^" .. KEY, ""), text, look
+end
+local word, text, look = bandOf({}, "Open")
+check("an empty rack's band: grey, how to hang", word == "RackBandEmpty" and text == "drag fish or meat onto the load to hang it"
+    and look == BAND.BAND_IDLE)
+local frameRack = {}
+local drying = F.hangPiece(frameRack, fish(F.PRESSED_FISH, 1.5, "Walleye (Salt Cured)"), "Open", ledger, 1000)
+local dried = F.hangPiece(frameRack, fish(F.PRESSED_FISH, 0.5, "Bluegill (Salt Cured)"), "Open", ledger, 1000)
+drying.state.dried = F.DRY_HOURS * 0.3
+dried.doneHour, dried.state.dried = 1000, F.DRY_HOURS
+shown = RackUI.view(frameRack, frame, "Open", ledger, 1000)
+word, text, look = shown.band[1]:gsub("^" .. KEY, ""), shown.band[2], shown.band[3]
+check("drying in the open: green, the wind and how many done", word == "RackBandDrying" and text == "a good drying wind, 1 of 2 done"
+    and look == BAND.BAND_WORKING)
+word, text = bandOf(RackUI.view(frameRack, F.HANGERS[410], "Basement", ledger, 1000).pieces, "Basement")
+check("drying below ground: no wind in the band", text == "1 of 2 done")
+drying.doneHour = 1000
+word, text = bandOf(RackUI.view(frameRack, frame, "Open", ledger, 1000).pieces, "Open")
+check("all done: take them off", word == "RackDone" and text == "2 done: take them off")
+drying.doneHour = nil
+local stoppedRow = { stopped = "Rain", colour = {} }
+word, text, look = bandOf({ stoppedRow, { colour = {} } }, "Open")
+check("a piece stopped: amber, the reason and how many", word == "RackBandStopped" and text == "wet from rain, 1 of 2 stopped"
+    and look == BAND.BAND_WAITING)
+word, text, look = bandOf({ stoppedRow, { spoiling = true, colour = {} } }, "Open")
+check("spoiling comes before stopped: red", word == "TubBandSpoiling" and text == "1 of 2 pieces spoiling" and look == BAND.BAND_AT_RISK)
+
+local function stationValue(rows, label)
+    for _, row in ipairs(rows) do if row[1] == KEY .. label then return row[2] end end
+end
+local open = shown.stationRows
+check("the rack's own Station rows in the open: wind, wetness, heaviest piece (Place and Season are Core's)",
+    #open == 3 and stationValue(open, "Wind") ~= nil and stationValue(open, "InfoWetness") == "0%"
+    and stationValue(open, "RackPieces") == "up to 2.5 kg each" and stationValue(open, "Place") == nil)
+local below = RackUI.stationRows(F.HANGERS[410], "Basement", ledger)
+check("below ground: the heaviest piece only", #below == 1 and stationValue(below, "RackPieces") == "up to 12 kg each")
+check("the Place row's temperature is the place's own", shown.place == "Open" and shown.temperature == F.ownTemperature(ledger, "Open"))
+
+local load = shown.holding
+check("the load as cells: kg and pieces against the frame's", load.kind == "cells" and load.amount == "2.0 / 20 kg"
+    and load.state == "2 of 200 pieces" and math.abs(load.share - 0.1) < 1e-6)
+check("one kind hung: one part, fish", #load.parts == 1 and load.parts[1].pattern == RackUI.PATTERNS.salt
+    and math.abs(load.parts[1].weight - 2) < 1e-6)
+local mixed = {}
+F.hangPiece(mixed, fish(F.PRESSED_FISH, 1, "Walleye (Salt Cured)"), "Open", ledger, 1000)
+F.hangPiece(mixed, fish(F.CURED_MEAT, 2, "Beef (Corned)"), "Covered", ledger, 1000)
+local parts = RackUI.holding(mixed, F.HANGERS[410]).parts
+check("fish and meat: a part each, by weight", #parts == 2 and parts[1].pattern == RackUI.PATTERNS.salt
+    and parts[2].pattern == RackUI.PATTERNS.meat and parts[2].weight == 2)
+check("an empty rack's cells have no parts", RackUI.holding({}, frame).parts == nil and RackUI.holding({}, frame).share == 0)
+local gantry = RackUI.holding({ pieces = { { weight = 1, method = "meat" }, { weight = 1, method = "meat" } } }, F.HANGERS[410])
+check("a Gantry fills by count when that is fuller (2 of 12 pieces)", math.abs(gantry.share - 2 / 12) < 1e-6)
+
+check("a running piece has no warning", RackUI.pieceRow(drying, ledger, 1000).warning == nil)
+ledger.openRate, ledger.wetness = 0, 0.8
+local wet = RackUI.pieceRow(drying, ledger, 1000)
+check("rain stops a piece in the open: its warning says why, its bar its share", wet.warning == "Wet: rain"
+    and wet.stopped == "Rain" and wet.text == "30%")
+ledger.openRate, ledger.wetness = 1, 0
+check("a done piece has no warning", RackUI.pieceRow(dried, ledger, 1000).warning == nil)
+local rottenRow = RackUI.pieceRow(rotten, ledger, 1000)
+check("a rotted piece counts as spoiling", rottenRow.spoiling == true and rottenRow.text == "Rotten")
+
+judged = RackUI.dropJudge({}, frame, "Open", { fish(F.PRESSED_FISH, 2, "A"), fish(F.PRESSED_FISH, 2, "B") })
+check("a drop shows the cells it fills, in its pattern: 4 of 20 kg is one cell", judged.cells == 1
+    and judged.pattern == RackUI.PATTERNS.salt)
+judged = RackUI.dropJudge({}, frame, "Open", { fish(F.PRESSED_FISH, 3.1, "Walleye (Salt Cured)") })
+check("nothing taken fills no cells", judged.cells == 0 and judged.pattern == nil)
+
 -- Smokehouse Info (S3): the fire among the place rows, each piece's own smoke under its bar, a link's popup.
 local SHED = require("TraditionalPreservationCore/Smokehouse").PLACE
 local CHAMBER = F.CHAMBER_HANGER

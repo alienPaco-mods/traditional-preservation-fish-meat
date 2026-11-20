@@ -1,5 +1,25 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.91
+- **Drying Frame, Hanging Beam and Gantry Info built to the approved mock** (TP Core 0.1.39's pieces): a state band
+  under the title (Empty; Spoiling with how many pieces; Done; Stopped with the first piece's reason, as wet from
+  rain; Drying with the wind where it reaches and how many are done; the worst first), TP Core 0.1.40's Station block
+  (the rack's outline icon, Place, Season, then the wind, the wetness in the open and the heaviest piece the rack
+  takes), the load as five cells by weight or count, split into fish, meat and sausage
+  patterns by weight, with a line of history beside them (Lofoten's stockfish racks). The Holds row and the drop
+  square are gone: fish or meat dragged onto the cells hangs, as the menu would, the cells it would fill shown in its
+  pattern.
+- Each piece's row says what holds it back in amber at its right: spoiling with the share gone, under-salted, or why it
+  stopped (Wet: rain, Too warm, Still air, Shut room, Too cold, Needs a roof); a stopped piece's bar reads its share
+  alone. The Smokehouse's rows get the same.
+- Take Done (n) and Take All (n) carry an icon: what the first done piece comes off as (vanilla's crafted icon when
+  none is done) and vanilla's returned icon.
+- Salting Tub Info's Station block is TP Core 0.1.40's: the tub's outline icon, Place and Season.
+- `TPStation_SaltingTub`, `TPStation_DryingFrame`, `TPStation_HangingBeam` and `TPStation_Gantry`, the Info windows'
+  outline icons, from TP Core's `tools/station_icons.py`. The menus keep the item icons.
+- The Hanging list folds (TP Core 0.1.40's `pieceListBlock`), each rack type keeping its own fold.
+- Smokehouse Info keeps its present layout until its own turn.
+
 ## 0.4.90
 - Salting Tub Info's cells are drawn in big fish scales or marbled meat by what the tub holds (TP Core 0.1.39), a drag's cells
   in what it puts in. `TPCell_Fish`, `TPCell_Meat` and `TPCell_Sausage` (the Smokehouse's, for its window) from Core's
