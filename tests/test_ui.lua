@@ -21,6 +21,7 @@ dofile("42/media/lua/shared/TraditionalPreservationFishMeatBlood.lua")
 
 function getPlayer() return "player" end
 function getText(key) return key end
+function getTexture(name) return name end
 instanceof = function() return true end
 ArrayList = { new = function() return H.list({}) end }
 ISMoveableSpriteProps = {}
@@ -228,4 +229,6 @@ handlers.OnFillWorldObjectContextMenu(0, none, { { getSprite = function() return
 check("nothing for other objects", #none.options == 0)
 package.loaded["TraditionalPreservationCore/Weather"].placeOf = realPlaceOf
 
+check("the Stockfish Pallet has its own loot-window icon, not vanilla's shelves",
+    ContainerButtonIcons.stockfishpallet == "media/textures/Container_StockfishPallet.png")
 H.done()

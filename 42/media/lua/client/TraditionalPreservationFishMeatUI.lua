@@ -152,3 +152,6 @@ local function onFillPalletMenu(playerNum, context, worldobjects, test)
 end
 
 Events.OnFillWorldObjectContextMenu.Add(onFillPalletMenu)
+
+-- The pallet's own icon in the loot window, not vanilla's shelves (its container type: tools/build_tileset.py).
+UI.containerIcon("stockfishpallet", "media/textures/Container_StockfishPallet.png")

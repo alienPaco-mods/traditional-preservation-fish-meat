@@ -1315,6 +1315,7 @@ def main():
     pallet = tiles[PALLET].copy()
     pallet.alpha_composite(tiles[PALLET_STACK + len(PALLET_LEVELS) - 1])
     pzart.write_build_icon(pallet, media / "textures" / "Item_StockfishPallet.png")
+    pzart.write_container_icon(pallet, media / "textures" / "Container_StockfishPallet.png")
     # The mod list shows the large beam, which is `icon` in mod.info.
     # Its posts run off the bottom, so the fish stay big enough to read.
     pzart.write_mod_icon(icon, media.parent / "icon.png", keep=MOD_ICON_KEEP)

@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.95
+- **The Stockfish Pallet's own loot-window icon** (user, session 77; `art/container_icons_mock.png`): its button shows
+  the pallet (`Container_StockfishPallet.png`, from `tools/build_tileset.py`), not vanilla's shelves. Needs TP Core
+  0.1.53 (`UI.containerIcon`).
+
 ## 0.4.94
 - **Frost keeps raw meat and fish** (the natural freezer): loose raw meat and fish (carried, in a container, on the
   ground) age nothing in the hours at or below -2 C where they are, as in a freezer; above it, vanilla's clock as
