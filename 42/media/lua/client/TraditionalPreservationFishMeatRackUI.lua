@@ -11,6 +11,7 @@
 require "TraditionalPreservationFishMeatInfo"
 require "TimedActions/TPFMRack"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
+local StationReport = require "TraditionalPreservationCore/StationReport"
 local PiecesUI = require "TraditionalPreservationCore/PiecesUI"
 local UI = require "TraditionalPreservationCore/UI"
 local Smokehouse = require "TraditionalPreservationCore/Smokehouse"
@@ -387,6 +388,11 @@ end
 function RackUI.open(playerObj, station)
     InfoWindow.open(RackWindow, playerObj, station)
 end
+-- The Smokehouse once, by its record tile.
+StationReport.add(RackWindow, function(isoObject)
+    if Smokehouse.isChamber(isoObject) then return Smokehouse.recordTile(isoObject) end
+    return F.isRack(isoObject) and isoObject or nil
+end)
 
 RackUI.isRack = F.isRack
 

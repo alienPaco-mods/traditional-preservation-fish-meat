@@ -3,6 +3,7 @@
 -- clicking the tub. The rules are TraditionalPreservationFishMeatTub.lua's; the hand jobs TPFMSaltingTub's.
 local UI = require "TraditionalPreservationCore/UI"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
+local StationReport = require "TraditionalPreservationCore/StationReport"
 local Uses = require "TraditionalPreservationCore/Uses"
 local F = TraditionalPreservationFishMeat
 
@@ -228,6 +229,7 @@ end
 function TubWindow.open(playerObj, station)
     InfoWindow.open(TubWindow, playerObj, station)
 end
+StationReport.add(TubWindow, function(isoObject) return F.isTub(isoObject) and isoObject or nil end)
 
 -- The band: empty, packing, spoiling, paused, curing or cured; the worst first. Returns the word's key, the finished
 -- text and the colours.
