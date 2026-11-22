@@ -1,6 +1,7 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
 ## 0.4.97
+- **Docs:** README's Split Fish limits are in weight, not kg (2.5 and 0.6 weight, as `F.canSplit`).
 - **A Crock of Potted Meat's tooltip says how long it keeps where it is** (TP Core's keeping lines; sandbox *Keeping in
   item tooltips*). Needs TP Core 0.1.57.
 
