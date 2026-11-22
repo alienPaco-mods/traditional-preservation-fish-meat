@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.97
+- **A Crock of Potted Meat's tooltip says how long it keeps where it is** (TP Core's keeping lines; sandbox *Keeping in
+  item tooltips*). Needs TP Core 0.1.57.
+
 ## 0.4.96
 - **In TP Core's station report** (written on each save, for the long-save log): the Rack, Smokehouse (once, by its record tile) and Salting Tub windows take part
   (`StationReport.add`). Needs TP Core 0.1.56.

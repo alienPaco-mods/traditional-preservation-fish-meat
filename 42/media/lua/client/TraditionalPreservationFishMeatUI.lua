@@ -4,6 +4,7 @@
 local UI = require "TraditionalPreservationCore/UI"
 local Transfer = require "TraditionalPreservationCore/Transfer"
 local PlaceKeepingUI = require "TraditionalPreservationCore/PlaceKeepingUI"
+local KeepingTooltip = require "TraditionalPreservationCore/KeepingTooltip"
 local Weather = require "TraditionalPreservationCore/Weather"
 local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 local F = TraditionalPreservationFishMeat
@@ -58,6 +59,9 @@ end)
 Transfer.before(function(_, item)
     if item:getFullType() == F.CROCK then F.keepCrock(item) end
 end)
+
+-- A crock's tooltip says how long it keeps where it is (TP Core's KeepingTooltip).
+KeepingTooltip.add({ [F.CROCK] = true }, function(item) return KeepingTooltip.keeperLines(F.POTTED, item) end)
 
 -- Loose raw meat and fish catch up on their frost whenever they are looked at or moved (TP Core's PlaceKeepingUI).
 PlaceKeepingUI.watch({ keep = F.keepFrozen }, F.frostKeptTypes())

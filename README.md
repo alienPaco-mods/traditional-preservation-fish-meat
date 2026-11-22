@@ -1,4 +1,4 @@
-# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.96)
+# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.97)
 
 **Status: experimental.** The stations build, open and hang fish and meat in the game, but a full year hasn't been played. Back up your save before enabling.
 
