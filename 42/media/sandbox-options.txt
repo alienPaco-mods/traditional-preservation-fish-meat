@@ -115,3 +115,10 @@ option TraditionalPreservationFishMeat.FrostKeepsMeat {
     page = TraditionalPreservationFishMeat,
     translation = TraditionalPreservationFishMeat_FrostKeepsMeat,
 }
+
+option TraditionalPreservationFishMeat.FishingBySeason {
+    type = boolean,
+    default = true,
+    page = TraditionalPreservationFishMeat,
+    translation = TraditionalPreservationFishMeat_FishingBySeason,
+}

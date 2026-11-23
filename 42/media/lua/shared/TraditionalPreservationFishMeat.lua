@@ -1070,6 +1070,7 @@ Events.OnInitGlobalModData.Add(F.applySandbox)
 -- The parts in their own files: the natural freezer, the weather's totals and what they do to stacks and tubs, the
 -- Salting Tub, the names, the stocks, and the stockfish's pallet and bales.
 require "TraditionalPreservationFishMeatFrost"
+require "TraditionalPreservationFishMeatFishing"
 require "TraditionalPreservationFishMeatLedger"
 require "TraditionalPreservationFishMeatTub"
 require "TraditionalPreservationFishMeatRack"

@@ -1,4 +1,4 @@
-# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.97)
+# Traditional Preservation (Fish & Meat) — Build 42 prototype (v0.4.98)
 
 **Status: experimental.** The stations build, open and hang fish and meat in the game, but a full year hasn't been played. Back up your save before enabling.
 
@@ -160,6 +160,17 @@ Vanilla bleeds a carcass into any container; here that blood is food and goes of
 - **Smoked Blood Sausage**: the Smokehouse's **Hang Sausages**, Smokehouse only, each boiled link a piece of its own (`F.hangMethod` "sausage"; a fried one, Core's `OnHeat` done, is refused: `F.sausageRefusal`). `F.SMOKED_SAUSAGE_HOURS` (24) of the Smokehouse's cold counter: `F.startSausageSmoke` sets `noHotSmoke`, so stoked hours are smoke at once, and the cool-day rule (15 C) holds. Each link keeps its Boiled clock (a day a day, by Food Spoilage); `F.sausageSmokeStep` places the hour the smoke was done within the stretch since the last look. `F.smokedLink`: smoked before stale, *Smoked Blood Sausage* (0.22, 538 kcal, hunger 30, 21 / 40), its age the same share; stale first, the Boiled link it was. A link is done once smoked or once stale (`staleAt`). **Slice Smoked Blood Sausage**: 4 rounds, 21 / 40. Its popup in the Smokehouse window: `F.sausageStatus`.
 - **Smoked Sausage** (kielbasa style; `TraditionalPreservationFishMeatSausage.lua`): **Stuff Sausages**: 2 raw Pork or Pork Chop, a third piece of Pork, Pork Chop, Beef, Steak or Venison, 12 uses of Pork Fat or Lard, 1 salt, a Salted Casings: 6 *Fresh Sausage* (0.25, 525 kcal, a sixth of what goes in, hunger 30, 2 / 4). Seasoning afterwards, a link at a time, through TP Core's `Season` (right-click a link: Season): Garlic, Onion, Pepper, Oregano, Thyme, Sage (`F.SEASONINGS`; fresh, dried or the jar), each kind once, no cap, the stew's uses (a use, 5 for onion), -2 unhappiness and -2 boredom each, as vanilla's spice in a stew (`F.SEASONING_UNHAPPY`, `F.SEASONING_BOREDOM`). Fresh, raw and boiled blood links take it (`F.SEASONED_LINKS`); the pots (`tpLinks` on the pot), the smoke and the slices carry it. Fried raw: *Fresh Sausage (Fried)*; **Put Sausages in Water** / **Take Out Sausages**: *Fresh Sausage (Boiled)*, both keep 2 / 4. In the Smokehouse (**Hang Sausages**, as blood sausage), each raw link a piece of its own (`F.hangMethod` "freshSausage"; a cooked one is refused, `F.freshSausageRefusal`): `F.SAUSAGE_HOT_HOURS` (6) stoked in a row on the hot counter (`modData.sausage = "pork"`, the blood sausage's code with `F.sausageSmoke` picking the counter); a broken run starts again. Cooked in time: *Smoked Sausage* (0.22, 525 kcal, 14 / 30), age carried as a share; off first, the raw link. **Slice Smoked Sausage**: 4 rounds.
 - The finished foods come out cooked (Core's `OnCreateCooked`). Own icons and models (`tools/build_meat_icons.py`).
+
+### Fishing by season
+
+Fish bite by the season, as the water warms and cools (`shared/TraditionalPreservationFishMeatFishing.lua`, user
+2026-11-23): vanilla's bite chance takes a factor from the air where you stand (1 at 15 to 30 C, 0.75 at 0 to 15, 0.5
+below), so a winter day still lands about three fifths of a summer day. Here the factor goes by TP Core's season
+temperature (the ten-day mean of the air) on `F.BITE_CURVE`: **0.2** at 0 C and below, 0.3 at 3, 0.6 at 8, **1.0** from
+14 C. In the sampled Kentucky year that is the full rate from May to September, about 0.6 in April and October and
+**0.2 from November to February**. Vanilla's hot-air slump (above 30 C) still counts on top; rain, dawn and dusk, the
+hook and the fish in the water stay vanilla's. One wrap of `Fishing.Utils.getTemperatureParams` (TP Core's `Wrap`, a
+nested owner). Sandbox *Fishing by season* (on); `TPFM.fishing()` shows the factor where you stand.
 
 ### Frost on raw meat and fish
 

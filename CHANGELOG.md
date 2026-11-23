@@ -1,5 +1,13 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.98
+- **Fish bite by the season** (user, 2026-11-23: winter fishing as real winter fishing). Vanilla's bite factor by
+  the air where you stand is replaced by one by TP Core's season temperature (`F.BITE_CURVE`: 0.2 at 0 C and below, 0.3
+  at 3, 0.6 at 8, 1.0 from 14): full from May to September, about 0.6 in April and October, 0.2 from November to
+  February (vanilla's winter is about 0.6). Vanilla's hot-air slump still counts; rain, time of day, hooks and fish
+  stocks are vanilla's. Sandbox *Fishing by season* (on), `TPFM.fishing()`, README, guide, `test_fishing.lua`. Needs
+  TP Core 0.1.63 (nested wraps).
+
 ## 0.4.97
 - **Docs:** README's Split Fish limits are in weight, not kg (2.5 and 0.6 weight, as `F.canSplit`).
 - **A Crock of Potted Meat's tooltip says how long it keeps where it is** (TP Core's keeping lines; sandbox *Keeping in

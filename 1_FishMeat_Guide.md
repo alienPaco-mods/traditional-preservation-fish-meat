@@ -177,6 +177,20 @@ In the base game a butchered animal gives no fat, and Lard is something you find
 
 Numbers are for an average animal and an unskilled butcher. A bigger or meatier animal gives more, Butchering skill raises the top end, and roadkill or an old carcass gives less: the game's own butchering rules, as for the meat. Piglets, calves, lambs and deer are too lean to give any. Raw fat keeps 2 / 4 days. What to do with it: chapter 12.
 
+### Fish bite by the season
+
+In the base game a fish bites by the air where you stand, so a mild January afternoon fishes almost as well as July. Here the fish feel the **water**, and the water follows the season:
+
+| Months | Water | Bite |
+|---|---|---|
+| May to September | warm | full |
+| April, October | turning | about half |
+| November to February | cold | **a fifth** |
+
+Rain, dawn and dusk and a good hook still help as ever, and a scorching afternoon still sends the fish deep. So the river feeds you well from spring to autumn and poorly in winter: **put the summer's fish by**. Turn it off in the sandbox (*Fishing by season*) for the base game's bite.
+
+> *Margin note:* in cold water a fish's body slows with it. Bass and catfish all but stop feeding through the winter; perch, crappie and sauger still take a slow bait, which is what kept winter anglers going, and why the autumn catch was salted and the winter one hung to freeze-dry.
+
 ### Frost keeps it
 
 In the base game only a freezer stops raw meat going off. Here the winter does too: raw meat and fish left where it is **-2 C or colder** keep as in a freezer, for every hour it stays that cold. Outdoors, under a roof, in a cold room, on the ground, in a crate or in your pack, it goes by the air where it lies. Above -2 C it spoils as usual.

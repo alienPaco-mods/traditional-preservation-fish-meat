@@ -4,6 +4,8 @@
   "Sandbox_TraditionalPreservationFishMeat_DryDays_tooltip": "Days to salt dry in the best weather. Kentucky's weather makes it about 15 to 34.",
   "Sandbox_TraditionalPreservationFishMeat_MaxDryDays": "Slowest salt drying (days)",
   "Sandbox_TraditionalPreservationFishMeat_MaxDryDays_tooltip": "The longest cold or damp weather can stretch salt drying, not counting rain.",
+  "Sandbox_TraditionalPreservationFishMeat_FishingBySeason": "Fishing by season",
+  "Sandbox_TraditionalPreservationFishMeat_FishingBySeason_tooltip": "Fish bite by the season, as the water warms and cools: the full rate from May to September, about half in April and October, a fifth from November to February. Off, vanilla's bite by the air where you stand (a winter day about three fifths of a summer day).",
   "Sandbox_TraditionalPreservationFishMeat_ColdDryDays": "Stockfish drying time (days)",
   "Sandbox_TraditionalPreservationFishMeat_ColdDryDays_tooltip": "Days to cold dry stockfish at the best temperature and wind. Kentucky's winter makes it about 50 to 55 when hung from late October to January; real stockfish takes about 90.",
   "Sandbox_TraditionalPreservationFishMeat_MatureDays": "Stockfish maturing time (days)",

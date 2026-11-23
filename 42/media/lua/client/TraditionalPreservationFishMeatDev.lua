@@ -20,6 +20,7 @@ local function give(fullType, count)
 end
 
 function TPFM.help()
+    say("TPFM.fishing()             fishing by season: the air here, the season temperature and the bite factor it gives now (vanilla's by the air beside it)")
     say("TPFM.weather()             the drying weather now: temperature, season, wetness, rates, spoilage and totals")
     say("TPFM.here()                which place you're standing in: Open, Covered (a roof, no room), Sheltered (a shut room), AiredRoom (a window open) or Basement")
     say("TPFM.wind()                start a log of live wind every 10 minutes; again to print it beside the forecast")
@@ -52,6 +53,20 @@ function TPFM.help()
     say("TPFM.rackHang()            hang what you carry that the nearest Drying Frame, Hanging Beam or Gantry (3 tiles) takes, at once (no walking, no action); prints each refusal")
     say("TPFM.rackInfo()            open Rack Info on that rack (brings it up to now)")
     say("The Salting Tub cures on its own totals, so TPFM.age doesn't speed it up: TPFM.tubCure does.")
+end
+
+-- Fishing by season (TraditionalPreservationFishMeatFishing.lua): the season, vanilla's air factor and the one used now.
+function TPFM.fishing()
+    local F = TraditionalPreservationFishMeat
+    local player = getPlayer()
+    local data = Fishing and Fishing.Utils and Fishing.Utils.getTemperatureParams(player)
+    if not data then return say("No fishing rules loaded.") end
+    local season = data.seasonTemperature
+    say(string.format("Air here %.1f C, season %s: bite factor %.2f now (%s; vanilla's by the air alone would be %.2f)",
+        data.temperature, season and string.format("%.1f C", season) or "not yet", data.coeff,
+        F.fishingBySeason() and "by the season" or "the sandbox has it off",
+        data.temperature >= 15 and data.temperature < 30 and 1 or data.temperature >= 0 and data.temperature < 40 and 0.75 or data.temperature > -10 and 0.5 or 0.25))
+    say("By season: 0 C and below 0.2, 3 C 0.3, 8 C 0.6, 14 C and up 1.0 (May to Sep full, Apr and Oct about half, Nov to Feb a fifth)")
 end
 
 function TPFM.weather()
