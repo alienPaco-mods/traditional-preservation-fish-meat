@@ -52,7 +52,7 @@ module TraditionalPreservationFishMeat
         Tooltip = Tooltip_craft_stuffSausages,
         inputs
         {
-            item 1 [TraditionalPreservationFishMeat.SaltedCasings] mode:destroy,
+            item 1 [TraditionalPreservationFishMeat.SaltedCasings] flags[ItemCount] mode:destroy,
             item 2 [Base.Pork;Base.PorkChop] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
             item 1 [Base.Pork;Base.PorkChop;Base.Beef;Base.Steak;Base.Venison] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
             item 12 [TraditionalPreservationFishMeat.PorkFat;Base.Lard],

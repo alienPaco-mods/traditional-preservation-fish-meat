@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.99
+- **Fixed: Clean and Salt Casings, Stuff Blood Sausages and Stuff Sausages wouldn't take the casings** (user,
+  2026-11-24: Raw Casings 0/1 in the crafting window with a fresh one carried). The casings inputs lacked `ItemCount`, so
+  vanilla counted them in food uses (hunger x 100), and a casing's hunger of 1 doesn't reliably make one use. Every other
+  food input already counts items.
+
 ## 0.4.98
 - **Fish bite by the season** (user, 2026-11-23: winter fishing as real winter fishing). Vanilla's bite factor by
   the air where you stand is replaced by one by TP Core's season temperature (`F.BITE_CURVE`: 0.2 at 0 C and below, 0.3

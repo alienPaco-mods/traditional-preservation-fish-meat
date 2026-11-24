@@ -59,7 +59,7 @@ module TraditionalPreservationFishMeat
         xpAward = Cooking:3,
         inputs
         {
-            item 1 [TraditionalPreservationFishMeat.RawCasings] flags[IsUncookedFoodItem] mode:destroy,
+            item 1 [TraditionalPreservationFishMeat.RawCasings] flags[IsUncookedFoodItem;ItemCount] mode:destroy,
             item 1 [*],
             -fluid 0.5 [Water],
             item 1 tags[base:salt],
@@ -276,7 +276,7 @@ module TraditionalPreservationFishMeat
         Tooltip = Tooltip_TraditionalPreservationFishMeat_Filler,
         inputs
         {
-            item 1 [TraditionalPreservationFishMeat.SaltedCasings] mode:destroy,
+            item 1 [TraditionalPreservationFishMeat.SaltedCasings] flags[ItemCount] mode:destroy,
             item 1 [*],
             -fluid 1.0 [AnimalBlood;CuredBlood],
             item 1 [Base.OatsRaw;Base.Rice;Base.BarleySeed;Base.RyeSeed;Base.WheatSeed] mode:keep,
