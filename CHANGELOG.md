@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.100
+- **Fixed: Split Fish never offered for a raw Gutted Fish** (user, 2026-11-25: a 7.5 walleye; since 0.4.77). Its
+  `halfStage` mapper had the Gutted Fish line the wrong way round (a mapper reads output = input), so the fish found no
+  output: the recipe was missing from the right-click menu and greyed in the crafting window. Test in `test_curing.lua`.
+
 ## 0.4.99
 - **Fixed: Clean and Salt Casings, Stuff Blood Sausages and Stuff Sausages wouldn't take the casings** (user,
   2026-11-24: Raw Casings 0/1 in the crafting window with a fresh one carried). The casings inputs lacked `ItemCount`, so

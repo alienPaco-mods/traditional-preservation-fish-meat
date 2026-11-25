@@ -918,10 +918,11 @@ module TraditionalPreservationFishMeat
         {
             item 2 mapper:halfStage,
         }
-        /* A raw gutted fish splits into Fish Halves; a gutted fish at a later stage into halves of that stage. */
+        /* A raw gutted fish splits into Fish Halves; a gutted fish at a later stage into halves of that stage.
+           A mapper line reads output = input, as vanilla's (Base.IronBarHalf = Base.IronBar). */
         itemMapper halfStage
         {
-            TraditionalPreservationFishMeat.GuttedFish = TraditionalPreservationFishMeat.FishHalf,
+            TraditionalPreservationFishMeat.FishHalf = TraditionalPreservationFishMeat.GuttedFish,
             TraditionalPreservationFishMeat.SaltPressedFish = TraditionalPreservationFishMeat.SaltPressedFish,
             TraditionalPreservationFishMeat.SaltDriedFish = TraditionalPreservationFishMeat.SaltDriedFish,
             TraditionalPreservationFishMeat.ColdDriedFish = TraditionalPreservationFishMeat.ColdDriedFish,

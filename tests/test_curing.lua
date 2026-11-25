@@ -1319,6 +1319,10 @@ for tenth = 0, 90, 10 do
 end
 local script = io.open("42/media/scripts/TraditionalPreservationFishMeat.txt"):read("*a")
 check("soaking stockfish goes through onCreateSoaked", script:match("craftRecipe SoakColdFish.-OnCreate = ([%w%.]+)") == "TraditionalPreservationFishMeat.onCreateSoaked")
+-- A mapper line reads output = input (vanilla's Base.IronBarHalf = Base.IronBar): a raw gutted fish splits into halves.
+local halfStage = script:match("itemMapper halfStage%s*{(.-)}")
+check("Split Fish's mapper gives a Fish Half for a Gutted Fish (output on the left)", halfStage
+    and halfStage:find("TraditionalPreservationFishMeat.FishHalf = TraditionalPreservationFishMeat.GuttedFish", 1, true) ~= nil)
 
 -- Rinsing
 local unrinsed = through(through(packedBass, "SaltPressedFish"), "SaltDriedFish")
