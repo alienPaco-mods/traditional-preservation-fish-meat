@@ -290,5 +290,9 @@
   "IGUI_TraditionalPreservationFishMeat_TubButtonUnpack": "Unpack (%1)",
   "IGUI_TraditionalPreservationFishMeat_TubButtonStart_fish": "Cure Fish",
   "IGUI_TraditionalPreservationFishMeat_TubButtonStart_corn": "Corn the Meat",
-  "IGUI_TraditionalPreservationFishMeat_TubButtonStart_long": "Country Cure"
+  "IGUI_TraditionalPreservationFishMeat_TubButtonStart_long": "Country Cure",
+  "IGUI_TraditionalPreservationFishMeat_TubPressed": "The board and stone are on it: Unseal it first.",
+  "IGUI_TraditionalPreservationFishMeat_TubNotPressed": "Nothing is on it.",
+  "IGUI_TraditionalPreservationFishMeat_TubCuring": "Not while it cures: the press keeps the fish or meat under the salt.",
+  "IGUI_TraditionalPreservationFishMeat_TubUnsealHelp": "Lifts the board and stone off and gives them back, opening the tub to take the cured pieces out. With them on it stays where it is and is shut."
 }

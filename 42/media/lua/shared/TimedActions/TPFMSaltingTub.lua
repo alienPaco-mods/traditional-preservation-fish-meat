@@ -1,7 +1,7 @@
 -- Traditional Preservation (Fish & Meat): the hand jobs at a Salting Tub. "put" lays one piece of fish or meat in,
 -- "unpack" takes everything back out before it is salted, "start" salts the batch and lays the board and stone on it
--- for one of the cures (method: "fish", "corn" or "long"), and "take" takes one cured piece out. The last piece gives
--- the board and stone back.
+-- for one of the cures (method: "fish", "corn" or "long"), "take" takes one cured piece out, and "unseal" lifts the
+-- board and stone off and gives them back.
 require "TimedActions/ISBaseTimedAction"
 require "TraditionalPreservationFishMeat"
 
@@ -10,7 +10,7 @@ TPFMSaltingTub = ISBaseTimedAction:derive("TPFMSaltingTub")
 local F = TraditionalPreservationFishMeat
 local Action = require "TraditionalPreservationCore/Action"
 local Uses = require "TraditionalPreservationCore/Uses"
-local DURATIONS = { put = 50, unpack = 150, start = 250, take = 40 }
+local DURATIONS = { put = 50, unpack = 150, start = 250, take = 40, unseal = 100 }
 
 -- Brought up to the minute first, so a tub that has just finished is seen as it is now.
 local function tubNow(self)
@@ -45,8 +45,10 @@ function TPFMSaltingTub:isValid()
     elseif self.mode == "start" then
         -- The kit is looked for once, before the action starts, and again as it ends: not on every tick.
         return self.started or F.startRefusal(tub, self.method, TPFMSaltingTub.startKit(self.character)) == nil
+    elseif self.mode == "unseal" then
+        return F.unsealTubRefusal(tub) == nil
     end
-    return stage == "Done"
+    return stage == "Done" and not F.tubPressed(tub)
 end
 
 function TPFMSaltingTub:waitToStart()
@@ -85,15 +87,14 @@ function TPFMSaltingTub:complete()
             Action.addXp(character, { "Cooking", F.TUB_SALT_XP * F.tubCount(tub) })
             F.startTub(tub, self.method, F.getLedger())
         end
+    elseif self.mode == "unseal" then
+        if F.unsealTub(tub) then
+            give(character, F.TUB_BOARD)
+            give(character, F.TUB_STONE)
+        end
     else
         local taken = F.takeFromTub(tub)
-        if taken then
-            Actions.addOrDropItem(character, F.curedFromTub(taken, now))
-            if taken.last then
-                give(character, F.TUB_BOARD)
-                give(character, F.TUB_STONE)
-            end
-        end
+        if taken then Actions.addOrDropItem(character, F.curedFromTub(taken, now)) end
     end
     if TraditionalPreservationFishMeatWorld then TraditionalPreservationFishMeatWorld.refresh(self.station) end
     return true

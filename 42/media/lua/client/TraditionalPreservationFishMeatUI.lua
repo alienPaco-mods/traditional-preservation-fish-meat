@@ -10,12 +10,13 @@ local Tiles = require "TraditionalPreservationFishMeat/Tiles"
 local F = TraditionalPreservationFishMeat
 
 -- A tub with anything in it stays where it is: pieces waiting, curing or cured, its time goes by its place (user,
--- 2026-11-19: no station is moved mid-process). Empty, it picks up as any moveable.
+-- 2026-11-19: no station is moved mid-process), and so does one with its board and stone on (Unseal first). Empty,
+-- it picks up as any moveable.
 UI.keepInPlace(function(isoObject)
     if not F.isTub(isoObject) or not isoObject:hasModData() then return nil end
     local movableData = isoObject:getModData().movableData
     local tub = movableData and movableData[F.TUB_KEY]
-    return (tub ~= nil and (F.tubStage(tub) ~= "Empty" or F.tubCount(tub) > 0)) or nil
+    return (tub ~= nil and (F.tubStage(tub) ~= "Empty" or F.tubCount(tub) > 0 or F.tubPressed(tub))) or nil
 end)
 
 -- The Gantry and the Hanging Beam keep out of a door's front, indoors or out (TP Core's Smokehouse keeps its own rules).

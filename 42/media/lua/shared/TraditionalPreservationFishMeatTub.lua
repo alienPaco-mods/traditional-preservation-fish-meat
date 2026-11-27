@@ -5,8 +5,8 @@
 -- batch starts everything comes back out (Unpack), aged as it would lying out. A start row salts the lot (each piece's
 -- F.saltFor) and lays a board and a stone on it: Cure Fish, Corn the Meat (the short cure) or Country Cure (the long
 -- one). The cure runs by the tub's place on the ledger's tubCure totals (F.pressDone), the warm and long cure spoil it
--- (F.cureSpoiled), and the cured pieces wait in the tub until taken out, the last of them giving the board and stone
--- back.
+-- (F.cureSpoiled), and the cured pieces wait in the tub until taken out. The board and stone stay on until Unseal
+-- lifts them off, once it is done (user, 2026-11-27): a tub with them on takes nothing new and stays where it is.
 -- The batch sits in the tub's movableData, so it goes with a tub picked up. Required by TraditionalPreservationFishMeat.lua.
 TraditionalPreservationFishMeat = TraditionalPreservationFishMeat or {}
 local F = TraditionalPreservationFishMeat
@@ -14,7 +14,7 @@ local Station = require "TraditionalPreservationCore/Station"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 
 F.TUB_KEY = "tpfmTub"         -- the tub's record in its movableData; never rename once the mod is out
-F.TUB_BOARD = "Base.Plank"    -- the press: board and stone, both back with the last piece out
+F.TUB_BOARD = "Base.Plank"    -- the press: board and stone, back when the tub is unsealed
 F.TUB_STONE = "Base.FlatStone"
 F.TUB_SALT_XP = 3             -- Cooking, a piece salted (the old Pack in Salt recipes' award)
 
@@ -62,10 +62,11 @@ function F.tubWeight(tub)
 end
 
 -- Why a piece of this kind and weight can't go in this tub now, or nil: "Busy" (salted, or cured and not all out),
--- "Mixed", "Full".
+-- "Mixed", "Full", "Pressed" (its board and stone still on: Unseal it).
 function F.tubRefusal(tub, kind, weight)
     local stage = F.tubStage(tub)
     if stage ~= "Empty" and stage ~= "Packing" then return "Busy" end
+    if F.tubPressed(tub) then return "Pressed" end
     if tub.kind and tub.kind ~= kind then return "Mixed" end
     if F.tubCount(tub) >= F.TUB_MAX_ITEMS or not F.hasRoom(F.TUB_CAPACITY, F.tubWeight(tub), weight) then return "Full" end
     return nil
@@ -138,8 +139,33 @@ function F.tubPieceAge(piece, now)
     return piece.age + math.max(now - piece.hour, 0) / 24 * FluidAgeing.foodRotSpeed()
 end
 
+-- Whether the board and stone are on it: laid on at the start, lifted off by Unseal. A tub started before this was
+-- recorded has them on while it cures or holds cured pieces.
+function F.tubPressed(tub)
+    if tub.press ~= nil then return tub.press end
+    local stage = F.tubStage(tub)
+    return stage == "Curing" or stage == "Done"
+end
+
+-- Why it can't be unsealed ("NotPressed", "Curing"), or nil.
+function F.unsealTubRefusal(tub)
+    if not F.tubPressed(tub) then return "NotPressed" end
+    if F.tubStage(tub) == "Curing" then return "Curing" end
+end
+
+-- Lifts the board and stone off. Returns true if they came off.
+function F.unsealTub(tub)
+    if F.unsealTubRefusal(tub) then return false end
+    tub.press = false
+    return true
+end
+
+-- Empties the tub's record, keeping whether its board and stone are on it.
 local function clear(tub)
+    local press = F.tubPressed(tub)
     for key in pairs(tub) do tub[key] = nil end
+    -- false kept as false: no record reads as a tub started before Unseal, pressed once it cures again.
+    tub.press = press
 end
 
 -- Everything packed comes back out, each piece with its age now, the tub empty again. Only before the start.
@@ -191,7 +217,7 @@ end
 -- Salts and weighs down a packed tub: the cure starts, marked on the ledger at the tub's place. The pieces' ages
 -- stay behind: a cured piece starts fresh (less what a warm cure takes), as it always has.
 function F.startTub(tub, method, ledger)
-    tub.stage, tub.method = "Curing", method
+    tub.stage, tub.method, tub.press = "Curing", method, true
     tub.pressHours = F.tubHours(tub, method)
     tub.countryCure = F.TUB_METHOD[method].countryCure == true
     tub.tubDone = 0
@@ -212,7 +238,7 @@ end
 
 -- Takes one cured piece out of a done tub: { piece, method, spoiled, doneHour, last }, or nil. The last one empties it.
 function F.takeFromTub(tub)
-    if F.tubStage(tub) ~= "Done" or F.tubCount(tub) == 0 then return nil end
+    if F.tubStage(tub) ~= "Done" or F.tubCount(tub) == 0 or F.tubPressed(tub) then return nil end
     local taken = { piece = table.remove(tub.pieces, 1), method = tub.method, spoiled = tub.spoiled or 0, doneHour = tub.doneHour }
     if F.tubCount(tub) == 0 then
         taken.last = true

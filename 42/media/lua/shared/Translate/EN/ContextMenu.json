@@ -42,5 +42,6 @@
   "ContextMenu_TraditionalPreservationFishMeat_TubStart_corn": "Corn the Meat (%1 salt)",
   "ContextMenu_TraditionalPreservationFishMeat_TubStart_long": "Country Cure (%1 salt)",
   "ContextMenu_TraditionalPreservationFishMeat_TubUnpack": "Unpack",
-  "ContextMenu_TraditionalPreservationFishMeat_TubTake": "Take Out (%1)"
+  "ContextMenu_TraditionalPreservationFishMeat_TubTake": "Take Out (%1)",
+  "ContextMenu_TraditionalPreservationFishMeat_TubUnseal": "Unseal"
 }

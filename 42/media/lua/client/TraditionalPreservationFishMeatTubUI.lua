@@ -134,6 +134,7 @@ local function addTakeRow(menu, playerObj, station, tub)
     local left = F.tubCount(tub)
     local option = menu:addOption(say(MENU .. "TubTake", left))
     option.iconTexture = iconOf(START_ITEMS[tub.method])
+    if F.tubPressed(tub) then return refuse(option, refusalText("Pressed", tub)) end
     local sub = menu:getNew(menu)
     menu:addSubMenu(option, sub)
     if left > 1 then
@@ -207,6 +208,13 @@ local function addTubMenu(context, playerObj, station)
     elseif stage == "Done" then
         addTakeRow(menu, playerObj, station, tub)
     end
+    -- Unseal: the board and stone off once it is done (user, 2026-11-27); greyed while it cures.
+    if F.tubPressed(tub) then
+        local unseal = menu:addOption(getText(MENU .. "TubUnseal"), playerObj, queue, station, "unseal", nil)
+        unseal.iconTexture = getTexture("Item_FlatRock")
+        local refusal = F.unsealTubRefusal(tub)
+        if refusal then refuse(unseal, refusalText(refusal, tub)) else tooltipFor(unseal, getText(KEY .. "TubUnsealHelp")) end
+    end
 end
 
 -- Salting Tub Info (all_info_mock): a band with the tub's state, the place, what it holds as cells with a line of
@@ -265,7 +273,7 @@ function TubUI.judgeDrop(tub, items)
     local kind, count, weight = tub.kind, F.tubCount(tub), F.tubWeight(tub)
     local refusal
     for _, item in ipairs(items) do
-        local why = (stage ~= "Empty" and stage ~= "Packing") and "Busy" or F.tubItemRefusal(item)
+        local why = (stage ~= "Empty" and stage ~= "Packing") and "Busy" or F.tubPressed(tub) and "Pressed" or F.tubItemRefusal(item)
         local itemKind, itemWeight = nil, 0
         if not why then
             itemKind, itemWeight = F.tubKindOf(item), F.packedWeight(item)
@@ -332,10 +340,16 @@ function TubUI.buttons(tub, kit, act)
     elseif stage == "Done" then
         local icon, all = iconOf(START_ITEMS[tub.method]), {}
         for i = 1, left do all[i] = false end
-        table.insert(buttons, { title = getText(KEY .. "TubButtonOne"), icon = icon, enabled = left > 0,
+        local shut = F.tubPressed(tub)
+        local why = shut and refusalText("Pressed", tub) or nil
+        table.insert(buttons, { title = getText(KEY .. "TubButtonOne"), icon = icon, enabled = left > 0 and not shut, tooltip = why,
             onClick = function() act("take", { false }) end })
-        table.insert(buttons, { title = say(KEY .. "TubButtonAll", left), icon = icon, enabled = left > 0,
+        table.insert(buttons, { title = say(KEY .. "TubButtonAll", left), icon = icon, enabled = left > 0 and not shut, tooltip = why,
             onClick = function() act("take", all) end })
+    end
+    if F.tubPressed(tub) and stage ~= "Curing" then
+        table.insert(buttons, { title = getText(MENU .. "TubUnseal"), icon = "Item_FlatRock", enabled = true,
+            tooltip = getText(KEY .. "TubUnsealHelp"), onClick = function() act("unseal") end })
     end
     return buttons
 end

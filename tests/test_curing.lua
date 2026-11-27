@@ -233,11 +233,13 @@ T.startTub(hotTub, "fish", T.newLedger(0))
 hotTub.lastWarmCure, hotTub.lastTubCure, hotTub.place = 0, 0, "Covered"
 T.updateTub(hotTub, hotLedger, hours)
 check("a warm batch ends with what the cure took", hotTub.stage == "Done" and near(hotTub.spoiled, 0.375))
+T.unsealTub(hotTub)
 local hotFish = T.curedFromTub(T.takeFromTub(hotTub), hours)
 check("its cured fish carries it", hotFish.fullType == T.PRESSED_FISH and near(hotFish:getModData().cureSpoiled, 0.375) and near(hotFish.age, 120 * 0.375))
 check("the last piece out empties the tub", T.tubStage(hotTub) == "Empty")
 local waited = packedTub(T.GUTTED_FISH, { 1 })
 waited.stage, waited.method, waited.spoiled, waited.doneHour = "Done", "fish", 0, hours - 48
+T.unsealTub(waited)
 check("a cured piece left waiting in the tub has aged as lying out", near(T.curedFromTub(T.takeFromTub(waited), hours).age, 2))
 local warm = newFood("TraditionalPreservationFishMeat.SaltPressedFish", { ActualWeight = 1 })
 warm:getModData().cureSpoiled = 0.4

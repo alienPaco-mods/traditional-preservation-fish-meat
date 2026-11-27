@@ -231,7 +231,7 @@ In the base game only a freezer stops raw meat going off. Here the winter does t
 
 ### Step 2. Salt and press
 
-Three rows start the cure. Each salts the whole batch and lays a **plank and a flat stone** on it; each says in red what's missing. The plank and stone come back with the last piece out.
+Three rows start the cure. Each salts the whole batch and lays a **plank and a flat stone** on it; each says in red what's missing. They stay on until you **Unseal** the tub once it's done, which gives them back; while they're on, the tub takes nothing new and stays put.
 
 | Row | Gives | For |
 |---|---|---|

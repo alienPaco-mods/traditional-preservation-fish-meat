@@ -216,6 +216,13 @@ local ledger = F.getLedger()
 for _, key in ipairs(F.FAMILY_KEYS.tubCure) do ledger[key] = (ledger[key] or 0) + tub.pressHours end
 menu = menuFor()
 local take = named(menu, "Take Out")
+check("cured but sealed: Take Out in red, Unseal it first", take and take.notAvailable == true)
+choose(named(menu, "Unseal"))
+runQueued()
+check("Unseal gives the plank and stone back", #given == 2 and given[1].fullType == "Base.Plank" and given[2].fullType == "Base.FlatStone"
+    and not F.tubPressed(tub))
+for i = #given, 1, -1 do given[i] = nil end
+take = named(menuFor(), "Take Out")
 check("cured: Take Out (4)", F.tubStage(tub) == "Done" and take and take.name:find("4", 1, true) ~= nil)
 choose(take.subOption.options[2])
 runQueued()
@@ -223,8 +230,13 @@ check("one Salt Cured fish out, its food carried", #given == 1 and given[1].full
     and given[1].values.Calories == 100 and F.tubCount(tub) == 3)
 choose(named(menuFor(), "Take Out").subOption.options[1])
 runQueued()
-check("All takes the other 3, then the plank and stone come back", #given == 6 and given[5].fullType == "Base.Plank"
-    and given[6].fullType == "Base.FlatStone" and F.tubStage(tub) == "Empty")
+check("All takes the other 3, the tub empty and open for the next batch", #given == 4 and F.tubStage(tub) == "Empty"
+    and F.tubRefusal(tub, "fish", 0.5) == nil)
+check("emptied after Unseal it stays unsealed (false kept)", tub.press == false and not F.tubPressed(tub))
+check("a tub emptied with its press on takes nothing new", F.tubRefusal({ press = true }, "fish", 0.5) == "Pressed"
+    and F.takeFromTub({ stage = "Done", pieces = { {} } }) == nil)
+check("not unsealed while it cures; a tub started before the press was recorded has it on",
+    F.unsealTubRefusal({ stage = "Curing", press = true }) == "Curing" and F.tubPressed({ stage = "Done" }))
 
 -- Salting Tub Info: the band (the worst first) and what a drag onto the cells puts in.
 local TubUI = TraditionalPreservationFishMeatTubUI
@@ -260,11 +272,12 @@ check("a tub full by count takes no more", #judged.take == 0 and judged.refused 
 check("its cells show full; a salted tub takes no drag", TubUI.holding(full).share == 1 and TubUI.holding(packing, {}).drop ~= nil
     and TubUI.holding(curing, {}).drop == nil)
 
-local cured = { stage = "Done", kind = "fish", method = "fish", pieces = { {}, {}, {} } }
+local cured = { stage = "Done", kind = "fish", method = "fish", pieces = { {}, {}, {} }, press = false }
 local asked
 local buttons = TubUI.buttons(cured, {}, function(mode, pieces) asked = { mode = mode, pieces = pieces } end)
 buttons[2].onClick()
-check("cured: Take One and Take All (3), All asks for every piece", #buttons == 2 and buttons[1].title == "Take One"
+check("cured and open: Take One and Take All (3); All asks for every piece", #buttons == 2
+    and buttons[1].title == "Take One"
     and buttons[2].title == "Take All (3)" and asked.mode == "take" and #asked.pieces == 3)
 check("no buttons while it cures", #TubUI.buttons(curing, {}, function() end) == 0)
 buttons = TubUI.buttons(packing, { salt = 0, board = true, stone = true }, function(mode, _, method) asked = { mode = mode, method = method } end)

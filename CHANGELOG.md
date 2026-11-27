@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fish & Meat)
 
+## 0.4.101
+- **Unseal the Salting Tub** (user, 2026-11-27, as FV's Kraut Barrel): the plank and stone stay on after a start until
+  **Unseal** (menu and window, once it is done; greyed while it cures) gives them back; the last piece no longer does.
+  Pressed, the tub is shut (Take Out greyed: "Unseal it first"), takes nothing new and stays where it is. A tub started before this has them on.
+
 ## 0.4.100
 - **Fixed: Split Fish never offered for a raw Gutted Fish** (user, 2026-11-25: a 7.5 walleye; since 0.4.77). Its
   `halfStage` mapper had the Gutted Fish line the wrong way round (a mapper reads output = input), so the fish found no
